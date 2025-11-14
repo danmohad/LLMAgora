@@ -20,14 +20,26 @@ class Agent:
         model: str,
         llm_client: LLMClient,
         system_prompt: str = "",
+        response_instruction: str,
         agent_id: Optional[str] = None,
     ) -> None:
-        """Initialize the agent with identity, backend model, and prompt."""
+        """
+        Initialize the agent with identity, backend model, and prompts.
+
+        Args:
+            name: Human-friendly label for logging/history.
+            model: OpenRouter model identifier.
+            llm_client: Backend completion client.
+            system_prompt: Optional system message prepended to every call.
+            response_instruction: Final user message directing the agent's reply.
+            agent_id: Override identifier (auto-generated when omitted).
+        """
 
         self.id = agent_id or str(uuid.uuid4())
         self.name = name
         self.model = model
         self._system_prompt = system_prompt
+        self._response_instruction = response_instruction
         self._llm = llm_client
         self._memory: List[MemoryTurn] = []
         self._agora: Optional["Agora"] = None
@@ -63,24 +75,21 @@ class Agent:
         self._memory.append(turn)
 
     def _build_messages(self) -> Sequence[ChatMessage]:
-        """Convert remembered turns into a transcript for the LLM."""
+        """Convert remembered turns into structured chat messages for OpenRouter."""
 
-        transcript_lines = []
-        for turn in self._memory:
-            if not turn.public_speech:
-                continue
-            speaker = turn.metadata.get("speaker_name") or turn.speaker_id
-            transcript_lines.append(f"{speaker}: {turn.public_speech}")
-        conversation = "\n".join(transcript_lines) if transcript_lines else "No prior conversation."
-        user_prompt = (
-            f"You are agent '{self.name}'.\n"
-            f"Conversation so far:\n{conversation}\n"
-            "Respond with your next public utterance."
-        )
         messages: List[ChatMessage] = []
         if self._system_prompt:
             messages.append({"role": "system", "content": self._system_prompt})
-        messages.append({"role": "user", "content": user_prompt})
+
+        # Use speaker labels only when more than two agents are in the Agora.
+        multi_party = bool(self._agora and self._agora.agent_count() > 2)
+
+        for turn in self._memory:
+            if not turn.public_speech:
+                continue
+            messages.append(turn.to_chat_message(viewer_id=self.id, multi_party=multi_party))
+
+        messages.append({"role": "user", "content": self._response_instruction})
         return messages
 
 

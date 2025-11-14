@@ -49,7 +49,7 @@ class Agora:
             turn = MemoryTurn(
                 turn_id=self._turn_counter,
                 speaker_id=agent.id,
-                role="public",
+                role="assistant",
                 public_speech=speech,
                 metadata={"speaker_name": agent.name},
             )
@@ -65,6 +65,11 @@ class Agora:
         """Return the full public history of the Agora."""
 
         return list(self._turn_log)
+
+    def agent_count(self) -> int:
+        """Return the number of agents currently participating in the Agora."""
+
+        return len(self._agents)
 
     def history_public(self) -> List[MemoryTurn]:
         """Return only the publicly visible portion of the history."""

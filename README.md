@@ -50,4 +50,4 @@ Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip i
 
 ## Notebook demo
 
-A ready-to-run walkthrough lives in `notebooks/demo.ipynb`. Launch Jupyter (e.g., `jupyter notebook notebooks/demo.ipynb`), select the `llm-agora` kernel, tweak the `agent_configs` / `turns_per_agent` cells, and run the notebook to watch live OpenRouter-powered conversations between your configured agents.
+A ready-to-run walkthrough lives in `notebooks/demo.ipynb`. Launch Jupyter (e.g., `jupyter notebook notebooks/demo.ipynb`), select the `llm-agora` kernel, tweak the `agent_configs` / `turns_per_agent` cells (each agent defines both its system prompt and explicit response instruction), and run the notebook to watch live OpenRouter-powered conversations between your configured agents.
