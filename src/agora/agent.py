@@ -21,6 +21,7 @@ class Agent:
         llm_client: LLMClient,
         system_prompt: str = "",
         response_instruction: str,
+        private_response_instruction: Optional[str] = None,
         agent_id: Optional[str] = None,
     ) -> None:
         """
@@ -31,7 +32,8 @@ class Agent:
             model: OpenRouter model identifier.
             llm_client: Backend completion client.
             system_prompt: Optional system message prepended to every call.
-            response_instruction: Final user message directing the agent's reply.
+            response_instruction: Final user message directing the agent's public reply.
+            private_response_instruction: Optional user message directing private reflections.
             agent_id: Override identifier (auto-generated when omitted).
         """
 
@@ -40,6 +42,7 @@ class Agent:
         self.model = model
         self._system_prompt = system_prompt
         self._response_instruction = response_instruction
+        self._private_instruction = private_response_instruction
         self._llm = llm_client
         self._memory: List[MemoryTurn] = []
         self._agora: Optional["Agora"] = None
@@ -62,10 +65,25 @@ class Agent:
 
         return tuple(self._memory)
 
+    @property
+    def supports_private_reflection(self) -> bool:
+        """Return True when the agent is configured for private reflections."""
+
+        return bool(self._private_instruction)
+
     def generate_public_speech(self) -> str:
         """Ask the LLM client for this agent's next public response."""
 
-        messages = self._build_messages()
+        messages = self._build_messages(final_instruction=self._response_instruction)
+        response = self._llm.complete(messages=messages, model=self.model)
+        return response.strip()
+
+    def generate_private_reflection(self) -> str:
+        """Ask the LLM client for the agent's private reflection."""
+
+        if not self._private_instruction:
+            raise RuntimeError("Private reflection requested for agent without instructions")
+        messages = self._build_messages(final_instruction=self._private_instruction)
         response = self._llm.complete(messages=messages, model=self.model)
         return response.strip()
 
@@ -74,7 +92,7 @@ class Agent:
 
         self._memory.append(turn)
 
-    def _build_messages(self) -> Sequence[ChatMessage]:
+    def _build_messages(self, *, final_instruction: str) -> Sequence[ChatMessage]:
         """Convert remembered turns into structured chat messages for OpenRouter."""
 
         messages: List[ChatMessage] = []
@@ -85,11 +103,11 @@ class Agent:
         multi_party = bool(self._agora and self._agora.agent_count() > 2)
 
         for turn in self._memory:
-            if not turn.public_speech:
-                continue
-            messages.append(turn.to_chat_message(viewer_id=self.id, multi_party=multi_party))
+            chat_message = turn.to_chat_message(viewer_id=self.id, multi_party=multi_party)
+            if chat_message:
+                messages.append(chat_message)
 
-        messages.append({"role": "user", "content": self._response_instruction})
+        messages.append({"role": "user", "content": final_instruction})
         return messages
 
 

@@ -1,9 +1,9 @@
 # LLM Agora
 
-A minimal arena where LLM-backed agents take public turns until each reaches a configurable quota. This slice focuses on:
+A minimal arena where LLM-backed agents take public turns (optionally preceded by private reflections) until each reaches a configurable quota. This slice focuses on:
 
 - Agent-specific memory via `MemoryTurn` records
-- Public-only speech routed through an `LLMClient` abstraction
+- Public + optional private speech routed through an `LLMClient` abstraction
 - An `Agora` coordinator that alternates turns and exposes history views
 - Pytest coverage using a stub LLM client (no network calls during tests)
 
@@ -50,4 +50,4 @@ Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip i
 
 ## Notebook demo
 
-A ready-to-run walkthrough lives in `notebooks/demo.ipynb`. Launch Jupyter (e.g., `jupyter notebook notebooks/demo.ipynb`), select the `llm-agora` kernel, tweak the `agent_configs` / `turns_per_agent` cells (each agent defines both its system prompt and explicit response instruction), and run the notebook to watch live OpenRouter-powered conversations between your configured agents.
+A ready-to-run walkthrough lives in `notebooks/demo.ipynb`. Launch Jupyter (e.g., `jupyter notebook notebooks/demo.ipynb`), select the `llm-agora` kernel, tweak the `agent_configs` / `turns_per_agent` cells (each agent defines its system prompt, public-response instruction, and optionally a private-reflection instruction), and run the notebook to watch live OpenRouter-powered conversations. The second half of the notebook demonstrates agents with private reflections so you can see how those thoughts remain visible only to the originating agent.

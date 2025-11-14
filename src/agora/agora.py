@@ -43,6 +43,20 @@ class Agora:
             if turns_taken[agent.id] >= max_turns_per_agent:
                 continue
 
+            # Allow the agent to privately reflect before speaking publicly.
+            if agent.supports_private_reflection:
+                reflection = agent.generate_private_reflection()
+                self._turn_counter += 1
+                reflection_turn = MemoryTurn(
+                    turn_id=self._turn_counter,
+                    speaker_id=agent.id,
+                    role="reflection",
+                    private_reflection=reflection,
+                    metadata={"speaker_name": agent.name},
+                )
+                self._turn_log.append(reflection_turn)
+                agent.observe_turn(reflection_turn)
+
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech()
             self._turn_counter += 1
@@ -62,7 +76,7 @@ class Agora:
         return list(self._turn_log)
 
     def history(self) -> List[MemoryTurn]:
-        """Return the full public history of the Agora."""
+        """Return the full history, including private reflections."""
 
         return list(self._turn_log)
 
@@ -74,14 +88,19 @@ class Agora:
     def history_public(self) -> List[MemoryTurn]:
         """Return only the publicly visible portion of the history."""
 
-        return self.history()
+        return [turn for turn in self._turn_log if turn.role != "reflection"]
 
     def history_for_agent(self, agent_id: str) -> List[MemoryTurn]:
         """Return the history view appropriate for a particular agent."""
 
         if agent_id not in self._agent_lookup:
             raise KeyError(f"Unknown agent id: {agent_id}")
-        return self.history_public()
+        visible: List[MemoryTurn] = []
+        for turn in self._turn_log:
+            if turn.role == "reflection" and turn.speaker_id != agent_id:
+                continue
+            visible.append(turn)
+        return visible
 
 
 __all__ = ["Agora"]

@@ -108,6 +108,33 @@ def test_multi_agent_histories_label_user_messages(stub_llm_factory):
     )
 
 
+def test_private_reflections_are_private(stub_llm_factory):
+    """Private reflections should only enter the speaking agent's memory."""
+
+    llm_alpha = stub_llm_factory(["Alpha thinks", "Alpha turn 1"])
+    llm_beta = stub_llm_factory(["Beta turn 1"])
+    agent_a = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm_alpha,
+        response_instruction="Alpha public",
+        private_response_instruction="Alpha private",
+    )
+    agent_b = Agent(name="Beta", model="demo", llm_client=llm_beta, response_instruction="Beta public")
+
+    agora = Agora([agent_a, agent_b])
+    history = agora.run(max_turns_per_agent=1)
+
+    assert len(history) == 3  # reflection + two public turns
+    assert history[0].role == "reflection"
+    assert history[0].private_reflection == "Alpha thinks"
+
+    alpha_history = agent_a.view_history()
+    beta_history = agent_b.view_history()
+    assert any(turn.private_reflection == "Alpha thinks" for turn in alpha_history)
+    assert all(turn.private_reflection is None for turn in beta_history)
+
+
 def test_memory_turn_openrouter_response_conversion():
     """MemoryTurn should emit OpenRouter-compatible structures."""
 
@@ -120,7 +147,19 @@ def test_memory_turn_openrouter_response_conversion():
         message_id="msg-123",
     )
     message = turn.to_openrouter_response(viewer_id="agent-b", multi_party=True)
+    assert message is not None
     assert message["type"] == "message"
     assert message["role"] == "user"
     assert message["content"][0]["text"].startswith("Alpha:")
     assert message["id"] == "msg-123"
+
+    reflection = MemoryTurn(
+        turn_id=2,
+        speaker_id="agent-a",
+        role="reflection",
+        private_reflection="Thinking...",
+    )
+    assert reflection.to_openrouter_response(viewer_id="agent-b") is None
+    my_view = reflection.to_openrouter_response(viewer_id="agent-a")
+    assert my_view is not None
+    assert my_view["role"] == "assistant"

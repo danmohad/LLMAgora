@@ -32,26 +32,47 @@ class MemoryTurn:
             "status": self.status,
         }
 
-    def to_chat_message(self, *, viewer_id: str, multi_party: bool = False) -> ChatMessage:
+    def to_chat_message(
+        self, *, viewer_id: str, multi_party: bool = False
+    ) -> Optional[ChatMessage]:
         """Render the turn as a standard chat completion message."""
 
         role = "assistant" if self.speaker_id == viewer_id else "user"
-        content = self.public_speech or ""
-        if role == "user" and multi_party:
-            speaker = self.metadata.get("speaker_name") or self.speaker_id
-            content = f"{speaker}: {content}"
-        return ChatMessage(role=role, content=content)
+        if self.public_speech:
+            content = self.public_speech
+            if role == "user" and multi_party:
+                speaker = self.metadata.get("speaker_name") or self.speaker_id
+                content = f"{speaker}: {content}"
+            return ChatMessage(role=role, content=content)
 
-    def to_openrouter_response(self, *, viewer_id: str, multi_party: bool = False) -> Dict[str, Any]:
+        if self.private_reflection and self.speaker_id == viewer_id:
+            return ChatMessage(role="assistant", content=self.private_reflection)
+
+        return None
+
+    def to_openrouter_response(
+        self, *, viewer_id: str, multi_party: bool = False
+    ) -> Optional[Dict[str, Any]]:
         """Render the turn as an OpenRouter responses API message."""
 
         role = "assistant" if self.speaker_id == viewer_id else "user"
-        content_text = self.public_speech or ""
-        if role == "user" and multi_party:
-            speaker = self.metadata.get("speaker_name") or self.speaker_id
-            content_text = f"{speaker}: {content_text}"
+        content_text: Optional[str] = None
+        content_type = "output_text" if role == "assistant" else "input_text"
+
+        if self.public_speech:
+            content_text = self.public_speech
+            if role == "user" and multi_party:
+                speaker = self.metadata.get("speaker_name") or self.speaker_id
+                content_text = f"{speaker}: {content_text}"
+        elif self.private_reflection and self.speaker_id == viewer_id:
+            content_text = self.private_reflection
+            content_type = "output_text"
+
+        if content_text is None:
+            return None
+
         content_item = {
-            "type": "output_text" if role == "assistant" else "input_text",
+            "type": content_type,
             "text": content_text,
         }
         message: Dict[str, Any] = {
