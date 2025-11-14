@@ -124,3 +124,31 @@ def test_memory_turn_openrouter_response_conversion():
     assert message["role"] == "user"
     assert message["content"][0]["text"].startswith("Alpha:")
     assert message["id"] == "msg-123"
+
+
+def test_memory_turn_public_dict_hides_private_fields():
+    """The public serialization should omit private reflections and defaults."""
+
+    turn = MemoryTurn(
+        turn_id=3,
+        speaker_id="agent-c",
+        role="assistant",
+        public_speech="Shared thought",
+        private_reflection="Secret",
+        metadata={"speaker_name": "Gamma"},
+        message_id="msg-789",
+        status="completed",
+    )
+
+    public = turn.to_public_dict()
+
+    assert public == {
+        "turn_id": 3,
+        "speaker_id": "agent-c",
+        "role": "assistant",
+        "public_speech": "Shared thought",
+        "metadata": {"speaker_name": "Gamma"},
+        "message_id": "msg-789",
+        "status": "completed",
+    }
+    assert "private_reflection" not in public
