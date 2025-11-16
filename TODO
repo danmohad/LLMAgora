@@ -1,3 +1,1 @@
 - Add the ability to handle 'events': right now the activation of private reflection behavior is hard-coded into the agora logic, but I liked the abstract way GPT suggested during the planning phase: using the concept of 'InteractionRule', a policy object that answers “what context is visible to whom, and how do turns flow?” without hard-coding that logic into Agora or Agent.
-
-- Add a simple way to get a JSON output of any of the histories (agent-specific or 'global') from the notebook interface. This would be fed into any downstream analysis tooling or 'judge'

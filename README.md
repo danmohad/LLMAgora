@@ -5,7 +5,7 @@ A minimal arena where LLM-backed agents take public turns (optionally preceded b
 
 ## Requirements
 
-- Python 3.12
+- Python >=3.12
 - An OpenRouter API key stored in `.env`
 
 
@@ -33,4 +33,4 @@ Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip i
 
 ## Notebook demo
 
-A ready-to-run walkthrough lives in `notebooks/demo.ipynb`. Launch Jupyter and select the local kernel (i.e., `.venv`).
+A ready-to-run walkthrough lives in `notebooks/demo.ipynb`.

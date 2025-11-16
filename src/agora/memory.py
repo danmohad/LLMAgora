@@ -22,15 +22,38 @@ class MemoryTurn:
     def to_public_dict(self) -> Dict[str, Any]:
         """Serialize only the public portions of the turn for sharing."""
 
+        data = self.to_dict()
+        data.pop("private_reflection", None)
+        return data
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialize the entire turn (public + private) to a JSON-safe dict."""
+
         return {
             "turn_id": self.turn_id,
             "speaker_id": self.speaker_id,
             "role": self.role,
             "public_speech": self.public_speech,
+            "private_reflection": self.private_reflection,
             "metadata": self.metadata,
             "message_id": self.message_id,
             "status": self.status,
         }
+
+    @classmethod
+    def from_dict(cls, payload: Dict[str, Any]) -> "MemoryTurn":
+        """Rehydrate a MemoryTurn from ``to_dict`` output."""
+
+        return cls(
+            turn_id=payload["turn_id"],
+            speaker_id=payload["speaker_id"],
+            role=payload["role"],
+            public_speech=payload.get("public_speech"),
+            private_reflection=payload.get("private_reflection"),
+            metadata=payload.get("metadata", {}),
+            message_id=payload.get("message_id"),
+            status=payload.get("status"),
+        )
 
     def to_chat_message(
         self, *, viewer_id: str, multi_party: bool = False

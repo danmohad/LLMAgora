@@ -3,6 +3,12 @@ import pytest
 from agora.agora import Agora
 from agora.agent import Agent
 from agora.memory import MemoryTurn
+from agora.persistence import (
+    load_history,
+    load_snapshot,
+    save_history,
+    save_snapshot,
+)
 
 
 def test_agora_runs_with_turn_limit(stub_llm_factory):
@@ -163,3 +169,67 @@ def test_memory_turn_openrouter_response_conversion():
     my_view = reflection.to_openrouter_response(viewer_id="agent-a")
     assert my_view is not None
     assert my_view["role"] == "assistant"
+
+
+def test_memory_turn_serialization_roundtrip():
+    """Full serialization should preserve private reflections."""
+
+    original = MemoryTurn(
+        turn_id=42,
+        speaker_id="agent-x",
+        role="reflection",
+        public_speech=None,
+        private_reflection="Thinking aloud",
+        metadata={"speaker_name": "X"},
+        message_id="msg-x",
+        status="completed",
+    )
+    clone = MemoryTurn.from_dict(original.to_dict())
+    assert clone == original
+
+
+def test_history_save_and_load(tmp_path):
+    """save_history/load_history should round-trip JSON data."""
+
+    turns = [
+        MemoryTurn(turn_id=1, speaker_id="a", role="assistant", public_speech="Hi"),
+        MemoryTurn(turn_id=2, speaker_id="a", role="reflection", private_reflection="Thinking"),
+    ]
+    path = tmp_path / "history.json"
+    save_history(path, turns)
+    loaded = load_history(path)
+    assert loaded == turns
+
+
+def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
+    """Agora snapshots should restore agents, including private memory."""
+
+    agent_a = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=stub_llm_factory(["Alpha thinks", "Alpha turn"]),
+        response_instruction="Alpha respond",
+        private_response_instruction="Alpha private",
+    )
+    agent_b = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["Beta turn"]),
+        response_instruction="Beta respond",
+    )
+    agora = Agora([agent_a, agent_b])
+    agora.run(max_turns_per_agent=1)
+
+    snapshot_path = tmp_path / "snapshot.json"
+    save_snapshot(snapshot_path, agora)
+
+    def factory(state):
+        return stub_llm_factory([f"{state.name} restored"])
+
+    restored = load_snapshot(snapshot_path, factory)
+    assert [t.to_dict() for t in restored.history()] == [
+        t.to_dict() for t in agora.history()
+    ]
+
+    restored_agents = {agent.name: agent for agent in restored.agents}
+    assert any(turn.private_reflection for turn in restored_agents["Alpha"].memory)

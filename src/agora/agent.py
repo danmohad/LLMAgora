@@ -1,7 +1,7 @@
 """Agent definitions for the Agora arena."""
 
 import uuid
-from typing import TYPE_CHECKING, List, Optional, Sequence
+from typing import TYPE_CHECKING, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient
 from .memory import MemoryTurn
@@ -71,6 +71,18 @@ class Agent:
 
         return bool(self._private_instruction)
 
+    @property
+    def system_prompt(self) -> str:
+        return self._system_prompt
+
+    @property
+    def response_instruction(self) -> str:
+        return self._response_instruction
+
+    @property
+    def private_response_instruction(self) -> Optional[str]:
+        return self._private_instruction
+
     def generate_public_speech(self) -> str:
         """Ask the LLM client for this agent's next public response."""
 
@@ -91,6 +103,39 @@ class Agent:
         """Append a public turn to the agent's personal memory."""
 
         self._memory.append(turn)
+
+    def reset_memory(self) -> None:
+        """Clear the agent's memory (useful before loading history)."""
+
+        self._memory.clear()
+
+    def export_configuration(self) -> Dict[str, Optional[str]]:
+        """Return a JSON-serializable representation of the agent's prompts."""
+
+        return {
+            "id": self.id,
+            "name": self.name,
+            "model": self.model,
+            "system_prompt": self._system_prompt,
+            "response_instruction": self._response_instruction,
+            "private_response_instruction": self._private_instruction,
+        }
+
+    @classmethod
+    def from_configuration(
+        cls, config: Dict[str, Optional[str]], llm_client: LLMClient
+    ) -> "Agent":
+        """Instantiate an agent from ``export_configuration`` output."""
+
+        return cls(
+            name=config.get("name") or "",
+            model=config.get("model") or "",
+            llm_client=llm_client,
+            system_prompt=config.get("system_prompt", "") or "",
+            response_instruction=config.get("response_instruction", "") or "",
+            private_response_instruction=config.get("private_response_instruction"),
+            agent_id=config.get("id"),
+        )
 
     def _build_messages(self, *, final_instruction: str) -> Sequence[ChatMessage]:
         """Convert remembered turns into structured chat messages for OpenRouter."""

@@ -80,6 +80,35 @@ class Agora:
 
         return list(self._turn_log)
 
+    @property
+    def agents(self) -> Sequence[Agent]:
+        """Expose the list of agents participating in this Agora."""
+
+        return tuple(self._agents)
+
+    def load_history(self, turns: Sequence[MemoryTurn]) -> None:
+        """
+        Replace the Agora's history with the provided turns.
+
+        Intended for snapshots; assumes the agents are freshly attached.
+        """
+
+        for agent in self._agents:
+            agent.reset_memory()
+        self._turn_log = []
+        self._turn_counter = 0
+
+        for turn in turns:
+            self._turn_log.append(turn)
+            if turn.role == "reflection":
+                speaker = self._agent_lookup.get(turn.speaker_id)
+                if speaker:
+                    speaker.observe_turn(turn)
+            else:
+                for agent in self._agents:
+                    agent.observe_turn(turn)
+            self._turn_counter = max(self._turn_counter, turn.turn_id)
+
     def agent_count(self) -> int:
         """Return the number of agents currently participating in the Agora."""
 
