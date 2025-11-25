@@ -1,7 +1,7 @@
 """Agent definitions for the Agora arena."""
 
 import uuid
-from typing import TYPE_CHECKING, Dict, List, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient
 from .memory import MemoryTurn
@@ -156,4 +156,52 @@ class Agent:
         return messages
 
 
-__all__ = ["Agent"]
+def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:
+    """
+    Build a system prompt from either a raw string or structured role config.
+
+    Acceptable keys:
+    - system_prompt: raw string used verbatim (takes precedence if non-empty)
+    - self_role: description of this agent's role (required when system_prompt is absent)
+    - perceived_nonself_roles: list of dicts with keys {"name": str, "role": str},
+      one entry per other agent (len must equal total_agents - 1)
+    """
+
+    raw = (config.get("system_prompt") or "").strip()
+    self_role = (config.get("self_role") or "").strip()
+
+    # Require exactly one of raw system_prompt or structured self_role.
+    if (raw and self_role) or not (raw or self_role):
+        raise ValueError("Agent config requires exactly one of 'system_prompt' or 'self_role'.")
+
+    if raw:
+        return raw
+
+    perceived = config.get("perceived_nonself_roles")
+    if perceived is None:
+        return self_role
+
+    if not isinstance(perceived, list):
+        raise ValueError("'perceived_nonself_roles' must be a list of dicts.")
+
+    expected_len = max(total_agents - 1, 0)
+    if len(perceived) != expected_len:
+        raise ValueError(
+            f"'perceived_nonself_roles' must have length {expected_len} "
+            f"(one entry for each other agent)."
+        )
+
+    role_fragments: List[str] = [self_role]
+    for entry in perceived:
+        if not isinstance(entry, dict):
+            raise ValueError("Each perceived_nonself_roles entry must be a dict.")
+        name = (entry.get("name") or "").strip()
+        role_text = (entry.get("role") or "").strip()
+        if not name or not role_text:
+            raise ValueError("Each perceived_nonself_roles entry must include 'name' and 'role'.")
+        role_fragments.append(f"{name}: {role_text}")
+
+    return " ".join(role_fragments)
+
+
+__all__ = ["Agent", "build_system_prompt"]

@@ -23,8 +23,14 @@ class Agora:
         self._turn_log: List[MemoryTurn] = []
         self._turn_counter = 0
 
-    def run(self, *, max_turns_per_agent: int) -> List[MemoryTurn]:
-        """Run the Agora until each agent has taken the specified number of turns."""
+    def run(self, *, max_turns_per_agent: int, verbose: bool = False) -> List[MemoryTurn]:
+        """
+        Run the Agora until each agent has taken the specified number of turns.
+
+        Args:
+            max_turns_per_agent: Stop once every agent has produced this many public turns.
+            verbose: When True, print turn-by-turn diagnostics for debugging.
+        """
 
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
@@ -56,6 +62,8 @@ class Agora:
                 )
                 self._turn_log.append(reflection_turn)
                 agent.observe_turn(reflection_turn)
+                if verbose:
+                    print(f"[Reflection] {agent.name} (turn {self._turn_counter}): {reflection}")
 
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech()
@@ -72,6 +80,8 @@ class Agora:
             for recipient in self._agents:
                 recipient.observe_turn(turn)
             turns_taken[agent.id] += 1
+            if verbose:
+                print(f"[Public] {agent.name} (turn {self._turn_counter}): {speech}")
 
         return list(self._turn_log)
 

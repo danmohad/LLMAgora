@@ -1,7 +1,7 @@
 import pytest
 
 from agora.agora import Agora
-from agora.agent import Agent
+from agora.agent import Agent, build_system_prompt
 from agora.memory import MemoryTurn
 from agora.persistence import (
     load_history,
@@ -233,3 +233,42 @@ def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
 
     restored_agents = {agent.name: agent for agent in restored.agents}
     assert any(turn.private_reflection for turn in restored_agents["Alpha"].memory)
+
+
+def test_build_system_prompt_falls_back_to_raw():
+    """Raw system_prompt should be used when provided (and self_role absent)."""
+
+    cfg = {"system_prompt": "Use me verbatim."}
+    result = build_system_prompt(cfg, total_agents=2)
+    assert result == "Use me verbatim."
+
+
+def test_build_system_prompt_from_roles():
+    """Structured roles should concatenate self + perceived roles."""
+
+    cfg = {
+        "self_role": "You are Alpha.",
+        "perceived_nonself_roles": [{"name": "Beta", "role": "Beta is your buyer."}],
+    }
+    result = build_system_prompt(cfg, total_agents=2)
+    assert "You are Alpha." in result
+    assert "Beta: Beta is your buyer." in result
+
+
+def test_build_system_prompt_requires_roles():
+    """Missing role information should raise."""
+
+    with pytest.raises(ValueError):
+        build_system_prompt({}, total_agents=2)
+
+    with pytest.raises(ValueError):
+        build_system_prompt({"system_prompt": "x", "self_role": "y"}, total_agents=2)
+
+    with pytest.raises(ValueError):
+        build_system_prompt(
+            {
+                "self_role": "Only me",
+                "perceived_nonself_roles": [{"name": "Beta", "role": "hi"}],
+            },
+            total_agents=4,
+        )
