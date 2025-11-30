@@ -35,6 +35,27 @@ class Agora:
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
 
+        # Optional pre-interviews
+        for agent in self._agents:
+            if not agent.pre_interview_instruction:
+                continue
+            response = agent.generate_interview_response(agent.pre_interview_instruction)
+            self._turn_counter += 1
+            pre_turn = MemoryTurn(
+                turn_id=self._turn_counter,
+                speaker_id=agent.id,
+                role="pre_interview",
+                private_reflection=response,
+                metadata={"speaker_name": agent.name},
+                keep=agent.pre_interview_keep,
+            )
+            self._turn_log.append(pre_turn)
+            if agent.pre_interview_keep:
+                agent.observe_turn(pre_turn)
+            if verbose:
+                suffix = " (excluded)" if not agent.pre_interview_keep else ""
+                print(f"Turn {self._turn_counter} | {agent.name} (pre-interview): {response}{suffix}")
+
         # Track how many turns each agent has already taken.
         turns_taken: Dict[str, int] = {agent.id: 0 for agent in self._agents}
         agent_index = 0
@@ -59,11 +80,14 @@ class Agora:
                     role="reflection",
                     private_reflection=reflection,
                     metadata={"speaker_name": agent.name},
+                    keep=agent.private_keep,
                 )
                 self._turn_log.append(reflection_turn)
-                agent.observe_turn(reflection_turn)
+                if agent.private_keep:
+                    agent.observe_turn(reflection_turn)
                 if verbose:
-                    print(f"Turn {self._turn_counter} | {agent.name} (reflection): {reflection}")
+                    suffix = " (excluded)" if not agent.private_keep else ""
+                    print(f"Turn {self._turn_counter} | {agent.name} (reflection): {reflection}{suffix}")
 
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech()
@@ -82,6 +106,27 @@ class Agora:
             turns_taken[agent.id] += 1
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
+
+        # Optional post-interviews
+        for agent in self._agents:
+            if not agent.post_interview_instruction:
+                continue
+            response = agent.generate_interview_response(agent.post_interview_instruction)
+            self._turn_counter += 1
+            post_turn = MemoryTurn(
+                turn_id=self._turn_counter,
+                speaker_id=agent.id,
+                role="post_interview",
+                private_reflection=response,
+                metadata={"speaker_name": agent.name},
+                keep=agent.post_interview_keep,
+            )
+            self._turn_log.append(post_turn)
+            if agent.post_interview_keep:
+                agent.observe_turn(post_turn)
+            if verbose:
+                suffix = " (excluded)" if not agent.post_interview_keep else ""
+                print(f"Turn {self._turn_counter} | {agent.name} (post-interview): {response}{suffix}")
 
         return list(self._turn_log)
 
@@ -110,11 +155,11 @@ class Agora:
 
         for turn in turns:
             self._turn_log.append(turn)
-            if turn.role == "reflection":
+            if turn.role in {"reflection", "pre_interview", "post_interview"}:
                 speaker = self._agent_lookup.get(turn.speaker_id)
-                if speaker:
+                if speaker and turn.keep:
                     speaker.observe_turn(turn)
-            else:
+            elif turn.role == "assistant":
                 for agent in self._agents:
                     agent.observe_turn(turn)
             self._turn_counter = max(self._turn_counter, turn.turn_id)
@@ -127,7 +172,7 @@ class Agora:
     def history_public(self) -> List[MemoryTurn]:
         """Return only the publicly visible portion of the history."""
 
-        return [turn for turn in self._turn_log if turn.role != "reflection"]
+        return [turn for turn in self._turn_log if turn.role == "assistant"]
 
     def history_for_agent(self, agent_id: str) -> List[MemoryTurn]:
         """Return the history view appropriate for a particular agent."""
@@ -136,8 +181,11 @@ class Agora:
             raise KeyError(f"Unknown agent id: {agent_id}")
         visible: List[MemoryTurn] = []
         for turn in self._turn_log:
-            if turn.role == "reflection" and turn.speaker_id != agent_id:
-                continue
+            if turn.role in {"reflection", "pre_interview", "post_interview"}:
+                if turn.speaker_id != agent_id:
+                    continue
+                if not turn.keep:
+                    continue
             visible.append(turn)
         return visible
 
