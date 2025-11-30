@@ -18,6 +18,7 @@ class MemoryTurn:
     metadata: Dict[str, Any] = field(default_factory=dict)
     message_id: Optional[str] = None
     status: Optional[str] = None
+    keep: bool = True
 
     def to_public_dict(self) -> Dict[str, Any]:
         """Serialize only the public portions of the turn for sharing."""
@@ -38,6 +39,7 @@ class MemoryTurn:
             "metadata": self.metadata,
             "message_id": self.message_id,
             "status": self.status,
+            "keep": self.keep,
         }
 
     @classmethod
@@ -53,12 +55,16 @@ class MemoryTurn:
             metadata=payload.get("metadata", {}),
             message_id=payload.get("message_id"),
             status=payload.get("status"),
+            keep=payload.get("keep", True),
         )
 
     def to_chat_message(
         self, *, viewer_id: str, multi_party: bool = False
     ) -> Optional[ChatMessage]:
         """Render the turn as a standard chat completion message."""
+
+        if not self.keep:
+            return None
 
         role = "assistant" if self.speaker_id == viewer_id else "user"
         if self.public_speech:
@@ -77,6 +83,9 @@ class MemoryTurn:
         self, *, viewer_id: str, multi_party: bool = False
     ) -> Optional[Dict[str, Any]]:
         """Render the turn as an OpenRouter responses API message."""
+
+        if not self.keep:
+            return None
 
         role = "assistant" if self.speaker_id == viewer_id else "user"
         content_text: Optional[str] = None

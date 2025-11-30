@@ -1,5 +1,6 @@
 """Agent definitions for the Agora arena."""
 
+import re
 import uuid
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
@@ -22,6 +23,11 @@ class Agent:
         system_prompt: str = "",
         response_instruction: str,
         private_response_instruction: Optional[str] = None,
+        private_response_keep: bool = True,
+        pre_interview_instruction: Optional[str] = None,
+        pre_interview_keep: bool = True,
+        post_interview_instruction: Optional[str] = None,
+        post_interview_keep: bool = True,
         agent_id: Optional[str] = None,
     ) -> None:
         """
@@ -34,6 +40,11 @@ class Agent:
             system_prompt: Optional system message prepended to every call.
             response_instruction: Final user message directing the agent's public reply.
             private_response_instruction: Optional user message directing private reflections.
+            private_response_keep: Whether to keep reflections in local memory.
+            pre_interview_instruction: Optional pre-run interview prompt.
+            pre_interview_keep: Whether to keep the pre-interview in local memory.
+            post_interview_instruction: Optional post-run interview prompt.
+            post_interview_keep: Whether to keep the post-interview in local memory.
             agent_id: Override identifier (auto-generated when omitted).
         """
 
@@ -43,6 +54,11 @@ class Agent:
         self._system_prompt = system_prompt
         self._response_instruction = response_instruction
         self._private_instruction = private_response_instruction
+        self._private_keep = private_response_keep
+        self._pre_instruction = pre_interview_instruction
+        self._pre_keep = pre_interview_keep
+        self._post_instruction = post_interview_instruction
+        self._post_keep = post_interview_keep
         self._llm = llm_client
         self._memory: List[MemoryTurn] = []
         self._agora: Optional["Agora"] = None
@@ -72,6 +88,26 @@ class Agent:
         return bool(self._private_instruction)
 
     @property
+    def private_keep(self) -> bool:
+        return self._private_keep
+
+    @property
+    def pre_interview_instruction(self) -> Optional[str]:
+        return self._pre_instruction
+
+    @property
+    def pre_interview_keep(self) -> bool:
+        return self._pre_keep
+
+    @property
+    def post_interview_instruction(self) -> Optional[str]:
+        return self._post_instruction
+
+    @property
+    def post_interview_keep(self) -> bool:
+        return self._post_keep
+
+    @property
     def system_prompt(self) -> str:
         return self._system_prompt
 
@@ -88,7 +124,7 @@ class Agent:
 
         messages = self._build_messages(final_instruction=self._response_instruction)
         response = self._llm.complete(messages=messages, model=self.model)
-        return response.strip()
+        return self._strip_speaker_prefix(response.strip())
 
     def generate_private_reflection(self) -> str:
         """Ask the LLM client for the agent's private reflection."""
@@ -97,7 +133,14 @@ class Agent:
             raise RuntimeError("Private reflection requested for agent without instructions")
         messages = self._build_messages(final_instruction=self._private_instruction)
         response = self._llm.complete(messages=messages, model=self.model)
-        return response.strip()
+        return self._strip_speaker_prefix(response.strip())
+
+    def generate_interview_response(self, instruction: str) -> str:
+        """Ask the LLM client for an interview response (pre/post)."""
+
+        messages = self._build_messages(final_instruction=instruction)
+        response = self._llm.complete(messages=messages, model=self.model)
+        return self._strip_speaker_prefix(response.strip())
 
     def observe_turn(self, turn: MemoryTurn) -> None:
         """Append a public turn to the agent's personal memory."""
@@ -109,7 +152,7 @@ class Agent:
 
         self._memory.clear()
 
-    def export_configuration(self) -> Dict[str, Optional[str]]:
+    def export_configuration(self) -> Dict[str, Any]:
         """Return a JSON-serializable representation of the agent's prompts."""
 
         return {
@@ -119,12 +162,15 @@ class Agent:
             "system_prompt": self._system_prompt,
             "response_instruction": self._response_instruction,
             "private_response_instruction": self._private_instruction,
+            "private_response_keep": self._private_keep,
+            "pre_interview_instruction": self._pre_instruction,
+            "pre_interview_keep": self._pre_keep,
+            "post_interview_instruction": self._post_instruction,
+            "post_interview_keep": self._post_keep,
         }
 
     @classmethod
-    def from_configuration(
-        cls, config: Dict[str, Optional[str]], llm_client: LLMClient
-    ) -> "Agent":
+    def from_configuration(cls, config: Dict[str, Any], llm_client: LLMClient) -> "Agent":
         """Instantiate an agent from ``export_configuration`` output."""
 
         return cls(
@@ -134,6 +180,11 @@ class Agent:
             system_prompt=config.get("system_prompt", "") or "",
             response_instruction=config.get("response_instruction", "") or "",
             private_response_instruction=config.get("private_response_instruction"),
+            private_response_keep=bool(config.get("private_response_keep", True)),
+            pre_interview_instruction=config.get("pre_interview_instruction"),
+            pre_interview_keep=bool(config.get("pre_interview_keep", True)),
+            post_interview_instruction=config.get("post_interview_instruction"),
+            post_interview_keep=bool(config.get("post_interview_keep", True)),
             agent_id=config.get("id"),
         )
 
@@ -154,6 +205,26 @@ class Agent:
 
         messages.append({"role": "user", "content": final_instruction})
         return messages
+
+    def _strip_speaker_prefix(self, text: str) -> str:
+        """
+        Remove a leading speaker label (e.g., 'Alpha:') if present.
+
+        This prevents assistants from echoing speaker prefixes in their own replies.
+        """
+
+        names = {self.name}
+        for turn in self._memory:
+            name = turn.metadata.get("speaker_name")
+            if name:
+                names.add(str(name))
+
+        for name in sorted(names, key=len, reverse=True):
+            pattern = rf"^\\s*{re.escape(name)}\\s*:\\s*"
+            new_text = re.sub(pattern, "", text, count=1, flags=re.IGNORECASE).lstrip()
+            if new_text != text:
+                return new_text
+        return text
 
 
 def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:

@@ -272,3 +272,41 @@ def test_build_system_prompt_requires_roles():
             },
             total_agents=4,
         )
+
+
+def test_interviews_respect_keep_flag(stub_llm_factory):
+    """Pre/post interviews can be excluded from agent memory but still appear in history."""
+
+    llm = stub_llm_factory(["pre", "public", "post"])
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm,
+        response_instruction="public",
+        pre_interview_instruction="pre",
+        pre_interview_keep=False,
+        post_interview_instruction="post",
+        post_interview_keep=False,
+    )
+    agora = Agora([agent])
+    history = agora.run(max_turns_per_agent=1, verbose=False)
+    assert [t.role for t in history] == ["pre_interview", "assistant", "post_interview"]
+    assert len(agent.memory) == 1  # only the public turn is kept
+
+
+def test_private_reflection_keep_flag(stub_llm_factory):
+    """Private reflections can be excluded from agent memory when keep=False."""
+
+    llm = stub_llm_factory(["think", "say"])
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm,
+        response_instruction="say",
+        private_response_instruction="think",
+        private_response_keep=False,
+    )
+    agora = Agora([agent])
+    history = agora.run(max_turns_per_agent=1)
+    assert any(t.role == "reflection" for t in history)
+    assert all(t.role != "reflection" for t in agent.memory)
