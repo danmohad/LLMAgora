@@ -310,3 +310,22 @@ def test_private_reflection_keep_flag(stub_llm_factory):
     history = agora.run(max_turns_per_agent=1)
     assert any(t.role == "reflection" for t in history)
     assert all(t.role != "reflection" for t in agent.memory)
+
+
+def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
+    """Skip flag should suppress the first reflection even if pre-interviews advance the counter."""
+
+    llm = stub_llm_factory(["pre", "think", "say"])
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm,
+        response_instruction="say",
+        private_response_instruction="think",
+        private_response_keep=True,
+        pre_interview_instruction="pre",
+        pre_interview_keep=False,
+    )
+    history = Agora([agent]).run(max_turns_per_agent=1, skip_first_agent_first_reflection=True)
+    # Should see pre-interview + public turn only
+    assert [t.role for t in history] == ["pre_interview", "assistant"]
