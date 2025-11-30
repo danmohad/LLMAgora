@@ -63,7 +63,7 @@ class Agora:
                 self._turn_log.append(reflection_turn)
                 agent.observe_turn(reflection_turn)
                 if verbose:
-                    print(f"[Reflection] {agent.name} (turn {self._turn_counter}): {reflection}")
+                    print(f"Turn {self._turn_counter} | {agent.name} (reflection): {reflection}")
 
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech()
@@ -81,7 +81,7 @@ class Agora:
                 recipient.observe_turn(turn)
             turns_taken[agent.id] += 1
             if verbose:
-                print(f"[Public] {agent.name} (turn {self._turn_counter}): {speech}")
+                print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
 
         return list(self._turn_log)
 
