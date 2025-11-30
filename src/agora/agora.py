@@ -23,13 +23,22 @@ class Agora:
         self._turn_log: List[MemoryTurn] = []
         self._turn_counter = 0
 
-    def run(self, *, max_turns_per_agent: int, verbose: bool = False) -> List[MemoryTurn]:
+    def run(
+        self,
+        *,
+        max_turns_per_agent: int,
+        verbose: bool = False,
+        skip_first_agent_first_reflection: bool = False,
+    ) -> List[MemoryTurn]:
         """
         Run the Agora until each agent has taken the specified number of turns.
 
         Args:
             max_turns_per_agent: Stop once every agent has produced this many public turns.
             verbose: When True, print turn-by-turn diagnostics for debugging.
+            skip_first_agent_first_reflection: If True, suppress the very first
+                reflection from the first agent (useful when pre-interviews already
+                cover initial state).
         """
 
         if max_turns_per_agent <= 0:
@@ -54,11 +63,13 @@ class Agora:
                 agent.observe_turn(pre_turn)
             if verbose:
                 suffix = " (excluded)" if not agent.pre_interview_keep else ""
-                print(f"Turn {self._turn_counter} | {agent.name} (pre-interview): {response}{suffix}")
+                print(f"Turn {self._turn_counter} | {agent.name} (pre-interview){suffix}: {response}")
 
         # Track how many turns each agent has already taken.
         turns_taken: Dict[str, int] = {agent.id: 0 for agent in self._agents}
         agent_index = 0
+
+        first_reflection_skipped = False
 
         while True:
             if all(count >= max_turns_per_agent for count in turns_taken.values()):
@@ -72,22 +83,25 @@ class Agora:
 
             # Allow the agent to privately reflect before speaking publicly.
             if agent.supports_private_reflection:
-                reflection = agent.generate_private_reflection()
-                self._turn_counter += 1
-                reflection_turn = MemoryTurn(
-                    turn_id=self._turn_counter,
-                    speaker_id=agent.id,
+                if skip_first_agent_first_reflection and not first_reflection_skipped:
+                    first_reflection_skipped = True
+                else:
+                    reflection = agent.generate_private_reflection()
+                    self._turn_counter += 1
+                    reflection_turn = MemoryTurn(
+                        turn_id=self._turn_counter,
+                        speaker_id=agent.id,
                     role="reflection",
                     private_reflection=reflection,
                     metadata={"speaker_name": agent.name},
                     keep=agent.private_keep,
-                )
-                self._turn_log.append(reflection_turn)
-                if agent.private_keep:
-                    agent.observe_turn(reflection_turn)
-                if verbose:
-                    suffix = " (excluded)" if not agent.private_keep else ""
-                    print(f"Turn {self._turn_counter} | {agent.name} (reflection): {reflection}{suffix}")
+                    )
+                    self._turn_log.append(reflection_turn)
+                    if agent.private_keep:
+                        agent.observe_turn(reflection_turn)
+                    if verbose:
+                        suffix = " (excluded)" if not agent.private_keep else ""
+                        print(f"Turn {self._turn_counter} | {agent.name} (reflection){suffix}: {reflection}")
 
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech()
@@ -126,7 +140,7 @@ class Agora:
                 agent.observe_turn(post_turn)
             if verbose:
                 suffix = " (excluded)" if not agent.post_interview_keep else ""
-                print(f"Turn {self._turn_counter} | {agent.name} (post-interview): {response}{suffix}")
+                print(f"Turn {self._turn_counter} | {agent.name} (post-interview){suffix}: {response}")
 
         return list(self._turn_log)
 
