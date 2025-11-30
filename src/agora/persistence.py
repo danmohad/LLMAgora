@@ -84,7 +84,9 @@ class AgoraSnapshot:
         return cls(agents, turns)
 
     def save(self, path: Path | str) -> None:
-        Path(path).write_text(json.dumps(self.to_dict(), indent=2))
+        target = Path(path)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(self.to_dict(), indent=2))
 
     @classmethod
     def load(cls, path: Path | str) -> "AgoraSnapshot":
