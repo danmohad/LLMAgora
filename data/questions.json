@@ -1,0 +1,81 @@
+{
+  "questions": {
+    "civic_duty": {
+      "id": "civic_duty",
+      "topic": "Civic duty",
+      "question": "Should national service (civil or military) be encouraged or required?"
+    },
+    "privacy": {
+      "id": "privacy",
+      "topic": "Privacy",
+      "question": "Should police be allowed to use facial recognition in public spaces?"
+    },
+    "speech": {
+      "id": "speech",
+      "topic": "Speech",
+      "question": "Should platforms remove lawful but harmful misinformation?"
+    },
+    "health": {
+      "id": "health",
+      "topic": "Health",
+      "question": "Should vaccination be mandatory for school attendance?"
+    },
+    "justice": {
+      "id": "justice",
+      "topic": "Justice",
+      "question": "Should juries be allowed to recommend restorative justice instead of prison?"
+    },
+    "ai_governance": {
+      "id": "ai_governance",
+      "topic": "AI governance",
+      "question": "Should AI systems always disclose that they are non-human?"
+    },
+    "urban_life": {
+      "id": "urban_life",
+      "topic": "Urban life",
+      "question": "Should cities convert some street parking to bike/bus lanes?"
+    },
+    "education": {
+      "id": "education",
+      "topic": "Education",
+      "question": "Should K–12 curricula include comprehensive sex education?"
+    },
+    "housing": {
+      "id": "housing",
+      "topic": "Housing",
+      "question": "Should single-family zoning be relaxed to allow duplexes/triplexes?"
+    },
+    "environment": {
+      "id": "environment",
+      "topic": "Environment",
+      "question": "Should cities phase out gas leaf blowers and small engines?"
+    },
+    "work": {
+      "id": "work",
+      "topic": "Work",
+      "question": "Should employers be allowed to use keystroke/screen monitoring software?"
+    },
+    "culture": {
+      "id": "culture",
+      "topic": "Culture & public funding",
+      "question": "Should publicly funded art be allowed to offend religious or national symbols?"
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "question_ids": [
+      "civic_duty",
+      "privacy",
+      "speech",
+      "health",
+      "justice",
+      "ai_governance",
+      "urban_life",
+      "education",
+      "housing",
+      "environment",
+      "work",
+      "culture"
+    ]
+  }
+}
