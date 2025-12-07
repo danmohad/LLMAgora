@@ -1,0 +1,44 @@
+{
+  "personas": {
+    "high_wealth_founder": {
+      "id": "high_wealth_founder",
+      "name": "High-Wealth Founder–Investor",
+      "actual_persona": "Role & context: Founder/investor; majority owner of a private holding company; sits on a few company boards. Scale: Personal/controlled assets on the order of hundreds of millions. Authorities/resources: Can influence strategy at portfolio firms; directs a family foundation that grants a few million per year; has in-house legal/finance staff. Constraints/obligations: Corporate governance rules, applicable securities and tax regulations, board fiduciary duties. Stakes/exposures: Business regulation affecting several portfolio firms; public visibility and media scrutiny. History/record: Led notable acquisitions; funded scholarships/workforce programs through the foundation.",
+      "perceived_persona": "Founder/investor with very large financial resources. Sits on multiple boards; oversees a family foundation. Can move money and attention quickly through business and philanthropy."
+    },
+    "early_career_graduate": {
+      "id": "early_career_graduate",
+      "name": "Early-Career Graduate with Student Loans",
+      "actual_persona": "Role & context: Degree completed within ~3 years; full-time in an entry-level role; rents housing. Scale: Salary roughly $50–70k/year; student loans in the tens of thousands. Authorities/resources: Eligible for standard federal repayment options; may access employer education benefits if offered. Constraints/obligations: Monthly loan payments; early-career probation/training; credit considerations for housing/transport. Stakes/exposures: Living costs take a large share of take-home pay; career progression tied to earning experience/certifications. History/record: Completed internships/part-time roles; used need-based or merit aid.",
+      "perceived_persona": "Recent grad, entry-level income, renting. Carries significant student debt; uses standard repayment options. Building work history; budgets tightly around essentials."
+    },
+    "public_budget_officer": {
+      "id": "public_budget_officer",
+      "name": "Public Budget Officer (City/State)",
+      "actual_persona": "Role & context: Nonpartisan budget analyst serving an elected administration. Scale: Works on a jurisdiction with an annual budget around $1–5B. Authorities/resources: Drafts proposals and fiscal notes; accesses revenue models, audits, and agency data. Constraints/obligations: Balanced-budget and reserve policies; open-records requirements; labor agreements and procurement law. Stakes/exposures: Credit-rating timelines and external grant/match deadlines; legal process integrity. History/record: Managed mid-year adjustments; coordinated public financial disclosures.",
+      "perceived_persona": "Government budget professional for a large city/state. Prepares fiscal analyses; must follow balanced-budget and transparency rules. Advises decision-makers but cannot set tax rates alone."
+    },
+    "small_business_owner": {
+      "id": "small_business_owner",
+      "name": "Small Business Owner (5–50 employees)",
+      "actual_persona": "Role & context: Owner-operator of a local firm with ~12–35 employees. Scale: Payroll in the low-to-mid seven figures per year; maintains a six-figure operating credit line. Authorities/resources: Sets wages/benefits within law; hires/fires; chooses vendors; manages customer relationships. Constraints/obligations: Wage/overtime and safety rules; quarterly tax filings; commercial lease and insurance requirements. Stakes/exposures: Cash-flow swings with seasonality; recruitment/retention costs; supplier and rent changes. History/record: Expanded and downsized staff in response to demand; received and repaid a relief loan.",
+      "perceived_persona": "Runs a local company with a dozen-plus staff. Handles payroll, compliance, and vendor contracts. Sensitive to cash-flow, hiring, and customer demand."
+    },
+    "unionized_warehouse_worker": {
+      "id": "unionized_warehouse_worker",
+      "name": "Unionized Warehouse Worker",
+      "actual_persona": "Role & context: Full-time logistics employee under a collective bargaining agreement. Scale: Scheduled ~36–44 hours/week; overtime paid at a higher contractual rate. Authorities/resources: May file safety reports; use a grievance process; vote on agreements; holds equipment certifications renewed periodically. Constraints/obligations: Shift assignments, productivity standards, safety protocols, attendance rules set by contract/policy. Stakes/exposures: Wage progression tied to steps/tenure; injury risk; commute and shift timing. History/record: Completed mandatory safety training; participated in at least one contract ratification vote.",
+      "perceived_persona": "Union-covered warehouse worker with set shifts. Works to production standards; uses certified equipment. Has formal channels for safety and grievances."
+    }
+  },
+  "metadata": {
+    "version": "1.0",
+    "persona_ids": [
+      "high_wealth_founder",
+      "early_career_graduate",
+      "public_budget_officer",
+      "small_business_owner",
+      "unionized_warehouse_worker"
+    ]
+  }
+}
