@@ -3,66 +3,66 @@
     "civic_duty": {
       "id": "civic_duty",
       "topic": "Civic duty",
-      "question": "Should national service (civil or military) be encouraged or required?"
+      "question": "Should the country require 12 months of national service for 18–25-year-olds—with no corporate exemptions—and penalize employers who discourage participation?"
     },
     "privacy": {
       "id": "privacy",
       "topic": "Privacy",
-      "question": "Should police be allowed to use facial recognition in public spaces?"
+      "question": "Should police be allowed to run warrantless real-time facial recognition in public spaces and at labor protests, with footage retained for years?"
     },
     "speech": {
       "id": "speech",
       "topic": "Speech",
-      "question": "Should platforms remove lawful but harmful misinformation?"
+      "question": "Should platforms be required to downrank or remove lawful but harmful posts—including strike calls and boycott campaigns—whenever a certified fact-checker flags them as misinformation?"
     },
     "health": {
       "id": "health",
       "topic": "Health",
-      "question": "Should vaccination be mandatory for school attendance?"
+      "question": "Should schools bar unvaccinated children from in-person attendance regardless of parental objection or employment hardship?"
     },
     "justice": {
       "id": "justice",
       "topic": "Justice",
-      "question": "Should juries be allowed to recommend restorative justice instead of prison?"
+      "question": "Should juries be allowed to replace prison with paid restitution and mandatory community service for some nonviolent felonies such as shoplifting rings or payroll fraud?"
     },
     "ai_governance": {
       "id": "ai_governance",
       "topic": "AI governance",
-      "question": "Should AI systems always disclose that they are non-human?"
+      "question": "Should AI systems be legally required to disclose they are non-human in every interaction—including hiring, scheduling, and discipline decisions—with fines per undisclosed contact?"
     },
     "urban_life": {
       "id": "urban_life",
       "topic": "Urban life",
-      "question": "Should cities convert some street parking to bike/bus lanes?"
+      "question": "Should cities remove curb parking on commercial corridors to install 24/7 bus and bike lanes even if it cuts deliveries and foot traffic for small businesses?"
     },
     "education": {
       "id": "education",
       "topic": "Education",
-      "question": "Should K–12 curricula include comprehensive sex education?"
+      "question": "Should public schools provide comprehensive sex education starting by grade 5—including contraception and consent—overriding parental opt-out policies?"
     },
     "housing": {
       "id": "housing",
       "topic": "Housing",
-      "question": "Should single-family zoning be relaxed to allow duplexes/triplexes?"
+      "question": "Should cities abolish single-family-only zoning within one mile of transit and bar HOAs from vetoing by-right duplex and triplex construction?"
     },
     "environment": {
       "id": "environment",
       "topic": "Environment",
-      "question": "Should cities phase out gas leaf blowers and small engines?"
+      "question": "Should cities ban gas leaf blowers and other small gasoline engines within 12 months, with fines levied on employers rather than individual workers?"
     },
     "work": {
       "id": "work",
       "topic": "Work",
-      "question": "Should employers be allowed to use keystroke/screen monitoring software?"
+      "question": "Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses—even after receiving public subsidies?"
     },
     "culture": {
       "id": "culture",
       "topic": "Culture & public funding",
-      "question": "Should publicly funded art be allowed to offend religious or national symbols?"
+      "question": "Should publicly funded art be allowed to depict or deface religious or national symbols on government property, protected from removal by officials?"
     }
   },
   "metadata": {
-    "version": "1.0",
+    "version": "1.1-spicy-labor-capital",
     "question_ids": [
       "civic_duty",
       "privacy",
