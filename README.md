@@ -31,6 +31,20 @@ python -m pytest
 
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
 
-## Notebook demo
+## Notebook demos
 
-A ready-to-run walkthrough lives in `notebooks/demo.ipynb`.
+Ready-to-run walkthroughs live in `notebooks/demo.ipynb` (basic debate flows) and `notebooks/demo_persona.ipynb` (persona-driven debates with plotting). Both notebooks now call into reusable helpers rather than embedding logic inline.
+
+## CLI
+
+Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command:
+
+```bash
+# Run with a JSON agent configuration
+agora run --config path/to/agents.json --turns 2 --verbose
+
+# Run the persona demo directly from the datasets
+agora persona --alpha-id high_wealth_founder --beta-id unionized_warehouse_worker --question-id work --prompt-set default --verbose
+```
+
+Prompt templates live in YAML under `src/agora/prompts`. Use `--prompt-set` to choose which template file to load (e.g., `default` reads `src/agora/prompts/default.yaml`).
