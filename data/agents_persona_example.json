@@ -11,7 +11,7 @@
   "private_response_keep": true,
   "pre_interview_keep": false,
   "post_interview_keep": false,
-  "turns_per_agent": 5,
+  "turns_per_agent": 2,
   "snapshot_path": "snapshots/reflection_snapshot.json",
   "load_snapshot_flag": false,
   "save_snapshot_flag": true,
