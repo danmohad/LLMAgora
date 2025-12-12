@@ -40,10 +40,7 @@ Ready-to-run walkthroughs live in `notebooks/demo.ipynb` (basic debate flows) an
 Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command:
 
 ```bash
-# Run with a JSON agent configuration
-agora run --config path/to/agents.json --turns 2 --verbose
-
-# Use the persona demo config that mirrors the notebook
+# Use the persona config; the example mirrors the `demo_persona.ipynb` notebook
 agora run --config data/agents_persona_example.json --verbose
 
 # Run the persona demo directly from the datasets
@@ -58,4 +55,4 @@ agora persona \
   --no-keep-post-interview \
   --verbose
 ```
-Prompt templates live in JSON under `data/prompts.json`. Use `--prompt-set` to choose which template entry to load (e.g., `default`).
+Prompt templates (base prompt, public and private instructions, etc.) live in JSON under `data/prompts.json`. Use `--prompt-set` to choose which template entry to load (e.g., `default`).
