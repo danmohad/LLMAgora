@@ -163,6 +163,29 @@ def test_persona_builder_uses_catalogues():
         )
 
 
+def test_persona_builder_honors_keep_flags():
+    personas = load_persona_catalog("data/personas.json")
+    questions = load_question_catalog("data/questions.json")
+
+    configs = build_persona_agent_configs(
+        alpha_persona_id="high_wealth_founder",
+        beta_persona_id="unionized_warehouse_worker",
+        question_id="work",
+        personas=personas,
+        questions=questions,
+        alpha_model="alpha-model",
+        beta_model="beta-model",
+        private_response_keep=False,
+        pre_interview_keep=True,
+        post_interview_keep=True,
+    )
+
+    alpha_cfg = configs[0]
+    assert alpha_cfg["private_response"]["keep"] is False
+    assert alpha_cfg["pre_interview"]["keep"] is True
+    assert alpha_cfg["post_interview"]["keep"] is True
+
+
 def test_load_prompt_templates_reads_default_json():
     prompts = load_prompt_templates()
 
