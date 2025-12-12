@@ -43,6 +43,9 @@ Install the package in editable mode (`uv pip install -e .`) to expose the `agor
 # Run with a JSON agent configuration
 agora run --config path/to/agents.json --turns 2 --verbose
 
+# Use the persona demo config that mirrors the notebook
+agora run --config data/agents_persona_example.json --verbose
+
 # Run the persona demo directly from the datasets
 agora persona --alpha-id high_wealth_founder --beta-id unionized_warehouse_worker --question-id work --prompt-set default --verbose
 ```
