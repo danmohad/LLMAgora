@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import json
-from importlib import resources
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 
@@ -153,15 +152,13 @@ def load_question_catalog(question_path: Path | str) -> dict:
 
 
 DEFAULT_PROMPT_SET = "default"
+DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.json"
 
 
 def load_prompt_catalog(prompt_path: Path | str | None = None) -> dict:
-    """Load prompt template catalog from disk or bundled defaults."""
+    """Load prompt template catalog from disk or the repo default."""
 
-    if prompt_path is None:
-        prompt_resource = resources.files("agora.prompts").joinpath("prompt_sets.json")
-    else:
-        prompt_resource = Path(prompt_path)
+    prompt_resource = Path(prompt_path) if prompt_path is not None else DEFAULT_PROMPT_PATH
 
     if not prompt_resource.exists():
         raise FileNotFoundError(f"Prompt catalog not found at {prompt_resource}")
@@ -227,6 +224,9 @@ def build_persona_agent_configs(
     pre_interview_instruction: Optional[str] = None,
     post_interview_instruction: Optional[str] = None,
     prompt_set: str = DEFAULT_PROMPT_SET,
+    private_response_keep: bool = True,
+    pre_interview_keep: bool = False,
+    post_interview_keep: bool = False,
     prompt_templates: Optional[dict] = None,
     prompt_catalog: Optional[dict] = None,
     prompt_path: Path | str | None = None,
@@ -284,9 +284,9 @@ def build_persona_agent_configs(
             "self_role": alpha_self_role,
             "perceived_nonself_roles": [{"name": "Beta", "role": alpha_perceives_beta}],
             "response_instruction": public_instruction,
-            "private_response": {"instruction": private_instruction, "keep": True},
-            "pre_interview": {"instruction": pre_interview_instruction, "keep": False},
-            "post_interview": {"instruction": post_interview_instruction, "keep": False},
+            "private_response": {"instruction": private_instruction, "keep": private_response_keep},
+            "pre_interview": {"instruction": pre_interview_instruction, "keep": pre_interview_keep},
+            "post_interview": {"instruction": post_interview_instruction, "keep": post_interview_keep},
         },
         {
             "name": "Beta",
@@ -294,9 +294,9 @@ def build_persona_agent_configs(
             "self_role": beta_self_role,
             "perceived_nonself_roles": [{"name": "Alpha", "role": beta_perceives_alpha}],
             "response_instruction": public_instruction,
-            "private_response": {"instruction": private_instruction, "keep": True},
-            "pre_interview": {"instruction": pre_interview_instruction, "keep": False},
-            "post_interview": {"instruction": post_interview_instruction, "keep": False},
+            "private_response": {"instruction": private_instruction, "keep": private_response_keep},
+            "pre_interview": {"instruction": pre_interview_instruction, "keep": pre_interview_keep},
+            "post_interview": {"instruction": post_interview_instruction, "keep": post_interview_keep},
         },
     ]
 
@@ -304,6 +304,7 @@ def build_persona_agent_configs(
 __all__ = [
     "build_agents_from_configs",
     "build_persona_agent_configs",
+    "DEFAULT_PROMPT_PATH",
     "DEFAULT_PROMPT_SET",
     "DEFAULT_BASE_PROMPT",
     "DEFAULT_PERCEIVED_PROMPT",

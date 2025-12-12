@@ -53,7 +53,9 @@ agora persona \
   --question-id work \
   --prompts data/prompts.json \
   --prompt-set default \
+  --keep-private-response \
+  --no-keep-pre-interview \
+  --no-keep-post-interview \
   --verbose
 ```
-
-Prompt templates live in JSON under `data/prompts.json` (bundled and packaged at `src/agora/prompts/prompt_sets.json`). Use `--prompt-set` to choose which template entry to load (e.g., `default`).
+Prompt templates live in JSON under `data/prompts.json`. Use `--prompt-set` to choose which template entry to load (e.g., `default`).

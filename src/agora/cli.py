@@ -9,6 +9,7 @@ from typing import Any, Dict
 from dotenv import load_dotenv
 
 from .workflows import (
+    DEFAULT_PROMPT_PATH,
     DEFAULT_PROMPT_SET,
     build_persona_agent_configs,
     load_persona_catalog,
@@ -41,7 +42,7 @@ def _run_from_config(args: argparse.Namespace) -> None:
 
         personas = load_persona_catalog(payload.get("personas_path", "data/personas.json"))
         questions = load_question_catalog(payload.get("questions_path", "data/questions.json"))
-        prompt_catalog = load_prompt_catalog(payload.get("prompts_path", "data/prompts.json"))
+        prompt_catalog = load_prompt_catalog(payload.get("prompts_path", DEFAULT_PROMPT_PATH))
         alpha_model = payload.get("alpha_model", "openai/gpt-4o-mini")
         beta_model = payload.get("beta_model", "anthropic/claude-3-haiku")
         agent_configs = build_persona_agent_configs(
@@ -54,6 +55,9 @@ def _run_from_config(args: argparse.Namespace) -> None:
             beta_model=beta_model,
             prompt_set=payload.get("prompt_set", DEFAULT_PROMPT_SET),
             prompt_catalog=prompt_catalog,
+            private_response_keep=payload.get("private_response_keep", True),
+            pre_interview_keep=payload.get("pre_interview_keep", False),
+            post_interview_keep=payload.get("post_interview_keep", False),
         )
 
     turns = args.turns or payload.get("turns_per_agent")
@@ -91,6 +95,9 @@ def _run_persona(args: argparse.Namespace) -> None:
         beta_model=args.beta_model,
         prompt_set=args.prompt_set,
         prompt_catalog=prompt_catalog,
+        private_response_keep=args.keep_private_response,
+        pre_interview_keep=args.keep_pre_interview,
+        post_interview_keep=args.keep_post_interview,
     )
 
     agora, agents = run_debate_session(
@@ -139,7 +146,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--questions", type=Path, default=Path("data/questions.json"), help="Path to questions catalog JSON"
     )
     persona_cmd.add_argument(
-        "--prompts", type=Path, default=Path("data/prompts.json"), help="Path to prompt catalog JSON"
+        "--prompts", type=Path, default=DEFAULT_PROMPT_PATH, help="Path to prompt catalog JSON"
     )
     persona_cmd.add_argument(
         "--prompt-set",
@@ -162,6 +169,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Allow the first reflection to run",
     )
     persona_cmd.add_argument("--verbose", action="store_true", help="Print turn-by-turn output while running")
+    persona_cmd.add_argument(
+        "--keep-private-response",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Whether to retain private reflections in local history",
+    )
+    persona_cmd.add_argument(
+        "--keep-pre-interview",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Whether to retain pre-interview notes in local history",
+    )
+    persona_cmd.add_argument(
+        "--keep-post-interview",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Whether to retain post-interview notes in local history",
+    )
     persona_cmd.set_defaults(func=_run_persona)
 
     return parser
