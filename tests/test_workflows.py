@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from agora.agent import Agent
@@ -7,6 +9,7 @@ from agora.workflows import (
     build_persona_agent_configs,
     extract_instruction,
     format_history_for_agent,
+    load_prompt_catalog,
     load_prompt_templates,
     load_persona_catalog,
     load_question_catalog,
@@ -160,8 +163,17 @@ def test_persona_builder_uses_catalogues():
         )
 
 
-def test_load_prompt_templates_reads_default_yaml():
+def test_load_prompt_templates_reads_default_json():
     prompts = load_prompt_templates()
 
     assert "{persona}" in prompts["base_prompt"]
     assert "{perceived_persona}" in prompts["perceived_prompt"]
+
+
+def test_load_prompt_catalog_supports_external_path(tmp_path):
+    catalog = {"prompt_sets": {"custom": {"base_prompt": "{question}", "perceived_prompt": "{perceived_persona}", "public_instruction": "pub", "private_instruction": "priv", "pre_interview_instruction": "pre", "post_interview_instruction": "post"}}}
+    prompt_file = tmp_path / "prompts.json"
+    prompt_file.write_text(json.dumps(catalog))
+
+    loaded_catalog = load_prompt_catalog(prompt_file)
+    assert loaded_catalog["prompt_sets"]["custom"]["base_prompt"] == "{question}"

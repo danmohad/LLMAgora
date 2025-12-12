@@ -12,6 +12,7 @@ from .workflows import (
     DEFAULT_PROMPT_SET,
     build_persona_agent_configs,
     load_persona_catalog,
+    load_prompt_catalog,
     load_question_catalog,
     print_agent_histories,
     run_debate_session,
@@ -28,23 +29,50 @@ def _load_agent_payload(path: Path) -> Dict[str, Any]:
 def _run_from_config(args: argparse.Namespace) -> None:
     payload = _load_agent_payload(args.config)
     agent_configs = payload.get("agent_configs", payload.get("agents")) or payload.get("agents", [])
+
     if not agent_configs:
-        agent_configs = payload.get("agent_configs")
-    if not agent_configs:
-        raise ValueError("Config must include an 'agent_configs' array or top-level agent objects")
+        alpha_id = payload.get("alpha_persona_id")
+        beta_id = payload.get("beta_persona_id")
+        question_id = payload.get("question_id")
+        if not all([alpha_id, beta_id, question_id]):
+            raise ValueError(
+                "Config must include an 'agent_configs' array or persona identifiers alpha_persona_id, beta_persona_id, question_id"
+            )
+
+        personas = load_persona_catalog(payload.get("personas_path", "data/personas.json"))
+        questions = load_question_catalog(payload.get("questions_path", "data/questions.json"))
+        prompt_catalog = load_prompt_catalog(payload.get("prompts_path", "data/prompts.json"))
+        alpha_model = payload.get("alpha_model", "openai/gpt-4o-mini")
+        beta_model = payload.get("beta_model", "anthropic/claude-3-haiku")
+        agent_configs = build_persona_agent_configs(
+            alpha_persona_id=alpha_id,
+            beta_persona_id=beta_id,
+            question_id=question_id,
+            personas=personas,
+            questions=questions,
+            alpha_model=alpha_model,
+            beta_model=beta_model,
+            prompt_set=payload.get("prompt_set", DEFAULT_PROMPT_SET),
+            prompt_catalog=prompt_catalog,
+        )
 
     turns = args.turns or payload.get("turns_per_agent")
     if not turns:
         raise ValueError("Config must include 'turns_per_agent' or --turns")
 
+    skip_first = args.skip_first_reflection or payload.get("skip_first_agent_first_reflection", False)
+    snapshot = args.snapshot or payload.get("snapshot_path")
+    load_snapshot_flag = args.load_snapshot or payload.get("load_snapshot_flag", False)
+    save_snapshot_flag = args.save_snapshot or payload.get("save_snapshot_flag", False)
+
     agora, agents = run_debate_session(
         agent_configs,
         turns_per_agent=turns,
-        verbose=args.verbose,
-        skip_first_agent_first_reflection=args.skip_first_reflection,
-        snapshot_path=args.snapshot,
-        load_snapshot_flag=args.load_snapshot,
-        save_snapshot_flag=args.save_snapshot,
+        verbose=args.verbose or payload.get("verbose", False),
+        skip_first_agent_first_reflection=skip_first,
+        snapshot_path=snapshot,
+        load_snapshot_flag=load_snapshot_flag,
+        save_snapshot_flag=save_snapshot_flag,
     )
     print_agent_histories(agents)
 
@@ -52,6 +80,7 @@ def _run_from_config(args: argparse.Namespace) -> None:
 def _run_persona(args: argparse.Namespace) -> None:
     personas = load_persona_catalog(args.personas)
     questions = load_question_catalog(args.questions)
+    prompt_catalog = load_prompt_catalog(args.prompts)
     agent_configs = build_persona_agent_configs(
         alpha_persona_id=args.alpha_id,
         beta_persona_id=args.beta_id,
@@ -61,6 +90,7 @@ def _run_persona(args: argparse.Namespace) -> None:
         alpha_model=args.alpha_model,
         beta_model=args.beta_model,
         prompt_set=args.prompt_set,
+        prompt_catalog=prompt_catalog,
     )
 
     agora, agents = run_debate_session(
@@ -109,9 +139,12 @@ def build_parser() -> argparse.ArgumentParser:
         "--questions", type=Path, default=Path("data/questions.json"), help="Path to questions catalog JSON"
     )
     persona_cmd.add_argument(
+        "--prompts", type=Path, default=Path("data/prompts.json"), help="Path to prompt catalog JSON"
+    )
+    persona_cmd.add_argument(
         "--prompt-set",
         default=DEFAULT_PROMPT_SET,
-        help="Name of the prompt template set to load (matches YAML filename in agora/prompts)",
+        help="Name of the prompt template set to load (key within the prompt catalog)",
     )
     persona_cmd.add_argument("--snapshot", type=Path, help="Path to snapshot file")
     persona_cmd.add_argument("--load-snapshot", action="store_true", help="Load debate state from snapshot before running")

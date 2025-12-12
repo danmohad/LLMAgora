@@ -6,8 +6,6 @@ from importlib import resources
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 
-import yaml
-
 from .agora import Agora
 from .agent import Agent, build_system_prompt
 from .llm import LLMClient, OpenRouterClient
@@ -157,21 +155,37 @@ def load_question_catalog(question_path: Path | str) -> dict:
 DEFAULT_PROMPT_SET = "default"
 
 
-def load_prompt_templates(
-    name: str = DEFAULT_PROMPT_SET, *, prompts_dir: Path | str | None = None
-) -> dict:
-    """Load a prompt template set from YAML data."""
+def load_prompt_catalog(prompt_path: Path | str | None = None) -> dict:
+    """Load prompt template catalog from disk or bundled defaults."""
 
-    prompt_filename = f"{name}.yaml"
-    if prompts_dir is None:
-        prompt_resource = resources.files("agora.prompts").joinpath(prompt_filename)
+    if prompt_path is None:
+        prompt_resource = resources.files("agora.prompts").joinpath("prompt_sets.json")
     else:
-        prompt_resource = Path(prompts_dir) / prompt_filename
+        prompt_resource = Path(prompt_path)
 
     if not prompt_resource.exists():
-        raise FileNotFoundError(f"Prompt template '{name}' not found at {prompt_resource}")
+        raise FileNotFoundError(f"Prompt catalog not found at {prompt_resource}")
 
-    payload = yaml.safe_load(prompt_resource.read_text(encoding="utf-8")) or {}
+    return json.loads(prompt_resource.read_text(encoding="utf-8"))
+
+
+def load_prompt_templates(
+    name: str = DEFAULT_PROMPT_SET,
+    *,
+    prompt_catalog: Optional[dict] = None,
+    prompt_path: Path | str | None = None,
+) -> dict:
+    """Load a prompt template set from JSON catalog data."""
+
+    if prompt_catalog is None:
+        prompt_catalog = load_prompt_catalog(prompt_path)
+
+    prompt_sets = prompt_catalog.get("prompt_sets", prompt_catalog)
+    payload = prompt_sets.get(name)
+    if payload is None:
+        available = ", ".join(sorted(prompt_sets)) or "<none>"
+        raise KeyError(f"Prompt template '{name}' not found; available sets: {available}")
+
     required_keys = [
         "base_prompt",
         "perceived_prompt",
@@ -214,12 +228,19 @@ def build_persona_agent_configs(
     post_interview_instruction: Optional[str] = None,
     prompt_set: str = DEFAULT_PROMPT_SET,
     prompt_templates: Optional[dict] = None,
+    prompt_catalog: Optional[dict] = None,
+    prompt_path: Path | str | None = None,
 ) -> List[dict]:
     """Construct agent configs for the persona-driven debate notebook."""
 
     prompts = prompt_templates
     if prompts is None:
-        prompts = DEFAULT_PROMPTS if prompt_set == DEFAULT_PROMPT_SET else load_prompt_templates(prompt_set)
+        if prompt_set == DEFAULT_PROMPT_SET and prompt_catalog is None and prompt_path is None:
+            prompts = DEFAULT_PROMPTS
+        else:
+            prompts = load_prompt_templates(
+                prompt_set, prompt_catalog=prompt_catalog, prompt_path=prompt_path
+            )
 
     base_prompt = base_prompt or prompts["base_prompt"]
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
@@ -290,6 +311,7 @@ __all__ = [
     "DEFAULT_PRIVATE_INSTRUCTION",
     "DEFAULT_PRE_INTERVIEW_INSTRUCTION",
     "DEFAULT_POST_INTERVIEW_INSTRUCTION",
+    "load_prompt_catalog",
     "extract_instruction",
     "format_history_for_agent",
     "load_prompt_templates",

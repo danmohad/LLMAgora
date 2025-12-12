@@ -8,8 +8,8 @@ setup(
     description="Lightweight arena for LLM agents",
     package_dir={"": "src"},
     packages=find_packages("src"),
-    install_requires=["httpx", "python-dotenv", "pyyaml"],
-    package_data={"agora": ["prompts/*.yaml"]},
+    install_requires=["httpx", "python-dotenv"],
+    package_data={"agora": ["prompts/*.json"]},
     entry_points={
         "console_scripts": [
             "agora=agora.cli:main",
