@@ -47,7 +47,13 @@ agora run --config path/to/agents.json --turns 2 --verbose
 agora run --config data/agents_persona_example.json --verbose
 
 # Run the persona demo directly from the datasets
-agora persona --alpha-id high_wealth_founder --beta-id unionized_warehouse_worker --question-id work --prompt-set default --verbose
+agora persona \
+  --alpha-id high_wealth_founder \
+  --beta-id unionized_warehouse_worker \
+  --question-id work \
+  --prompts data/prompts.json \
+  --prompt-set default \
+  --verbose
 ```
 
-Prompt templates live in YAML under `src/agora/prompts`. Use `--prompt-set` to choose which template file to load (e.g., `default` reads `src/agora/prompts/default.yaml`).
+Prompt templates live in JSON under `data/prompts.json` (bundled and packaged at `src/agora/prompts/prompt_sets.json`). Use `--prompt-set` to choose which template entry to load (e.g., `default`).
