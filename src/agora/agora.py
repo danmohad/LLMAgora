@@ -2,8 +2,11 @@
 
 from typing import Dict, List, Sequence
 
+from .survey import parse_survey_response_str
+
 from .agent import Agent
 from .memory import MemoryTurn
+from .constant import SURVEY_PROMPT
 
 
 class Agora:
@@ -22,6 +25,7 @@ class Agora:
             agent.attach_agora(self)
         self._turn_log: List[MemoryTurn] = []
         self._turn_counter = 0
+        self.survey_respose = {}
 
     def run(
         self,
@@ -43,6 +47,14 @@ class Agora:
 
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
+        
+        # First round of survey
+        for agent in self._agents:
+            response = agent.generate_interview_response(agent.survey_response_instruction)
+            print(f"Survey reponse from {agent.name}:")
+
+            str_res = parse_survey_response_str(response)
+            self.survey_respose[agent.id] = {0: str_res}
 
         # Optional pre-interviews
         for agent in self._agents:
@@ -120,6 +132,12 @@ class Agora:
             turns_taken[agent.id] += 1
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
+
+            response = agent.generate_interview_response(agent.survey_response_instruction)
+            print(f"Survey reponse from {agent.name}:")
+
+            str_res = parse_survey_response_str(response)
+            self.survey_respose[agent.id][self._turn_counter] = str_res
 
         # Optional post-interviews
         for agent in self._agents:

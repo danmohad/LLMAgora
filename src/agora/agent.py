@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient
 from .memory import MemoryTurn
+from .constant import SURVEY_PROMPT
 
 if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
     from .agora import Agora
@@ -22,6 +23,7 @@ class Agent:
         llm_client: LLMClient,
         system_prompt: str = "",
         response_instruction: str,
+        survey_questions: Optional[str] = None,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -53,6 +55,7 @@ class Agent:
         self.model = model
         self._system_prompt = system_prompt
         self._response_instruction = response_instruction
+        self._survey_questions = survey_questions
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
         self._pre_instruction = pre_interview_instruction
@@ -118,6 +121,11 @@ class Agent:
     @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
+    
+    @property
+    def survey_response_instruction(self) -> str:
+        return SURVEY_PROMPT + self._survey_questions if self._survey_questions else ""
+
 
     def generate_public_speech(self) -> str:
         """Ask the LLM client for this agent's next public response."""
