@@ -1,0 +1,21 @@
+{
+    "questions": {
+        "work": {
+            "id": "work",
+            "topic": "Work",
+            "questions": [
+                "Employers should be free to lay off workers whenever it improves profitability.",
+                "Companies that receive public subsidies should face restrictions on laying off workers.",
+                "A company’s primary responsibility is to maximize shareholder value, even if it leads to job losses.",
+                "Accepting government support creates an obligation to preserve jobs.",
+                "Using layoffs to fund stock buybacks or executive bonuses is ethically acceptable.",
+                "Large-scale layoffs primarily benefit the economy by making firms more efficient.",
+                "Corporations owe a duty to workers that goes beyond legal minimums.",
+                "Restrictions on layoffs generally do more harm than good by interfering with free markets.",
+                "It is unfair for companies to lay off workers shortly after receiving taxpayer-funded assistance.",
+                "Protecting jobs during downturns leads to healthier companies in the long run."
+            ]
+        }
+    }
+    
+}
