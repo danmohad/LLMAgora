@@ -127,3 +127,72 @@ def calculate_narrative_similarity(text1, text2, model=None):
     score_val = cosine_score.item()
     
     return score_val
+
+
+def compute_intra_agent_honesty(
+    debate_data,
+    similarity_fn=calculate_narrative_similarity,
+):
+    """
+    Returns per-agent dict with turn indices and scores.
+    """
+    return {
+        speaker_name: {
+            "turns": list(range(len(speaker_data['debate_turns']))),
+            "scores": [
+                similarity_fn(
+                    turn['private_reflection'],
+                    turn['public_speech'],
+                )
+                for turn in speaker_data['debate_turns']
+            ],
+        }
+        for speaker_name, speaker_data in debate_data.items()
+    }
+
+
+def compute_inter_agent_alignment(
+    debate_data,
+    agent_a_narrative="public_speech",
+    agent_b_narrative="public_speech",
+    similarity_fn=calculate_narrative_similarity,
+):
+    """
+    Computes turn-aligned similarity between the first two agents in debate_data,
+    using specified narrative fields for each agent.
+
+    Args:
+        debate_data (dict): Debate data containing exactly two agents.
+        agent_a_narrative (str): Narrative field for agent A.
+        agent_b_narrative (str): Narrative field for agent B.
+        similarity_fn (callable): Similarity function.
+
+    Returns:
+        dict with:
+            - 'turns': list[int]
+            - 'scores': list[float]
+    """
+    agent_ids = list(debate_data.keys())
+    if len(agent_ids) < 2:
+        raise ValueError("compute_inter_agent_alignment requires at least two agents")
+
+    agent_a, agent_b = agent_ids[:2]
+
+    turns_a = debate_data[agent_a]["debate_turns"]
+    turns_b = debate_data[agent_b]["debate_turns"]
+
+    num_turns = min(len(turns_a), len(turns_b))
+    turns = list(range(num_turns))
+
+    scores = [
+        similarity_fn(
+            turns_a[t][agent_a_narrative],
+            turns_b[t][agent_b_narrative],
+        )
+        for t in turns
+    ]
+
+    return {
+        "turns": turns,
+        "scores": scores,
+    }
