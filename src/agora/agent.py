@@ -122,6 +122,18 @@ class Agent:
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
     
+    def _survey_base_prompt(self) -> str:
+        return (
+            "Respond to the following survey in valid JSON only.\n\n"
+            "Use the following Likert scale:\n"
+            "- Strongly disagree\n"
+            "- Disagree\n"
+            "- Neutral\n"
+            "- Agree\n"
+            "- Strongly agree\n\n"
+            "Answer all questions.\n\n"
+        )
+    
     @property
     def survey_questions(self) -> str:
         return self._survey_questions
@@ -152,16 +164,7 @@ class Agent:
     
     def generate_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a survey response with JSON structured format."""
-        survey_prompt = (
-            "Respond to the following survey in valid JSON only.\n\n"
-            "Use the following Likert scale:\n"
-            "- Strongly disagree\n"
-            "- Disagree\n"
-            "- Neutral\n"
-            "- Agree\n"
-            "- Strongly agree\n\n"
-            "Answer all questions.\n\n"
-        )
+        survey_prompt = self._survey_base_prompt()
         for i, q in enumerate(survey_questions, start=1):
             survey_prompt += f"Q{i}. {q}\n"
 
