@@ -59,11 +59,6 @@ class OpenRouterClient:
                     "json_schema": survey_schema
                 }
             }
-            print(payload)
-            print('*' * 30)
-            print(messages)
-            print('+' * 30)
-
         else:
             payload: Dict[str, Any] = {
                 "model": model,

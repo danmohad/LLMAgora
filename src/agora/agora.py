@@ -2,11 +2,10 @@
 
 from typing import Dict, List, Sequence
 
-from .survey import parse_survey_response_str
+from agora.survey import parse_survey_response_str
 
 from .agent import Agent
 from .memory import MemoryTurn
-from .constant import SURVEY_PROMPT
 
 
 class Agora:
@@ -51,12 +50,11 @@ class Agora:
         # First round of survey
         for agent in self._agents:
             response = agent.generate_survey_response(agent.survey_questions)
-            print(f"Survey reponse from {agent.name}:")
-            print(response)
-            # str_res = parse_survey_response_str(response)
-            # self.survey_respose[agent.id] = {0: str_res}
-
-        asdasd
+            if verbose:
+                print(f"Survey reponse from {agent.name}:")
+                print(response)
+            self.survey_respose[agent.id] = {0: parse_survey_response_str(response)}
+        
         # Optional pre-interviews
         for agent in self._agents:
             if not agent.pre_interview_instruction:
@@ -134,11 +132,11 @@ class Agora:
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
 
-            # response = agent.generate_interview_response(agent.survey_response_instruction)
-            # print(f"Survey reponse from {agent.name}:")
-
-            # str_res = parse_survey_response_str(response)
-            # self.survey_respose[agent.id][self._turn_counter] = str_res
+            response = agent.generate_survey_response(agent.survey_questions)
+            if verbose:
+                print(f"Survey reponse from {agent.name}:")
+                print(response)
+            self.survey_respose[agent.id][self._turn_counter] = parse_survey_response_str(response)
 
         # Optional post-interviews
         for agent in self._agents:
