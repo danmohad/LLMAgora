@@ -273,7 +273,7 @@ def build_persona_agent_configs(
     question_text = questions_data[question_id]["question"]
     alpha_persona = personas_data[alpha_persona_id]
     beta_persona = personas_data[beta_persona_id]
-    survery_questions = "\n".join(survey_data[survey_id]["questions"])
+    survey_questions = survey_data[survey_id]["questions"]
 
 
     alpha_self_role = base_prompt.format(
@@ -300,7 +300,7 @@ def build_persona_agent_configs(
             "private_response": {"instruction": private_instruction, "keep": private_response_keep},
             "pre_interview": {"instruction": pre_interview_instruction, "keep": pre_interview_keep},
             "post_interview": {"instruction": post_interview_instruction, "keep": post_interview_keep},
-            "survey_questions": survery_questions,
+            "survey_questions": survey_questions,
         },
         {
             "name": "Beta",
@@ -311,7 +311,7 @@ def build_persona_agent_configs(
             "private_response": {"instruction": private_instruction, "keep": private_response_keep},
             "pre_interview": {"instruction": pre_interview_instruction, "keep": pre_interview_keep},
             "post_interview": {"instruction": post_interview_instruction, "keep": post_interview_keep},
-            "survey_questions": survery_questions,
+            "survey_questions": survey_questions,
         },
     ]
 

@@ -1,7 +1,30 @@
 import json
 import re
 
-from .constant import LIKERT_TO_SCORE
+from .constant import LIKERT_TO_SCORE, LIKERT_VALUES
+
+def build_likert_survey_schema(num_questions: int):
+    """
+    Build a strict JSON Schema for a Likert survey with Q1..Q{num_q}.
+    """
+    properties = {
+        f"Q{i}": {
+            "type": "string",
+            "enum": LIKERT_VALUES,
+        }
+        for i in range(1, num_questions + 1)
+    }
+
+    return {
+        "name": f"likert_survey_{num_questions}_questions",
+        "strict": True,
+        "schema": {
+            "type": "object",
+            "properties": properties,
+            "required": list(properties.keys()),
+            "additionalProperties": False,
+        },
+    }
 
 def parse_survey_response_str(
     response_str: str,

@@ -123,8 +123,8 @@ class Agent:
         return self._private_instruction
     
     @property
-    def survey_response_instruction(self) -> str:
-        return SURVEY_PROMPT + self._survey_questions if self._survey_questions else ""
+    def survey_questions(self) -> str:
+        return self._survey_questions
 
 
     def generate_public_speech(self) -> str:
@@ -149,6 +149,27 @@ class Agent:
         messages = self._build_messages(final_instruction=instruction)
         response = self._llm.complete(messages=messages, model=self.model)
         return self._strip_speaker_prefix(response.strip())
+    
+    def generate_survey_response(self, survey_questions: list[str]) -> str:
+        """Ask the LLM client for a survey response with JSON structured format."""
+        survey_prompt = (
+            "Respond to the following survey in valid JSON only.\n\n"
+            "Use the following Likert scale:\n"
+            "- Strongly disagree\n"
+            "- Disagree\n"
+            "- Neutral\n"
+            "- Agree\n"
+            "- Strongly agree\n\n"
+            "Answer all questions.\n\n"
+        )
+        for i, q in enumerate(survey_questions, start=1):
+            survey_prompt += f"Q{i}. {q}\n"
+
+        messages = self._build_messages(final_instruction=survey_prompt)
+        response = self._llm.complete(messages=messages, model=self.model, survey_questions=survey_questions)
+        return self._strip_speaker_prefix(response.strip())
+
+        
 
     def observe_turn(self, turn: MemoryTurn) -> None:
         """Append a public turn to the agent's personal memory."""
