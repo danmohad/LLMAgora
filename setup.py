@@ -15,5 +15,5 @@ setup(
             "agora=agora.cli:main",
         ]
     },
-    python_requires=">=3.11",
+    python_requires=">=3.12",
 )
