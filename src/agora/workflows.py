@@ -44,7 +44,6 @@ def build_agents_from_configs(
         private_instr, private_keep = extract_instruction(cfg, "private_response")
         pre_instr, pre_keep = extract_instruction(cfg, "pre_interview")
         post_instr, post_keep = extract_instruction(cfg, "post_interview")
-        survey_questions = cfg.get("survey_questions", None)
 
         agent = Agent(
             name=cfg["name"],
@@ -58,7 +57,7 @@ def build_agents_from_configs(
             pre_interview_keep=pre_keep,
             post_interview_instruction=post_instr,
             post_interview_keep=post_keep,
-            survey_questions=survey_questions,
+            survey_questions=cfg["survey_questions"],
         )
         agents.append(agent)
     return agents
@@ -216,10 +215,8 @@ def build_persona_agent_configs(
     alpha_persona_id: str,
     beta_persona_id: str,
     question_id: str,
-    survey_id:str,
     personas: dict,
     questions: dict,
-    survey_pool: dict,
     alpha_model: str,
     beta_model: str,
     base_prompt: Optional[str] = None,
@@ -232,6 +229,7 @@ def build_persona_agent_configs(
     private_response_keep: bool = True,
     pre_interview_keep: bool = False,
     post_interview_keep: bool = False,
+    survey_questions: Optional[list[str]] = None,
     prompt_templates: Optional[dict] = None,
     prompt_catalog: Optional[dict] = None,
     prompt_path: Path | str | None = None,
@@ -256,7 +254,6 @@ def build_persona_agent_configs(
 
     personas_data = personas.get("personas", {})
     questions_data = questions.get("questions", {})
-    survey_data = survey_pool.get("questions", {})
 
 
     if question_id not in questions_data:
@@ -265,15 +262,10 @@ def build_persona_agent_configs(
         raise KeyError(f"Unknown persona id: {alpha_persona_id}")
     if beta_persona_id not in personas_data:
         raise KeyError(f"Unknown persona id: {beta_persona_id}")
-    if survey_id not in survey_data:
-        print(survey_data)
-        raise KeyError(f"Unknown survey id: {survey_id}")
-
 
     question_text = questions_data[question_id]["question"]
     alpha_persona = personas_data[alpha_persona_id]
     beta_persona = personas_data[beta_persona_id]
-    survey_questions = survey_data[survey_id]["questions"]
 
 
     alpha_self_role = base_prompt.format(

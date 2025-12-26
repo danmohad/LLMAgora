@@ -23,7 +23,7 @@ class Agent:
         llm_client: LLMClient,
         system_prompt: str = "",
         response_instruction: str,
-        survey_questions: Optional[str] = None,
+        survey_questions: Optional[list[str]] = None,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -132,6 +132,13 @@ class Agent:
             "- Agree\n"
             "- Strongly agree\n\n"
             "Answer all questions.\n\n"
+        )
+    
+    @property
+    def do_survey_eval(self) -> bool:
+        return (
+            self._survey_questions is not None or
+            self._survey_questions != []
         )
     
     @property

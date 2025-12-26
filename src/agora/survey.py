@@ -26,6 +26,10 @@ def build_likert_survey_schema(num_questions: int):
     }
 
 def parse_survey_response_str(response_str: str) -> dict[str, int]:
+    """
+    Parse and validate a Likert survey response provided as a JSON string.
+    """
+
     # --- Deserialize JSON ---
     try:
         survey_answers = json.loads(response_str)
