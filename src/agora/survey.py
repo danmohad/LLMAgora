@@ -1,6 +1,20 @@
 import json
 
-from .constant import LIKERT_TO_SCORE, LIKERT_VALUES
+LIKERT_VALUES = [
+    "Strongly disagree",
+    "Disagree",
+    "Neutral",
+    "Agree",
+    "Strongly agree",
+]
+
+LIKERT_TO_SCORE = {
+    "Strongly disagree": -2,
+    "Disagree": -1,
+    "Neutral": 0,
+    "Agree": 1,
+    "Strongly agree": 2,
+}
 
 def build_likert_survey_schema(num_questions: int):
     """

@@ -6,7 +6,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient
 from .memory import MemoryTurn
-from .constant import SURVEY_PROMPT
 
 if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
     from .agora import Agora
@@ -137,7 +136,7 @@ class Agent:
     @property
     def do_survey_eval(self) -> bool:
         return (
-            self._survey_questions is not None or
+            self._survey_questions is not None and
             self._survey_questions != []
         )
     
