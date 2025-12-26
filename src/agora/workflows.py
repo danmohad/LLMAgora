@@ -58,7 +58,7 @@ def build_agents_from_configs(
             pre_interview_keep=pre_keep,
             post_interview_instruction=post_instr,
             post_interview_keep=post_keep,
-            survey_questions=cfg["survey_questions"],
+            survey_questions=cfg.get("survey_questions", []),
         )
         agents.append(agent)
     return agents
