@@ -16,6 +16,7 @@ LIKERT_TO_SCORE = {
     "Strongly agree": 2,
 }
 
+
 def build_likert_survey_schema(num_questions: int):
     """
     Build a strict JSON Schema for a Likert survey with Q1..Q{num_q}.
@@ -39,6 +40,7 @@ def build_likert_survey_schema(num_questions: int):
         },
     }
 
+
 def parse_survey_response_str(response_str: str) -> dict[str, int]:
     """
     Parse and validate a Likert survey response provided as a JSON string.
@@ -49,10 +51,7 @@ def parse_survey_response_str(response_str: str) -> dict[str, int]:
         survey_answers = json.loads(response_str)
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON returned by model: {response_str}") from e
-    
-    numeric_scores = {
-        q: LIKERT_TO_SCORE[a]
-        for q, a in survey_answers.items()
-    }
-    
+
+    numeric_scores = {q: LIKERT_TO_SCORE[a] for q, a in survey_answers.items()}
+
     return numeric_scores

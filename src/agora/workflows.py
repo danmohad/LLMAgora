@@ -1,4 +1,5 @@
 """High-level workflows for running Agora debates programmatically or via CLI."""
+
 from __future__ import annotations
 
 import json
@@ -117,14 +118,19 @@ def format_history_for_agent(agent: Agent) -> str:
     for turn in agent.view_history():
         speaker = turn.metadata.get("speaker_name", turn.speaker_id)
         note = ""
-        if turn.role in {"reflection", "pre_interview", "post_interview"} and not turn.keep:
+        if (
+            turn.role in {"reflection", "pre_interview", "post_interview"}
+            and not turn.keep
+        ):
             note = " (excluded)"
         if turn.role == "reflection":
             lines.append(
                 f"Turn {turn.turn_id:02d} | {speaker} (private){note}: {turn.private_reflection}"
             )
         elif turn.role in {"pre_interview", "post_interview"}:
-            label = "pre-interview" if turn.role == "pre_interview" else "post-interview"
+            label = (
+                "pre-interview" if turn.role == "pre_interview" else "post-interview"
+            )
             lines.append(
                 f"Turn {turn.turn_id:02d} | {speaker} ({label}){note}: {turn.private_reflection}"
             )
@@ -160,7 +166,9 @@ DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.js
 def load_prompt_catalog(prompt_path: Path | str | None = None) -> dict:
     """Load prompt template catalog from disk or the repo default."""
 
-    prompt_resource = Path(prompt_path) if prompt_path is not None else DEFAULT_PROMPT_PATH
+    prompt_resource = (
+        Path(prompt_path) if prompt_path is not None else DEFAULT_PROMPT_PATH
+    )
 
     if not prompt_resource.exists():
         raise FileNotFoundError(f"Prompt catalog not found at {prompt_resource}")
@@ -183,7 +191,9 @@ def load_prompt_templates(
     payload = prompt_sets.get(name)
     if payload is None:
         available = ", ".join(sorted(prompt_sets)) or "<none>"
-        raise KeyError(f"Prompt template '{name}' not found; available sets: {available}")
+        raise KeyError(
+            f"Prompt template '{name}' not found; available sets: {available}"
+        )
 
     required_keys = [
         "base_prompt",
@@ -238,7 +248,11 @@ def build_persona_agent_configs(
 
     prompts = prompt_templates
     if prompts is None:
-        if prompt_set == DEFAULT_PROMPT_SET and prompt_catalog is None and prompt_path is None:
+        if (
+            prompt_set == DEFAULT_PROMPT_SET
+            and prompt_catalog is None
+            and prompt_path is None
+        ):
             prompts = DEFAULT_PROMPTS
         else:
             prompts = load_prompt_templates(
@@ -249,12 +263,15 @@ def build_persona_agent_configs(
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
     public_instruction = public_instruction or prompts["public_instruction"]
     private_instruction = private_instruction or prompts["private_instruction"]
-    pre_interview_instruction = pre_interview_instruction or prompts["pre_interview_instruction"]
-    post_interview_instruction = post_interview_instruction or prompts["post_interview_instruction"]
+    pre_interview_instruction = (
+        pre_interview_instruction or prompts["pre_interview_instruction"]
+    )
+    post_interview_instruction = (
+        post_interview_instruction or prompts["post_interview_instruction"]
+    )
 
     personas_data = personas.get("personas", {})
     questions_data = questions.get("questions", {})
-
 
     if question_id not in questions_data:
         raise KeyError(f"Unknown question id: {question_id}")
@@ -266,7 +283,6 @@ def build_persona_agent_configs(
     question_text = questions_data[question_id]["question"]
     alpha_persona = personas_data[alpha_persona_id]
     beta_persona = personas_data[beta_persona_id]
-
 
     alpha_self_role = base_prompt.format(
         speaker_id="A", question=question_text, persona=alpha_persona["actual_persona"]
@@ -289,20 +305,40 @@ def build_persona_agent_configs(
             "self_role": alpha_self_role,
             "perceived_nonself_roles": [{"name": "Beta", "role": alpha_perceives_beta}],
             "response_instruction": public_instruction,
-            "private_response": {"instruction": private_instruction, "keep": private_response_keep},
-            "pre_interview": {"instruction": pre_interview_instruction, "keep": pre_interview_keep},
-            "post_interview": {"instruction": post_interview_instruction, "keep": post_interview_keep},
+            "private_response": {
+                "instruction": private_instruction,
+                "keep": private_response_keep,
+            },
+            "pre_interview": {
+                "instruction": pre_interview_instruction,
+                "keep": pre_interview_keep,
+            },
+            "post_interview": {
+                "instruction": post_interview_instruction,
+                "keep": post_interview_keep,
+            },
             "survey_questions": survey_questions,
         },
         {
             "name": "Beta",
             "model": beta_model,
             "self_role": beta_self_role,
-            "perceived_nonself_roles": [{"name": "Alpha", "role": beta_perceives_alpha}],
+            "perceived_nonself_roles": [
+                {"name": "Alpha", "role": beta_perceives_alpha}
+            ],
             "response_instruction": public_instruction,
-            "private_response": {"instruction": private_instruction, "keep": private_response_keep},
-            "pre_interview": {"instruction": pre_interview_instruction, "keep": pre_interview_keep},
-            "post_interview": {"instruction": post_interview_instruction, "keep": post_interview_keep},
+            "private_response": {
+                "instruction": private_instruction,
+                "keep": private_response_keep,
+            },
+            "pre_interview": {
+                "instruction": pre_interview_instruction,
+                "keep": pre_interview_keep,
+            },
+            "post_interview": {
+                "instruction": post_interview_instruction,
+                "keep": post_interview_keep,
+            },
             "survey_questions": survey_questions,
         },
     ]

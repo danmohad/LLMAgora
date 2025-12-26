@@ -120,7 +120,7 @@ class Agent:
     @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
-    
+
     def _survey_base_prompt(self) -> str:
         return (
             "Respond to the following survey in valid JSON only.\n\n"
@@ -132,18 +132,14 @@ class Agent:
             "- Strongly agree\n\n"
             "Answer all questions.\n\n"
         )
-    
+
     @property
     def do_survey_eval(self) -> bool:
-        return (
-            self._survey_questions is not None and
-            self._survey_questions != []
-        )
-    
+        return self._survey_questions is not None and self._survey_questions != []
+
     @property
     def survey_questions(self) -> str:
         return self._survey_questions
-
 
     def generate_public_speech(self) -> str:
         """Ask the LLM client for this agent's next public response."""
@@ -156,7 +152,9 @@ class Agent:
         """Ask the LLM client for the agent's private reflection."""
 
         if not self._private_instruction:
-            raise RuntimeError("Private reflection requested for agent without instructions")
+            raise RuntimeError(
+                "Private reflection requested for agent without instructions"
+            )
         messages = self._build_messages(final_instruction=self._private_instruction)
         response = self._llm.complete(messages=messages, model=self.model)
         return self._strip_speaker_prefix(response.strip())
@@ -167,7 +165,7 @@ class Agent:
         messages = self._build_messages(final_instruction=instruction)
         response = self._llm.complete(messages=messages, model=self.model)
         return self._strip_speaker_prefix(response.strip())
-    
+
     def generate_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a survey response with JSON structured format."""
         survey_prompt = self._survey_base_prompt()
@@ -175,10 +173,10 @@ class Agent:
             survey_prompt += f"Q{i}. {q}\n"
 
         messages = self._build_messages(final_instruction=survey_prompt)
-        response = self._llm.complete(messages=messages, model=self.model, survey_questions=survey_questions)
+        response = self._llm.complete(
+            messages=messages, model=self.model, survey_questions=survey_questions
+        )
         return self._strip_speaker_prefix(response.strip())
-
-        
 
     def observe_turn(self, turn: MemoryTurn) -> None:
         """Append a public turn to the agent's personal memory."""
@@ -208,7 +206,9 @@ class Agent:
         }
 
     @classmethod
-    def from_configuration(cls, config: Dict[str, Any], llm_client: LLMClient) -> "Agent":
+    def from_configuration(
+        cls, config: Dict[str, Any], llm_client: LLMClient
+    ) -> "Agent":
         """Instantiate an agent from ``export_configuration`` output."""
 
         return cls(
@@ -237,7 +237,9 @@ class Agent:
         multi_party = bool(self._agora and self._agora.agent_count() > 2)
 
         for turn in self._memory:
-            chat_message = turn.to_chat_message(viewer_id=self.id, multi_party=multi_party)
+            chat_message = turn.to_chat_message(
+                viewer_id=self.id, multi_party=multi_party
+            )
             if chat_message:
                 messages.append(chat_message)
 
@@ -281,7 +283,9 @@ def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:
 
     # Require exactly one of raw system_prompt or structured self_role.
     if (raw and self_role) or not (raw or self_role):
-        raise ValueError("Agent config requires exactly one of 'system_prompt' or 'self_role'.")
+        raise ValueError(
+            "Agent config requires exactly one of 'system_prompt' or 'self_role'."
+        )
 
     if raw:
         return raw
@@ -307,7 +311,9 @@ def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:
         name = (entry.get("name") or "").strip()
         role_text = (entry.get("role") or "").strip()
         if not name or not role_text:
-            raise ValueError("Each perceived_nonself_roles entry must include 'name' and 'role'.")
+            raise ValueError(
+                "Each perceived_nonself_roles entry must include 'name' and 'role'."
+            )
         role_fragments.append(f"{name}: {role_text}")
 
     return " ".join(role_fragments)
