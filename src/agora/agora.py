@@ -49,12 +49,14 @@ class Agora:
         
         # First round of survey
         for agent in self._agents:
-            response = agent.generate_survey_response(agent.survey_questions)
-            if verbose:
-                print(f"Survey reponse from {agent.name}:")
-                print(response)
-            self.survey_respose[agent.id] = {0: parse_survey_response_str(response)}
-        
+            if agent.do_survey_eval:
+                response = agent.generate_survey_response(agent.survey_questions)        
+                self.survey_respose[agent.id] = {0: parse_survey_response_str(response)}
+
+                if verbose:
+                    print(f"Survey reponse from {agent.name}:")
+                    print(response)
+
         # Optional pre-interviews
         for agent in self._agents:
             if not agent.pre_interview_instruction:
@@ -132,11 +134,15 @@ class Agora:
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
 
-            response = agent.generate_survey_response(agent.survey_questions)
-            if verbose:
-                print(f"Survey reponse from {agent.name}:")
-                print(response)
-            self.survey_respose[agent.id][self._turn_counter] = parse_survey_response_str(response)
+            if agent.do_survey_eval:
+                response = agent.generate_survey_response(agent.survey_questions)
+                self.survey_respose[agent.id][self._turn_counter] = parse_survey_response_str(response)
+
+                if verbose:
+                    print(f"Survey reponse from {agent.name}:")
+                    print(response)
+
+
 
         # Optional post-interviews
         for agent in self._agents:
