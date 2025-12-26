@@ -17,7 +17,9 @@ class Agora:
         if not agents:
             raise ValueError("Agora requires at least one agent")
         self._agents: List[Agent] = list(agents)
-        self._agent_lookup: Dict[str, Agent] = {agent.id: agent for agent in self._agents}
+        self._agent_lookup: Dict[str, Agent] = {
+            agent.id: agent for agent in self._agents
+        }
         if len(self._agent_lookup) != len(self._agents):
             raise ValueError("Agent identifiers must be unique")
         for agent in self._agents:
@@ -46,11 +48,11 @@ class Agora:
 
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
-        
+
         # First round of survey
         for agent in self._agents:
             if agent.do_survey_eval:
-                response = agent.generate_survey_response(agent.survey_questions)        
+                response = agent.generate_survey_response(agent.survey_questions)
                 self.survey_respose[agent.id] = {0: parse_survey_response_str(response)}
 
                 if verbose:
@@ -61,7 +63,9 @@ class Agora:
         for agent in self._agents:
             if not agent.pre_interview_instruction:
                 continue
-            response = agent.generate_interview_response(agent.pre_interview_instruction)
+            response = agent.generate_interview_response(
+                agent.pre_interview_instruction
+            )
             self._turn_counter += 1
             pre_turn = MemoryTurn(
                 turn_id=self._turn_counter,
@@ -76,7 +80,9 @@ class Agora:
                 agent.observe_turn(pre_turn)
             if verbose:
                 suffix = " (excluded)" if not agent.pre_interview_keep else ""
-                print(f"Turn {self._turn_counter} | {agent.name} (pre-interview){suffix}: {response}")
+                print(
+                    f"Turn {self._turn_counter} | {agent.name} (pre-interview){suffix}: {response}"
+                )
 
         # Track how many turns each agent has already taken.
         turns_taken: Dict[str, int] = {agent.id: 0 for agent in self._agents}
@@ -104,17 +110,19 @@ class Agora:
                     reflection_turn = MemoryTurn(
                         turn_id=self._turn_counter,
                         speaker_id=agent.id,
-                    role="reflection",
-                    private_reflection=reflection,
-                    metadata={"speaker_name": agent.name},
-                    keep=agent.private_keep,
+                        role="reflection",
+                        private_reflection=reflection,
+                        metadata={"speaker_name": agent.name},
+                        keep=agent.private_keep,
                     )
                     self._turn_log.append(reflection_turn)
                     if agent.private_keep:
                         agent.observe_turn(reflection_turn)
                     if verbose:
                         suffix = " (excluded)" if not agent.private_keep else ""
-                        print(f"Turn {self._turn_counter} | {agent.name} (reflection){suffix}: {reflection}")
+                        print(
+                            f"Turn {self._turn_counter} | {agent.name} (reflection){suffix}: {reflection}"
+                        )
 
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech()
@@ -136,19 +144,21 @@ class Agora:
 
             if agent.do_survey_eval:
                 response = agent.generate_survey_response(agent.survey_questions)
-                self.survey_respose[agent.id][self._turn_counter] = parse_survey_response_str(response)
+                self.survey_respose[agent.id][self._turn_counter] = (
+                    parse_survey_response_str(response)
+                )
 
                 if verbose:
                     print(f"Survey reponse from {agent.name}:")
                     print(response)
 
-
-
         # Optional post-interviews
         for agent in self._agents:
             if not agent.post_interview_instruction:
                 continue
-            response = agent.generate_interview_response(agent.post_interview_instruction)
+            response = agent.generate_interview_response(
+                agent.post_interview_instruction
+            )
             self._turn_counter += 1
             post_turn = MemoryTurn(
                 turn_id=self._turn_counter,
@@ -163,7 +173,9 @@ class Agora:
                 agent.observe_turn(post_turn)
             if verbose:
                 suffix = " (excluded)" if not agent.post_interview_keep else ""
-                print(f"Turn {self._turn_counter} | {agent.name} (post-interview){suffix}: {response}")
+                print(
+                    f"Turn {self._turn_counter} | {agent.name} (post-interview){suffix}: {response}"
+                )
 
         return list(self._turn_log)
 

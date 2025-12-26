@@ -8,6 +8,7 @@ import httpx
 
 from .survey import build_likert_survey_schema
 
+
 class ChatMessage(TypedDict):
     """Typed representation of an OpenRouter chat message payload."""
 
@@ -18,7 +19,13 @@ class ChatMessage(TypedDict):
 class LLMClient(Protocol):
     """Protocol for LLM clients so agents remain easily testable."""
 
-    def complete(self, *, messages: Sequence[ChatMessage], model: str, survey_questions: Sequence[str] = None) -> str:
+    def complete(
+        self,
+        *,
+        messages: Sequence[ChatMessage],
+        model: str,
+        survey_questions: Sequence[str] = None,
+    ) -> str:
         """Return the chat completion text for the provided conversation."""
 
 
@@ -39,25 +46,34 @@ class OpenRouterClient:
 
         self._api_key = api_key or os.getenv("OPENROUTER_API_KEY")
         if not self._api_key:
-            raise RuntimeError("OPENROUTER_API_KEY is not configured in the environment")
+            raise RuntimeError(
+                "OPENROUTER_API_KEY is not configured in the environment"
+            )
         self._timeout = timeout
         self._client = httpx.Client(base_url=self._BASE_URL, timeout=timeout)
         self._referer = referer
         self._title = title
 
-    def complete(self, *, messages: Sequence[ChatMessage], model: str, survey_questions: Sequence[str] = None) -> str:
+    def complete(
+        self,
+        *,
+        messages: Sequence[ChatMessage],
+        model: str,
+        survey_questions: Sequence[str] = None,
+    ) -> str:
         """Submit a chat completion request and return the LLM's reply."""
 
         if survey_questions is not None:
-            
-            survey_schema = build_likert_survey_schema(num_questions=len(survey_questions))
+            survey_schema = build_likert_survey_schema(
+                num_questions=len(survey_questions)
+            )
             payload: Dict[str, Any] = {
                 "model": model,
                 "messages": list(messages),
                 "response_format": {
                     "type": "json_schema",
-                    "json_schema": survey_schema
-                }
+                    "json_schema": survey_schema,
+                },
             }
         else:
             payload: Dict[str, Any] = {
