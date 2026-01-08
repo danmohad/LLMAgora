@@ -22,6 +22,7 @@ class AgentState:
     model: str
     system_prompt: str
     response_instruction: str
+    opening_instruction: Optional[str] = None
     private_response_instruction: Optional[str] = None
     private_response_keep: bool = True
     pre_interview_instruction: Optional[str] = None
@@ -38,6 +39,7 @@ class AgentState:
             model=config["model"] or agent.model,
             system_prompt=config.get("system_prompt", "") or "",
             response_instruction=config.get("response_instruction", "") or "",
+            opening_instruction=config.get("opening_instruction"),
             private_response_instruction=config.get("private_response_instruction"),
             private_response_keep=config.get("private_response_keep", True),
             pre_interview_instruction=config.get("pre_interview_instruction"),
@@ -53,6 +55,7 @@ class AgentState:
             "model": self.model,
             "system_prompt": self.system_prompt,
             "response_instruction": self.response_instruction,
+            "opening_instruction": self.opening_instruction,
             "private_response_instruction": self.private_response_instruction,
             "private_response_keep": self.private_response_keep,
             "pre_interview_instruction": self.pre_interview_instruction,
@@ -69,6 +72,7 @@ class AgentState:
             model=payload["model"],
             system_prompt=payload.get("system_prompt", ""),
             response_instruction=payload.get("response_instruction", ""),
+            opening_instruction=payload.get("opening_instruction"),
             private_response_instruction=payload.get("private_response_instruction"),
             private_response_keep=payload.get("private_response_keep", True),
             pre_interview_instruction=payload.get("pre_interview_instruction"),

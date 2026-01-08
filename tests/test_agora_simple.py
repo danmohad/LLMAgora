@@ -95,6 +95,33 @@ def test_agent_message_roles_follow_schema(stub_llm_factory):
     assert any(msg["role"] == "assistant" and msg["content"] == "Beta turn 1" for msg in beta_second)
 
 
+def test_opening_instruction_used_for_first_public_turn(stub_llm_factory):
+    """First public speaker should receive the opening instruction."""
+
+    llm_a = stub_llm_factory(["Alpha turn 1"])
+    llm_b = stub_llm_factory(["Beta turn 1"])
+    agent_a = Agent(
+        name="Alpha",
+        model="demo-model",
+        llm_client=llm_a,
+        response_instruction="Alpha respond.",
+        opening_instruction="Alpha open.",
+    )
+    agent_b = Agent(
+        name="Beta",
+        model="demo-model",
+        llm_client=llm_b,
+        response_instruction="Beta respond.",
+    )
+
+    Agora([agent_a, agent_b]).run(max_turns_per_agent=1)
+
+    alpha_messages = llm_a.calls[0]["messages"]
+    beta_messages = llm_b.calls[0]["messages"]
+    assert alpha_messages[-1]["content"] == "Alpha open."
+    assert beta_messages[-1]["content"] == "Beta respond."
+
+
 def test_multi_agent_histories_label_user_messages(stub_llm_factory):
     """When more than two speakers exist, user messages include the speaker name."""
 

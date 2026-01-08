@@ -30,6 +30,7 @@ class Agent:
         post_interview_instruction: Optional[str] = None,
         post_interview_keep: bool = True,
         agent_id: Optional[str] = None,
+        opening_instruction: Optional[str] = None,
     ) -> None:
         """
         Initialize the agent with identity, backend model, and prompts.
@@ -40,6 +41,7 @@ class Agent:
             llm_client: Backend completion client.
             system_prompt: Optional system message prepended to every call.
             response_instruction: Final user message directing the agent's public reply.
+            opening_instruction: Optional user message directing the opening public remark.
             private_response_instruction: Optional user message directing private reflections.
             private_response_keep: Whether to keep reflections in local memory.
             pre_interview_instruction: Optional pre-run interview prompt.
@@ -54,6 +56,7 @@ class Agent:
         self.model = model
         self._system_prompt = system_prompt
         self._response_instruction = response_instruction
+        self._opening_instruction = opening_instruction
         self._survey_questions = survey_questions
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
@@ -118,6 +121,10 @@ class Agent:
         return self._response_instruction
 
     @property
+    def opening_instruction(self) -> Optional[str]:
+        return self._opening_instruction
+
+    @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
 
@@ -141,10 +148,13 @@ class Agent:
     def survey_questions(self) -> str:
         return self._survey_questions
 
-    def generate_public_speech(self) -> str:
+    def generate_public_speech(self, *, opening: bool = False) -> str:
         """Ask the LLM client for this agent's next public response."""
 
-        messages = self._build_messages(final_instruction=self._response_instruction)
+        instruction = self._response_instruction
+        if opening and self._opening_instruction:
+            instruction = self._opening_instruction
+        messages = self._build_messages(final_instruction=instruction)
         response = self._llm.complete(messages=messages, model=self.model)
         return self._strip_speaker_prefix(response.strip())
 
@@ -197,6 +207,7 @@ class Agent:
             "model": self.model,
             "system_prompt": self._system_prompt,
             "response_instruction": self._response_instruction,
+            "opening_instruction": self._opening_instruction,
             "private_response_instruction": self._private_instruction,
             "private_response_keep": self._private_keep,
             "pre_interview_instruction": self._pre_instruction,
@@ -217,6 +228,7 @@ class Agent:
             llm_client=llm_client,
             system_prompt=config.get("system_prompt", "") or "",
             response_instruction=config.get("response_instruction", "") or "",
+            opening_instruction=config.get("opening_instruction"),
             private_response_instruction=config.get("private_response_instruction"),
             private_response_keep=bool(config.get("private_response_keep", True)),
             pre_interview_instruction=config.get("pre_interview_instruction"),

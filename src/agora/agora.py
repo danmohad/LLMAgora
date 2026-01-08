@@ -87,6 +87,7 @@ class Agora:
         # Track how many turns each agent has already taken.
         turns_taken: Dict[str, int] = {agent.id: 0 for agent in self._agents}
         agent_index = 0
+        opening_turn = not any(turn.role == "assistant" for turn in self._turn_log)
 
         first_reflection_skipped = False
 
@@ -125,7 +126,8 @@ class Agora:
                         )
 
             # Ask the selected agent for its next public utterance.
-            speech = agent.generate_public_speech()
+            speech = agent.generate_public_speech(opening=opening_turn)
+            opening_turn = False
             self._turn_counter += 1
             turn = MemoryTurn(
                 turn_id=self._turn_counter,

@@ -52,6 +52,7 @@ def build_agents_from_configs(
             llm_client=llm_client,
             system_prompt=system_prompt,
             response_instruction=cfg["response_instruction"],
+            opening_instruction=cfg.get("opening_instruction"),
             private_response_instruction=private_instr,
             private_response_keep=private_keep,
             pre_interview_instruction=pre_instr,
@@ -208,6 +209,9 @@ def load_prompt_templates(
         raise KeyError(
             f"Prompt template '{name}' missing required fields: {', '.join(sorted(missing))}"
         )
+    if "opening_instruction" not in payload:
+        payload = dict(payload)
+        payload["opening_instruction"] = payload["public_instruction"]
     return payload
 
 
@@ -215,6 +219,7 @@ DEFAULT_PROMPTS = load_prompt_templates(DEFAULT_PROMPT_SET)
 DEFAULT_BASE_PROMPT = DEFAULT_PROMPTS["base_prompt"]
 DEFAULT_PERCEIVED_PROMPT = DEFAULT_PROMPTS["perceived_prompt"]
 DEFAULT_PUBLIC_INSTRUCTION = DEFAULT_PROMPTS["public_instruction"]
+DEFAULT_OPENING_INSTRUCTION = DEFAULT_PROMPTS["opening_instruction"]
 DEFAULT_PRIVATE_INSTRUCTION = DEFAULT_PROMPTS["private_instruction"]
 DEFAULT_PRE_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["pre_interview_instruction"]
 DEFAULT_POST_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["post_interview_instruction"]
@@ -232,6 +237,7 @@ def build_persona_agent_configs(
     base_prompt: Optional[str] = None,
     perceived_prompt: Optional[str] = None,
     public_instruction: Optional[str] = None,
+    opening_instruction: Optional[str] = None,
     private_instruction: Optional[str] = None,
     pre_interview_instruction: Optional[str] = None,
     post_interview_instruction: Optional[str] = None,
@@ -262,6 +268,7 @@ def build_persona_agent_configs(
     base_prompt = base_prompt or prompts["base_prompt"]
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
     public_instruction = public_instruction or prompts["public_instruction"]
+    opening_instruction = opening_instruction or prompts["opening_instruction"]
     private_instruction = private_instruction or prompts["private_instruction"]
     pre_interview_instruction = (
         pre_interview_instruction or prompts["pre_interview_instruction"]
@@ -305,6 +312,7 @@ def build_persona_agent_configs(
             "self_role": alpha_self_role,
             "perceived_nonself_roles": [{"name": "Beta", "role": alpha_perceives_beta}],
             "response_instruction": public_instruction,
+            "opening_instruction": opening_instruction,
             "private_response": {
                 "instruction": private_instruction,
                 "keep": private_response_keep,
@@ -327,6 +335,7 @@ def build_persona_agent_configs(
                 {"name": "Alpha", "role": beta_perceives_alpha}
             ],
             "response_instruction": public_instruction,
+            "opening_instruction": opening_instruction,
             "private_response": {
                 "instruction": private_instruction,
                 "keep": private_response_keep,
@@ -352,6 +361,7 @@ __all__ = [
     "DEFAULT_BASE_PROMPT",
     "DEFAULT_PERCEIVED_PROMPT",
     "DEFAULT_PUBLIC_INSTRUCTION",
+    "DEFAULT_OPENING_INSTRUCTION",
     "DEFAULT_PRIVATE_INSTRUCTION",
     "DEFAULT_PRE_INTERVIEW_INSTRUCTION",
     "DEFAULT_POST_INTERVIEW_INSTRUCTION",
