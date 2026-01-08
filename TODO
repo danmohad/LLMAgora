@@ -1,1 +1,0 @@
-- Add the ability to handle 'events': right now the activation of private reflection behavior is hard-coded into the agora logic, but I liked the abstract way GPT suggested during the planning phase: using the concept of 'InteractionRule', a policy object that answers “what context is visible to whom, and how do turns flow?” without hard-coding that logic into Agora or Agent.
