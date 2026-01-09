@@ -279,7 +279,8 @@ def test_build_system_prompt_from_roles():
     }
     result = build_system_prompt(cfg, total_agents=2)
     assert "You are Alpha." in result
-    assert "Beta: Beta is your buyer." in result
+    assert "Beta is your buyer." in result
+    assert "Beta:" not in result
 
 
 def test_build_system_prompt_requires_roles():

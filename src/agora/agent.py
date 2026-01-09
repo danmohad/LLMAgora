@@ -326,7 +326,7 @@ def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:
             raise ValueError(
                 "Each perceived_nonself_roles entry must include 'name' and 'role'."
             )
-        role_fragments.append(f"{name}: {role_text}")
+        role_fragments.append(role_text)
 
     return " ".join(role_fragments)
 
