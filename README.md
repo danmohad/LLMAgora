@@ -15,7 +15,6 @@ A minimal arena where LLM-backed agents take public turns (optionally preceded b
    ```bash
    uv venv --python 3.12.4
    source .venv/bin/activate
-   uv pip install -r requirements.txt
    uv pip install -e .
    ```
 2. Add your OpenRouter API key to a `.env` file in the repo root:
@@ -30,6 +29,7 @@ python -m pytest
 ```
 
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
+Tests assume the package is installed (editable install recommended).
 
 ## Notebook demos
 

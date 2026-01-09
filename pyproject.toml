@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-agora"
+version = "0.1.0"
+description = "Arena for LLM agents"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "httpx",
+  "ipykernel",
+  "matplotlib",
+  "pytest",
+  "python-dotenv",
+]
+
+[project.scripts]
+agora = "agora.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+agora = []
