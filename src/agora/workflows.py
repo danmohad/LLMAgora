@@ -45,6 +45,7 @@ def build_agents_from_configs(
         private_instr, private_keep = extract_instruction(cfg, "private_response")
         pre_instr, pre_keep = extract_instruction(cfg, "pre_interview")
         post_instr, post_keep = extract_instruction(cfg, "post_interview")
+        survey_base_prompt = cfg.get("survey_base_prompt") or DEFAULT_SURVEY_BASE_PROMPT
 
         agent = Agent(
             name=cfg["name"],
@@ -60,6 +61,7 @@ def build_agents_from_configs(
             post_interview_instruction=post_instr,
             post_interview_keep=post_keep,
             survey_questions=cfg.get("survey_questions", []),
+            survey_base_prompt=survey_base_prompt,
         )
         agents.append(agent)
     return agents
@@ -203,6 +205,7 @@ def load_prompt_templates(
         "private_instruction",
         "pre_interview_instruction",
         "post_interview_instruction",
+        "survey_base_prompt",
     ]
     missing = [key for key in required_keys if key not in payload]
     if missing:
@@ -223,6 +226,7 @@ DEFAULT_OPENING_INSTRUCTION = DEFAULT_PROMPTS["opening_instruction"]
 DEFAULT_PRIVATE_INSTRUCTION = DEFAULT_PROMPTS["private_instruction"]
 DEFAULT_PRE_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["pre_interview_instruction"]
 DEFAULT_POST_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["post_interview_instruction"]
+DEFAULT_SURVEY_BASE_PROMPT = DEFAULT_PROMPTS["survey_base_prompt"]
 
 
 def build_persona_agent_configs(
@@ -241,6 +245,7 @@ def build_persona_agent_configs(
     private_instruction: Optional[str] = None,
     pre_interview_instruction: Optional[str] = None,
     post_interview_instruction: Optional[str] = None,
+    survey_base_prompt: Optional[str] = None,
     prompt_set: str = DEFAULT_PROMPT_SET,
     private_response_keep: bool = True,
     pre_interview_keep: bool = False,
@@ -276,6 +281,7 @@ def build_persona_agent_configs(
     post_interview_instruction = (
         post_interview_instruction or prompts["post_interview_instruction"]
     )
+    survey_base_prompt = survey_base_prompt or prompts["survey_base_prompt"]
 
     personas_data = personas.get("personas", {})
     questions_data = questions.get("questions", {})
@@ -326,6 +332,7 @@ def build_persona_agent_configs(
                 "keep": post_interview_keep,
             },
             "survey_questions": survey_questions,
+            "survey_base_prompt": survey_base_prompt,
         },
         {
             "name": "Beta",
@@ -349,6 +356,7 @@ def build_persona_agent_configs(
                 "keep": post_interview_keep,
             },
             "survey_questions": survey_questions,
+            "survey_base_prompt": survey_base_prompt,
         },
     ]
 
@@ -365,6 +373,7 @@ __all__ = [
     "DEFAULT_PRIVATE_INSTRUCTION",
     "DEFAULT_PRE_INTERVIEW_INSTRUCTION",
     "DEFAULT_POST_INTERVIEW_INSTRUCTION",
+    "DEFAULT_SURVEY_BASE_PROMPT",
     "load_prompt_catalog",
     "extract_instruction",
     "format_history_for_agent",

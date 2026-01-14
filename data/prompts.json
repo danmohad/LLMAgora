@@ -7,7 +7,8 @@
       "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
       "private_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
       "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
-      "post_interview_instruction": "In one sentence, summarize how it went."
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "survey_base_prompt": "Respond to the following survey in valid JSON only.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions.\n\n"
     }
   }
 }

@@ -23,6 +23,7 @@ class Agent:
         system_prompt: str = "",
         response_instruction: str,
         survey_questions: Optional[list[str]] = None,
+        survey_base_prompt: Optional[str] = None,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -42,6 +43,7 @@ class Agent:
             system_prompt: Optional system message prepended to every call.
             response_instruction: Final user message directing the agent's public reply.
             opening_instruction: Optional user message directing the opening public remark.
+            survey_base_prompt: Survey instructions prepended to question list.
             private_response_instruction: Optional user message directing private reflections.
             private_response_keep: Whether to keep reflections in local memory.
             pre_interview_instruction: Optional pre-run interview prompt.
@@ -58,6 +60,7 @@ class Agent:
         self._response_instruction = response_instruction
         self._opening_instruction = opening_instruction
         self._survey_questions = survey_questions
+        self._survey_prompt = survey_base_prompt or ""
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
         self._pre_instruction = pre_interview_instruction
@@ -129,16 +132,11 @@ class Agent:
         return self._private_instruction
 
     def _survey_base_prompt(self) -> str:
-        return (
-            "Respond to the following survey in valid JSON only.\n\n"
-            "Use the following Likert scale:\n"
-            "- Strongly disagree\n"
-            "- Disagree\n"
-            "- Neutral\n"
-            "- Agree\n"
-            "- Strongly agree\n\n"
-            "Answer all questions.\n\n"
-        )
+        if not self._survey_prompt:
+            raise RuntimeError(
+                "Survey prompt missing; configure 'survey_base_prompt' in prompts.json."
+            )
+        return self._survey_prompt
 
     @property
     def do_survey_eval(self) -> bool:
@@ -214,6 +212,7 @@ class Agent:
             "pre_interview_keep": self._pre_keep,
             "post_interview_instruction": self._post_instruction,
             "post_interview_keep": self._post_keep,
+            "survey_base_prompt": self._survey_prompt,
         }
 
     @classmethod
@@ -235,6 +234,7 @@ class Agent:
             pre_interview_keep=bool(config.get("pre_interview_keep", True)),
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=bool(config.get("post_interview_keep", True)),
+            survey_base_prompt=config.get("survey_base_prompt"),
             agent_id=config.get("id"),
         )
 
