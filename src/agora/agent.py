@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient
 from .memory import MemoryTurn
+from .survey import METRIC_SURVEYS, build_numeric_survey_schema
 
 if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
     from .agora import Agora
@@ -185,6 +186,36 @@ class Agent:
         messages = self._build_messages(final_instruction=survey_prompt)
         response = self._llm.complete(
             messages=messages, model=self.model, survey_questions=survey_questions
+        )
+        return self._strip_speaker_prefix(response.strip())
+
+    def generate_metrics_response(self, *, kind: str, response_text: str) -> str:
+        """Ask the LLM client to return structured metrics for a response."""
+        if kind not in METRIC_SURVEYS:
+            raise ValueError(f"Unknown metrics survey type: {kind}")
+        survey = METRIC_SURVEYS[kind]
+        fields = survey["fields"]
+        prompt_lines = [
+            "Respond in valid JSON only.",
+            "Use integer values within the specified ranges.",
+            f"Metrics topic: {survey['title']}.",
+            "",
+            "Metrics to provide:",
+        ]
+        for field, (minimum, maximum) in fields.items():
+            prompt_lines.append(f"- {field}: {minimum} to {maximum}")
+        prompt_lines.extend(
+            [
+                "",
+                "Response text:",
+                response_text,
+            ]
+        )
+        prompt = "\n".join(prompt_lines)
+        messages = self._build_messages(final_instruction=prompt)
+        schema = build_numeric_survey_schema(survey["name"], fields)
+        response = self._llm.complete(
+            messages=messages, model=self.model, survey_schema=schema
         )
         return self._strip_speaker_prefix(response.strip())
 

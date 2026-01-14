@@ -25,6 +25,7 @@ class LLMClient(Protocol):
         messages: Sequence[ChatMessage],
         model: str,
         survey_questions: Sequence[str] = None,
+        survey_schema: Dict[str, Any] | None = None,
     ) -> str:
         """Return the chat completion text for the provided conversation."""
 
@@ -60,10 +61,20 @@ class OpenRouterClient:
         messages: Sequence[ChatMessage],
         model: str,
         survey_questions: Sequence[str] = None,
+        survey_schema: Dict[str, Any] | None = None,
     ) -> str:
         """Submit a chat completion request and return the LLM's reply."""
 
-        if survey_questions is not None:
+        if survey_schema is not None:
+            payload: Dict[str, Any] = {
+                "model": model,
+                "messages": list(messages),
+                "response_format": {
+                    "type": "json_schema",
+                    "json_schema": survey_schema,
+                },
+            }
+        elif survey_questions is not None:
             survey_schema = build_likert_survey_schema(
                 num_questions=len(survey_questions)
             )

@@ -2,7 +2,11 @@
 
 from typing import Dict, List, Sequence
 
-from agora.survey import parse_survey_response_str
+from agora.survey import (
+    METRIC_SURVEYS,
+    parse_numeric_survey_response_str,
+    parse_survey_response_str,
+)
 
 from .agent import Agent
 from .memory import MemoryTurn
@@ -27,6 +31,10 @@ class Agora:
         self._turn_log: List[MemoryTurn] = []
         self._turn_counter = 0
         self.survey_respose = {}
+        self.metrics_response: Dict[str, Dict[str, Dict[int, Dict[str, int]]]] = {
+            "public": {},
+            "off_record": {},
+        }
 
     def run(
         self,
@@ -124,6 +132,19 @@ class Agora:
                         print(
                             f"Turn {self._turn_counter} | {agent.name} (reflection){suffix}: {reflection}"
                         )
+                    metrics_response = agent.generate_metrics_response(
+                        kind="off_record", response_text=reflection
+                    )
+                    self.metrics_response["off_record"].setdefault(agent.id, {})[
+                        self._turn_counter
+                    ] = parse_numeric_survey_response_str(
+                        metrics_response,
+                        fields=METRIC_SURVEYS["off_record"]["fields"],
+                    )
+                    if verbose:
+                        print(
+                            f"Off-record metrics response from {agent.name}: {metrics_response}"
+                        )
 
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech(opening=opening_turn)
@@ -143,6 +164,18 @@ class Agora:
             turns_taken[agent.id] += 1
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
+
+            metrics_response = agent.generate_metrics_response(
+                kind="public", response_text=speech
+            )
+            self.metrics_response["public"].setdefault(agent.id, {})[
+                self._turn_counter
+            ] = parse_numeric_survey_response_str(
+                metrics_response,
+                fields=METRIC_SURVEYS["public"]["fields"],
+            )
+            if verbose:
+                print(f"Public metrics response from {agent.name}: {metrics_response}")
 
             if agent.do_survey_eval:
                 response = agent.generate_survey_response(agent.survey_questions)

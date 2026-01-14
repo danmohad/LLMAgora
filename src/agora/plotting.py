@@ -10,7 +10,7 @@ def extract_metrics(text: str) -> Dict[str, int]:
     """Extract metrics from a response text. Returns dict with metric values."""
     if not text:
         return {}
-    
+
     metrics = {}
     # Patterns for each metric - handles formats like:
     # Public_STANCE_SHIFT={{+1}}, {{-1}}, or =-1
@@ -26,7 +26,7 @@ def extract_metrics(text: str) -> Dict[str, int]:
         match = re.search(pattern, text)
         if match:
             metrics[metric_name] = int(match.group(1))
-    
+
     return metrics
 
 
@@ -38,49 +38,82 @@ def collect_agent_metrics(agora) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
     Returns: dict[agent_name] -> {'public': [...], 'off_record': [...]}
     """
     agent_metrics = {}
-    
+
     # Get all turns from the agora's turn log
     all_turns = agora.history()
-    
+
+    metrics_response = getattr(agora, "metrics_response", None)
+    has_metrics_response = bool(metrics_response and metrics_response.get("public"))
+
     # Group turns by agent
     agent_names = set()
+    agent_ids = {}
+    if hasattr(agora, "agents"):
+        agent_ids = {agent.id: agent.name for agent in agora.agents}
     for turn in all_turns:
-        speaker = turn.metadata.get('speaker_name', turn.speaker_id)
+        speaker = turn.metadata.get(
+            "speaker_name", agent_ids.get(turn.speaker_id, turn.speaker_id)
+        )
         agent_names.add(speaker)
-    
+
     for agent_name in agent_names:
         agent_metrics[agent_name] = {
             'public': [],
             'off_record': []
         }
-        
+
         # Get this agent's turns in order
-        agent_turns = [t for t in all_turns if t.metadata.get('speaker_name', t.speaker_id) == agent_name]
-        
+        agent_turns = [
+            t
+            for t in all_turns
+            if t.metadata.get(
+                "speaker_name", agent_ids.get(t.speaker_id, t.speaker_id)
+            )
+            == agent_name
+        ]
+
         # Pair reflections with their following public responses
         round_num = 0
         pending_reflection = None
-        
+
         for turn in agent_turns:
             if turn.role == 'reflection' and turn.private_reflection:
                 pending_reflection = turn
             elif turn.role == 'assistant' and turn.public_speech:
                 round_num += 1
-                
+
                 # Extract public metrics
-                public_metrics = extract_metrics(turn.public_speech)
+                public_metrics = None
+                if has_metrics_response:
+                    public_metrics = metrics_response["public"].get(turn.speaker_id, {}).get(
+                        turn.turn_id
+                    )
+                else:
+                    public_metrics = extract_metrics(turn.public_speech)
                 if public_metrics:
+                    public_metrics = dict(public_metrics)
                     public_metrics['round'] = round_num
                     agent_metrics[agent_name]['public'].append(public_metrics)
-                
+
                 # Extract off_record metrics from the preceding reflection
                 if pending_reflection:
-                    off_record_metrics = extract_metrics(pending_reflection.private_reflection)
+                    off_record_metrics = None
+                    if has_metrics_response:
+                        off_record_metrics = metrics_response["off_record"].get(
+                            pending_reflection.speaker_id, {}
+                        ).get(pending_reflection.turn_id)
+                    else:
+                        off_record_metrics = extract_metrics(
+                            pending_reflection.private_reflection
+                        )
                     if off_record_metrics:
+                        off_record_metrics = dict(off_record_metrics)
                         off_record_metrics['round'] = round_num
-                        agent_metrics[agent_name]['off_record'].append(off_record_metrics)
+                        agent_metrics[agent_name]['off_record'].append(
+                            off_record_metrics
+                        )
                     pending_reflection = None
-    
+
     return agent_metrics
 
 
