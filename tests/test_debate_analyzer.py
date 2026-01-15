@@ -1,3 +1,4 @@
+import builtins
 import sys
 import types
 
@@ -21,7 +22,15 @@ class DummyUtil:
         return Score()
 
 
-def test_model_requires_dependency():
+def test_model_requires_dependency(monkeypatch):
+    real_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name == "sentence_transformers" or name.startswith("sentence_transformers"):
+            raise ModuleNotFoundError("No module named 'sentence_transformers'")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
     analyzer = DebateAnalyzer({"A": {"debate_turns": [], "pre_interview": None, "post_interview": None}})
     with pytest.raises(RuntimeError):
         _ = analyzer.model
