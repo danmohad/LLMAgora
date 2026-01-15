@@ -3,12 +3,7 @@ import pytest
 from agora.agora import Agora
 from agora.agent import Agent, build_system_prompt
 from agora.memory import MemoryTurn
-from agora.persistence import (
-    load_history,
-    load_snapshot,
-    save_history,
-    save_snapshot,
-)
+from agora.persistence import load_snapshot, save_snapshot
 
 
 def test_agora_runs_with_turn_limit(stub_llm_factory):
@@ -42,8 +37,8 @@ def test_agora_runs_with_turn_limit(stub_llm_factory):
     ]
     assert agent_a.view_history() == history
     assert agent_b.view_history() == history
-    assert len(agent_a.memory) == 4
-    assert len(agent_b.memory) == 4
+    assert len(agent_a.view_history()) == 4
+    assert len(agent_b.view_history()) == 4
 
 
 def test_agora_rejects_invalid_turn_limit(stub_llm_factory):
@@ -168,36 +163,6 @@ def test_private_reflections_are_private(stub_llm_factory):
     assert all(turn.private_reflection is None for turn in beta_history)
 
 
-def test_memory_turn_openrouter_response_conversion():
-    """MemoryTurn should emit OpenRouter-compatible structures."""
-
-    turn = MemoryTurn(
-        turn_id=1,
-        speaker_id="agent-a",
-        role="assistant",
-        public_speech="Hello world",
-        metadata={"speaker_name": "Alpha"},
-        message_id="msg-123",
-    )
-    message = turn.to_openrouter_response(viewer_id="agent-b", multi_party=True)
-    assert message is not None
-    assert message["type"] == "message"
-    assert message["role"] == "user"
-    assert message["content"][0]["text"].startswith("Alpha:")
-    assert message["id"] == "msg-123"
-
-    reflection = MemoryTurn(
-        turn_id=2,
-        speaker_id="agent-a",
-        role="reflection",
-        private_reflection="Thinking...",
-    )
-    assert reflection.to_openrouter_response(viewer_id="agent-b") is None
-    my_view = reflection.to_openrouter_response(viewer_id="agent-a")
-    assert my_view is not None
-    assert my_view["role"] == "assistant"
-
-
 def test_memory_turn_serialization_roundtrip():
     """Full serialization should preserve private reflections."""
 
@@ -213,19 +178,6 @@ def test_memory_turn_serialization_roundtrip():
     )
     clone = MemoryTurn.from_dict(original.to_dict())
     assert clone == original
-
-
-def test_history_save_and_load(tmp_path):
-    """save_history/load_history should round-trip JSON data."""
-
-    turns = [
-        MemoryTurn(turn_id=1, speaker_id="a", role="assistant", public_speech="Hi"),
-        MemoryTurn(turn_id=2, speaker_id="a", role="reflection", private_reflection="Thinking"),
-    ]
-    path = tmp_path / "history.json"
-    save_history(path, turns)
-    loaded = load_history(path)
-    assert loaded == turns
 
 
 def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
@@ -259,7 +211,9 @@ def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
     ]
 
     restored_agents = {agent.name: agent for agent in restored.agents}
-    assert any(turn.private_reflection for turn in restored_agents["Alpha"].memory)
+    assert any(
+        turn.private_reflection for turn in restored_agents["Alpha"].view_history()
+    )
 
 
 def test_build_system_prompt_falls_back_to_raw():
@@ -319,7 +273,7 @@ def test_interviews_respect_keep_flag(stub_llm_factory):
     agora = Agora([agent])
     history = agora.run(max_turns_per_agent=1, verbose=False)
     assert [t.role for t in history] == ["pre_interview", "assistant", "post_interview"]
-    assert len(agent.memory) == 1  # only the public turn is kept
+    assert len(agent.view_history()) == 1  # only the public turn is kept
 
 
 def test_private_reflection_keep_flag(stub_llm_factory):
@@ -337,7 +291,7 @@ def test_private_reflection_keep_flag(stub_llm_factory):
     agora = Agora([agent])
     history = agora.run(max_turns_per_agent=1)
     assert any(t.role == "reflection" for t in history)
-    assert all(t.role != "reflection" for t in agent.memory)
+    assert all(t.role != "reflection" for t in agent.view_history())
 
 
 def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
