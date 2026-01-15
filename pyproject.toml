@@ -13,7 +13,9 @@ dependencies = [
   "ipykernel",
   "matplotlib",
   "pytest",
+  "pytest-cov",
   "python-dotenv",
+  "sentence-transformers",
 ]
 
 [project.scripts]
