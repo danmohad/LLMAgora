@@ -6,6 +6,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
   pytest:
     runs-on: ubuntu-latest
@@ -23,5 +28,61 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
 
-      - name: Run pytest
-        run: python -m pytest
+      - name: Run pytest with coverage
+        run: python -m pytest --cov=agora --cov-report=term-missing --cov-report=xml
+
+      - name: Publish coverage summary
+        if: github.event_name == 'pull_request'
+        run: |
+          python - <<'PY'
+          import os
+          import xml.etree.ElementTree as ET
+
+          tree = ET.parse("coverage.xml")
+          rate = float(tree.getroot().attrib.get("line-rate", 0.0)) * 100
+          summary_path = os.environ.get("GITHUB_STEP_SUMMARY")
+          if summary_path:
+              with open(summary_path, "a", encoding="utf-8") as handle:
+                  handle.write("## Coverage\n")
+                  handle.write(f"\nTotal line coverage: {rate:.2f}%\n")
+          else:
+              print(f"Total line coverage: {rate:.2f}%")
+          PY
+
+      - name: Comment coverage on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const xml = fs.readFileSync('coverage.xml', 'utf8');
+            const match = xml.match(/line-rate="([0-9.]+)"/);
+            if (!match) {
+              core.setFailed('Could not find line-rate in coverage.xml');
+              return;
+            }
+            const rate = (parseFloat(match[1]) * 100).toFixed(2);
+            const body = `## Coverage\nTotal line coverage: ${rate}%`;
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
+            const existing = comments.data.find(
+              (comment) => comment.user?.type === 'Bot' && comment.body?.startsWith('## Coverage')
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+            }
