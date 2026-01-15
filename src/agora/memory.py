@@ -20,13 +20,6 @@ class MemoryTurn:
     status: Optional[str] = None
     keep: bool = True
 
-    def to_public_dict(self) -> Dict[str, Any]:
-        """Serialize only the public portions of the turn for sharing."""
-
-        data = self.to_dict()
-        data.pop("private_reflection", None)
-        return data
-
     def to_dict(self) -> Dict[str, Any]:
         """Serialize the entire turn (public + private) to a JSON-safe dict."""
 
@@ -78,45 +71,5 @@ class MemoryTurn:
             return ChatMessage(role="assistant", content=self.private_reflection)
 
         return None
-
-    def to_openrouter_response(
-        self, *, viewer_id: str, multi_party: bool = False
-    ) -> Optional[Dict[str, Any]]:
-        """Render the turn as an OpenRouter responses API message."""
-
-        if not self.keep:
-            return None
-
-        role = "assistant" if self.speaker_id == viewer_id else "user"
-        content_text: Optional[str] = None
-        content_type = "output_text" if role == "assistant" else "input_text"
-
-        if self.public_speech:
-            content_text = self.public_speech
-            if role == "user" and multi_party:
-                speaker = self.metadata.get("speaker_name") or self.speaker_id
-                content_text = f"{speaker}: {content_text}"
-        elif self.private_reflection and self.speaker_id == viewer_id:
-            content_text = self.private_reflection
-            content_type = "output_text"
-
-        if content_text is None:
-            return None
-
-        content_item = {
-            "type": content_type,
-            "text": content_text,
-        }
-        message: Dict[str, Any] = {
-            "type": "message",
-            "role": role,
-            "content": [content_item],
-        }
-        if self.message_id:
-            message["id"] = self.message_id
-        if role == "assistant":
-            message["status"] = self.status or "completed"
-        return message
-
 
 __all__ = ["MemoryTurn"]
