@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence
+from typing import Callable, List, Optional
 
 from .agent import Agent
 from .agora import Agora
@@ -148,25 +148,9 @@ def load_snapshot(
     return snapshot.instantiate(llm_factory)
 
 
-def save_history(path: Path | str, turns: Sequence[MemoryTurn]) -> None:
-    """Serialize just the turn history to JSON."""
-
-    payload = [turn.to_dict() for turn in turns]
-    Path(path).write_text(json.dumps(payload, indent=2))
-
-
-def load_history(path: Path | str) -> List[MemoryTurn]:
-    """Load a list of ``MemoryTurn`` objects from JSON."""
-
-    payload = json.loads(Path(path).read_text())
-    return [MemoryTurn.from_dict(item) for item in payload]
-
-
 __all__ = [
     "AgentState",
     "AgoraSnapshot",
     "save_snapshot",
     "load_snapshot",
-    "save_history",
-    "load_history",
 ]

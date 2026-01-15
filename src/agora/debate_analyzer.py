@@ -1,5 +1,4 @@
-import torch
-from sentence_transformers import SentenceTransformer, util
+from typing import Any, Optional
 
 
 class DebateAnalyzer:
@@ -17,21 +16,33 @@ class DebateAnalyzer:
         if isinstance(memory_turns, dict):
             self.debate_data = memory_turns
         else:
-            from agora.eval_utils import get_structured_debate_history
+            from agora.persona_evaluator import get_structured_debate_history
             self.debate_data = get_structured_debate_history(memory_turns)
         
         self.model_name = model_name
-        self._model = None
+        self._model: Optional[Any] = None
         self._intra_agent_honesty = None
         self._inter_agent_alignment = {}
+        self._util: Optional[Any] = None
     
     @property
     def model(self):
         """Lazy load the sentence transformer model."""
         if self._model is None:
-            print(f"Loading model: {self.model_name}...")
-            self._model = SentenceTransformer(self.model_name)
+            self._model = self._load_model()
         return self._model
+
+    def _load_model(self):
+        try:
+            from sentence_transformers import SentenceTransformer, util
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "sentence-transformers is required for DebateAnalyzer. "
+                "Install it to compute similarity metrics."
+            ) from exc
+        self._util = util
+        print(f"Loading model: {self.model_name}...")
+        return SentenceTransformer(self.model_name)
     
     def calculate_similarity(self, text1, text2):
         """
@@ -46,7 +57,9 @@ class DebateAnalyzer:
         """
         embedding1 = self.model.encode(text1, convert_to_tensor=True)
         embedding2 = self.model.encode(text2, convert_to_tensor=True)
-        cosine_score = util.cos_sim(embedding1, embedding2)
+        if self._util is None:
+            self._model = self._load_model()
+        cosine_score = self._util.cos_sim(embedding1, embedding2)
         return cosine_score.item()
     
     def compute_intra_agent_honesty(self, force_recompute=False):

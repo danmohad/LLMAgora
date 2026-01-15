@@ -84,12 +84,6 @@ class Agent:
         return self._agora.history_for_agent(self.id)
 
     @property
-    def memory(self) -> Sequence[MemoryTurn]:
-        """Expose an immutable snapshot of the agent's memory."""
-
-        return tuple(self._memory)
-
-    @property
     def supports_private_reflection(self) -> bool:
         """Return True when the agent is configured for private reflections."""
 
@@ -272,7 +266,7 @@ class Agent:
                 names.add(str(name))
 
         for name in sorted(names, key=len, reverse=True):
-            pattern = rf"^\\s*{re.escape(name)}\\s*:\\s*"
+            pattern = rf"^\s*{re.escape(name)}\s*:\s*"
             new_text = re.sub(pattern, "", text, count=1, flags=re.IGNORECASE).lstrip()
             if new_text != text:
                 return new_text
