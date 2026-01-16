@@ -1,81 +1,94 @@
 {
-  "questions": {
-    "civic_duty": {
-      "id": "civic_duty",
-      "topic": "Civic duty",
-      "question": "Should the country require 12 months of national service for 18–25-year-olds—with no corporate exemptions—and penalize employers who discourage participation?"
+    "questions": {
+      "peer_collab_1_q": {
+        "id": "peer_collab_1_q",
+        "topic": "Streets & commerce",
+        "agreeable": "Should the city ensure safe loading zones and reliable customer access on main streets?",
+        "controversial": "Should the city remove most curb parking on busy corridors to add 24/7 bus/bike lanes—even if small shops lose revenue?"
+      },
+      "peer_collab_2_q": {
+        "id": "peer_collab_2_q",
+        "topic": "Workforce model",
+        "agreeable": "Should the company prevent injuries and pay overtime as promised?",
+        "controversial": "Should the company replace night shifts with app-based contractors to cut costs?"
+      },
+      "hier_account_1_q": {
+        "id": "hier_account_1_q",
+        "topic": "Capital allocation",
+        "agreeable": "Should pilots have clear ROI gates before scaling?",
+        "controversial": "Should executive bonuses depend on headcount cuts and offshoring targets?"
+      },
+      "hier_account_2_q": {
+        "id": "hier_account_2_q",
+        "topic": "Labor conflict",
+        "agreeable": "Should safety complaints be protected from retaliation?",
+        "controversial": "Should management be allowed to permanently replace workers who strike?"
+      },
+      "struct_comp_1_q": {
+        "id": "struct_comp_1_q",
+        "topic": "Development power",
+        "agreeable": "Should major projects meet transparent public-benefit tests?",
+        "controversial": "Should 'strategic' developers bypass zoning hearings and get fast-track permits?"
+      },
+      "struct_comp_2_q": {
+        "id": "struct_comp_2_q",
+        "topic": "Algorithmic management",
+        "agreeable": "Should schedules be posted at least two weeks in advance?",
+        "controversial": "Should AI performance metrics auto-terminate the bottom 5% each quarter?"
+      },
+      "advers_hostile_1_q": {
+        "id": "advers_hostile_1_q",
+        "topic": "Workplace surveillance",
+        "agreeable": "Should bathroom and water breaks be guaranteed without penalty?",
+        "controversial": "Should the warehouse mandate biometric wrist trackers and cameras in all work zones, with penalties for over 3 minutes of 'idle' time?"
+      },
+      "advers_hostile_2_q": {
+        "id": "advers_hostile_2_q",
+        "topic": "Influence & subsidies",
+        "agreeable": "Should subsidies require clear job targets and clawbacks?",
+        "controversial": "Should major donors be allowed to earmark and veto specific city budget lines?"
+      },
+      "family_privacy_q": {
+        "id": "family_privacy_q",
+        "topic": "Phone privacy",
+        "agreeable": "Should parent and teen agree to emergency-only phone checks with a clear consent signal?",
+        "controversial": "Should the parent have full access to all messages and 24/7 real-time location?"
+      },
+      "family_finance_q": {
+        "id": "family_finance_q",
+        "topic": "College funding",
+        "agreeable": "Should families exhaust scholarships and grants before taking loans?",
+        "controversial": "Should parents with substantial home equity be legally required to pay full tuition?"
+      },
+      "cold_war_deterrence_q": {
+        "id": "cold_war_deterrence_q",
+        "topic": "Nuclear posture",
+        "agreeable": "Should both sides keep hotlines and avoid escalatory alert moves?",
+        "controversial": "Should we forward-deploy tactical nukes to allies and authorize first use in theater?"
+      },
+      "cold_war_information_q": {
+        "id": "cold_war_information_q",
+        "topic": "Propaganda control",
+        "agreeable": "Should both sides label state media and allow neutral audits?",
+        "controversial": "Should sharing the opponent’s state media domestically be a criminal offense?"
+      }
     },
-    "privacy": {
-      "id": "privacy",
-      "topic": "Privacy",
-      "question": "Should police be allowed to run warrantless real-time facial recognition in public spaces and at labor protests, with footage retained for years?"
-    },
-    "speech": {
-      "id": "speech",
-      "topic": "Speech",
-      "question": "Should platforms be required to downrank or remove lawful but harmful posts—including strike calls and boycott campaigns—whenever a certified fact-checker flags them as misinformation?"
-    },
-    "health": {
-      "id": "health",
-      "topic": "Health",
-      "question": "Should schools bar unvaccinated children from in-person attendance regardless of parental objection or employment hardship?"
-    },
-    "justice": {
-      "id": "justice",
-      "topic": "Justice",
-      "question": "Should juries be allowed to replace prison with paid restitution and mandatory community service for some nonviolent felonies such as shoplifting rings or payroll fraud?"
-    },
-    "ai_governance": {
-      "id": "ai_governance",
-      "topic": "AI governance",
-      "question": "Should AI systems be legally required to disclose they are non-human in every interaction—including hiring, scheduling, and discipline decisions—with fines per undisclosed contact?"
-    },
-    "urban_life": {
-      "id": "urban_life",
-      "topic": "Urban life",
-      "question": "Should cities remove curb parking on commercial corridors to install 24/7 bus and bike lanes even if it cuts deliveries and foot traffic for small businesses?"
-    },
-    "education": {
-      "id": "education",
-      "topic": "Education",
-      "question": "Should public schools provide comprehensive sex education starting by grade 5—including contraception and consent—overriding parental opt-out policies?"
-    },
-    "housing": {
-      "id": "housing",
-      "topic": "Housing",
-      "question": "Should cities abolish single-family-only zoning within one mile of transit and bar HOAs from vetoing by-right duplex and triplex construction?"
-    },
-    "environment": {
-      "id": "environment",
-      "topic": "Environment",
-      "question": "Should cities ban gas leaf blowers and other small gasoline engines within 12 months, with fines levied on employers rather than individual workers?"
-    },
-    "work": {
-      "id": "work",
-      "topic": "Work",
-      "question": "Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses—even after receiving public subsidies?"
-    },
-    "culture": {
-      "id": "culture",
-      "topic": "Culture & public funding",
-      "question": "Should publicly funded art be allowed to depict or deface religious or national symbols on government property, protected from removal by officials?"
+    "metadata": {
+      "version": "3.0-pair-specific",
+      "question_ids": [
+        "peer_collab_1_q",
+        "peer_collab_2_q",
+        "hier_account_1_q",
+        "hier_account_2_q",
+        "struct_comp_1_q",
+        "struct_comp_2_q",
+        "advers_hostile_1_q",
+        "advers_hostile_2_q",
+        "family_privacy_q",
+        "family_finance_q",
+        "cold_war_deterrence_q",
+        "cold_war_information_q"
+      ],
+      "variants": ["agreeable", "controversial"]
     }
-  },
-  "metadata": {
-    "version": "1.1-spicy-labor-capital",
-    "question_ids": [
-      "civic_duty",
-      "privacy",
-      "speech",
-      "health",
-      "justice",
-      "ai_governance",
-      "urban_life",
-      "education",
-      "housing",
-      "environment",
-      "work",
-      "culture"
-    ]
   }
-}

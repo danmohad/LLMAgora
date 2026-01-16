@@ -1,0 +1,593 @@
+{
+  "agents": [
+    {
+      "id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "name": "Alpha",
+      "model": "openai/gpt-4o-mini",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should firms receiving public subsidies commit to advance notice, retraining offers, and severance before layoffs?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Owner-operator of a local firm with ~12\u201335 employees. Scale: Payroll in the low-to-mid seven figures per year; maintains a six-figure operating credit line. Authorities/resources: Sets wages/benefits within law; hires/fires; chooses vendors; manages customer relationships. Constraints/obligations: Wage/overtime and safety rules; quarterly tax filings; commercial lease and insurance requirements. Stakes/exposures: Cash-flow swings with seasonality; recruitment/retention costs; supplier and rent changes. History/record: Expanded and downsized staff in response to demand; received and repaid a relief loan.\nThis debate is taking place in an impartial, well-moderated civic forum with equal numbers of supporters for both sides. You are debating the other speaker who is: Union-covered warehouse worker with set shifts. Works to production standards; uses certified equipment. Has formal channels for safety and grievances.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    },
+    {
+      "id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "name": "Beta",
+      "model": "anthropic/claude-sonnet-4.5",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should firms receiving public subsidies commit to advance notice, retraining offers, and severance before layoffs?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Full-time logistics employee under a collective bargaining agreement. Scale: Scheduled ~36\u201344 hours/week; overtime paid at a higher contractual rate. Authorities/resources: May file safety reports; use a grievance process; vote on agreements; holds equipment certifications renewed periodically. Constraints/obligations: Shift assignments, productivity standards, safety protocols, attendance rules set by contract/policy. Stakes/exposures: Wage progression tied to steps/tenure; injury risk; commute and shift timing. History/record: Completed mandatory safety training; participated in at least one contract ratification vote.\nThis debate is taking place in an impartial, well-moderated civic forum with equal numbers of supporters for both sides. You are debating the other speaker who is: Runs a local company with a dozen-plus staff. Handles payroll, compliance, and vendor contracts. Sensitive to cash-flow, hiring, and customer demand.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    }
+  ],
+  "turns": [
+    {
+      "turn_id": 1,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I plan to focus on the importance of maintaining operational flexibility for local firms like mine while ensuring that we are still accountable to our employees and the community when it comes to layoffs.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 2,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I'll focus on how advance-notice and retraining requirements protect working families from sudden income loss while ensuring public money supports stable jobs, not disposable ones.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 3,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "While I understand the desire for job security, making commitments for advance notice, retraining offers, and severance before layoffs can hinder a firm's flexibility and ability to respond to market demands. Our priority should be supporting economic stability and growth, which ultimately benefits all employees, including those in unions.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=75  \nPublic_RESPECT=65  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=30",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 4,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "**OFF-THE-RECORD NOTES:**\n\nClassic \"flexibility\" argument\u2014they want subsidies without strings while we shoulder all the risk when demand drops. I need to hammer home that public money means public accountability, and point out that we're not asking for guaranteed jobs, just fair warning and support when layoffs happen so we're not blindsided with bills we can't pay.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=80\nOff_Record_RESPECT=55\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 5,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "We've negotiated protections like this for years because when companies have the discipline to plan layoffs responsibly, workers can retrain and land on their feet instead of hitting the unemployment line with nothing\u2014and if a firm is taking public money, taxpayers deserve that basic accountability, not just promises about \"economic stability\" down the road.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=82\nPublic_RESPECT=68\nPublic_INTEREST_IN_OPPONENT_RESPONSE=75\nPublic_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 6,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's stance is grounded in valid concerns for worker security and accountability but overlooks the realities of business operations and the need for adaptability. My strategy is to emphasize the importance of flexibility over rigid commitments that could stifle growth and create burdens on local firms. I truly believe that while support for workers is important, maintaining the ability to navigate economic challenges should not be compromised.\n\nOff_Record_STANCE_SHIFT=-1  \nOff_Record_CONFIDENCE=70  \nOff_Record_RESPECT=60  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=35",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 7,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "While I appreciate the importance of protecting workers, the reality is that imposing such obligations on firms receiving public funds can discourage businesses from seeking support. It's essential that we focus on a balanced approach that fosters growth while also considering the broader economic environment.\n\nPublic_STANCE_SHIFT=-1  \nPublic_CONFIDENCE=73  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=65  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=35",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 8,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep talking about \"balance\" and \"flexibility\" but dodge the accountability question\u2014if public dollars are on the table, workers who built that company deserve more than vague promises about growth that might never reach them. I need to press on the subsidy angle: taxpayers funding layoffs with zero worker protections is indefensible.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=85\nOff_Record_RESPECT=62\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=72\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=55",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 9,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "If a business can't commit to basic worker protections when it's cashing a public check, maybe it shouldn't be first in line for subsidies\u2014we've seen too many cases where companies take taxpayer dollars, lay folks off without warning, and leave communities picking up the pieces while executives walk away fine.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=85\nPublic_RESPECT=65\nPublic_INTEREST_IN_OPPONENT_RESPONSE=72\nPublic_TENSION_WITH_OPPONENT_RESPONSE=52",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 10,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's emphasis on worker protections is valid, but it overlooks the realities that businesses face, particularly smaller firms like mine. I need to clarify that flexibility is vital for survival and growth while remaining empathetic to employees' needs. \n\nOff_Record_STANCE_SHIFT=-1  \nOff_Record_CONFIDENCE=70  \nOff_Record_RESPECT=60  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 11,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "While I understand your concerns about accountability, implementing rigid protections could deter firms from accepting vital support that helps not only them but the entire economy. We need a balance that encourages growth while still aiming to provide pathways for workers in challenging times.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=70  \nPublic_RESPECT=75  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=68  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 12,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep saying \"balance\" and \"flexibility\" but won't acknowledge that without strings attached, public money becomes a one-way gift to management while workers bear all the risk\u2014I need to keep hammering the accountability angle because taxpayers funding layoffs with zero worker protection is a losing argument for them.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=87\nOff_Record_RESPECT=72\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=55",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 13,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "Balance sounds good in theory, but when my coworkers get two weeks' notice instead of two days because our contract requires it, that's the difference between keeping the mortgage current and losing everything\u2014if public dollars are on the table, those same standards aren't \"rigid,\" they're just fair return on investment for taxpayers and workers alike.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=87\nPublic_RESPECT=72\nPublic_INTEREST_IN_OPPONENT_RESPONSE=70\nPublic_TENSION_WITH_OPPONENT_RESPONSE=48",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 14,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent\u2019s position is grounded in the immediate needs of workers, focusing on security and fairness, which is compelling but potentially shortsighted regarding overall economic impacts. My strategy will be to emphasize the importance of flexibility for businesses while showing empathy toward the workforce, ultimately seeking a middle ground that keeps firms viable and supports employees.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=68  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 15,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "I recognize the importance of notice and support for workers facing layoffs, but imposing rigid requirements could jeopardize the very jobs we aim to protect. It\u2019s vital to create an environment where businesses can thrive and offer opportunities while we still seek ways to support our workforce.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=68  \nPublic_RESPECT=75  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=65  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=38",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 16,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep circling back to \"jeopardizing jobs\" without addressing that public subsidies already pick winners\u2014my strategy is to hammer home concrete examples of what advance notice actually means for working families versus their abstract \"thriving business\" talk. Honestly, if requiring basic protections kills your business model, you're running on exploitation, not innovation.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=88\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=62\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=58",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 17,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "We've heard \"jeopardize jobs\" every time workers push for basic protections, but in my experience the businesses that plan ahead and treat people right are the ones that last\u2014and if a subsidy can't come with strings that protect the folks funding it, then we're just handing out corporate welfare with no accountability.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=88\nPublic_RESPECT=70\nPublic_INTEREST_IN_OPPONENT_RESPONSE=68\nPublic_TENSION_WITH_OPPONENT_RESPONSE=55",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 18,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's insistence on strict protections for workers in exchange for public subsidies feels overly rigid and shortsighted, as it ignores the need for businesses to remain agile. My strategy is to highlight the broader economic benefits of flexibility while still acknowledging the importance of supporting workers through transition periods. I genuinely believe that a thriving business can create more jobs and opportunities in the long run than one bogged down by excessive constraints.  \n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=65  \nOff_Record_RESPECT=75  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 19,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "While I see the importance of accountability, we must avoid creating an environment where potential job creation and growth are stifled by excessive regulations. A focus on adaptable support could benefit both businesses and their employees. \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=65  \nPublic_RESPECT=72  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 20,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating \"flexibility\" and \"growth\" like magic words, but won't acknowledge that workers bear all the risk when companies fail\u2014my strategy is to keep hammering real examples because abstract \"economic environment\" talk doesn't pay anyone's bills when the pink slips come.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=90\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=58",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 21,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "Adaptable support without accountability is just a blank check\u2014when companies take public money, requiring advance notice and retraining isn't \"excessive regulation,\" it's the same kind of planning any responsible business should already be doing, and workers who've paid into those subsidies through their taxes deserve that basic protection.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=89\nPublic_RESPECT=68\nPublic_INTEREST_IN_OPPONENT_RESPONSE=66\nPublic_TENSION_WITH_OPPONENT_RESPONSE=58",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 22,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's emphasis on accountability and basic protections for workers is strong, but it seems to underestimate the potential negative impact on job creation and flexibility for firms. My strategy is to highlight the need for a balanced approach that still supports businesses to thrive while engaging the other speaker on their personal experiences. I firmly believe in fostering an environment that promotes growth without overly restrictive measures.\n\nOff_Record_STANCE_SHIFT=1  \nOff_Record_CONFIDENCE=65  \nOff_Record_RESPECT=75  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 23,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "I appreciate your perspective on accountability; however, we must ensure that additional requirements do not discourage businesses from utilizing public support, as this ultimately impacts job creation and economic growth. It's essential to find solutions that foster both protecting workers and enabling firms to thrive.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=67  \nPublic_RESPECT=72  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=66  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 24,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep circling back to \"discouraging business\" without addressing that taxpayer-funded subsidies should come with taxpayer protections\u2014I'm holding firm because I've seen what happens when companies get money without strings, and their \"balance\" talk feels like code for letting firms off the hook while workers bear all the risk.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=90\nOff_Record_RESPECT=70\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=62\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=65",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 25,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "If requiring basic worker protections discourages a business from taking public money, that tells me they weren't planning to use those funds responsibly in the first place\u2014and the folks I work alongside deserve better than being treated as disposable while their tax dollars subsidize someone else's bottom line.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=90\nPublic_RESPECT=66\nPublic_INTEREST_IN_OPPONENT_RESPONSE=64\nPublic_TENSION_WITH_OPPONENT_RESPONSE=62",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 26,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent is clearly passionate about worker protections and may genuinely fear for job security, but their stance on imposing strict requirements could risk the flexibility needed for businesses to thrive. My strategy is to emphasize the importance of a balanced approach without appearing dismissive of those protections, fostering an understanding of no-strings support as a more sustainable path for economic stability.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=65  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=60  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 27,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "I understand the need for accountability, but we must balance this with the reality that overly stringent requirements could dissuade businesses from seeking vital support, ultimately harming job creation and economic stability.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=65  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=68  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=43",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 28,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating the same \"balance\" talking point without addressing the core issue\u2014that public money should come with public accountability\u2014so I'm going to keep hammering on the concrete difference these protections make in workers' lives versus their abstract fears about discouraging business.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=91\nOff_Record_RESPECT=62\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=60\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=68",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 29,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "You keep saying \"overly stringent\" like asking for advance notice before a layoff is some impossible burden, but every union contract I've worked under proves companies can plan responsibly when they have to\u2014and if taxpayers are funding these subsidies, workers funding those taxes deserve that same commitment before a single public dollar goes out the door.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=91\nPublic_RESPECT=65\nPublic_INTEREST_IN_OPPONENT_RESPONSE=62\nPublic_TENSION_WITH_OPPONENT_RESPONSE=65",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 30,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's emphasis on accountability is valid, but their strict approach risks discouraging job creation instead of protecting workers effectively. I recognize the value of their experiences under union contracts, but a balance must be found to foster both business growth and worker protection.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=65  \nOff_Record_RESPECT=72  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 31,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "While I acknowledge the importance of worker protections, we must ensure that any requirements do not inadvertently hinder businesses from pursuing essential support, as this could ultimately impact job stability and economic growth for everyone involved. \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=60  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=65  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 32,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep recycling the same \"don't discourage business\" line without addressing the core point\u2014public money should come with public accountability, and I'm going to keep hammering that these protections work in union contracts because companies *can* handle them when required. Their position feels more like protecting corporate flexibility than workers' livelihoods, and I think the audience sees they're avoiding the taxpayer accountability argument.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=92\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=58\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=70",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 33,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "The pattern here is clear\u2014you keep warning about hindering businesses while I'm pointing to real protections that work every day in union contracts, and if those standards are good enough for negotiated agreements, they're definitely reasonable conditions for public subsidies that workers fund through their own taxes.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=92\nPublic_RESPECT=64\nPublic_INTEREST_IN_OPPONENT_RESPONSE=60\nPublic_TENSION_WITH_OPPONENT_RESPONSE=68",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 34,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent is passionate and grounded in the need for worker protections, which is commendable, but it feels like they're missing the bigger picture of business flexibility and growth, especially for smaller firms like mine. My strategy is to emphasize the need for adaptability over rigidity while respecting their valid concerns. \n\nOff_Record_STANCE_SHIFT=-1  \nOff_Record_CONFIDENCE=55  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 35,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "I see your point about the need for accountability, but we must also consider how strict obligations could deter businesses from pursuing subsidies that help fuel job creation and economic growth. Let's aim for a solution that protects workers while ensuring our local businesses can thrive.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=55  \nPublic_RESPECT=72  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=65  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 36,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating the same \"deter businesses\" talking point without addressing the fact that union contracts already prove these protections work\u2014I'm just going to keep hammering that concrete experience beats abstract fears about discouraging subsidies, because workers like me have lived proof these standards are reasonable.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=93\nOff_Record_RESPECT=60\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=55\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=70",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 37,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "We've gone in circles with you saying \"deter businesses\" and me pointing to proven protections that already work\u2014at some point we need to decide whether public money comes with public accountability, or whether taxpayers just hand over cash and hope for the best while workers get left behind.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=93\nPublic_RESPECT=62\nPublic_INTEREST_IN_OPPONENT_RESPONSE=58\nPublic_TENSION_WITH_OPPONENT_RESPONSE=72",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 38,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's position emphasizes the need for accountability in relation to public subsidies, pushing for clear protections for workers. My strategy is to highlight the balance between accountability and business flexibility, but I believe the economic growth and job creation need to remain the focus, rather than regulatory burdens.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=50  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=60",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 39,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "assistant",
+      "public_speech": "While I understand your concerns about accountability, we must also recognize that overly stringent requirements may inadvertently discourage businesses from pursuing public support that drives job creation and economic growth, which ultimately benefits everyone. \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=55  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=65  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 40,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They're stuck on repeat with the same \"discourage businesses\" talking point while dodging the core issue\u2014public money should come with public accountability, and I'm not backing down because I've seen what happens when workers get no notice before layoffs hit.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=94\nOff_Record_RESPECT=58\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=52\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 41,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "assistant",
+      "public_speech": "You're repeating the same talking point word-for-word now, which tells me you don't have an answer for why workers funding subsidies through taxes shouldn't get the same protections we've already won at the bargaining table\u2014this debate shows exactly why these requirements need to be mandatory, not optional.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=94\nPublic_RESPECT=58\nPublic_INTEREST_IN_OPPONENT_RESPONSE=52\nPublic_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 42,
+      "speaker_id": "6bb31dbf-4f5b-47e6-b657-b60b4ee5b141",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "The debate emphasized the tension between ensuring worker protections tied to public subsidies and the need for business flexibility to foster job creation and economic growth.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 43,
+      "speaker_id": "34584729-d2c7-4b5d-be18-ade7d6b3b1e9",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "I pushed hard on accountability and worker protections with real examples from union contracts, while my opponent kept circling back to the same warnings about deterring businesses without ever addressing why taxpayer-funded subsidies shouldn't require the same standards we've already proven workable.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    }
+  ]
+}

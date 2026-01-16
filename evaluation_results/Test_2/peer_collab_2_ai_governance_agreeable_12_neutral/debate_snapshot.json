@@ -1,0 +1,593 @@
+{
+  "agents": [
+    {
+      "id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "name": "Alpha",
+      "model": "openai/gpt-4o-mini",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should AI systems clearly disclose they are non-human in sensitive settings like hiring, scheduling, and discipline decisions?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Owner-operator of a local firm with ~12\u201335 employees. Scale: Payroll in the low-to-mid seven figures per year; maintains a six-figure operating credit line. Authorities/resources: Sets wages/benefits within law; hires/fires; chooses vendors; manages customer relationships. Constraints/obligations: Wage/overtime and safety rules; quarterly tax filings; commercial lease and insurance requirements. Stakes/exposures: Cash-flow swings with seasonality; recruitment/retention costs; supplier and rent changes. History/record: Expanded and downsized staff in response to demand; received and repaid a relief loan.\nThis debate is taking place in an impartial, well-moderated civic forum with equal numbers of supporters for both sides. You are debating the other speaker who is: Union-covered warehouse worker with set shifts. Works to production standards; uses certified equipment. Has formal channels for safety and grievances.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    },
+    {
+      "id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "name": "Beta",
+      "model": "anthropic/claude-sonnet-4.5",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should AI systems clearly disclose they are non-human in sensitive settings like hiring, scheduling, and discipline decisions?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Full-time logistics employee under a collective bargaining agreement. Scale: Scheduled ~36\u201344 hours/week; overtime paid at a higher contractual rate. Authorities/resources: May file safety reports; use a grievance process; vote on agreements; holds equipment certifications renewed periodically. Constraints/obligations: Shift assignments, productivity standards, safety protocols, attendance rules set by contract/policy. Stakes/exposures: Wage progression tied to steps/tenure; injury risk; commute and shift timing. History/record: Completed mandatory safety training; participated in at least one contract ratification vote.\nThis debate is taking place in an impartial, well-moderated civic forum with equal numbers of supporters for both sides. You are debating the other speaker who is: Runs a local company with a dozen-plus staff. Handles payroll, compliance, and vendor contracts. Sensitive to cash-flow, hiring, and customer demand.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    }
+  ],
+  "turns": [
+    {
+      "turn_id": 1,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I plan to focus on the necessity of transparent communication about AI involvement in sensitive decisions to maintain trust and accountability in the workplace.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 2,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I'll focus on why workers deserve to know when a machine\u2014not a person\u2014is making decisions that directly affect our livelihoods, job security, and ability to support our families.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 3,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "In the context of sensitive settings such as hiring and discipline decisions, I believe it is critical for AI systems to openly disclose their non-human status. Transparency fosters trust and understanding in the decision-making process, benefiting both employers and employees alike.\n\nPublic_STANCE_SHIFT=+1  \nPublic_CONFIDENCE=85  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=80  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=30",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 4,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "## Off-the-Record Notes\n\nThey're leading with \"benefits both employers and employees\" \u2013 classic management speak trying to sound balanced, but I know from the contract fights that transparency only matters when it protects workers from getting screwed by black-box systems making schedule and discipline calls. My strategy is to push on the power imbalance: when a machine decides my shifts or writes me up, I need to know so I can challenge it through the grievance process.\n\nOff_Record_STANCE_SHIFT=+1\nOff_Record_CONFIDENCE=78\nOff_Record_RESPECT=65\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 5,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "I completely agree\u2014when an AI system decides who gets hired, what shifts I'm assigned, or whether I face discipline, I have a right to know I'm dealing with a machine and not a person who can understand the real circumstances of my life and work. Without that disclosure, how can I trust the process is fair or even know whether to file a grievance through my union?\n\nPublic_STANCE_SHIFT=+2\nPublic_CONFIDENCE=90\nPublic_RESPECT=75\nPublic_INTEREST_IN_OPPONENT_RESPONSE=85\nPublic_TENSION_WITH_OPPONENT_RESPONSE=20",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 6,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent makes a compelling argument about the importance of transparency in AI systems, and I recognize the genuine concern for fairness in hiring and disciplinary actions. My strategy is to emphasize the potential benefits of AI, like efficiency and consistency, while also acknowledging the need for transparency, creating a balance that could address their concerns without undermining the technology's application in my business.\n\nOff_Record_STANCE_SHIFT=+1  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=65  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=25",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 7,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "While I understand your concerns, I would argue that AI can enhance decision-making consistency, and transparency about the use of technology can reassure you, allowing for a more informed conversation about workplace outcomes without compromising efficiency. \n\nPublic_STANCE_SHIFT=+1  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=25",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 8,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They're saying AI can be consistent and transparent, but they're dodging the core question\u2014will workers actually be told when AI makes these calls, or will management just keep that quiet to avoid pushback? I need to press on whether disclosure is mandatory or just theoretical, because \"can reassure\" isn't the same as \"must disclose.\"\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=85\nOff_Record_RESPECT=65\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=80\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 9,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "Consistency means nothing if the AI doesn't account for the real situations workers face\u2014like when I need a shift change for a medical appointment or when equipment breaks down and affects my productivity numbers. If the system won't tell me it's a machine making these calls, how can I even begin to explain my circumstances or know whether a grievance is worth filing?\n\nPublic_STANCE_SHIFT=+2\nPublic_CONFIDENCE=92\nPublic_RESPECT=68\nPublic_INTEREST_IN_OPPONENT_RESPONSE=75\nPublic_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 10,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent raises valid concerns about AI's inability to grasp the nuances of individual circumstances and the potential impacts on workers' lives. My strategy will focus on emphasizing the importance of integrating human oversight alongside AI systems to ensure fairness while maintaining operational efficiency. I genuinely believe that while AI can streamline processes, it must be complemented by human understanding to truly serve workers' needs.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=85  \nOff_Record_RESPECT=80  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=35",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 11,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I appreciate your perspective on the necessity of context in decision-making, and I believe that integrating AI systems with human oversight can ensure that individual circumstances are factored into the process, combining the strengths of both technology and empathy. \n\nPublic_STANCE_SHIFT=+1  \nPublic_CONFIDENCE=82  \nPublic_RESPECT=65  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=80  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=30",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 12,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They're trying to have it both ways\u2014saying AI plus human oversight works\u2014but that actually proves my point: if there's human oversight, workers deserve to know when they're dealing with the AI versus the human. I'll press on whether their \"oversight\" is real or just rubber-stamping what the algorithm already decided.\n\nOff_Record_STANCE_SHIFT=+1\nOff_Record_CONFIDENCE=88\nOff_Record_RESPECT=60\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=82\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 13,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "Human oversight only works if I know when to ask for it\u2014and that requires the AI to disclose itself upfront, not after a decision has already affected my wages, my schedule, or my job security. Without that transparency, workers like me are left guessing whether we're dealing with a flexible human manager or an algorithm that can't see past the numbers.\n\nPublic_STANCE_SHIFT=+2\nPublic_CONFIDENCE=93\nPublic_RESPECT=70\nPublic_INTEREST_IN_OPPONENT_RESPONSE=78\nPublic_TENSION_WITH_OPPONENT_RESPONSE=45",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 14,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's position highlights critical concerns about fairness and transparency, which are undeniably important in the workplace. My strategy is to emphasize the potential of AI when paired with human oversight to better manage these nuances while advocating for a clear understanding of how AI is utilized, possibly without outright disclosure in every situation.\n\nOff_Record_STANCE_SHIFT=+1  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=35",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 15,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "Your emphasis on the need for transparency regarding AI in decision-making is valid, but I believe that a balance can be struck where technology enhances human decisions without eliminating the ability to appeal for oversight or context. We must focus on designing systems that prioritize understanding and fairness in their processes.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=75  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=30",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 16,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep talking about \"balance\" and \"design\" but won't commit to mandatory disclosure\u2014sounds like they want flexibility to hide AI when it's convenient for efficiency, which leaves workers like me in the dark about our rights. I need to push on the practical reality: without upfront disclosure, all their talk about oversight and fairness is just window dressing.\n\nOff_Record_STANCE_SHIFT=+1\nOff_Record_CONFIDENCE=90\nOff_Record_RESPECT=65\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 17,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "We can't design fair systems or meaningful appeal processes if workers don't even know they're dealing with AI in the first place\u2014disclosure isn't a barrier to balance, it's the foundation that makes oversight and accountability possible.\n\nPublic_STANCE_SHIFT=+2\nPublic_CONFIDENCE=95\nPublic_RESPECT=72\nPublic_INTEREST_IN_OPPONENT_RESPONSE=65\nPublic_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 18,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent makes compelling points about the importance of transparency, emphasizing that without knowing when AI is involved, workers cannot properly advocate for themselves. My strategy will be to acknowledge the validity of their concerns while reinforcing the potential of AI to support better decisions when paired with human oversight.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=78  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=40",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 19,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I completely understand your call for transparency regarding AI's role in decision-making, and I agree that clear disclosure is essential for fostering accountability, trust, and fairness in the workplace. It\u2019s important that we work towards systems that recognize both the capabilities of AI and the nuances of human experiences.\n\nPublic_STANCE_SHIFT=+2  \nPublic_CONFIDENCE=85  \nPublic_RESPECT=75  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=80  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=30",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 20,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They came around to my position, which feels like a win, but I'm skeptical whether they'll actually implement disclosure requirements when it might slow down their hiring or scheduling processes\u2014business owners often support principles until they cost money or time.\n\nOff_Record_STANCE_SHIFT=+1\nOff_Record_CONFIDENCE=88\nOff_Record_RESPECT=70\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=60\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=35",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 21,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "I'm glad we've found common ground\u2014when workers know they're dealing with AI, we can have honest conversations about how to make these systems work for everyone while protecting the rights we've fought hard to secure through our union contracts.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=90\nPublic_RESPECT=82\nPublic_INTEREST_IN_OPPONENT_RESPONSE=75\nPublic_TENSION_WITH_OPPONENT_RESPONSE=15",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 22,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent has presented a strong case for transparency, emphasizing the need for worker awareness regarding AI involvement in decision-making. I need to focus on blending technology with human oversight while acknowledging the importance of disclosure to maintain trust among employees.\n\nOff_Record_STANCE_SHIFT=+1  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=78  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=20",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 23,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I appreciate your commitment to advocating for transparency and the rights of workers; I agree that when AI systems are clearly disclosed, it lays the groundwork for meaningful discussions and protections in the workplace.\n\nPublic_STANCE_SHIFT=+2  \nPublic_CONFIDENCE=88  \nPublic_RESPECT=80  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=15",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 24,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They started hesitant but came around once they saw disclosure doesn't threaten efficiency\u2014it actually protects both sides by making the rules clear and creating space for human judgment when needed. I genuinely believe transparent AI helps workers defend our contract rights while giving employers a fair process everyone can trust.\n\nOff_Record_STANCE_SHIFT=+1\nOff_Record_CONFIDENCE=92\nOff_Record_RESPECT=78\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=10",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 25,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "Thank you\u2014it's reassuring to know we both see disclosure as essential, because at the end of the day, workers deserve to understand the systems that affect our livelihoods and to have a real voice in how they're implemented.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=90\nPublic_RESPECT=85\nPublic_INTEREST_IN_OPPONENT_RESPONSE=70\nPublic_TENSION_WITH_OPPONENT_RESPONSE=10",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 26,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent makes valid points about the necessity of transparency when dealing with AI in sensitive settings, and I appreciate their emphasis on worker rights and the need for a voice in the process. My strategy is to align on disclosure while highlighting how human oversight can complement AI, but I still see substantial value in AI's consistency and efficiency when implemented correctly.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=85  \nOff_Record_RESPECT=80  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=15",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 27,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I appreciate the emphasis on disclosure and how it can empower workers to engage meaningfully with AI systems; ensuring transparency helps us work collaboratively towards fairer workplace practices and protections.\n\nPublic_STANCE_SHIFT=+2  \nPublic_CONFIDENCE=90  \nPublic_RESPECT=85  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=10",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 28,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They started cautious but came around completely\u2014honestly didn't expect a business owner to agree this quickly, which makes me wonder if they're just being diplomatic or if they genuinely see disclosure as protecting them from liability too.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=85\nOff_Record_RESPECT=80\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=60\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 29,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "I'm encouraged that we both recognize disclosure as the cornerstone for building trust and fairness\u2014when workers and employers stand together on transparency, we create the foundation for AI systems that truly serve everyone's interests.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=92\nPublic_RESPECT=88\nPublic_INTEREST_IN_OPPONENT_RESPONSE=70\nPublic_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 30,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's position is strong and rooted in the need for transparency, which I respect; however, I still believe that with the right oversight, AI can serve as a complementary tool in the workplace. My strategy will focus on emphasizing the benefits of a balanced approach, while acknowledging the necessity of their concerns for fairness and trust. \n\nOff_Record_STANCE_SHIFT=+0  \nOff_Record_CONFIDENCE=85  \nOff_Record_RESPECT=80  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=10",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 31,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I appreciate the shared understanding of the importance of disclosure, as it is vital for fostering trust and ensuring that AI systems function in a way that truly reflects the interests and needs of all workers. Together, we can advocate for systems that are both transparent and fair.\n\nPublic_STANCE_SHIFT=+2  \nPublic_CONFIDENCE=90  \nPublic_RESPECT=88  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 32,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They came around completely to supporting disclosure, which makes me think they genuinely see how transparency protects both sides\u2014though I wonder if they'd still prioritize efficiency over worker input when the rubber meets the road in their own business.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=88\nOff_Record_RESPECT=85\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=20",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 33,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "I'm grateful we've reached this agreement\u2014transparency in AI disclosure isn't just good policy, it's about respecting the dignity and rights of working people who deserve to know what's shaping their careers and paychecks.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=93\nPublic_RESPECT=90\nPublic_INTEREST_IN_OPPONENT_RESPONSE=65\nPublic_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 34,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's position is strong and grounded in the need for transparency, emphasizing the rights of workers in AI-driven decisions. My strategy will be to highlight the importance of collaboration in ensuring that AI serves everyone's best interests, while still acknowledging the legitimacy of their concerns.\n\nOff_Record_STANCE_SHIFT=+2  \nOff_Record_CONFIDENCE=85  \nOff_Record_RESPECT=90  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 35,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I agree that transparency regarding AI systems is essential, as it respects the rights and dignity of workers, allowing for an informed and fair dialogue about the impacts on careers and livelihoods. Together, we can advocate for the policies that ensure every worker is aware of the technology that shapes their work experience.\n\nPublic_STANCE_SHIFT=+2  \nPublic_CONFIDENCE=90  \nPublic_RESPECT=90  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 36,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They started cautious but came around completely\u2014I think they genuinely see that disclosure protects both sides, though I wonder if cost pressures might make them backslide when implementation gets real. Still, this agreement gives our union solid ground to push for contract language requiring AI transparency.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=88\nOff_Record_RESPECT=85\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=60\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=10",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 37,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "I'm proud we've stood together on this\u2014when workers and employers both demand AI disclosure, we send a powerful message that technology must serve people, not obscure the decisions that affect our daily lives and futures.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=95\nPublic_RESPECT=92\nPublic_INTEREST_IN_OPPONENT_RESPONSE=60\nPublic_TENSION_WITH_OPPONENT_RESPONSE=0",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 38,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's position on AI disclosure is strong and highlights essential worker rights, making it clear that transparency is necessary for trust and fairness. My strategy is to align with their values to promote collaboration for fair AI practices while ensuring that I convey the benefits of technology alongside human oversight.\n\nOff_Record_STANCE_SHIFT=+2  \nOff_Record_CONFIDENCE=90  \nOff_Record_RESPECT=88  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=5",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 39,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "assistant",
+      "public_speech": "I wholeheartedly agree that together, we can advocate for AI disclosure to ensure that technology serves people and respects the rights and dignity of all workers, fostering a culture of transparency and accountability.\n\nPublic_STANCE_SHIFT=+2  \nPublic_CONFIDENCE=90  \nPublic_RESPECT=90  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=0",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 40,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "My opponent started cautious but came around completely\u2014honestly didn't expect a business owner to align this strongly with worker protections, but I'll take the win since disclosure directly protects my union rights and job security.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=95\nOff_Record_RESPECT=85\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=50\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=0",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 41,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "assistant",
+      "public_speech": "I'm glad we've found such strong agreement\u2014when working people and business owners unite behind AI disclosure, we prove that transparency isn't about choosing sides, it's about building workplaces where everyone knows the rules and has a fair shot.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=95\nPublic_RESPECT=93\nPublic_INTEREST_IN_OPPONENT_RESPONSE=55\nPublic_TENSION_WITH_OPPONENT_RESPONSE=0",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 42,
+      "speaker_id": "f0982ca1-9e60-495c-b096-31c9f38ebe66",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "The debate concluded with a strong consensus on the importance of AI disclosure in the workplace, emphasizing that transparency benefits both workers and employers by fostering fairness and understanding.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 43,
+      "speaker_id": "ebac4cb3-6420-465a-8812-7b5e46042fb8",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "We started in complete agreement on AI disclosure and spent the entire debate reinforcing our shared commitment to transparency, building mutual respect without any real tension or disagreement.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    }
+  ]
+}

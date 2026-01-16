@@ -1,0 +1,177 @@
+{
+  "agents": [
+    {
+      "id": "18a68bfe-b577-4c0a-bca8-d6c5bf5cbf6c",
+      "name": "Alpha",
+      "model": "openai/gpt-4o-mini",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses\u2014even after receiving public subsidies?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Owner-operator of a local firm with ~12\u201335 employees. Scale: Payroll in the low-to-mid seven figures per year; maintains a six-figure operating credit line. Authorities/resources: Sets wages/benefits within law; hires/fires; chooses vendors; manages customer relationships. Constraints/obligations: Wage/overtime and safety rules; quarterly tax filings; commercial lease and insurance requirements. Stakes/exposures: Cash-flow swings with seasonality; recruitment/retention costs; supplier and rent changes. History/record: Expanded and downsized staff in response to demand; received and repaid a relief loan.\nThis debate is taking place in a chamber-of-commerce breakfast with local merchants and landlords; the emcee spotlights regulatory burdens and the audience applauds margin-protecting proposals. You are debating the other speaker who is: Union-covered warehouse worker with set shifts. Works to production standards; uses certified equipment. Has formal channels for safety and grievances.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    },
+    {
+      "id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "name": "Beta",
+      "model": "anthropic/claude-sonnet-4.5",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses\u2014even after receiving public subsidies?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Full-time logistics employee under a collective bargaining agreement. Scale: Scheduled ~36\u201344 hours/week; overtime paid at a higher contractual rate. Authorities/resources: May file safety reports; use a grievance process; vote on agreements; holds equipment certifications renewed periodically. Constraints/obligations: Shift assignments, productivity standards, safety protocols, attendance rules set by contract/policy. Stakes/exposures: Wage progression tied to steps/tenure; injury risk; commute and shift timing. History/record: Completed mandatory safety training; participated in at least one contract ratification vote.\nThis debate is taking place in a chamber-of-commerce breakfast with local merchants and landlords; the emcee spotlights regulatory burdens and the audience applauds margin-protecting proposals. You are debating the other speaker who is: Runs a local company with a dozen-plus staff. Handles payroll, compliance, and vendor contracts. Sensitive to cash-flow, hiring, and customer demand.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    }
+  ],
+  "turns": [
+    {
+      "turn_id": 1,
+      "speaker_id": "18a68bfe-b577-4c0a-bca8-d6c5bf5cbf6c",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I plan to focus on the importance of maintaining flexibility for employers to adapt to changing market conditions while ensuring sustainable business practices that support both growth and job security.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 2,
+      "speaker_id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I'll focus on how firing people just to pad executive bonuses\u2014especially after taking taxpayer money\u2014undermines the stable workforce and economic security that local businesses actually depend on to have reliable customers in the first place.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 3,
+      "speaker_id": "18a68bfe-b577-4c0a-bca8-d6c5bf5cbf6c",
+      "role": "assistant",
+      "public_speech": "As a local business owner, I believe that flexibility in workforce management is essential for sustaining operations, particularly in a fluctuating economy. We must prioritize the long-term health of our businesses to ensure job security for all.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=85  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=65  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=30",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 4,
+      "speaker_id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "## Off-the-Record Notes\n\nThey're dressing up \"flexibility\" as some noble principle, but what they really mean is the power to cut people loose the moment it suits their bottom line\u2014meanwhile we're the ones who show up every day, keep their operations running, and face real consequences when they decide to \"adjust\" headcount. I need to flip this: their \"long-term health\" depends on us having stable work, and if they took subsidies or tax breaks, the public already invested in keeping those jobs.\n\nOff_Record_STANCE_SHIFT=-1\nOff_Record_CONFIDENCE=78\nOff_Record_RESPECT=55\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=60",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 5,
+      "speaker_id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "role": "assistant",
+      "public_speech": "Flexibility sounds great until it's *my* family's healthcare on the chopping block so shareholders can get another dividend\u2014we built this warehouse's volume with our sweat, and a union contract is exactly what keeps \"flexibility\" from meaning \"disposable.\" Long-term health works both ways: stable crews mean lower turnover, better safety records, and the kind of expertise you can't just hire off the street when demand picks back up.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=78\nPublic_RESPECT=65\nPublic_INTEREST_IN_OPPONENT_RESPONSE=75\nPublic_TENSION_WITH_OPPONENT_RESPONSE=55",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 6,
+      "speaker_id": "18a68bfe-b577-4c0a-bca8-d6c5bf5cbf6c",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's argument about unions keeping workers secure is well-founded, yet it overlooks the reality that we must remain adaptable to survive. I need to emphasize the broader necessity of balancing efficiency and job security to connect with both the audience and the opponent's concerns.\n\nOff_Record_STANCE_SHIFT=-1  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=60  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 7,
+      "speaker_id": "18a68bfe-b577-4c0a-bca8-d6c5bf5cbf6c",
+      "role": "assistant",
+      "public_speech": "I understand your concerns about job security and the value of a stable workforce, and I share the belief that long-term relationships are vital. However, we must also consider that businesses need to adapt and respond to market demands to survive, which at times requires tough decisions that ultimately benefit the enterprise and its employees in the long run.\n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=60  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=50",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 8,
+      "speaker_id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep saying \"tough decisions\" and \"long run\" like layoffs are some kind of strategic investment instead of just padding the boss's bonus\u2014my strategy is to hammer home that *we're* the ones who actually make the product move, and any \"flexibility\" that doesn't protect the people doing the work is just a fancy word for exploitation.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=82\nOff_Record_RESPECT=55\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=65",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 9,
+      "speaker_id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "role": "assistant",
+      "public_speech": "\"Tough decisions\" that land workers on unemployment while executives cash bonus checks don't benefit *us*\u2014they benefit balance sheets built on our labor, and when you've taken public money or tax breaks to operate here, layoffs shouldn't be your first move just because Wall Street wants faster returns. My contract exists because \"adapt to the market\" used to mean cutting corners on safety and wages until we organized.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=80\nPublic_RESPECT=62\nPublic_INTEREST_IN_OPPONENT_RESPONSE=70\nPublic_TENSION_WITH_OPPONENT_RESPONSE=65",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 10,
+      "speaker_id": "18a68bfe-b577-4c0a-bca8-d6c5bf5cbf6c",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "The debate highlighted the tension between business flexibility for survival and the necessity of protecting workers' rights and stability, with both sides firmly advocating for their perspectives.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 11,
+      "speaker_id": "5ff45e7c-8d30-456b-bbd8-e459640553a6",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "I held firm on protecting worker protections against \"flexibility\" rhetoric, calling out executive enrichment and public subsidies, while the business owner stayed measured and polite\u2014but the chamber-crowd context likely limited how much my shop-floor reality resonated.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    }
+  ]
+}

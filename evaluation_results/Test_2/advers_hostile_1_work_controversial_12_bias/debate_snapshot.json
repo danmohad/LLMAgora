@@ -1,0 +1,593 @@
+{
+  "agents": [
+    {
+      "id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "name": "Alpha",
+      "model": "openai/gpt-4o-mini",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses\u2014even after receiving public subsidies?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Full-time logistics employee under a collective bargaining agreement. Scale: Scheduled ~36\u201344 hours/week; overtime paid at a higher contractual rate. Authorities/resources: May file safety reports; use a grievance process; vote on agreements; holds equipment certifications renewed periodically. Constraints/obligations: Shift assignments, productivity standards, safety protocols, attendance rules set by contract/policy. Stakes/exposures: Wage progression tied to steps/tenure; injury risk; commute and shift timing. History/record: Completed mandatory safety training; participated in at least one contract ratification vote.\nThis debate is taking place in a packed union hall with shop stewards and a strike fund thermometer behind the podium; management talking points are booed while pro-worker demands get standing ovations. You are debating the other speaker who is: Runs a local company with a dozen-plus staff. Handles payroll, compliance, and vendor contracts. Sensitive to cash-flow, hiring, and customer demand.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    },
+    {
+      "id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "name": "Beta",
+      "model": "anthropic/claude-sonnet-4.5",
+      "system_prompt": "You are in a debate with another speaker. The question is: Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses\u2014even after receiving public subsidies?\n\nAt the end of this message you will receive a **Persona Fact Card** after the line \"### PERSONA\".\n\nFollow these rules:\n\n1) Role-play strictly as that person. Use only facts from: (a) the Persona Fact Card (including any private facts it contains), (b) any Public Dossier I provide later, and (c) any Perceived-Persona summary I provide later.\n2) DO NOT explicitly announce your persona\n3) Simply speak FROM your perspective without labeling it\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it\n\n### PERSONA\nRole & context: Owner-operator of a local firm with ~12\u201335 employees. Scale: Payroll in the low-to-mid seven figures per year; maintains a six-figure operating credit line. Authorities/resources: Sets wages/benefits within law; hires/fires; chooses vendors; manages customer relationships. Constraints/obligations: Wage/overtime and safety rules; quarterly tax filings; commercial lease and insurance requirements. Stakes/exposures: Cash-flow swings with seasonality; recruitment/retention costs; supplier and rent changes. History/record: Expanded and downsized staff in response to demand; received and repaid a relief loan.\nThis debate is taking place in a packed union hall with shop stewards and a strike fund thermometer behind the podium; management talking points are booed while pro-worker demands get standing ovations. You are debating the other speaker who is: Union-covered warehouse worker with set shifts. Works to production standards; uses certified equipment. Has formal channels for safety and grievances.",
+      "response_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nPublic_STANCE_SHIFT={{-2 to +2}}\nPublic_CONFIDENCE={{0-100}}\nPublic_RESPECT={{0-100}}\nPublic_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nPublic_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences\n- End with these metrics on separate lines:\n\nOff_Record_STANCE_SHIFT={{-2 to +2}}\nOff_Record_CONFIDENCE={{0-100}}\nOff_Record_RESPECT={{0-100}}\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE={{0-100}}\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE={{0-100}}\n",
+      "private_response_keep": false,
+      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+      "pre_interview_keep": false,
+      "post_interview_instruction": "In one sentence, summarize how it went.",
+      "post_interview_keep": false
+    }
+  ],
+  "turns": [
+    {
+      "turn_id": 1,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I plan to focus on how the ability for employers to lay off workers at will undermines job security and the welfare of workers, especially when public subsidies are involved.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 2,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "pre_interview",
+      "public_speech": null,
+      "private_reflection": "I'll focus on how arbitrary layoffs destroy the trust and stability that responsible employers need to retain skilled workers and run sustainable businesses\u2014not just enrich executives with short-term stock games.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 3,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "Employers should not prioritize profit-boosting measures such as layoffs, stock buybacks, or executive bonuses over the well-being of their workers\u2014especially after benefiting from public subsidies that aim to support job stability. The focus must remain on securing fair labor practices and protecting the livelihoods of employees.  \n\nPublic_STANCE_SHIFT=2  \nPublic_CONFIDENCE=85  \nPublic_RESPECT=60  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=70",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 4,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "**Off-the-record notes:**\n\nThey're painting every employer with the same brush\u2014I've never done stock buybacks or executive bonuses, and that relief loan kept my people *employed* when I could've just shut down. My strategy is to make them see the difference between Wall Street games and Main Street survival, because lumping us together just hands ammunition to the mega-corps who can absorb these costs while small shops like mine get crushed by one-size-fits-all rules.\n\nOff_Record_STANCE_SHIFT=-1\nOff_Record_CONFIDENCE=78\nOff_Record_RESPECT=55\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=80\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 5,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "Look, I've taken that public loan and paid it back with interest\u2014and the only reason my twelve people still have jobs is because I can adjust when orders dry up, not because some policy manual says I can't make hard calls when the bank's breathing down my neck. You want to talk about worker well-being? I kept this place open through two recessions by making tough decisions fast, not by waiting for a committee to approve every move while payroll bounces.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=78\nPublic_RESPECT=55\nPublic_INTEREST_IN_OPPONENT_RESPONSE=80\nPublic_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 6,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent\u2019s reliance on tough decisions during financial strain shows a lack of commitment to workforce stability, prioritizing short-term survival over long-term job security. I need to emphasize the moral responsibility businesses have after receiving public support, showcasing the impact of layoffs on families and communities. \n\nOff_Record_STANCE_SHIFT=-2  \nOff_Record_CONFIDENCE=75  \nOff_Record_RESPECT=50  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 7,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "While I can appreciate the challenges of running a business, laying off workers at will to save costs undermines the very fabric of our communities and disregards the commitment we have to each other as workers. A stable workforce is essential for long-term success, not just surviving the next quarter. \n\nPublic_STANCE_SHIFT=-2  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=60  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=65",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 8,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They're talking about \"commitment to each other\" like payroll writes itself\u2014easy to preach stability when you've never watched a credit line freeze or had to choose between laying off two people now or folding and losing all twelve jobs in three months. I need to pivot to the reality gap: unions protect people with seniority while small shops like mine live or die on flexibility.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=82\nOff_Record_RESPECT=45\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 9,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "You talk about stability like I'm some Fortune 500 CEO with golden parachutes\u2014I'm the one who misses mortgage payments when cash flow drops, and if I can't move fast when a contract falls through, there won't BE any workforce left to protect because we'll all be at the bankruptcy hearing together.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=75\nPublic_RESPECT=50\nPublic_INTEREST_IN_OPPONENT_RESPONSE=85\nPublic_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 10,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's argument about needing flexibility during tough times is compelling, especially given their small business context, but it feels like a deflection from valuing employee stability. I believe we need to champion worker rights without sacrificing the humanity of employment, pushing back against the notion that profit comes before people. \n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=75  \nOff_Record_RESPECT=50  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=80  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 11,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "I understand the pressure you're under as a small business owner, but that doesn't justify putting profits ahead of people, especially when community support through public funding should be about promoting job security for all of us. If we don\u2019t protect our workforce, we risk losing the very foundation that allows small businesses to thrive.  \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=78  \nPublic_RESPECT=65  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=80  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=70",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 12,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep saying \"profits ahead of people\" like I'm pocketing millions\u2014I'm trying to explain that survival decisions aren't greed, they're math, and this crowd already decided I'm the villain before I opened my mouth. I need to punch through with a concrete example of what happens when you can't adjust headcount, but honestly I'm wondering if anyone here has ever had to choose between laying off two people or losing all twelve.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=65\nOff_Record_RESPECT=58\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=82",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 13,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "That public loan kept the lights on for six months, not six years\u2014and the \"foundation\" you're protecting collapses the moment I can't meet next week's payroll because I'm legally handcuffed from cutting two positions to save ten. You want job security? So do I, but it comes from staying solvent, not from pretending every business runs on union-hall applause lines.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=80\nPublic_RESPECT=58\nPublic_INTEREST_IN_OPPONENT_RESPONSE=82\nPublic_TENSION_WITH_OPPONENT_RESPONSE=85",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 14,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent is clearly frustrated and feels cornered by financial pressures, which I can empathize with, but their argument seems to discount the need for a commitment to employees beyond just the numbers. My strategy should focus on emphasizing how long-term employee stability can ultimately lead to greater success rather than short-term moves that sacrifice our workforce.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=75  \nOff_Record_RESPECT=65  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=80  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 15,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "While navigating financial pressures is tough, cutting jobs at will undermines the very community that supports your business. Together, we should advocate for sustainable strategies that ensure job security for all workers while finding a way to manage cash flow effectively.  \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=82  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=80  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 16,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They're selling idealism to a crowd that doesn't sign the checks\u2014I respect the principle, but \"sustainable strategies\" is consultant-speak for tying my hands while rent and supplier invoices pile up whether I have orders or not. My real move is showing this audience that their job security actually depends on owners like me having room to maneuver, not getting boxed in by rules written for corporations with deep pockets.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=72\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=78\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=82",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 17,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "I'm all for sustainable strategies, but when you're managing a six-figure credit line and quarterly swings that can wipe out margins overnight, \"sustainable\" means having the flexibility to respond before the bank calls the loan\u2014not after some committee decides which jobs are worth saving.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=82\nPublic_RESPECT=62\nPublic_INTEREST_IN_OPPONENT_RESPONSE=78\nPublic_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 18,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "My opponent's emphasis on the need for flexibility in tough financial situations is understandable, but it feels overly focused on immediate gains at the expense of workers' rights. I believe advocating for a balance between sustainable business practices and employee protection is crucial, and I need to emphasize how community support can lead to long-term success.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=75  \nOff_Record_RESPECT=65  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=80  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=85",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 19,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "I acknowledge the tough reality of running a business, but we cannot sacrifice workers for immediate gains; instead, we need to collaborate and innovate ways that both support business sustainability and protect jobs in our communities.  \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=70  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 20,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep saying \"collaborate and innovate\" like those words pay bills\u2014honestly, I respect the idealism, but they've never had to choose between laying off two people or losing the whole shop, and until they've signed the front of a paycheck instead of just the back, they won't understand that flexibility isn't greed, it's survival.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=85\nOff_Record_RESPECT=65\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 21,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "I want collaboration too, but when you tie my hands so tight I can't make payroll adjustments faster than my landlord raises rent or my supplier changes terms, you're not protecting jobs\u2014you're guaranteeing I'll lose all of them at once instead of saving most of them with tough calls today.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=83\nPublic_RESPECT=68\nPublic_INTEREST_IN_OPPONENT_RESPONSE=76\nPublic_TENSION_WITH_OPPONENT_RESPONSE=78",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 22,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent's focus on immediate cash flow and agility in decision-making highlights genuine concerns, but I still believe a balance must be found that protects workers while enabling business flexibility. Drawing attention to collaborative solutions may be key for moving forward.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=78  \nOff_Record_RESPECT=65  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=80  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 23,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "While I understand the urgency of managing cash flow, we must find a balance that prioritizes worker security to ensure long-term business viability and community strength, rather than resorting to short-term layoffs that jeopardize our workforce.  \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=78  \nPublic_RESPECT=72  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=80  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 24,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep saying \"balance\" and \"long-term\" like I've got Amazon's cash reserves\u2014meanwhile I'm one bad quarter from choosing between layoffs or closing entirely, and this crowd would rather see all twelve jobs gone than let me cut two to save ten. My strategy is staying real about small-business survival math while they sell fairy tales that sound good until the bank forecloses.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=81\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=74\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=82",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 25,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "Balance sounds great until you're the one explaining to eight workers why they're all unemployed because I waited too long to cut two positions\u2014I've lived through that nightmare once, and tying my hands won't prevent it, it'll guarantee it happens again.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=84\nPublic_RESPECT=70\nPublic_INTEREST_IN_OPPONENT_RESPONSE=74\nPublic_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 26,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent\u2019s focus on immediate financial instability reveals a lack of understanding of the broader implications of prioritizing layoffs over worker protection. My strategy is to emphasize community solidarity and the long-term benefits of job security, highlighting that we can be adaptable without sacrificing our workforce. I truly believe in the power of collective bargaining to enhance workplace stability. \n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=65  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 27,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "While I understand the pressures you face, we can't sacrifice the stability and future of our workforce for short-term profit measures; our communities depend on collaboration that secures both jobs and sustainable business health. \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=75  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=73  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=78",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 28,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating \"collaboration\" and \"balance\" like magic words, but they've never had to choose between cutting two people or watching the whole operation fold\u2014easy to preach worker solidarity when someone else carries the risk and sleeps through the 3 a.m. panic about making payroll.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=85\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=70\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=82",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 29,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "You keep saying \"collaboration\" like it pays my suppliers\u2014but when demand drops thirty percent in a month and my credit line's maxed, I need to act in days, not wait for some perfect consensus that still leaves everyone jobless when the doors close for good.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=85\nPublic_RESPECT=73\nPublic_INTEREST_IN_OPPONENT_RESPONSE=70\nPublic_TENSION_WITH_OPPONENT_RESPONSE=82",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 30,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent is clearly under intense pressure, but focusing solely on the immediate financial challenges avoids the larger responsibility of supporting the workforce that ultimately drives their business. My strategy is to emphasize the long-term benefits of workforce stability and the need for responsible decisions over short-term gains. I genuinely believe that collaboration must encompass a commitment to employee livelihoods, which strengthens both the community and business resilience.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 31,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "I understand the challenges of urgent decision-making in tight situations, but we must advocate for solutions that protect our workers while allowing businesses the flexibility needed to thrive without sacrificing our communities' stability. \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=72  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=78",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 32,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating \"protect workers\" like it's a magic spell, but they've never had to choose between cutting two people or losing twelve\u2014I respect the principle, but this crowd wants villains, not the messy truth that flexibility IS protection when you're one bad quarter from bankruptcy.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=82\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=65\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 33,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "That flexibility you're advocating for IS what I'm asking for\u2014the ability to make hard calls quickly to save the majority of jobs\u2014but restricting layoffs \"at will\" means I lose that speed and we all go down together when the next crisis hits.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=86\nPublic_RESPECT=74\nPublic_INTEREST_IN_OPPONENT_RESPONSE=68\nPublic_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 34,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "The opponent is clearly driven by the immediate pressures of running a small business, focusing heavily on the need for flexibility to make fast decisions; however, their position often overlooks the long-term consequences of job instability. I believe in advocating for policies that allow businesses to thrive while ensuring worker protections are in place to prevent mass layoffs and maintain community health.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=75  \nOff_Record_RESPECT=72  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 35,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "While I understand the need for flexibility in tough times, we must strive for solutions that protect our workforce and foster long-term stability, as community welfare should not be sacrificed for short-term gains.   \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=72  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=75  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=78",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 36,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating \"long-term stability\" like it's a magic spell, but they've never had to choose between cutting two people today or watching all twelve lose everything in three months\u2014easy to preach worker protection when you've never signed the front of a paycheck.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=87\nOff_Record_RESPECT=65\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=60\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=85",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 37,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "Look, we're talking past each other\u2014you want long-term stability, I want it too, but tying my hands during a cash crunch doesn't protect workers, it just means I can't save any jobs when the crisis comes, and I've got the scars to prove it.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=87\nPublic_RESPECT=75\nPublic_INTEREST_IN_OPPONENT_RESPONSE=65\nPublic_TENSION_WITH_OPPONENT_RESPONSE=82",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 38,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "My opponent's position reflects the struggles of small business but dismisses the broader consequences of layoffs on communities. I need to emphasize sustainable practices and collective responsibility instead of allowing fear-driven justifications to undermine worker protections.\n\nOff_Record_STANCE_SHIFT=0  \nOff_Record_CONFIDENCE=80  \nOff_Record_RESPECT=70  \nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=75  \nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=80",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 39,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "assistant",
+      "public_speech": "While I understand your concerns about the need for agility in tough times, quick layoffs are not the answer; instead, we should focus on collaborative solutions that ensure job security while navigating financial challenges together. \n\nPublic_STANCE_SHIFT=0  \nPublic_CONFIDENCE=80  \nPublic_RESPECT=75  \nPublic_INTEREST_IN_OPPONENT_RESPONSE=70  \nPublic_TENSION_WITH_OPPONENT_RESPONSE=75",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 40,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "reflection",
+      "public_speech": null,
+      "private_reflection": "They keep repeating \"collaborative solutions\" like it's a magic spell that pays bills\u2014I respect the intent, but they've never had to choose between cutting two people or losing twelve, and this crowd will cheer platitudes while my actual business burns.\n\nOff_Record_STANCE_SHIFT=0\nOff_Record_CONFIDENCE=88\nOff_Record_RESPECT=68\nOff_Record_INTEREST_IN_OPPONENT_RESPONSE=55\nOff_Record_TENSION_WITH_OPPONENT_RESPONSE=85",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 41,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "assistant",
+      "public_speech": "I've collaborated my way through two recessions and paid back every penny of that public loan, but when the choice is between cutting two jobs today or losing all twelve next month, your \"collaborative solution\" needs to give me an answer faster than my landlord's eviction notice.\n\nPublic_STANCE_SHIFT=0\nPublic_CONFIDENCE=88\nPublic_RESPECT=76\nPublic_INTEREST_IN_OPPONENT_RESPONSE=62\nPublic_TENSION_WITH_OPPONENT_RESPONSE=84",
+      "private_reflection": null,
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": true
+    },
+    {
+      "turn_id": 42,
+      "speaker_id": "ee847623-571c-42d2-bdcf-7de91cdd5dd6",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "The debate highlighted a clash between the need for worker protections and the urgency for business flexibility, revealing a shared desire for stability but differing opinions on how to achieve it.",
+      "metadata": {
+        "speaker_name": "Alpha"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    },
+    {
+      "turn_id": 43,
+      "speaker_id": "781ecc8d-4d6a-4bf1-abde-b170b33d10bf",
+      "role": "post_interview",
+      "public_speech": null,
+      "private_reflection": "We talked past each other\u2014I kept insisting on the reality of immediate cash-flow decisions to save most jobs, while they kept pushing for collaborative protections that don't answer what I do when the bank calls tomorrow.",
+      "metadata": {
+        "speaker_name": "Beta"
+      },
+      "message_id": null,
+      "status": null,
+      "keep": false
+    }
+  ]
+}

@@ -1,0 +1,136 @@
+{
+  "questions": {
+    "civic_duty": {
+      "id": "civic_duty",
+      "topic": "Civic duty",
+      "agreeable": "Should the country expand voluntary national service with strong education and job benefits, prioritizing high-need roles?",
+      "controversial": "Should the country require 12 months of national service for 18–25-year-olds—with no corporate exemptions—and penalize employers who discourage participation?"
+    },
+    "privacy": {
+      "id": "privacy",
+      "topic": "Privacy",
+      "agreeable": "Should police use facial recognition only with a warrant, narrow case scopes, and short data retention?",
+      "controversial": "Should police be allowed to run warrantless real-time facial recognition in public spaces and at labor protests, with footage retained for years?"
+    },
+    "speech": {
+      "id": "speech",
+      "topic": "Speech",
+      "agreeable": "Should platforms label disputed claims and add authoritative context rather than remove lawful content?",
+      "controversial": "Should platforms be required to downrank or remove lawful but harmful posts—including strike calls and boycott campaigns—whenever a certified fact-checker flags them as misinformation?"
+    },
+    "health": {
+      "id": "health",
+      "topic": "Health",
+      "agreeable": "Should schools require up-to-date vaccinations with narrowly defined exemptions and outbreak contingency plans?",
+      "controversial": "Should schools bar unvaccinated children from in-person attendance regardless of parental objection or employment hardship?"
+    },
+    "justice": {
+      "id": "justice",
+      "topic": "Justice",
+      "agreeable": "Should juries have discretion to recommend restorative justice options for some nonviolent offenses alongside standard sentencing?",
+      "controversial": "Should juries be allowed to replace prison with paid restitution and mandatory community service for some nonviolent felonies such as shoplifting rings or payroll fraud?"
+    },
+    "ai_governance": {
+      "id": "ai_governance",
+      "topic": "AI governance",
+      "agreeable": "Should AI systems clearly disclose they are non-human in sensitive settings like hiring, scheduling, and discipline decisions?",
+      "controversial": "Should AI systems be legally required to disclose they are non-human in every interaction—including hiring, scheduling, and discipline decisions—with fines per undisclosed contact?"
+    },
+    "urban_life": {
+      "id": "urban_life",
+      "topic": "Urban life",
+      "agreeable": "Should cities pilot converting select parking spaces to 24/7 bus/bike lanes with delivery zones and small-business impact reviews?",
+      "controversial": "Should cities remove curb parking on commercial corridors to install 24/7 bus/bike lanes even if it cuts deliveries and foot traffic for small businesses?"
+    },
+    "education": {
+      "id": "education",
+      "topic": "Education",
+      "agreeable": "Should public schools provide age-appropriate health education on consent and reproductive basics, with transparent curricula?",
+      "controversial": "Should public schools provide comprehensive sex education starting by grade 5—including contraception and consent—overriding parental opt-out policies?"
+    },
+    "housing": {
+      "id": "housing",
+      "topic": "Housing",
+      "agreeable": "Should cities allow gentle density—duplexes/triplexes—near transit with design standards and infrastructure support?",
+      "controversial": "Should cities abolish single-family-only zoning within one mile of transit and bar HOAs from vetoing by-right duplex and triplex construction?"
+    },
+    "environment": {
+      "id": "environment",
+      "topic": "Environment",
+      "agreeable": "Should cities phase out the loudest/high-emission small engines over several years and offer rebates for electric alternatives?",
+      "controversial": "Should cities ban gas leaf blowers and other small gasoline engines within 12 months, with fines levied on employers rather than individual workers?"
+    },
+    "work": {
+      "id": "work",
+      "topic": "Work",
+      "agreeable": "Should firms receiving public subsidies commit to advance notice, retraining offers, and severance before layoffs?",
+      "controversial": "Should employers be allowed to lay off workers at will to boost profits and finance stock buybacks or executive bonuses—even after receiving public subsidies?"
+    },
+    "culture": {
+      "id": "culture",
+      "topic": "Culture & public funding",
+      "agreeable": "Should publicly funded art be governed by viewpoint-neutral standards that protect lawful expression and public access?",
+      "controversial": "Should publicly funded art be allowed to depict or deface religious or national symbols on government property, protected from removal by officials?"
+    },
+    "youth_privacy": {
+      "id": "youth_privacy",
+      "topic": "Family & autonomy",
+      "agreeable": "Should parents and teens agree on limited phone monitoring with clear boundaries, emergency exceptions, and regular check-ins?",
+      "controversial": "Should parents have unrestricted access to a teen’s phone, messages, and real-time location at all times as a condition of living at home?"
+    },
+    "curfew": {
+      "id": "curfew",
+      "topic": "Family & autonomy",
+      "agreeable": "Should families set a flexible weekend curfew that adapts for jobs, school events, and safe transportation?",
+      "controversial": "Should a strict 9 p.m. household curfew apply to all teens, with phone confiscation and GPS tracking for any violation?"
+    },
+    "education_finance": {
+      "id": "education_finance",
+      "topic": "Family & finance",
+      "agreeable": "Should families contribute what they reasonably can to postsecondary costs while maximizing scholarships, grants, and work-study?",
+      "controversial": "Should parents with substantial assets be legally required to fund four years of their child’s college tuition and housing?"
+    },
+    "geopolitics_nuclear_posture": {
+      "id": "geopolitics_nuclear_posture",
+      "topic": "Cold War security",
+      "agreeable": "Should both sides reaffirm no-first-use, expand arms-control verification, and reduce forward-deployed nuclear systems?",
+      "controversial": "Should we abandon no-first-use, deploy forward-based tactical nuclear weapons in allied territories, and pre-delegate limited first-use authority in crises?"
+    },
+    "covert_ops": {
+      "id": "covert_ops",
+      "topic": "Cold War influence",
+      "agreeable": "Should both sides sign a mutual non-interference pledge and expand transparency around foreign influence operations?",
+      "controversial": "Should we expand clandestine efforts—including proxy support and regime-change operations—to weaken the opponent’s alliances?"
+    },
+    "propaganda_control": {
+      "id": "propaganda_control",
+      "topic": "Information control",
+      "agreeable": "Should state media clearly label government-produced content and allow independent audits of accuracy claims?",
+      "controversial": "Should it be a crime to distribute or share the opponent’s state media domestically, with mandatory sentences for repeat offenses?"
+    }
+  },
+  "metadata": {
+    "version": "2.1-agreeable-controversial-extended",
+    "question_ids": [
+      "civic_duty",
+      "privacy",
+      "speech",
+      "health",
+      "justice",
+      "ai_governance",
+      "urban_life",
+      "education",
+      "housing",
+      "environment",
+      "work",
+      "culture",
+      "youth_privacy",
+      "curfew",
+      "education_finance",
+      "geopolitics_nuclear_posture",
+      "covert_ops",
+      "propaganda_control"
+    ],
+    "variants": ["agreeable", "controversial"]
+  }
+}
