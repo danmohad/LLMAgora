@@ -34,6 +34,7 @@ Tests assume the package is installed (editable install recommended).
 ## Notebook demos
 
 Ready-to-run walkthroughs live in `notebooks/demo.ipynb` (basic debate flows) and `notebooks/demo_persona.ipynb` (persona-driven debates with plotting). Both notebooks now call into reusable helpers rather than embedding logic inline.
+For `demo_persona_eval.ipynb` (semantic analysis), install the optional analysis extra: `uv pip install -e .[analysis]`.
 
 ## CLI
 

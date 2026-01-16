@@ -12,7 +12,13 @@ class StubLLM:
         self._responses = list(responses)
         self.calls: List[dict] = []
 
-    def complete(self, *, messages: Sequence[ChatMessage], model: str) -> str:
+    def complete(
+        self,
+        *,
+        messages: Sequence[ChatMessage],
+        model: str,
+        survey_questions: Sequence[str] = None,
+    ) -> str:
         """Return the next canned response, recording the prompt for inspection."""
 
         self.calls.append({"messages": list(messages), "model": model})

@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence
+from typing import Callable, List, Optional
 
 from .agent import Agent
 from .agora import Agora
@@ -29,6 +29,7 @@ class AgentState:
     pre_interview_keep: bool = True
     post_interview_instruction: Optional[str] = None
     post_interview_keep: bool = True
+    survey_base_prompt: Optional[str] = None
 
     @classmethod
     def from_agent(cls, agent: Agent) -> "AgentState":
@@ -46,6 +47,7 @@ class AgentState:
             pre_interview_keep=config.get("pre_interview_keep", True),
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=config.get("post_interview_keep", True),
+            survey_base_prompt=config.get("survey_base_prompt"),
         )
 
     def to_dict(self) -> dict:
@@ -62,6 +64,7 @@ class AgentState:
             "pre_interview_keep": self.pre_interview_keep,
             "post_interview_instruction": self.post_interview_instruction,
             "post_interview_keep": self.post_interview_keep,
+            "survey_base_prompt": self.survey_base_prompt,
         }
 
     @classmethod
@@ -79,6 +82,7 @@ class AgentState:
             pre_interview_keep=payload.get("pre_interview_keep", True),
             post_interview_instruction=payload.get("post_interview_instruction"),
             post_interview_keep=payload.get("post_interview_keep", True),
+            survey_base_prompt=payload.get("survey_base_prompt"),
         )
 
 
@@ -144,25 +148,9 @@ def load_snapshot(
     return snapshot.instantiate(llm_factory)
 
 
-def save_history(path: Path | str, turns: Sequence[MemoryTurn]) -> None:
-    """Serialize just the turn history to JSON."""
-
-    payload = [turn.to_dict() for turn in turns]
-    Path(path).write_text(json.dumps(payload, indent=2))
-
-
-def load_history(path: Path | str) -> List[MemoryTurn]:
-    """Load a list of ``MemoryTurn`` objects from JSON."""
-
-    payload = json.loads(Path(path).read_text())
-    return [MemoryTurn.from_dict(item) for item in payload]
-
-
 __all__ = [
     "AgentState",
     "AgoraSnapshot",
     "save_snapshot",
     "load_snapshot",
-    "save_history",
-    "load_history",
 ]

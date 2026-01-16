@@ -98,9 +98,6 @@ class Agora:
             agent = self._agents[agent_index % len(self._agents)]
             agent_index += 1
 
-            if turns_taken[agent.id] >= max_turns_per_agent:
-                continue
-
             # Allow the agent to privately reflect before speaking publicly.
             if agent.supports_private_reflection:
                 if skip_first_agent_first_reflection and not first_reflection_skipped:
@@ -219,11 +216,6 @@ class Agora:
         """Return the number of agents currently participating in the Agora."""
 
         return len(self._agents)
-
-    def history_public(self) -> List[MemoryTurn]:
-        """Return only the publicly visible portion of the history."""
-
-        return [turn for turn in self._turn_log if turn.role == "assistant"]
 
     def history_for_agent(self, agent_id: str) -> List[MemoryTurn]:
         """Return the history view appropriate for a particular agent."""

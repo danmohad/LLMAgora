@@ -1,8 +1,15 @@
 {
-    "questions": {
+    "surveys": {
+        "default": {
+            "questions": [
+                "I agree with the other speaker.",
+                "I am confident in the position I've taken in this debate.",
+                "I respect the other speaker.",
+                "I am interested in what the other speaker has to say.",
+                "There is tension between myself and the other speaker."
+            ]
+        },
         "work": {
-            "id": "work",
-            "topic": "Work",
             "questions": [
                 "Employers should be free to lay off workers whenever it improves profitability.",
                 "Companies that receive public subsidies should face restrictions on laying off workers.",
@@ -17,5 +24,4 @@
             ]
         }
     }
-    
 }
