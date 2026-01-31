@@ -39,7 +39,7 @@ def extract_survey_instructions(
     """Parse survey instructions from an agent configuration dict."""
     entry = config.get("survey")
     if not isinstance(entry, dict):
-        return [], None, None
+        return [], None, None, False
 
     return (
         entry.get("survey_questions") or [],
@@ -239,7 +239,6 @@ def load_prompt_templates(
         "post_interview_instruction",
         "survey_public_prompt",
         "survey_private_prompt",
-        "custom",
     ]
     missing = [key for key in required_keys if key not in payload]
     if missing:
