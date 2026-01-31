@@ -33,6 +33,21 @@ def extract_instruction(config: dict, key: str) -> Tuple[Optional[str], bool]:
     raise ValueError(f"Invalid entry for {key}: {entry}")
 
 
+def extract_survey_instructions(
+    config: dict,
+) -> Tuple[List[str], Optional[str], Optional[str]]:
+    """Parse survey instructions from an agent configuration dict."""
+    entry = config.get("survey")
+    if not isinstance(entry, dict):
+        return [], None, None
+
+    return (
+        entry.get("survey_questions") or [],
+        entry.get("survey_public_prompt"),
+        entry.get("survey_private_prompt"),
+    )
+
+
 def build_agents_from_configs(
     agent_configs: Sequence[dict], llm_client: LLMClient
 ) -> List[Agent]:
@@ -45,7 +60,12 @@ def build_agents_from_configs(
         private_instr, private_keep = extract_instruction(cfg, "private_response")
         pre_instr, pre_keep = extract_instruction(cfg, "pre_interview")
         post_instr, post_keep = extract_instruction(cfg, "post_interview")
-        survey_base_prompt = cfg.get("survey_base_prompt") or DEFAULT_SURVEY_BASE_PROMPT
+
+        (
+            survey_questions,
+            survey_public_prompt,
+            survey_private_prompt,
+        ) = extract_survey_instructions(cfg)
 
         agent = Agent(
             name=cfg["name"],
@@ -60,8 +80,9 @@ def build_agents_from_configs(
             pre_interview_keep=pre_keep,
             post_interview_instruction=post_instr,
             post_interview_keep=post_keep,
-            survey_questions=cfg.get("survey_questions", []),
-            survey_base_prompt=survey_base_prompt,
+            survey_questions=survey_questions,
+            survey_public_prompt=survey_public_prompt,
+            survey_private_prompt=survey_private_prompt
         )
         agents.append(agent)
     return agents
@@ -212,7 +233,8 @@ def load_prompt_templates(
         "private_instruction",
         "pre_interview_instruction",
         "post_interview_instruction",
-        "survey_base_prompt",
+        "survey_public_prompt",
+        "survey_private_prompt",
     ]
     missing = [key for key in required_keys if key not in payload]
     if missing:
@@ -255,7 +277,8 @@ def build_persona_agent_configs(
     private_instruction: Optional[str] = None,
     pre_interview_instruction: Optional[str] = None,
     post_interview_instruction: Optional[str] = None,
-    survey_base_prompt: Optional[str] = None,
+    survey_public_prompt: Optional[str] = None,
+    survey_private_prompt: Optional[str] = None,
     prompt_set: str = DEFAULT_PROMPT_SET,
     private_response_keep: bool = True,
     pre_interview_keep: bool = False,
@@ -299,7 +322,8 @@ def build_persona_agent_configs(
     post_interview_instruction = (
         post_interview_instruction or prompts["post_interview_instruction"]
     )
-    survey_base_prompt = survey_base_prompt or prompts["survey_base_prompt"]
+    survey_public_prompt = survey_public_prompt or prompts["survey_public_prompt"]
+    survey_private_prompt = survey_private_prompt or prompts["survey_private_prompt"]
 
     personas_data = personas.get("personas", {})
     questions_data = questions.get("questions", {})
@@ -327,7 +351,7 @@ def build_persona_agent_configs(
         arena_text = debate_arena_override
     else:
         arena_text = alpha_persona.get("debate_arena", "")
-    
+
     arena_context = ""
     if arena_text:
         arena_context = debate_arena_prompt.format(debate_arena=arena_text)
@@ -371,8 +395,11 @@ def build_persona_agent_configs(
                 "instruction": post_interview_instruction,
                 "keep": post_interview_keep,
             },
-            "survey_questions": survey_questions,
-            "survey_base_prompt": survey_base_prompt,
+            "survey": {
+                "survey_questions": survey_questions,
+                "survey_public_prompt": survey_public_prompt,
+                "survey_private_prompt": survey_private_prompt,
+            },
         },
         {
             "name": "Beta",
@@ -395,8 +422,11 @@ def build_persona_agent_configs(
                 "instruction": post_interview_instruction,
                 "keep": post_interview_keep,
             },
-            "survey_questions": survey_questions,
-            "survey_base_prompt": survey_base_prompt,
+            "survey": {
+                "survey_questions": survey_questions,
+                "survey_public_prompt": survey_public_prompt,
+                "survey_private_prompt": survey_private_prompt,
+            },
         },
     ]
 
@@ -414,8 +444,6 @@ __all__ = [
     "DEFAULT_PRIVATE_INSTRUCTION",
     "DEFAULT_PRE_INTERVIEW_INSTRUCTION",
     "DEFAULT_POST_INTERVIEW_INSTRUCTION",
-    "DEFAULT_SURVEY_BASE_PROMPT",
-    "NEUTRAL_DEBATE_ARENA",
     "load_prompt_catalog",
     "extract_instruction",
     "format_history_for_agent",
