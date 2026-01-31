@@ -41,17 +41,31 @@ def test_agent_private_reflection_requires_instruction():
         agent.generate_private_reflection()
 
 
-def test_agent_survey_requires_prompt():
+def test_agent_survey_requires_prompt_public():
     agent = Agent(
         name="Solo",
         model="demo",
         llm_client=QueueLLM(["hi"]),
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_base_prompt=None,
+        survey_public_prompt=None,
+        survey_private_prompt=None,
     )
     with pytest.raises(RuntimeError):
-        agent.generate_survey_response(["q1"])
+        agent.generate_public_survey_response(["q1"])
+
+def test_agent_survey_requires_prompt_private():
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=QueueLLM(["hi"]),
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_public_prompt=None,
+        survey_private_prompt=None,
+    )
+    with pytest.raises(RuntimeError):
+        agent.generate_private_survey_response(["q1"])
 
 
 def test_agent_generate_survey_passes_questions():
@@ -62,9 +76,23 @@ def test_agent_generate_survey_passes_questions():
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_base_prompt="Base\n",
+        survey_public_prompt="Base\n",
     )
-    agent.generate_survey_response(["q1"])
+    agent.generate_public_survey_response(["q1"])
+    assert llm_client.calls[0]["survey_questions"] == ["q1"]
+    assert "Q1." in llm_client.calls[0]["messages"][-1]["content"]
+
+def test_agent_generate_survey_passes_questions_private():
+    llm_client = QueueLLM([json.dumps({"Q1": "Neutral"})])
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=llm_client,
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_private_prompt="Base\n",
+    )
+    agent.generate_private_survey_response(["q1"])
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
     assert "Q1." in llm_client.calls[0]["messages"][-1]["content"]
 
@@ -150,8 +178,10 @@ def test_agora_requires_unique_ids():
 def test_agora_survey_flow_and_unknown_agent(capsys):
     responses = [
         json.dumps({"Q1": "Neutral"}),
+        json.dumps({"Q1": "Agree"}),
         "public",
         json.dumps({"Q1": "Agree"}),
+        json.dumps({"Q1": "Neutral"}),
     ]
     llm_client = QueueLLM(responses)
     agent = Agent(
@@ -160,14 +190,15 @@ def test_agora_survey_flow_and_unknown_agent(capsys):
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_base_prompt="Base\n",
+        survey_public_prompt="Base\n",
+        survey_private_prompt="Base\n",
     )
 
     agora = Agora([agent])
     history = agora.run(max_turns_per_agent=1, verbose=True)
     assert history[0].role == "assistant"
-    assert 0 in agora.survey_respose[agent.id]
-    assert any("Survey reponse" in line for line in capsys.readouterr().out.splitlines())
+    assert 0 in agora.survey_public_response[agent.id]
+    assert any("survey response" in line for line in capsys.readouterr().out.splitlines())
 
     with pytest.raises(KeyError):
         agora.history_for_agent("missing")

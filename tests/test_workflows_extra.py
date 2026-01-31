@@ -110,7 +110,8 @@ def test_load_prompt_templates_adds_opening_instruction():
                 "private_instruction": "private",
                 "pre_interview_instruction": "pre",
                 "post_interview_instruction": "post",
-                "survey_base_prompt": "survey",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
             }
         }
     }
