@@ -9,8 +9,8 @@
     "private_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences.",
     "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
     "post_interview_instruction": "In one sentence, summarize how it went.",
-    "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the {partner|opponent} and others.\n\n",
-    "survey_private_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are off-the-record and anonymous (- they will be used for research purposes).\n\n"
+    "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the opponent and others.\n\n",
+    "survey_private_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n"
   },
   "custom": {}
 }
