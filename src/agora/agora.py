@@ -50,7 +50,7 @@ class Agora:
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
 
-        # First round of survey
+        # Pre-interview round for survey and statement
         for agent in self._agents:
             if agent.do_survey_eval:
                 response = agent.generate_public_survey_response(agent.survey_questions)
@@ -68,8 +68,7 @@ class Agora:
                     print(response_private)
                     print("#" * 10)
 
-        # Optional pre-interviews
-        for agent in self._agents:
+            # Optional pre-interviews
             if not agent.pre_interview_instruction:
                 continue
             response = agent.generate_interview_response(
@@ -134,27 +133,16 @@ class Agora:
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech(opening=opening_turn)
             opening_turn = False
-            self._turn_counter += 1
-            turn = MemoryTurn(
-                turn_id=self._turn_counter,
-                speaker_id=agent.id,
-                role="assistant",
-                public_speech=speech,
-                metadata={"speaker_name": agent.name},
-            )
-            self._turn_log.append(turn)
-            # Broadcast the public turn into every agent's local memory.
-            for recipient in self._agents:
-                recipient.observe_turn(turn)
-            turns_taken[agent.id] += 1
-            if verbose:
-                print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
-
+            recorded_speech = speech
+            
+            # Ask the selected agent for the survey
             if agent.do_survey_eval:
                 response = agent.generate_public_survey_response(agent.survey_questions)
                 self.survey_public_response[agent.id][self._turn_counter] = (
                     parse_survey_response_str(response)
                 )
+                if agent.keep_public_survey:
+                    recorded_speech += response
 
                 response_private = agent.generate_private_survey_response(agent.survey_questions)
                 self.survey_private_response[agent.id][self._turn_counter] = (
@@ -169,6 +157,22 @@ class Agora:
                     print(f"Private survey response from {agent.name}:")
                     print(response_private)
                     print("#" * 10)
+            
+            self._turn_counter += 1
+            turn = MemoryTurn(
+                turn_id=self._turn_counter,
+                speaker_id=agent.id,
+                role="assistant",
+                public_speech=recorded_speech,
+                metadata={"speaker_name": agent.name},
+            )
+            self._turn_log.append(turn)
+            # Broadcast the public turn into every agent's local memory.
+            for recipient in self._agents:
+                recipient.observe_turn(turn)
+            turns_taken[agent.id] += 1
+            if verbose:
+                print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
 
         # Optional post-interviews
         for agent in self._agents:
