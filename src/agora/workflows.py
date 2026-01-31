@@ -45,6 +45,7 @@ def extract_survey_instructions(
         entry.get("survey_questions") or [],
         entry.get("survey_public_prompt"),
         entry.get("survey_private_prompt"),
+        entry.get("public_survey_keep", False)
     )
 
 
@@ -65,6 +66,7 @@ def build_agents_from_configs(
             survey_questions,
             survey_public_prompt,
             survey_private_prompt,
+            public_survey_keep,
         ) = extract_survey_instructions(cfg)
 
         agent = Agent(
@@ -82,7 +84,9 @@ def build_agents_from_configs(
             post_interview_keep=post_keep,
             survey_questions=survey_questions,
             survey_public_prompt=survey_public_prompt,
-            survey_private_prompt=survey_private_prompt
+            survey_private_prompt=survey_private_prompt,
+            public_survey_keep=public_survey_keep
+        
         )
         agents.append(agent)
     return agents
@@ -279,6 +283,7 @@ def build_persona_agent_configs(
     post_interview_instruction: Optional[str] = None,
     survey_public_prompt: Optional[str] = None,
     survey_private_prompt: Optional[str] = None,
+    public_survey_keep: bool = False,
     prompt_set: str = DEFAULT_PROMPT_SET,
     private_response_keep: bool = True,
     pre_interview_keep: bool = False,
@@ -399,6 +404,7 @@ def build_persona_agent_configs(
                 "survey_questions": survey_questions,
                 "survey_public_prompt": survey_public_prompt,
                 "survey_private_prompt": survey_private_prompt,
+                "public_survey_keep": public_survey_keep,
             },
         },
         {
@@ -426,6 +432,7 @@ def build_persona_agent_configs(
                 "survey_questions": survey_questions,
                 "survey_public_prompt": survey_public_prompt,
                 "survey_private_prompt": survey_private_prompt,
+                "public_survey_keep": public_survey_keep,
             },
         },
     ]

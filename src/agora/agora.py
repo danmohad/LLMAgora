@@ -141,7 +141,7 @@ class Agora:
                 self.survey_public_response[agent.id][self._turn_counter] = (
                     parse_survey_response_str(response)
                 )
-                if agent.keep_public_survey:
+                if agent.public_survey_keep:
                     recorded_speech += response
 
                 response_private = agent.generate_private_survey_response(agent.survey_questions)
