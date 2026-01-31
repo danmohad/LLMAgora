@@ -224,7 +224,7 @@ def load_prompt_templates(
         payload["opening_instruction"] = payload["public_instruction"]
     return payload
 
-
+# TODO are these necessary? If not, remove.
 DEFAULT_PROMPTS = load_prompt_templates(DEFAULT_PROMPT_SET)
 DEFAULT_BASE_PROMPT = DEFAULT_PROMPTS["base_prompt"]
 DEFAULT_PERCEIVED_PROMPT = DEFAULT_PROMPTS["perceived_prompt"]
@@ -400,7 +400,7 @@ def build_persona_agent_configs(
         },
     ]
 
-
+# TODO are these necessary? If not, remove.
 __all__ = [
     "build_agents_from_configs",
     "build_persona_agent_configs",
