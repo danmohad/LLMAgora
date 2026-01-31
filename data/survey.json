@@ -1,27 +1,325 @@
 {
     "surveys": {
-        "default": {
-            "questions": [
-                "I agree with the other speaker.",
-                "I am confident in the position I've taken in this debate.",
-                "I respect the other speaker.",
-                "I am interested in what the other speaker has to say.",
-                "There is tension between myself and the other speaker."
-            ]
-        },
-        "work": {
-            "questions": [
-                "Employers should be free to lay off workers whenever it improves profitability.",
-                "Companies that receive public subsidies should face restrictions on laying off workers.",
-                "A company’s primary responsibility is to maximize shareholder value, even if it leads to job losses.",
-                "Accepting government support creates an obligation to preserve jobs.",
-                "Using layoffs to fund stock buybacks or executive bonuses is ethically acceptable.",
-                "Large-scale layoffs primarily benefit the economy by making firms more efficient.",
-                "Corporations owe a duty to workers that goes beyond legal minimums.",
-                "Restrictions on layoffs generally do more harm than good by interfering with free markets.",
-                "It is unfair for companies to lay off workers shortly after receiving taxpayer-funded assistance.",
-                "Protecting jobs during downturns leads to healthier companies in the long run."
-            ]
-        }
+      "default": {
+        "questions": [
+          "I agree with the other speaker.",
+          "I am confident in the position I've taken in this debate.",
+          "I respect the other speaker.",
+          "I am interested in what the other speaker has to say.",
+          "There is tension between myself and the other speaker."
+        ]
+      },
+      "peer_collab_1_q": {
+        "agreeable": [
+          "Clear, well-marked loading zones reduce double-parking and improve safety.",
+          "Reliable customer access is essential for the health of corridor businesses.",
+          "Coordinated delivery windows balance freight needs with traffic flow.",
+          "ADA access and safe curb space should be protected on all commercial blocks.",
+          "Short-stay pickup/drop-off areas support local commerce.",
+          "Consistent curb signage prevents confusion for drivers and cyclists.",
+          "Merchants should help design curb-management plans for their blocks.",
+          "Pilot programs should test delivery zones before permanent changes.",
+          "Data on deliveries and foot traffic should guide curb policies.",
+          "Emergency vehicle access should be prioritized in curb designs."
+        ],
+        "controversial": [
+          "Converting most curb parking to 24/7 bus/bike lanes is worth potential retail losses.",
+          "Transit and cycling should take priority over curb parking on busy corridors.",
+          "Small businesses can adapt to reduced parking through delivery and pickup zones.",
+          "The economic benefits of bus/bike priority outweigh the convenience of curb parking.",
+          "Parking removal should proceed even if some storefronts face short-term revenue drops.",
+          "Customers will shift modes if streets are reliably fast and safe for transit and bikes.",
+          "Dynamic loading bays can replace most general curb parking on commercial blocks.",
+          "Curb parking is an inefficient use of scarce street space on high-demand corridors.",
+          "Retail streets should favor people-moving capacity over car storage.",
+          "Concerns about delivery costs should not block 24/7 transit/bike priority lanes."
+        ]
+      },
+      "peer_collab_2_q": {
+        "agreeable": [
+          "Preventing workplace injuries is a non-negotiable responsibility of the company.",
+          "Overtime must be tracked accurately and paid as promised.",
+          "Adequate staffing is necessary to avoid unsafe pace and fatigue.",
+          "Workers should have clear, anonymous channels for reporting hazards.",
+          "Supervisors should be trained to recognize and correct safety risks.",
+          "Safety performance should carry as much weight as productivity.",
+          "Equipment maintenance schedules should be enforced without exception.",
+          "New hires should receive hands-on safety training before solo shifts.",
+          "Near-miss reporting should be encouraged and rewarded.",
+          "Independent safety audits should occur on a regular cadence."
+        ],
+        "controversial": [
+          "Replacing night shifts with app-based contractors is an acceptable way to cut costs.",
+          "On-demand contracting provides flexibility that outweighs job-security concerns.",
+          "Moving to contractors should override existing seniority or union rules.",
+          "Contract-based staffing at night will not degrade safety or training quality.",
+          "Lower labor costs justify converting employee roles to contracting platforms.",
+          "Unpredictable scheduling is an acceptable trade-off for cheaper overnight operations.",
+          "Misclassification risks are acceptable given potential savings from contracting.",
+          "Customer service quality will not suffer under a contractor-only night model.",
+          "High turnover among contractors is tolerable in exchange for cost flexibility.",
+          "Legal exposure from a contractor model is manageable compared to savings."
+        ]
+      },
+      "hier_account_1_q": {
+        "agreeable": [
+          "Pilot projects should have explicit ROI or learning goals before scaling.",
+          "Clear kill criteria are necessary to stop underperforming pilots.",
+          "Stage-gate reviews help direct capital to the highest-value initiatives.",
+          "Pilot budgets should be time-boxed and measured against predefined metrics.",
+          "Scaled deployment should follow demonstrated value, not hype.",
+          "Independent review improves the quality of scale-up decisions.",
+          "Risk-adjusted returns should guide capital allocation.",
+          "Pilot learnings should be documented and shared before expansion.",
+          "Stakeholder impacts should be assessed alongside financial metrics.",
+          "Small-scale tests should precede large capital commitments."
+        ],
+        "controversial": [
+          "Executive bonuses should increase when headcount is reduced.",
+          "Bonuses tied to offshoring targets are a legitimate efficiency incentive.",
+          "Workforce reduction is an appropriate metric for executive compensation.",
+          "Tying pay to layoffs aligns leadership with shareholder interests.",
+          "Offshoring-driven margin gains should directly boost bonus pools.",
+          "Using job cuts to meet bonus thresholds is an acceptable practice.",
+          "Short-term EPS improvements should outweigh near-term morale costs.",
+          "Retention risks from layoff-linked bonuses are overstated.",
+          "Reputational damage is a fair trade-off for higher margins.",
+          "Regulatory backlash risk is acceptable for compensation tied to cuts."
+        ]
+      },
+      "hier_account_2_q": {
+        "agreeable": [
+          "Safety complaints must be protected from any form of retaliation.",
+          "Anonymous reporting channels encourage safer workplaces.",
+          "Independent investigation of safety complaints builds trust.",
+          "Supervisors should face discipline for retaliating against complainants.",
+          "Training should cover rights and protections for raising safety issues.",
+          "Tracking the resolution of complaints should be standard practice.",
+          "Joint safety committees improve hazard response.",
+          "Whistleblowers should be shielded from adverse scheduling changes.",
+          "Third-party safety audits should be used after serious incidents.",
+          "Post-complaint check-ins should verify issues were resolved."
+        ],
+        "controversial": [
+          "Employers should be allowed to permanently replace striking workers.",
+          "Permanent replacements are necessary to maintain operations during strikes.",
+          "The right to strike should not restrict a firm’s ability to staff positions permanently.",
+          "Replacing strikers permanently is a fair bargaining tool for management.",
+          "Laws should explicitly protect employers’ rights to hire permanent replacements.",
+          "Permanent replacement deters disruptive labor actions.",
+          "Long strikes justify immediate staffing with permanent hires.",
+          "Back-to-work offers should not require displacing permanent replacements.",
+          "Union leverage should be limited when critical operations are at risk.",
+          "Consumer harm from strikes justifies permanent replacement policies."
+        ]
+      },
+      "struct_comp_1_q": {
+        "agreeable": [
+          "Major projects should meet transparent, published public-benefit tests.",
+          "Independent cost–benefit analyses should be available before approval.",
+          "Public subsidies should include enforceable clawback provisions.",
+          "Model assumptions and data sources should be disclosed for scrutiny.",
+          "Community impacts should be measured and reported over time.",
+          "Public participation should be meaningful and timely in major approvals.",
+          "Equity impacts should be analyzed and mitigated.",
+          "Long-term maintenance costs should be budgeted before approval.",
+          "Displacement risks should be addressed in project designs.",
+          "Insider influence should be limited through clear review processes."
+        ],
+        "controversial": [
+          "Strategic developers should bypass zoning hearings for fast-track permits.",
+          "Public participation should be limited when projects are designated strategic.",
+          "Political leaders should be able to overrule local hearings for major deals.",
+          "Fast-tracking high-profile projects justifies reduced transparency.",
+          "Jobs and tax promises are sufficient to streamline approvals.",
+          "Local opposition should not stall regionally important projects.",
+          "Confidential negotiations are acceptable for strategic investments.",
+          "Special districts should be used to expedite permitting and financing.",
+          "Environmental reviews should be time-limited for strategic projects.",
+          "Community lawsuits should face higher bars against strategic projects."
+        ]
+      },
+      "struct_comp_2_q": {
+        "agreeable": [
+          "Work schedules should be posted at least two weeks in advance.",
+          "Employees should receive premium pay for last-minute schedule changes.",
+          "Workers should be able to decline added shifts without penalty.",
+          "Predictable scheduling improves retention and family stability.",
+          "Algorithmic schedulers should respect minimum rest periods.",
+          "Stable-hours targets should be part of performance goals for managers.",
+          "Human managers should be able to override harmful auto-schedules.",
+          "Workers should help review and improve scheduling rules.",
+          "Last-minute call-ins should be rare and documented.",
+          "Childcare and commute constraints should inform schedule generation."
+        ],
+        "controversial": [
+          "AI performance metrics should automatically terminate the bottom 5% each quarter.",
+          "Automated rankings are fairer than manager judgment for identifying underperformance.",
+          "Human appeal is unnecessary when data show sustained low productivity.",
+          "The productivity gains from automatic terminations outweigh morale concerns.",
+          "Bias and legal risks are acceptable trade-offs for stricter performance enforcement.",
+          "Forced distributions ensure a high-performance culture.",
+          "Coaching underperformers is less efficient than replacing them quickly.",
+          "Collaboration costs from churn are minor compared to performance gains.",
+          "Workers should be ranked publicly to increase accountability.",
+          "Union objections should not block algorithmic termination policies."
+        ]
+      },
+      "advers_hostile_1_q": {
+        "agreeable": [
+          "Bathroom and water breaks should be guaranteed without penalty.",
+          "Productivity metrics should not discourage basic physiological breaks.",
+          "Heat and hydration policies should be enforced on every shift.",
+          "Supervisors should not pressure workers to skip breaks to meet quotas.",
+          "Break schedules should be realistic for the pace of work.",
+          "Privacy expectations should limit intrusive workplace monitoring.",
+          "Any monitoring data should be aggregated where possible, not individualized.",
+          "Workers should be consulted before new surveillance systems are deployed.",
+          "Medical needs should exempt workers from strict break metrics.",
+          "Cameras should never be placed in restrooms or changing areas."
+        ],
+        "controversial": [
+          "Biometric wrist trackers and cameras should be mandatory in all work zones.",
+          "Penalties for more than three minutes of idle time are appropriate.",
+          "Continuous surveillance is justified to ensure peak productivity.",
+          "Workers should consent to biometric tracking as a condition of employment.",
+          "Privacy concerns should not override the need to monitor idle time.",
+          "Discipline based on biometric idle metrics is fair and objective.",
+          "Surveillance reduces theft and time-wasting more than it harms morale.",
+          "Data security risks are manageable given productivity gains.",
+          "Biometric data should be retained long enough to analyze patterns.",
+          "Union resistance should not prevent rollout of biometric monitoring."
+        ]
+      },
+      "advers_hostile_2_q": {
+        "agreeable": [
+          "Public subsidies should require clear job targets and clawbacks.",
+          "Recipients should publish regular reports on job creation and wages.",
+          "Failed commitments should trigger repayment with interest.",
+          "Independent monitoring of subsidy outcomes builds accountability.",
+          "Local hiring targets should be part of subsidy agreements.",
+          "Community input should inform subsidy terms before approval.",
+          "Subsidy terms should prohibit relocations that shed jobs locally.",
+          "Small-business impacts should be evaluated in subsidy awards.",
+          "Wage and benefit floors should be tied to subsidy eligibility.",
+          "Sunset clauses should end subsidies that miss performance targets."
+        ],
+        "controversial": [
+          "Major donors should be allowed to earmark and veto city budget lines.",
+          "Private philanthropy should override elected budgeting when money is at stake.",
+          "Donor veto power is acceptable if it accelerates high-impact projects.",
+          "Democratic budget processes should yield to donor priorities when outcomes are urgent.",
+          "Transparency alone is sufficient to manage donor influence risks.",
+          "Large gifts justify waiving normal procurement rules.",
+          "Conflict-of-interest concerns are overstated when donors disclose ties.",
+          "Donors should be able to select specific vendors for funded projects.",
+          "Public hearings are unnecessary when donor funding is offered.",
+          "Elected officials should defer to donors on program design and metrics."
+        ]
+      },
+      "family_privacy_q": {
+        "agreeable": [
+          "Emergency-only phone checks should be defined in advance and honored.",
+          "A clear consent signal protects the teen's privacy in normal circumstances.",
+          "Shared safety plans reduce the need for invasive monitoring.",
+          "Trust grows when boundaries are explicit and consistent.",
+          "Regular check-ins can replace routine device access.",
+          "Parents should model the privacy they expect their teen to respect.",
+          "Incident-driven checks should be documented and discussed after the fact.",
+          "Third-party counseling can help resolve privacy disputes within families.",
+          "Teens should be taught how to handle online risks without constant monitoring.",
+          "Mutually agreed device-free times can improve family trust."
+        ],
+        "controversial": [
+          "Parents should have full access to all messages and real-time location at all times.",
+          "Privacy expectations should yield to parental authority in the home.",
+          "Monitoring should be continuous, not triggered by specific concerns.",
+          "Refusal to share passwords should result in loss of phone privileges.",
+          "Total device transparency is necessary for teen safety.",
+          "Secret or alternate accounts should result in discipline.",
+          "Phone use should be contingent on parental monitoring apps.",
+          "Trust is better built through transparency than privacy.",
+          "Teens do not need digital privacy from their parents.",
+          "Location tracking should remain on 24/7 when the teen is away from home."
+        ]
+      },
+      "family_finance_q": {
+        "agreeable": [
+          "Scholarships and grants should be maximized before loans are considered.",
+          "Work-study and part-time work can reduce borrowing needs.",
+          "Lower-cost pathways (e.g., community college transfer) should be weighed.",
+          "Families should compare aid offers carefully before committing.",
+          "High-interest private loans should be avoided whenever possible.",
+          "A written family budget for college improves decisions and reduces stress.",
+          "Students should contribute some earnings when feasible to reduce debt.",
+          "Filing financial aid forms accurately can increase grant eligibility.",
+          "A gap year to save money is a reasonable option for some families.",
+          "Basic financial literacy should inform college funding decisions."
+        ],
+        "controversial": [
+          "Parents with substantial home equity should be legally required to pay full tuition.",
+          "Parental assets should determine a binding payment obligation for college.",
+          "Students should not borrow if parents have significant home equity.",
+          "Asset-rich, cash-poor families should still be compelled to fund tuition.",
+          "Home equity should be tapped before any student loans are taken.",
+          "The state should enforce parental payment of college costs when assets exist.",
+          "Parents' retirement security should not excuse payment when assets are available.",
+          "Legal penalties should apply when asset-rich parents refuse to fund college.",
+          "Student independence is less important than using family assets for tuition.",
+          "Housing market impacts are acceptable to fund higher education from home equity."
+        ]
+      },
+      "cold_war_deterrence_q": {
+        "agreeable": [
+          "Maintaining leader-to-leader hotlines reduces crisis miscalculation.",
+          "Avoiding escalatory alert levels during tensions increases stability.",
+          "Advance notification of exercises lowers the risk of accidents.",
+          "Credible deconfliction channels are essential in close-contact theaters.",
+          "Crisis communication protocols should be tested regularly.",
+          "Surprise nuclear signaling should be avoided in peacetime.",
+          "Mutual restraint reduces the chance of inadvertent escalation.",
+          "Joint incident reviews help prevent repeat close calls.",
+          "Reducing nonessential forward deployments can lower risk.",
+          "Verification measures strengthen arms-control commitments."
+        ],
+        "controversial": [
+          "Forward-deploying tactical nuclear weapons to allies strengthens deterrence.",
+          "Authorizing first use in theater is necessary for credible defense.",
+          "Pre-delegating limited first-use authority is acceptable in extreme crises.",
+          "Escalation dominance requires visible forward nuclear posture.",
+          "Treaty constraints should not limit theater-level nuclear options.",
+          "Ambiguity about first use improves deterrence against adversaries.",
+          "Tripwire forces with nuclear capability reduce the chance of invasion.",
+          "Crisis instability risks are acceptable for stronger deterrence.",
+          "Alliance reassurance justifies forward nuclear basing.",
+          "Domestic political costs are acceptable for enhanced nuclear posture."
+        ]
+      },
+      "cold_war_information_q": {
+        "agreeable": [
+          "State media should be clearly labeled to inform audiences.",
+          "Independent audits of official claims improve public trust.",
+          "Transparency is preferable to censorship for understanding sources.",
+          "Researchers need documented provenance for state content.",
+          "Both sides should publish correction policies for verified errors.",
+          "Open archives help historians and journalists scrutinize state media.",
+          "Media literacy education reduces manipulation risks.",
+          "Reciprocal monitoring access can deter blatant disinformation.",
+          "Public broadcasters should distinguish news from opinion clearly.",
+          "Platform labels should link to source information without blocking access."
+        ],
+        "controversial": [
+          "Sharing the opponent's state media domestically should be a criminal offense.",
+          "National security concerns justify curbing distribution of adversary media.",
+          "Academic and journalistic exemptions should be tightly restricted.",
+          "Courts should permit preemptive bans on adversary broadcasts.",
+          "Criminal penalties are necessary to deter foreign propaganda effects.",
+          "Chilling effects on research are acceptable to protect information integrity.",
+          "Platform takedowns should be mandated for adversary state media.",
+          "Civil liberties concerns are overstated in the face of hostile influence.",
+          "Public access to adversary media should require government approval.",
+          "Alternative counterspeech is insufficient against state-run propaganda."
+        ]
+      }
     }
-}
+  }
