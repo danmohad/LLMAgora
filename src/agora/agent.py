@@ -25,6 +25,7 @@ class Agent:
         survey_questions: Optional[list[str]] = None,
         survey_public_prompt: Optional[str] = None,
         survey_private_prompt: Optional[str] = None,
+        public_survey_keep: bool = False,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -63,6 +64,7 @@ class Agent:
         self._survey_questions = survey_questions
         self._survey_public_prompt = survey_public_prompt or ""
         self._survey_private_prompt = survey_private_prompt or ""
+        self._public_survey_keep = public_survey_keep
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
         self._pre_instruction = pre_interview_instruction
@@ -126,6 +128,10 @@ class Agent:
     @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
+    
+    @property
+    def public_survey_keep(self) -> bool:
+        return self._public_survey_keep
     
     @property
     def survey_public_prompt(self) -> str:
