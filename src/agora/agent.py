@@ -258,7 +258,8 @@ class Agent:
             pre_interview_keep=bool(config.get("pre_interview_keep", True)),
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=bool(config.get("post_interview_keep", True)),
-            survey_base_prompt=config.get("survey_base_prompt"),
+            survey_public_prompt=config.get("survey_public_prompt"),
+            survey_private_prompt=config.get("survey_private_prompt"),
             agent_id=config.get("id"),
         )
 

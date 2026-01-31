@@ -239,6 +239,7 @@ def load_prompt_templates(
         "post_interview_instruction",
         "survey_public_prompt",
         "survey_private_prompt",
+        "custom",
     ]
     missing = [key for key in required_keys if key not in payload]
     if missing:
