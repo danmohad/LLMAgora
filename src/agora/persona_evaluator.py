@@ -2,15 +2,25 @@
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
-
-from .llm import LLMClient
+import re
+import numpy as np
 
 
 @dataclass
 class PersonaScore:
-    """Score for a single turn or cumulative turns."""
+    """Score for a single turn or cumulative turns with multiple evaluations."""
     turn_num: int
-    score: int  # 1-5 scale
+    scores_raw: List[int]  # All raw scores from multiple evaluations
+    
+    @property
+    def score_mean(self) -> float:
+        """Mean of all evaluations."""
+        return float(np.mean(self.scores_raw))
+    
+    @property
+    def score_std(self) -> float:
+        """Standard deviation of all evaluations."""
+        return float(np.std(self.scores_raw))
 
 
 @dataclass
@@ -21,19 +31,36 @@ class AgentPersonaEvaluation:
     private_turn_scores: List[PersonaScore] = field(default_factory=list)
     public_cumulative_scores: List[PersonaScore] = field(default_factory=list)
     private_cumulative_scores: List[PersonaScore] = field(default_factory=list)
-    full_debate_public_score: Optional[int] = None
-    full_debate_private_score: Optional[int] = None
+    full_debate_public_score: Optional[Tuple[float, float]] = None  # (mean, std)
+    full_debate_private_score: Optional[Tuple[float, float]] = None  # (mean, std)
     
     def to_dict(self) -> Dict:
-        """Convert to dictionary format."""
+        """Convert to dictionary format with separate turns and scores."""
+        def scores_to_dict(scores: List[PersonaScore]) -> Dict:
+            """Convert list of PersonaScore to dict format."""
+            return {
+                "turns": [s.turn_num for s in scores],
+                "scores": {
+                    "mean": [s.score_mean for s in scores],
+                    "std": [s.score_std for s in scores],
+                    "raw": [s.scores_raw for s in scores],
+                }
+            }
+        
         return {
             "persona_id": self.persona_id,
-            "public_turn_scores": [(s.turn_num, s.score) for s in self.public_turn_scores],
-            "private_turn_scores": [(s.turn_num, s.score) for s in self.private_turn_scores],
-            "public_cumulative_scores": [(s.turn_num, s.score) for s in self.public_cumulative_scores],
-            "private_cumulative_scores": [(s.turn_num, s.score) for s in self.private_cumulative_scores],
-            "full_debate_public_score": self.full_debate_public_score,
-            "full_debate_private_score": self.full_debate_private_score,
+            "public_turn_scores": scores_to_dict(self.public_turn_scores),
+            "private_turn_scores": scores_to_dict(self.private_turn_scores),
+            "public_cumulative_scores": scores_to_dict(self.public_cumulative_scores),
+            "private_cumulative_scores": scores_to_dict(self.private_cumulative_scores),
+            "full_debate_public_score": {
+                "mean": self.full_debate_public_score[0] if self.full_debate_public_score else None,
+                "std": self.full_debate_public_score[1] if self.full_debate_public_score else None,
+            },
+            "full_debate_private_score": {
+                "mean": self.full_debate_private_score[0] if self.full_debate_private_score else None,
+                "std": self.full_debate_private_score[1] if self.full_debate_private_score else None,
+            },
         }
 
 
@@ -56,7 +83,7 @@ class PersonaEvaluator:
     
     def __init__(
         self,
-        llm_client: LLMClient,
+        llm_client,
         personas: Dict,
         model: str = "anthropic/claude-sonnet-4",
     ):
@@ -69,7 +96,11 @@ class PersonaEvaluator:
             model: Model to use for evaluation
         """
         self.llm_client = llm_client
-        self.personas = personas.get("personas", {})
+        # Handle both nested and flat persona structures
+        if "personas" in personas:
+            self.personas = personas["personas"]
+        else:
+            self.personas = personas
         self.model = model
     
     def _create_evaluation_prompt(
@@ -126,69 +157,81 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
         text: str,
         persona_id: str,
         turn_label: str = "turn",
-    ) -> int:
+        n_samples: int = 1,
+    ) -> List[int]:
         """
-        Score a piece of text against a persona.
+        Score a piece of text against a persona multiple times.
         
         Args:
             text: The text to evaluate
             persona_id: ID of the persona to evaluate against
             turn_label: Label describing what's being evaluated
+            n_samples: Number of times to evaluate (for mean/std)
         
         Returns:
-            Score from 1-5
+            List of scores from 1-5 (length = n_samples)
         """
         if not text or not text.strip():
-            return 3  # Neutral score for empty text
+            return [3] * n_samples  # Neutral score for empty text
         
         prompt = self._create_evaluation_prompt(text, persona_id, turn_label)
         
-        try:
-            response = self.llm_client.complete(
-                messages=[{"role": "user", "content": prompt}],
-                model=self.model,
-            )
-            
-            # Extract the score from the response
-            response_text = response.strip()
-            
-            # Try to find a number in the response
-            import re
-            numbers = re.findall(r'\b[1-5]\b', response_text)
-            if numbers:
-                return int(numbers[0])
-            
-            # If no valid number found, return neutral score
-            print(f"Warning: Could not parse score from response: {response_text}")
-            return 3
-            
-        except Exception as e:
-            print(f"Error scoring text: {e}")
-            return 3  # Return neutral score on error
+        scores = []
+        for i in range(n_samples):
+            try:
+                response = self.llm_client.complete(
+                    messages=[{"role": "user", "content": prompt}],
+                    model=self.model,
+                )
+                
+                # Extract the score from the response
+                response_text = response.strip()
+                
+                # Try to find a number in the response
+                numbers = re.findall(r'\b[1-5]\b', response_text)
+                if numbers:
+                    scores.append(int(numbers[0]))
+                else:
+                    # If no valid number found, return neutral score
+                    if i == 0:  # Only print warning once
+                        print(f"Warning: Could not parse score from response: {response_text}")
+                    scores.append(3)
+                
+            except Exception as e:
+                if i == 0:  # Only print error once
+                    print(f"Error scoring text: {e}")
+                scores.append(3)  # Return neutral score on error
+        
+        return scores
     
-    def evaluate_debate(
+    def evaluate_debate_from_history(
         self,
-        debate_data: Dict,
+        memory_turns: List,
         alpha_persona_id: str,
         beta_persona_id: str,
         verbose: bool = False,
+        n_samples: int = 1,
     ) -> DebatePersonaEvaluation:
         """
-        Evaluate both agents' persona adherence throughout the debate.
+        Evaluate both agents' persona adherence from Agora memory turns.
         
         Args:
-            debate_data: Structured debate data (from get_structured_debate_history)
+            memory_turns: List of MemoryTurn objects from Agora.history()
             alpha_persona_id: Persona ID for Alpha agent
             beta_persona_id: Persona ID for Beta agent
             verbose: If True, print progress information
+            n_samples: Number of times to evaluate each text (for mean/std)
         
         Returns:
             Complete evaluation for both agents
         """
+        # Convert memory turns to structured debate data
+        debate_data = get_structured_debate_history(memory_turns)
+        
         # Get agent names from debate_data
         agent_names = list(debate_data.keys())
         if len(agent_names) != 2:
-            raise ValueError("Expected exactly 2 agents in debate data")
+            raise ValueError(f"Expected exactly 2 agents in debate data, got {len(agent_names)}")
         
         alpha_name, beta_name = agent_names[0], agent_names[1]
         
@@ -199,6 +242,7 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
             debate_data[alpha_name],
             alpha_persona_id,
             verbose=verbose,
+            n_samples=n_samples,
         )
         
         # Evaluate Beta
@@ -208,6 +252,7 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
             debate_data[beta_name],
             beta_persona_id,
             verbose=verbose,
+            n_samples=n_samples,
         )
         
         return DebatePersonaEvaluation(alpha=alpha_eval, beta=beta_eval)
@@ -217,6 +262,7 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
         agent_data: Dict,
         persona_id: str,
         verbose: bool = False,
+        n_samples: int = 1,
     ) -> AgentPersonaEvaluation:
         """
         Evaluate a single agent's persona adherence.
@@ -225,6 +271,7 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
             agent_data: Agent's debate data
             persona_id: Persona ID to evaluate against
             verbose: If True, print progress information
+            n_samples: Number of times to evaluate each text (for mean/std)
         
         Returns:
             Complete evaluation for the agent
@@ -249,24 +296,26 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
             # Individual turn scores
             if verbose:
                 print(f"  Turn {turn_num}: Scoring individual public speech...")
-            public_score = self._score_text(
+            public_scores = self._score_text(
                 public_speech,
                 persona_id,
                 turn_label=f"public turn {turn_num}",
+                n_samples=n_samples,
             )
             evaluation.public_turn_scores.append(
-                PersonaScore(turn_num=turn_num, score=public_score)
+                PersonaScore(turn_num=turn_num, scores_raw=public_scores)
             )
             
             if verbose:
                 print(f"  Turn {turn_num}: Scoring individual private reflection...")
-            private_score = self._score_text(
+            private_scores = self._score_text(
                 private_reflection,
                 persona_id,
                 turn_label=f"private turn {turn_num}",
+                n_samples=n_samples,
             )
             evaluation.private_turn_scores.append(
-                PersonaScore(turn_num=turn_num, score=private_score)
+                PersonaScore(turn_num=turn_num, scores_raw=private_scores)
             )
             
             # Cumulative scoring
@@ -278,31 +327,35 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
             
             if verbose:
                 print(f"  Turn {turn_num}: Scoring cumulative public (turns 1-{turn_num})...")
-            cumulative_public_score = self._score_text(
+            cumulative_public_scores = self._score_text(
                 cumulative_public_text,
                 persona_id,
                 turn_label=f"cumulative public turns 1-{turn_num}",
+                n_samples=n_samples,
             )
             evaluation.public_cumulative_scores.append(
-                PersonaScore(turn_num=turn_num, score=cumulative_public_score)
+                PersonaScore(turn_num=turn_num, scores_raw=cumulative_public_scores)
             )
             
             if verbose:
                 print(f"  Turn {turn_num}: Scoring cumulative private (turns 1-{turn_num})...")
-            cumulative_private_score = self._score_text(
+            cumulative_private_scores = self._score_text(
                 cumulative_private_text,
                 persona_id,
                 turn_label=f"cumulative private turns 1-{turn_num}",
+                n_samples=n_samples,
             )
             evaluation.private_cumulative_scores.append(
-                PersonaScore(turn_num=turn_num, score=cumulative_private_score)
+                PersonaScore(turn_num=turn_num, scores_raw=cumulative_private_scores)
             )
         
         # Full debate scores (should match last cumulative scores)
         if evaluation.public_cumulative_scores:
-            evaluation.full_debate_public_score = evaluation.public_cumulative_scores[-1].score
+            last_public = evaluation.public_cumulative_scores[-1]
+            evaluation.full_debate_public_score = (last_public.score_mean, last_public.score_std)
         if evaluation.private_cumulative_scores:
-            evaluation.full_debate_private_score = evaluation.private_cumulative_scores[-1].score
+            last_private = evaluation.private_cumulative_scores[-1]
+            evaluation.full_debate_private_score = (last_private.score_mean, last_private.score_std)
         
         return evaluation
 
@@ -336,8 +389,6 @@ def get_structured_debate_history(memory_turns: List) -> Dict:
             ...
         }
     """
-    from .memory import MemoryTurn
-    
     # Group turns by agent
     agent_data = {}
     
@@ -363,28 +414,178 @@ def get_structured_debate_history(memory_turns: List) -> Dict:
         
         elif turn.role == "assistant":
             # This is a public speech
-            # Check if there's a pending private reflection for this turn
             agent_turn_nums[speaker_name] += 1
             turn_num = agent_turn_nums[speaker_name]
             
             turn_data = {
                 "turn_num": turn_num,
                 "public_speech": turn.public_speech or "",
-                "private_reflection": "",  # Will be filled by next reflection
-                "public_stance": "",  # Can extract from public_speech if needed
+                "private_reflection": "",  # Will be filled by corresponding reflection
+                "public_stance": "",
             }
             agent_data[speaker_name]["debate_turns"].append(turn_data)
         
         elif turn.role == "reflection":
             # This is a private reflection - add to the most recent turn
             if agent_data[speaker_name]["debate_turns"]:
-                # Add to next turn (reflection comes before public speech)
+                # Add to the last turn (reflection corresponds to the last public speech)
                 agent_data[speaker_name]["debate_turns"][-1]["private_reflection"] = turn.private_reflection or ""
-            else:
-                # First reflection before any public speech - will be associated with next turn
-                pass
     
     return agent_data
+
+
+def plot_persona_adherence(
+    eval_dict: Dict,
+    alpha_persona_name: str,
+    beta_persona_name: str,
+    save_path: str = None,
+    show_plot: bool = True,
+):
+    """
+    Plot persona adherence scores over time with error bars.
+    
+    Args:
+        eval_dict: Dictionary from DebatePersonaEvaluation.to_dict()
+        alpha_persona_name: Display name for alpha persona
+        beta_persona_name: Display name for beta persona
+        save_path: If provided, save plot to this path
+        show_plot: If True, display the plot
+    
+    Returns:
+        matplotlib figure
+    """
+    import matplotlib.pyplot as plt
+    
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    fig.suptitle('Persona Adherence Scores Over Time', fontsize=16)
+    
+    # Extract data
+    alpha_data = eval_dict['alpha']
+    beta_data = eval_dict['beta']
+    
+    # Define colors for each agent
+    alpha_color = 'tab:blue'
+    beta_color = 'tab:orange'
+    
+    # Left panel: Individual Turn Scores
+    ax = axes[0]
+    
+    # Alpha Public (solid)
+    alpha_pub_ind = alpha_data['public_turn_scores']
+    ax.errorbar(
+        alpha_pub_ind['turns'], 
+        alpha_pub_ind['scores']['mean'],
+        yerr=alpha_pub_ind['scores']['std'],
+        marker='o', label=f'{alpha_persona_name} - Public', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=alpha_color, linestyle='-'
+    )
+    
+    # Alpha Private (dashed)
+    alpha_priv_ind = alpha_data['private_turn_scores']
+    ax.errorbar(
+        alpha_priv_ind['turns'], 
+        alpha_priv_ind['scores']['mean'],
+        yerr=alpha_priv_ind['scores']['std'],
+        marker='o', label=f'{alpha_persona_name} - Private', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=alpha_color, linestyle='--'
+    )
+    
+    # Beta Public (solid)
+    beta_pub_ind = beta_data['public_turn_scores']
+    ax.errorbar(
+        beta_pub_ind['turns'], 
+        beta_pub_ind['scores']['mean'],
+        yerr=beta_pub_ind['scores']['std'],
+        marker='s', label=f'{beta_persona_name} - Public', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=beta_color, linestyle='-'
+    )
+    
+    # Beta Private (dashed)
+    beta_priv_ind = beta_data['private_turn_scores']
+    ax.errorbar(
+        beta_priv_ind['turns'], 
+        beta_priv_ind['scores']['mean'],
+        yerr=beta_priv_ind['scores']['std'],
+        marker='s', label=f'{beta_persona_name} - Private', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=beta_color, linestyle='--'
+    )
+    
+    ax.set_title('Individual Turn Scores')
+    ax.set_xlabel('Turn Number')
+    ax.set_ylabel('Score (1-5)')
+    ax.set_ylim(0.5, 5.5)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+    
+    # Right panel: Cumulative Scores
+    ax = axes[1]
+    
+    # Alpha Public (solid)
+    alpha_pub_cum = alpha_data['public_cumulative_scores']
+    ax.errorbar(
+        alpha_pub_cum['turns'], 
+        alpha_pub_cum['scores']['mean'],
+        yerr=alpha_pub_cum['scores']['std'],
+        marker='o', label=f'{alpha_persona_name} - Public', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=alpha_color, linestyle='-'
+    )
+    
+    # Alpha Private (dashed)
+    alpha_priv_cum = alpha_data['private_cumulative_scores']
+    ax.errorbar(
+        alpha_priv_cum['turns'], 
+        alpha_priv_cum['scores']['mean'],
+        yerr=alpha_priv_cum['scores']['std'],
+        marker='o', label=f'{alpha_persona_name} - Private', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=alpha_color, linestyle='--'
+    )
+    
+    # Beta Public (solid)
+    beta_pub_cum = beta_data['public_cumulative_scores']
+    ax.errorbar(
+        beta_pub_cum['turns'], 
+        beta_pub_cum['scores']['mean'],
+        yerr=beta_pub_cum['scores']['std'],
+        marker='s', label=f'{beta_persona_name} - Public', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=beta_color, linestyle='-'
+    )
+    
+    # Beta Private (dashed)
+    beta_priv_cum = beta_data['private_cumulative_scores']
+    ax.errorbar(
+        beta_priv_cum['turns'], 
+        beta_priv_cum['scores']['mean'],
+        yerr=beta_priv_cum['scores']['std'],
+        marker='s', label=f'{beta_persona_name} - Private', 
+        linewidth=2, capsize=5, alpha=0.8,
+        color=beta_color, linestyle='--'
+    )
+    
+    ax.set_title('Cumulative Scores')
+    ax.set_xlabel('Turn Number')
+    ax.set_ylabel('Score (1-5)')
+    ax.set_ylim(0.5, 5.5)
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+    
+    plt.tight_layout()
+    
+    if save_path:
+        fig.savefig(save_path, dpi=300, bbox_inches='tight')
+    
+    if show_plot:
+        plt.show()
+    else:
+        plt.close(fig)
+    
+    return fig
 
 
 __all__ = [
@@ -393,4 +594,5 @@ __all__ = [
     "AgentPersonaEvaluation",
     "DebatePersonaEvaluation",
     "get_structured_debate_history",
+    "plot_persona_adherence",
 ]
