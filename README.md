@@ -1,6 +1,6 @@
 # LLM Agora
 
-A minimal arena where LLM-backed agents take public turns (optionally preceded by private reflections) until each reaches a configurable quota.
+A minimal arena where LLM-backed agents take public turns (optionally preceded by private reflections, succeeded by public and private surveys) until each reaches a configurable quota.
 
 
 ## Requirements
@@ -25,15 +25,15 @@ A minimal arena where LLM-backed agents take public turns (optionally preceded b
 ## Running tests
 
 ```bash
-python -m pytest
+pytest --cov=agora
 ```
-
-## GitHub pipeline
-
-Runs pytests and coverage report. Note that it doesn't install in 'analysis' mode, because 'sentence-transformers' package is too large for GitHub free node.
 
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
 Tests assume the package is installed (editable install recommended).
+
+## GitHub PR pipeline
+
+Runs `pytest` with coverage report, and comments the coverage percentage on the PR. Note that it doesn't install the package in 'analysis' mode, because the `sentence-transformers` package is too large for GitHub free nodes.
 
 ## Notebook demos
 
