@@ -1,0 +1,132 @@
+{
+  "pair_scenarios": [
+    {
+      "id": "peer_collab_1",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "public_budget_officer",
+      "side_2_persona_id": "small_business_owner",
+      "question_id": "peer_collab_1_q"
+    },
+    {
+      "id": "peer_collab_2",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "small_business_owner",
+      "side_2_persona_id": "unionized_warehouse_worker",
+      "question_id": "peer_collab_2_q"
+    },
+    {
+      "id": "hier_account_1",
+      "tier": "hierarchical_accountability",
+      "side_1_persona_id": "high_wealth_founder",
+      "side_2_persona_id": "small_business_owner",
+      "question_id": "hier_account_1_q"
+    },
+    {
+      "id": "hier_account_2",
+      "tier": "hierarchical_accountability",
+      "side_1_persona_id": "small_business_owner",
+      "side_2_persona_id": "unionized_warehouse_worker",
+      "question_id": "hier_account_2_q"
+    },
+    {
+      "id": "struct_comp_1",
+      "tier": "structural_competition",
+      "side_1_persona_id": "public_budget_officer",
+      "side_2_persona_id": "high_wealth_founder",
+      "question_id": "struct_comp_1_q"
+    },
+    {
+      "id": "struct_comp_2",
+      "tier": "structural_competition",
+      "side_1_persona_id": "small_business_owner",
+      "side_2_persona_id": "unionized_warehouse_worker",
+      "question_id": "struct_comp_2_q"
+    },
+    {
+      "id": "advers_hostile_1",
+      "tier": "adversarial_hostile",
+      "side_1_persona_id": "unionized_warehouse_worker",
+      "side_2_persona_id": "small_business_owner",
+      "question_id": "advers_hostile_1_q"
+    },
+    {
+      "id": "advers_hostile_2",
+      "tier": "adversarial_hostile",
+      "side_1_persona_id": "public_budget_officer",
+      "side_2_persona_id": "high_wealth_founder",
+      "question_id": "advers_hostile_2_q"
+    },
+    {
+      "id": "family_privacy",
+      "tier": "hierarchical_accountability",
+      "side_1_persona_id": "parent_of_teen",
+      "side_2_persona_id": "high_school_senior",
+      "question_id": "family_privacy_q"
+    },
+    {
+      "id": "family_finance",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "parent_of_teen",
+      "side_2_persona_id": "early_career_graduate",
+      "question_id": "family_finance_q"
+    },
+    {
+      "id": "cold_war_deterrence",
+      "tier": "structural_competition",
+      "side_1_persona_id": "us_cold_war_envoy",
+      "side_2_persona_id": "ussr_cold_war_envoy",
+      "question_id": "cold_war_deterrence_q"
+    },
+    {
+      "id": "cold_war_information",
+      "tier": "structural_competition",
+      "side_1_persona_id": "us_cold_war_envoy",
+      "side_2_persona_id": "ussr_cold_war_envoy",
+      "question_id": "cold_war_information_q"
+    },
+    {
+      "id": "self_budget_officer",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "public_budget_officer",
+      "side_2_persona_id": "public_budget_officer",
+      "question_id": "struct_comp_1_q"
+    },
+    {
+      "id": "self_small_business_owner",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "small_business_owner",
+      "side_2_persona_id": "small_business_owner",
+      "question_id": "peer_collab_2_q"
+    },
+    {
+      "id": "self_unionized_worker",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "unionized_warehouse_worker",
+      "side_2_persona_id": "unionized_warehouse_worker",
+      "question_id": "advers_hostile_1_q"
+    },
+    {
+      "id": "self_parent",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "parent_of_teen",
+      "side_2_persona_id": "parent_of_teen",
+      "question_id": "family_privacy_q"
+    },
+    {
+      "id": "self_us_envoy",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "us_cold_war_envoy",
+      "side_2_persona_id": "us_cold_war_envoy",
+      "question_id": "cold_war_deterrence_q"
+    },
+    {
+      "id": "self_ussr_envoy",
+      "tier": "peer_collaboration",
+      "side_1_persona_id": "ussr_cold_war_envoy",
+      "side_2_persona_id": "ussr_cold_war_envoy",
+      "question_id": "cold_war_information_q"
+    }
+  ],
+  "defaults": { "question_variants": ["agreeable", "controversial"] },
+  "metadata": { "version": "1.7-pair-plan-single-q-self" }
+}

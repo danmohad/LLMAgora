@@ -15,7 +15,7 @@ A minimal arena where LLM-backed agents take public turns (optionally preceded b
    ```bash
    uv venv --python 3.12.4
    source .venv/bin/activate
-   uv pip install -e .
+   uv pip install -e ".[analysis]"
    ```
 2. Add your OpenRouter API key to a `.env` file in the repo root:
    ```bash
@@ -28,13 +28,17 @@ A minimal arena where LLM-backed agents take public turns (optionally preceded b
 python -m pytest
 ```
 
+## GitHub pipeline
+
+Runs pytests and coverage report. Note that it doesn't install in 'analysis' mode, because 'sentence-transformers' package is too large for GitHub free node.
+
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
 Tests assume the package is installed (editable install recommended).
 
 ## Notebook demos
 
 Ready-to-run walkthroughs live in `notebooks/demo.ipynb` (basic debate flows) and `notebooks/demo_persona.ipynb` (persona-driven debates with plotting). Both notebooks now call into reusable helpers rather than embedding logic inline.
-For `demo_persona_eval.ipynb` (semantic analysis), install the optional analysis extra: `uv pip install -e .[analysis]`.
+For `demo_persona_eval.ipynb` (semantic analysis), the analysis extra is required; it's included if you used the setup command above.
 
 ## CLI
 

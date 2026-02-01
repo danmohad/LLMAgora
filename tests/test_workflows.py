@@ -141,7 +141,7 @@ def test_persona_builder_uses_catalogues():
     configs = build_persona_agent_configs(
         alpha_persona_id="high_wealth_founder",
         beta_persona_id="unionized_warehouse_worker",
-        question_id="work",
+        question_id="hier_account_1_q",
         personas=personas,
         questions=questions,
         alpha_model="alpha-model",
@@ -155,7 +155,7 @@ def test_persona_builder_uses_catalogues():
         build_persona_agent_configs(
             alpha_persona_id="missing",
             beta_persona_id="unionized_warehouse_worker",
-            question_id="work",
+            question_id="hier_account_1_q",
             personas=personas,
             questions=questions,
             alpha_model="alpha-model",
@@ -170,7 +170,7 @@ def test_persona_builder_honors_keep_flags():
     configs = build_persona_agent_configs(
         alpha_persona_id="high_wealth_founder",
         beta_persona_id="unionized_warehouse_worker",
-        question_id="work",
+        question_id="hier_account_1_q",
         personas=personas,
         questions=questions,
         alpha_model="alpha-model",

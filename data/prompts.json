@@ -1,14 +1,16 @@
 {
-  "prompt_sets": {
-    "default": {
-      "base_prompt": "You are in a debate with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) Role-play strictly as the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), and (b) the Other speaker persona summary.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
-      "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
-      "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences.",
-      "public_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences.\n",
-      "private_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences.",
-      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
-      "post_interview_instruction": "In one sentence, summarize how it went.",
-      "survey_base_prompt": "Respond to the following survey in valid JSON only.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are private and anonymous - they will be used for research purposes.\n\n"
-    }
-  }
+  "default": {
+    "base_prompt": "You are in a debate with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) Role-play strictly as the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), and (b) the Other speaker persona summary.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
+    "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
+    "debate_arena_prompt": "This debate is taking place in {debate_arena}.\n",
+    "neutral_arena_prompt": "an impartial, well-moderated civic forum with equal numbers of supporters for both sides",
+    "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences.",
+    "public_instruction": "Write your PUBLIC response to the opponent's position. This will be visible to the opponent and others.\n\n- Keep it to 1-2 sentences.\n",
+    "private_instruction": "Write your off-the-record notes about the opponent's position. Only you will see this - it won't be shared with the opponent.\n\n- Be candid about your reaction\n- What's your strategy here?\n- What do you *really* believe?\n- Keep it to 1-2 sentences.",
+    "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+    "post_interview_instruction": "In one sentence, summarize how it went.",
+    "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the opponent and others.\n\n",
+    "survey_private_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n"
+  },
+  "custom": {}
 }

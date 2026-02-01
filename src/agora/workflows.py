@@ -33,6 +33,22 @@ def extract_instruction(config: dict, key: str) -> Tuple[Optional[str], bool]:
     raise ValueError(f"Invalid entry for {key}: {entry}")
 
 
+def extract_survey_instructions(
+    config: dict,
+) -> Tuple[List[str], Optional[str], Optional[str]]:
+    """Parse survey instructions from an agent configuration dict."""
+    entry = config.get("survey")
+    if not isinstance(entry, dict):
+        return [], None, None, False
+
+    return (
+        entry.get("survey_questions") or [],
+        entry.get("survey_public_prompt"),
+        entry.get("survey_private_prompt"),
+        entry.get("public_survey_keep", False)
+    )
+
+
 def build_agents_from_configs(
     agent_configs: Sequence[dict], llm_client: LLMClient
 ) -> List[Agent]:
@@ -45,7 +61,13 @@ def build_agents_from_configs(
         private_instr, private_keep = extract_instruction(cfg, "private_response")
         pre_instr, pre_keep = extract_instruction(cfg, "pre_interview")
         post_instr, post_keep = extract_instruction(cfg, "post_interview")
-        survey_base_prompt = cfg.get("survey_base_prompt") or DEFAULT_SURVEY_BASE_PROMPT
+
+        (
+            survey_questions,
+            survey_public_prompt,
+            survey_private_prompt,
+            public_survey_keep,
+        ) = extract_survey_instructions(cfg)
 
         agent = Agent(
             name=cfg["name"],
@@ -60,8 +82,11 @@ def build_agents_from_configs(
             pre_interview_keep=pre_keep,
             post_interview_instruction=post_instr,
             post_interview_keep=post_keep,
-            survey_questions=cfg.get("survey_questions", []),
-            survey_base_prompt=survey_base_prompt,
+            survey_questions=survey_questions,
+            survey_public_prompt=survey_public_prompt,
+            survey_private_prompt=survey_private_prompt,
+            public_survey_keep=public_survey_keep
+        
         )
         agents.append(agent)
     return agents
@@ -162,6 +187,12 @@ def load_question_catalog(question_path: Path | str) -> dict:
     return json.loads(Path(question_path).read_text())
 
 
+def load_debate_construction(debate_construction_path: Path | str) -> dict:
+    """Load debate construction scenarios from disk."""
+
+    return json.loads(Path(debate_construction_path).read_text())
+
+
 DEFAULT_PROMPT_SET = "default"
 DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.json"
 
@@ -201,11 +232,13 @@ def load_prompt_templates(
     required_keys = [
         "base_prompt",
         "perceived_prompt",
+        "debate_arena_prompt",
         "public_instruction",
         "private_instruction",
         "pre_interview_instruction",
         "post_interview_instruction",
-        "survey_base_prompt",
+        "survey_public_prompt",
+        "survey_private_prompt",
     ]
     missing = [key for key in required_keys if key not in payload]
     if missing:
@@ -217,16 +250,16 @@ def load_prompt_templates(
         payload["opening_instruction"] = payload["public_instruction"]
     return payload
 
-
+# TODO are these necessary? If not, remove.
 DEFAULT_PROMPTS = load_prompt_templates(DEFAULT_PROMPT_SET)
 DEFAULT_BASE_PROMPT = DEFAULT_PROMPTS["base_prompt"]
 DEFAULT_PERCEIVED_PROMPT = DEFAULT_PROMPTS["perceived_prompt"]
+DEFAULT_DEBATE_ARENA_PROMPT = DEFAULT_PROMPTS["debate_arena_prompt"]
 DEFAULT_PUBLIC_INSTRUCTION = DEFAULT_PROMPTS["public_instruction"]
 DEFAULT_OPENING_INSTRUCTION = DEFAULT_PROMPTS["opening_instruction"]
 DEFAULT_PRIVATE_INSTRUCTION = DEFAULT_PROMPTS["private_instruction"]
 DEFAULT_PRE_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["pre_interview_instruction"]
 DEFAULT_POST_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["post_interview_instruction"]
-DEFAULT_SURVEY_BASE_PROMPT = DEFAULT_PROMPTS["survey_base_prompt"]
 
 
 def build_persona_agent_configs(
@@ -238,14 +271,19 @@ def build_persona_agent_configs(
     questions: dict,
     alpha_model: str,
     beta_model: str,
+    question_variant: str = "controversial",
+    debate_arena_override: Optional[str] = None,
     base_prompt: Optional[str] = None,
     perceived_prompt: Optional[str] = None,
+    debate_arena_prompt: Optional[str] = None,
     public_instruction: Optional[str] = None,
     opening_instruction: Optional[str] = None,
     private_instruction: Optional[str] = None,
     pre_interview_instruction: Optional[str] = None,
     post_interview_instruction: Optional[str] = None,
-    survey_base_prompt: Optional[str] = None,
+    survey_public_prompt: Optional[str] = None,
+    survey_private_prompt: Optional[str] = None,
+    public_survey_keep: bool = False,
     prompt_set: str = DEFAULT_PROMPT_SET,
     private_response_keep: bool = True,
     pre_interview_keep: bool = False,
@@ -255,7 +293,14 @@ def build_persona_agent_configs(
     prompt_catalog: Optional[dict] = None,
     prompt_path: Path | str | None = None,
 ) -> List[dict]:
-    """Construct agent configs for the persona-driven debate notebook."""
+    """Construct agent configs for the persona-driven debate notebook.
+
+    Args:
+        question_variant: Which version of the question to use - "agreeable" or "controversial".
+                          Defaults to "controversial".
+        debate_arena_override: If provided, use this arena text instead of alpha's persona arena.
+                               Pass NEUTRAL_DEBATE_ARENA for a neutral setting.
+    """
 
     prompts = prompt_templates
     if prompts is None:
@@ -272,6 +317,7 @@ def build_persona_agent_configs(
 
     base_prompt = base_prompt or prompts["base_prompt"]
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
+    debate_arena_prompt = debate_arena_prompt or prompts["debate_arena_prompt"]
     public_instruction = public_instruction or prompts["public_instruction"]
     opening_instruction = opening_instruction or prompts["opening_instruction"]
     private_instruction = private_instruction or prompts["private_instruction"]
@@ -281,7 +327,8 @@ def build_persona_agent_configs(
     post_interview_instruction = (
         post_interview_instruction or prompts["post_interview_instruction"]
     )
-    survey_base_prompt = survey_base_prompt or prompts["survey_base_prompt"]
+    survey_public_prompt = survey_public_prompt or prompts["survey_public_prompt"]
+    survey_private_prompt = survey_private_prompt or prompts["survey_private_prompt"]
 
     personas_data = personas.get("personas", {})
     questions_data = questions.get("questions", {})
@@ -293,9 +340,26 @@ def build_persona_agent_configs(
     if beta_persona_id not in personas_data:
         raise KeyError(f"Unknown persona id: {beta_persona_id}")
 
-    question_text = questions_data[question_id]["question"]
+    question_entry = questions_data[question_id]
+    if question_variant not in question_entry:
+        available = [k for k in question_entry if k not in ("id", "topic")]
+        raise KeyError(
+            f"Question variant '{question_variant}' not found for question '{question_id}'; "
+            f"available variants: {', '.join(sorted(available))}"
+        )
+    question_text = question_entry[question_variant]
     alpha_persona = personas_data[alpha_persona_id]
     beta_persona = personas_data[beta_persona_id]
+
+    # Determine debate arena: use override if provided, otherwise alpha's arena
+    if debate_arena_override is not None:
+        arena_text = debate_arena_override
+    else:
+        arena_text = alpha_persona.get("debate_arena", "")
+
+    arena_context = ""
+    if arena_text:
+        arena_context = debate_arena_prompt.format(debate_arena=arena_text)
 
     alpha_self_role = base_prompt.format(
         speaker_id="A", question=question_text, persona=alpha_persona["actual_persona"]
@@ -303,6 +367,11 @@ def build_persona_agent_configs(
     beta_self_role = base_prompt.format(
         speaker_id="B", question=question_text, persona=beta_persona["actual_persona"]
     )
+
+    # Append debate arena context to both agents' self_role
+    if arena_context:
+        alpha_self_role = alpha_self_role + arena_context
+        beta_self_role = beta_self_role + arena_context
 
     alpha_perceives_beta = perceived_prompt.format(
         perceived_persona=personas_data[beta_persona_id]["perceived_persona"]
@@ -331,8 +400,12 @@ def build_persona_agent_configs(
                 "instruction": post_interview_instruction,
                 "keep": post_interview_keep,
             },
-            "survey_questions": survey_questions,
-            "survey_base_prompt": survey_base_prompt,
+            "survey": {
+                "survey_questions": survey_questions,
+                "survey_public_prompt": survey_public_prompt,
+                "survey_private_prompt": survey_private_prompt,
+                "public_survey_keep": public_survey_keep,
+            },
         },
         {
             "name": "Beta",
@@ -355,12 +428,16 @@ def build_persona_agent_configs(
                 "instruction": post_interview_instruction,
                 "keep": post_interview_keep,
             },
-            "survey_questions": survey_questions,
-            "survey_base_prompt": survey_base_prompt,
+            "survey": {
+                "survey_questions": survey_questions,
+                "survey_public_prompt": survey_public_prompt,
+                "survey_private_prompt": survey_private_prompt,
+                "public_survey_keep": public_survey_keep,
+            },
         },
     ]
 
-
+# TODO are these necessary? If not, remove.
 __all__ = [
     "build_agents_from_configs",
     "build_persona_agent_configs",
@@ -368,16 +445,17 @@ __all__ = [
     "DEFAULT_PROMPT_SET",
     "DEFAULT_BASE_PROMPT",
     "DEFAULT_PERCEIVED_PROMPT",
+    "DEFAULT_DEBATE_ARENA_PROMPT",
     "DEFAULT_PUBLIC_INSTRUCTION",
     "DEFAULT_OPENING_INSTRUCTION",
     "DEFAULT_PRIVATE_INSTRUCTION",
     "DEFAULT_PRE_INTERVIEW_INSTRUCTION",
     "DEFAULT_POST_INTERVIEW_INSTRUCTION",
-    "DEFAULT_SURVEY_BASE_PROMPT",
     "load_prompt_catalog",
     "extract_instruction",
     "format_history_for_agent",
     "load_prompt_templates",
+    "load_debate_construction",
     "load_persona_catalog",
     "load_question_catalog",
     "print_agent_histories",
