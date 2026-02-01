@@ -33,3 +33,6 @@ where = ["src"]
 
 [tool.setuptools.package-data]
 agora = []
+
+[tool.pytest.ini_options]
+addopts = ["--cov=agora", "--cov-fail-under=100"]

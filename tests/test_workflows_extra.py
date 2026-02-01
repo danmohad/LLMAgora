@@ -9,7 +9,9 @@ from agora.workflows import (
     DEFAULT_PROMPT_SET,
     build_persona_agent_configs,
     extract_instruction,
+    extract_survey_instructions,
     format_history_for_agent,
+    load_debate_construction,
     load_prompt_catalog,
     load_prompt_templates,
     print_agent_histories,
@@ -27,6 +29,29 @@ class QueueLLM:
 def test_extract_instruction_rejects_invalid_type():
     with pytest.raises(ValueError):
         extract_instruction({"private_response": 123}, "private_response")
+
+
+def test_extract_survey_instructions_handles_missing_and_present():
+    questions, public_prompt, private_prompt, keep = extract_survey_instructions({})
+    assert questions == []
+    assert public_prompt is None
+    assert private_prompt is None
+    assert keep is False
+
+    questions, public_prompt, private_prompt, keep = extract_survey_instructions(
+        {
+            "survey": {
+                "survey_questions": ["q1", "q2"],
+                "survey_public_prompt": "public",
+                "survey_private_prompt": "private",
+                "public_survey_keep": True,
+            }
+        }
+    )
+    assert questions == ["q1", "q2"]
+    assert public_prompt == "public"
+    assert private_prompt == "private"
+    assert keep is True
 
 
 def test_format_and_print_history_includes_exclusions(capsys):
@@ -89,6 +114,13 @@ def test_load_prompt_catalog_missing_file(tmp_path):
         load_prompt_catalog(missing)
 
 
+def test_load_debate_construction_reads_json(tmp_path):
+    payload = {"debates": [{"id": "d1", "label": "demo"}]}
+    path = tmp_path / "debates.json"
+    path.write_text(json.dumps(payload))
+    assert load_debate_construction(path) == payload
+
+
 def test_load_prompt_templates_missing_set():
     with pytest.raises(KeyError):
         load_prompt_templates("missing", prompt_catalog={"prompt_sets": {}})
@@ -127,7 +159,7 @@ def test_build_persona_agent_configs_errors_and_custom_prompts():
         "prompt_sets": {
             "custom": {
                 "base_prompt": "{speaker_id}:{question}:{persona}",
-                "debate_arena_prompt": "what's up",
+                "debate_arena_prompt": "Arena: {debate_arena}",
                 "perceived_prompt": "{perceived_persona}",
                 "public_instruction": "pub",
                 "private_instruction": "priv",
@@ -175,3 +207,32 @@ def test_build_persona_agent_configs_errors_and_custom_prompts():
             beta_model="beta",
             prompt_set=DEFAULT_PROMPT_SET,
         )
+
+    questions_missing_variant = {"questions": {"q1": {"id": "q1", "topic": "t"}}}
+    with pytest.raises(KeyError):
+        build_persona_agent_configs(
+            alpha_persona_id="a",
+            beta_persona_id="b",
+            question_id="q1",
+            question_variant="agreeable",
+            personas=personas,
+            questions=questions_missing_variant,
+            alpha_model="alpha",
+            beta_model="beta",
+            prompt_set="custom",
+            prompt_catalog=prompt_catalog,
+        )
+
+    configs = build_persona_agent_configs(
+        alpha_persona_id="a",
+        beta_persona_id="b",
+        question_id="q1",
+        personas=personas,
+        questions=questions,
+        alpha_model="alpha",
+        beta_model="beta",
+        debate_arena_override="Custom arena",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+    )
+    assert "Custom arena" in configs[0]["self_role"]

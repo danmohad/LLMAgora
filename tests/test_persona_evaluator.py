@@ -1,3 +1,4 @@
+import matplotlib
 import pytest
 
 from agora.memory import MemoryTurn
@@ -7,6 +8,7 @@ from agora.persona_evaluator import (
     PersonaEvaluator,
     PersonaScore,
     get_structured_debate_history,
+    plot_persona_adherence,
 )
 
 
@@ -432,3 +434,48 @@ def test_full_debate_scores_match_last_cumulative():
     
     assert agent_eval.full_debate_public_score[0] == score2.score_mean
     assert agent_eval.full_debate_public_score[1] == score2.score_std
+
+
+def _sample_eval_dict():
+    score = PersonaScore(turn_num=1, scores_raw=[4, 5, 4])
+    agent_eval = AgentPersonaEvaluation(persona_id="p1")
+    agent_eval.public_turn_scores.append(score)
+    agent_eval.private_turn_scores.append(score)
+    agent_eval.public_cumulative_scores.append(score)
+    agent_eval.private_cumulative_scores.append(score)
+    beta_eval = AgentPersonaEvaluation(persona_id="p2")
+    beta_eval.public_turn_scores.append(score)
+    beta_eval.private_turn_scores.append(score)
+    beta_eval.public_cumulative_scores.append(score)
+    beta_eval.private_cumulative_scores.append(score)
+    return DebatePersonaEvaluation(agent_eval, beta_eval).to_dict()
+
+
+def test_plot_persona_adherence_saves_and_closes(tmp_path):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "persona.png"
+    fig = plot_persona_adherence(
+        _sample_eval_dict(),
+        "Alpha",
+        "Beta",
+        save_path=str(output_path),
+        show_plot=False,
+    )
+    assert output_path.exists()
+    assert output_path.stat().st_size > 0
+    assert fig is not None
+
+
+def test_plot_persona_adherence_show(monkeypatch):
+    matplotlib.use("Agg", force=True)
+    import matplotlib.pyplot as plt
+
+    calls = {"count": 0}
+
+    def fake_show():
+        calls["count"] += 1
+
+    monkeypatch.setattr(plt, "show", fake_show)
+    fig = plot_persona_adherence(_sample_eval_dict(), "Alpha", "Beta", show_plot=True)
+    assert calls["count"] == 1
+    plt.close(fig)

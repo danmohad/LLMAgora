@@ -204,6 +204,33 @@ def test_agora_survey_flow_and_unknown_agent(capsys):
         agora.history_for_agent("missing")
 
 
+def test_agora_public_survey_keep_appends_to_speech():
+    survey_payload = json.dumps({"Q1": "Neutral"})
+    responses = [
+        survey_payload,
+        json.dumps({"Q1": "Agree"}),
+        "public speech",
+        survey_payload,
+        json.dumps({"Q1": "Agree"}),
+    ]
+    llm_client = QueueLLM(responses)
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm_client,
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_public_prompt="Base\n",
+        survey_private_prompt="Base\n",
+        public_survey_keep=True,
+    )
+
+    agora = Agora([agent])
+    history = agora.run(max_turns_per_agent=1)
+    assert history[-1].public_speech.startswith("public speech")
+    assert history[-1].public_speech.endswith(survey_payload)
+
+
 def test_agora_pre_post_keep_true():
     responses = ["pre", "public", "post"]
     llm_client = QueueLLM(responses)
