@@ -61,7 +61,7 @@ class OpenRouterClient:
         model: str,
         survey_questions: Sequence[str] = None,
     ) -> str:
-        """Submit a chat completion request and return the LLM's reply."""
+        """Submit a chat completion request and return the LLM's reply. If 'survey_questions' are supplied, then a structured response is requested."""
 
         if survey_questions is not None:
             survey_schema = build_likert_survey_schema(
