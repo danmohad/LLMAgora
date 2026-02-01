@@ -26,7 +26,8 @@ class Agora:
             agent.attach_agora(self)
         self._turn_log: List[MemoryTurn] = []
         self._turn_counter = 0
-        self.survey_respose = {}
+        self.survey_public_response = {}
+        self.survey_private_response = {}
 
     def run(
         self,
@@ -49,18 +50,25 @@ class Agora:
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
 
-        # First round of survey
+        # Pre-interview round for survey and statement
         for agent in self._agents:
             if agent.do_survey_eval:
-                response = agent.generate_survey_response(agent.survey_questions)
-                self.survey_respose[agent.id] = {0: parse_survey_response_str(response)}
+                response = agent.generate_public_survey_response(agent.survey_questions)
+                self.survey_public_response[agent.id] = {0: parse_survey_response_str(response)}
+
+                response_private = agent.generate_private_survey_response(agent.survey_questions)
+                self.survey_private_response[agent.id] = {0: parse_survey_response_str(response_private)}
 
                 if verbose:
-                    print(f"Survey reponse from {agent.name}:")
+                    print("#" * 10)
+                    print(f"Public survey response from {agent.name}:")
                     print(response)
+                    print("*" * 10)
+                    print(f"Private survey response from {agent.name}:")
+                    print(response_private)
+                    print("#" * 10)
 
-        # Optional pre-interviews
-        for agent in self._agents:
+            # Optional pre-interviews
             if not agent.pre_interview_instruction:
                 continue
             response = agent.generate_interview_response(
@@ -125,12 +133,37 @@ class Agora:
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech(opening=opening_turn)
             opening_turn = False
+            recorded_speech = speech
+            
+            # Ask the selected agent for the survey
+            if agent.do_survey_eval:
+                response = agent.generate_public_survey_response(agent.survey_questions)
+                self.survey_public_response[agent.id][self._turn_counter] = (
+                    parse_survey_response_str(response)
+                )
+                if agent.public_survey_keep:
+                    recorded_speech += response
+
+                response_private = agent.generate_private_survey_response(agent.survey_questions)
+                self.survey_private_response[agent.id][self._turn_counter] = (
+                    parse_survey_response_str(response_private)
+                )
+
+                if verbose:
+                    print("#" * 10)
+                    print(f"Public survey response from {agent.name}:")
+                    print(response)
+                    print("*" * 10)
+                    print(f"Private survey response from {agent.name}:")
+                    print(response_private)
+                    print("#" * 10)
+            
             self._turn_counter += 1
             turn = MemoryTurn(
                 turn_id=self._turn_counter,
                 speaker_id=agent.id,
                 role="assistant",
-                public_speech=speech,
+                public_speech=recorded_speech,
                 metadata={"speaker_name": agent.name},
             )
             self._turn_log.append(turn)
@@ -140,16 +173,6 @@ class Agora:
             turns_taken[agent.id] += 1
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
-
-            if agent.do_survey_eval:
-                response = agent.generate_survey_response(agent.survey_questions)
-                self.survey_respose[agent.id][self._turn_counter] = (
-                    parse_survey_response_str(response)
-                )
-
-                if verbose:
-                    print(f"Survey reponse from {agent.name}:")
-                    print(response)
 
         # Optional post-interviews
         for agent in self._agents:

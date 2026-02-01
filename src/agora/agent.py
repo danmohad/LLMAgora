@@ -23,7 +23,9 @@ class Agent:
         system_prompt: str = "",
         response_instruction: str,
         survey_questions: Optional[list[str]] = None,
-        survey_base_prompt: Optional[str] = None,
+        survey_public_prompt: Optional[str] = None,
+        survey_private_prompt: Optional[str] = None,
+        public_survey_keep: bool = False,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -60,7 +62,9 @@ class Agent:
         self._response_instruction = response_instruction
         self._opening_instruction = opening_instruction
         self._survey_questions = survey_questions
-        self._survey_prompt = survey_base_prompt or ""
+        self._survey_public_prompt = survey_public_prompt or ""
+        self._survey_private_prompt = survey_private_prompt or ""
+        self._public_survey_keep = public_survey_keep
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
         self._pre_instruction = pre_interview_instruction
@@ -124,13 +128,26 @@ class Agent:
     @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
-
-    def _survey_base_prompt(self) -> str:
-        if not self._survey_prompt:
+    
+    @property
+    def public_survey_keep(self) -> bool:
+        return self._public_survey_keep
+    
+    @property
+    def survey_public_prompt(self) -> str:
+        if not self._survey_public_prompt:
             raise RuntimeError(
-                "Survey prompt missing; configure 'survey_base_prompt' in prompts.json."
+                "Survey prompt missing; configure 'survey_public_prompt' in prompts.json."
             )
-        return self._survey_prompt
+        return self._survey_public_prompt
+    
+    @property
+    def survey_private_prompt(self) -> str:
+        if not self._survey_private_prompt:
+            raise RuntimeError(
+                "Survey prompt missing; configure 'survey_private_prompt' in prompts.json."
+            )
+        return self._survey_private_prompt
 
     @property
     def do_survey_eval(self) -> bool:
@@ -168,9 +185,21 @@ class Agent:
         response = self._llm.complete(messages=messages, model=self.model)
         return self._strip_speaker_prefix(response.strip())
 
-    def generate_survey_response(self, survey_questions: list[str]) -> str:
-        """Ask the LLM client for a survey response with JSON structured format."""
-        survey_prompt = self._survey_base_prompt()
+    def generate_public_survey_response(self, survey_questions: list[str]) -> str:
+        """Ask the LLM client for a public survey response with JSON structured format."""
+        survey_prompt = self.survey_public_prompt
+        for i, q in enumerate(survey_questions, start=1):
+            survey_prompt += f"Q{i}. {q}\n"
+
+        messages = self._build_messages(final_instruction=survey_prompt)
+        response = self._llm.complete(
+            messages=messages, model=self.model, survey_questions=survey_questions
+        )
+        return self._strip_speaker_prefix(response.strip())
+    
+    def generate_private_survey_response(self, survey_questions: list[str]) -> str:
+        """Ask the LLM client for a private survey response with JSON structured format."""
+        survey_prompt = self.survey_private_prompt
         for i, q in enumerate(survey_questions, start=1):
             survey_prompt += f"Q{i}. {q}\n"
 
@@ -206,7 +235,8 @@ class Agent:
             "pre_interview_keep": self._pre_keep,
             "post_interview_instruction": self._post_instruction,
             "post_interview_keep": self._post_keep,
-            "survey_base_prompt": self._survey_prompt,
+            "survey_public_prompt": self._survey_public_prompt,
+            "survey_private_prompt": self._survey_private_prompt,
         }
 
     @classmethod
@@ -228,7 +258,8 @@ class Agent:
             pre_interview_keep=bool(config.get("pre_interview_keep", True)),
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=bool(config.get("post_interview_keep", True)),
-            survey_base_prompt=config.get("survey_base_prompt"),
+            survey_public_prompt=config.get("survey_public_prompt"),
+            survey_private_prompt=config.get("survey_private_prompt"),
             agent_id=config.get("id"),
         )
 

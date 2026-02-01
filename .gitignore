@@ -7,3 +7,4 @@ __pycache__/
 snapshots/
 outputs/
 .coverage
+.DS_Storenotebooks/experiment_persona_eval copy.ipynb

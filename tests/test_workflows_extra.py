@@ -104,13 +104,15 @@ def test_load_prompt_templates_adds_opening_instruction():
     catalog = {
         "prompt_sets": {
             "custom": {
-                "base_prompt": "{persona}",
+                "base_prompt": "{persona}", 
+                "debate_arena_prompt": "what's up",
                 "perceived_prompt": "{perceived_persona}",
                 "public_instruction": "public",
                 "private_instruction": "private",
                 "pre_interview_instruction": "pre",
                 "post_interview_instruction": "post",
-                "survey_base_prompt": "survey",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
             }
         }
     }
@@ -120,17 +122,19 @@ def test_load_prompt_templates_adds_opening_instruction():
 
 def test_build_persona_agent_configs_errors_and_custom_prompts():
     personas = {"personas": {"a": {"actual_persona": "A", "perceived_persona": "PA"}, "b": {"actual_persona": "B", "perceived_persona": "PB"}}}
-    questions = {"questions": {"q1": {"question": "Q"}}}
+    questions = {"questions": {"q1": {"controversial": "Q"}}}
     prompt_catalog = {
         "prompt_sets": {
             "custom": {
                 "base_prompt": "{speaker_id}:{question}:{persona}",
+                "debate_arena_prompt": "what's up",
                 "perceived_prompt": "{perceived_persona}",
                 "public_instruction": "pub",
                 "private_instruction": "priv",
                 "pre_interview_instruction": "pre",
                 "post_interview_instruction": "post",
-                "survey_base_prompt": "survey",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
             }
         }
     }
