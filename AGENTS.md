@@ -1,0 +1,2 @@
+- Start by reading the README.md
+- Always use the local virtual environment to run Python, pytest, etc: `.venv/bin/python3`

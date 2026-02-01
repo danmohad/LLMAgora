@@ -1,6 +1,7 @@
 # LLM Agora
 
-A minimal arena where LLM-backed agents take public turns (optionally preceded by private reflections, succeeded by public and private surveys) until each reaches a configurable quota.
+A minimal arena where LLM-backed agents interact by taking public turns (optionally preceded by private reflections, succeeded by public and private surveys) until each reaches a configurable quota.
+Pre- and post-interviews can be optionally included. Agent personas, topics of the interaction and the arena in which the interaction takes place are all specifiable. An analysis and plotting suite is also included.
 
 
 ## Requirements
