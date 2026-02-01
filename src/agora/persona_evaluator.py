@@ -1,4 +1,4 @@
-"""Refactored Persona adherence evaluator for debate agents."""
+"""Persona adherence evaluator for debate agents."""
 
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
