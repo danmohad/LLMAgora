@@ -1,2 +1,5 @@
 - Start by reading the README.md
 - Always use the local virtual environment to run Python, pytest, etc: `.venv/bin/python3`
+- Never modify sourcecode to make tests pass - tests are for validating code, not the other way around!
+- Always run the coverage report `--cov=agora` with the pytests; our CI requires maintaining 100% coverage to submit a PR.
+- No implementation is complete until it has tests and coverage is 100%.
