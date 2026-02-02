@@ -7,7 +7,7 @@ from agora.agora import Agora
 from agora.memory import MemoryTurn
 from agora.workflows import (
     DEFAULT_PROMPT_SET,
-    build_persona_agent_configs,
+    build_scenario_agent_configs,
     extract_instruction,
     extract_survey_instructions,
     format_history_for_agent,
@@ -152,9 +152,17 @@ def test_load_prompt_templates_adds_opening_instruction():
     assert prompts["opening_instruction"] == "public"
 
 
-def test_build_persona_agent_configs_errors_and_custom_prompts():
-    personas = {"personas": {"a": {"actual_persona": "A", "perceived_persona": "PA"}, "b": {"actual_persona": "B", "perceived_persona": "PB"}}}
-    questions = {"questions": {"q1": {"controversial": "Q"}}}
+def test_build_scenario_agent_configs_errors_and_custom_prompts():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"controversial": "Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
     prompt_catalog = {
         "prompt_sets": {
             "custom": {
@@ -171,12 +179,9 @@ def test_build_persona_agent_configs_errors_and_custom_prompts():
         }
     }
 
-    configs = build_persona_agent_configs(
-        alpha_persona_id="a",
-        beta_persona_id="b",
-        question_id="q1",
-        personas=personas,
-        questions=questions,
+    configs = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
         alpha_model="alpha",
         beta_model="beta",
         prompt_set="custom",
@@ -185,50 +190,69 @@ def test_build_persona_agent_configs_errors_and_custom_prompts():
     assert configs[0]["opening_instruction"] == "pub"
 
     with pytest.raises(KeyError):
-        build_persona_agent_configs(
-            alpha_persona_id="a",
-            beta_persona_id="b",
-            question_id="missing",
-            personas=personas,
-            questions=questions,
+        build_scenario_agent_configs(
+            scenario_id="missing",
+            catalog=catalog,
             alpha_model="alpha",
             beta_model="beta",
             prompt_set=DEFAULT_PROMPT_SET,
         )
 
     with pytest.raises(KeyError):
-        build_persona_agent_configs(
-            alpha_persona_id="a",
-            beta_persona_id="missing",
-            question_id="q1",
-            personas=personas,
-            questions=questions,
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog={"scenarios": [{"id": "s1", "question": {"controversial": "Q"}, "side_1": {}}]},
             alpha_model="alpha",
             beta_model="beta",
             prompt_set=DEFAULT_PROMPT_SET,
         )
 
-    questions_missing_variant = {"questions": {"q1": {"id": "q1", "topic": "t"}}}
+    questions_missing_variant = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"id": "q1", "topic": "t"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
     with pytest.raises(KeyError):
-        build_persona_agent_configs(
-            alpha_persona_id="a",
-            beta_persona_id="b",
-            question_id="q1",
+        build_scenario_agent_configs(
+            scenario_id="s1",
             question_variant="agreeable",
-            personas=personas,
-            questions=questions_missing_variant,
+            catalog=questions_missing_variant,
             alpha_model="alpha",
             beta_model="beta",
             prompt_set="custom",
             prompt_catalog=prompt_catalog,
         )
 
-    configs = build_persona_agent_configs(
-        alpha_persona_id="a",
-        beta_persona_id="b",
-        question_id="q1",
-        personas=personas,
-        questions=questions,
+    with pytest.raises(ValueError):
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog=catalog,
+            alpha_model="alpha",
+            beta_model="beta",
+            side_order="bad",
+            prompt_set="custom",
+            prompt_catalog=prompt_catalog,
+        )
+
+    swapped = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
+        alpha_model="alpha",
+        beta_model="beta",
+        side_order="21",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+    )
+    assert swapped[0]["self_role"].startswith("A:Q:B")
+
+    configs = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
         alpha_model="alpha",
         beta_model="beta",
         debate_arena_override="Custom arena",

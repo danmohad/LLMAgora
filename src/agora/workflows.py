@@ -175,20 +175,8 @@ def print_agent_histories(agents: Iterable[Agent]) -> None:
         print(format_history_for_agent(agent))
 
 
-def load_persona_catalog(persona_path: Path | str) -> dict:
-    """Load persona definitions from disk."""
-
-    return json.loads(Path(persona_path).read_text())
-
-
-def load_question_catalog(question_path: Path | str) -> dict:
-    """Load question definitions from disk."""
-
-    return json.loads(Path(question_path).read_text())
-
-
 def load_debate_construction(debate_construction_path: Path | str) -> dict:
-    """Load debate construction scenarios from disk."""
+    """Load the debate scenario catalog from disk."""
 
     return json.loads(Path(debate_construction_path).read_text())
 
@@ -262,16 +250,14 @@ DEFAULT_PRE_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["pre_interview_instruction"]
 DEFAULT_POST_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["post_interview_instruction"]
 
 
-def build_persona_agent_configs(
+def build_scenario_agent_configs(
     *,
-    alpha_persona_id: str,
-    beta_persona_id: str,
-    question_id: str,
-    personas: dict,
-    questions: dict,
+    scenario_id: str,
+    catalog: dict,
     alpha_model: str,
     beta_model: str,
     question_variant: str = "controversial",
+    side_order: str = "12",
     debate_arena_override: Optional[str] = None,
     base_prompt: Optional[str] = None,
     perceived_prompt: Optional[str] = None,
@@ -293,11 +279,13 @@ def build_persona_agent_configs(
     prompt_catalog: Optional[dict] = None,
     prompt_path: Path | str | None = None,
 ) -> List[dict]:
-    """Construct agent configs for the persona-driven debate notebook.
+    """Construct agent configs for a scenario-driven debate.
 
     Args:
+        catalog: Debate catalog containing embedded scenarios.
         question_variant: Which version of the question to use - "agreeable" or "controversial".
                           Defaults to "controversial".
+        side_order: "12" uses side_1 as Alpha and side_2 as Beta; "21" swaps them.
         debate_arena_override: If provided, use this arena text instead of alpha's persona arena.
                                Pass NEUTRAL_DEBATE_ARENA for a neutral setting.
     """
@@ -330,26 +318,32 @@ def build_persona_agent_configs(
     survey_public_prompt = survey_public_prompt or prompts["survey_public_prompt"]
     survey_private_prompt = survey_private_prompt or prompts["survey_private_prompt"]
 
-    personas_data = personas.get("personas", {})
-    questions_data = questions.get("questions", {})
+    scenarios = catalog.get("scenarios", [])
+    scenario = next((item for item in scenarios if item.get("id") == scenario_id), None)
+    if scenario is None:
+        raise KeyError(f"Unknown scenario id: {scenario_id}")
+    if side_order not in {"12", "21"}:
+        raise ValueError(f"Invalid side order: {side_order}")
 
-    if question_id not in questions_data:
-        raise KeyError(f"Unknown question id: {question_id}")
-    if alpha_persona_id not in personas_data:
-        raise KeyError(f"Unknown persona id: {alpha_persona_id}")
-    if beta_persona_id not in personas_data:
-        raise KeyError(f"Unknown persona id: {beta_persona_id}")
-
-    question_entry = questions_data[question_id]
+    question_entry = scenario.get("question", {})
     if question_variant not in question_entry:
         available = [k for k in question_entry if k not in ("id", "topic")]
         raise KeyError(
-            f"Question variant '{question_variant}' not found for question '{question_id}'; "
+            f"Question variant '{question_variant}' not found for scenario '{scenario_id}'; "
             f"available variants: {', '.join(sorted(available))}"
         )
     question_text = question_entry[question_variant]
-    alpha_persona = personas_data[alpha_persona_id]
-    beta_persona = personas_data[beta_persona_id]
+    side_1 = scenario.get("side_1", {})
+    side_2 = scenario.get("side_2", {})
+    if not side_1 or not side_2:
+        raise KeyError(f"Scenario '{scenario_id}' missing side definitions")
+
+    if side_order == "12":
+        alpha_persona = side_1
+        beta_persona = side_2
+    else:
+        alpha_persona = side_2
+        beta_persona = side_1
 
     # Determine debate arena: use override if provided, otherwise alpha's arena
     if debate_arena_override is not None:
@@ -374,10 +368,10 @@ def build_persona_agent_configs(
         beta_self_role = beta_self_role + arena_context
 
     alpha_perceives_beta = perceived_prompt.format(
-        perceived_persona=personas_data[beta_persona_id]["perceived_persona"]
+        perceived_persona=beta_persona["perceived_persona"]
     )
     beta_perceives_alpha = perceived_prompt.format(
-        perceived_persona=personas_data[alpha_persona_id]["perceived_persona"]
+        perceived_persona=alpha_persona["perceived_persona"]
     )
 
     return [
@@ -440,7 +434,7 @@ def build_persona_agent_configs(
 # TODO are these necessary? If not, remove.
 __all__ = [
     "build_agents_from_configs",
-    "build_persona_agent_configs",
+    "build_scenario_agent_configs",
     "DEFAULT_PROMPT_PATH",
     "DEFAULT_PROMPT_SET",
     "DEFAULT_BASE_PROMPT",
@@ -456,8 +450,6 @@ __all__ = [
     "format_history_for_agent",
     "load_prompt_templates",
     "load_debate_construction",
-    "load_persona_catalog",
-    "load_question_catalog",
     "print_agent_histories",
     "run_debate_session",
 ]

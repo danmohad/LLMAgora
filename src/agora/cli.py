@@ -11,10 +11,9 @@ from dotenv import load_dotenv
 from .workflows import (
     DEFAULT_PROMPT_PATH,
     DEFAULT_PROMPT_SET,
-    build_persona_agent_configs,
-    load_persona_catalog,
+    build_scenario_agent_configs,
+    load_debate_construction,
     load_prompt_catalog,
-    load_question_catalog,
     print_agent_histories,
     run_debate_session,
 )
@@ -32,27 +31,24 @@ def _run_from_config(args: argparse.Namespace) -> None:
     agent_configs = payload.get("agent_configs", payload.get("agents")) or payload.get("agents", [])
 
     if not agent_configs:
-        alpha_id = payload.get("alpha_persona_id")
-        beta_id = payload.get("beta_persona_id")
-        question_id = payload.get("question_id")
-        if not all([alpha_id, beta_id, question_id]):
+        scenario_id = payload.get("scenario_id")
+        if not scenario_id:
             raise ValueError(
-                "Config must include an 'agent_configs' array or persona identifiers alpha_persona_id, beta_persona_id, question_id"
+                "Config must include an 'agent_configs' array or a scenario_id"
             )
 
-        personas = load_persona_catalog(payload.get("personas_path", "data/personas.json"))
-        questions = load_question_catalog(payload.get("questions_path", "data/questions.json"))
+        catalog_path = payload.get("catalog_path", "data/debate_construction.json")
+        catalog = load_debate_construction(catalog_path)
         prompt_catalog = load_prompt_catalog(payload.get("prompts_path", DEFAULT_PROMPT_PATH))
         alpha_model = payload.get("alpha_model", "openai/gpt-4o-mini")
         beta_model = payload.get("beta_model", "anthropic/claude-3-haiku")
-        agent_configs = build_persona_agent_configs(
-            alpha_persona_id=alpha_id,
-            beta_persona_id=beta_id,
-            question_id=question_id,
-            personas=personas,
-            questions=questions,
+        agent_configs = build_scenario_agent_configs(
+            scenario_id=scenario_id,
+            catalog=catalog,
             alpha_model=alpha_model,
             beta_model=beta_model,
+            question_variant=payload.get("question_variant", "controversial"),
+            side_order=payload.get("side_order", "12"),
             prompt_set=payload.get("prompt_set", DEFAULT_PROMPT_SET),
             prompt_catalog=prompt_catalog,
             private_response_keep=payload.get("private_response_keep", True),
@@ -82,17 +78,15 @@ def _run_from_config(args: argparse.Namespace) -> None:
 
 
 def _run_persona(args: argparse.Namespace) -> None:
-    personas = load_persona_catalog(args.personas)
-    questions = load_question_catalog(args.questions)
+    catalog = load_debate_construction(args.catalog)
     prompt_catalog = load_prompt_catalog(args.prompts)
-    agent_configs = build_persona_agent_configs(
-        alpha_persona_id=args.alpha_id,
-        beta_persona_id=args.beta_id,
-        question_id=args.question_id,
-        personas=personas,
-        questions=questions,
+    agent_configs = build_scenario_agent_configs(
+        scenario_id=args.scenario_id,
+        catalog=catalog,
         alpha_model=args.alpha_model,
         beta_model=args.beta_model,
+        question_variant=args.question_variant,
+        side_order=args.side_order,
         prompt_set=args.prompt_set,
         prompt_catalog=prompt_catalog,
         private_response_keep=args.keep_private_response,
@@ -133,17 +127,27 @@ def build_parser() -> argparse.ArgumentParser:
     persona_cmd = subparsers.add_parser(
         "persona", help="Run a persona-driven debate using the bundled datasets."
     )
-    persona_cmd.add_argument("--alpha-id", required=True, help="Persona ID for the Alpha speaker")
-    persona_cmd.add_argument("--beta-id", required=True, help="Persona ID for the Beta speaker")
-    persona_cmd.add_argument("--question-id", required=True, help="Question ID from the dataset")
+    persona_cmd.add_argument("--scenario-id", required=True, help="Scenario ID from the debate catalog")
     persona_cmd.add_argument("--alpha-model", default="openai/gpt-4o-mini", help="Model identifier for Alpha")
     persona_cmd.add_argument("--beta-model", default="anthropic/claude-3-haiku", help="Model identifier for Beta")
-    persona_cmd.add_argument("--turns", type=int, default=5, help="Number of turns each agent should take")
     persona_cmd.add_argument(
-        "--personas", type=Path, default=Path("data/personas.json"), help="Path to persona catalog JSON"
+        "--question-variant",
+        default="controversial",
+        choices=["agreeable", "controversial"],
+        help="Question variant to use for the scenario",
     )
     persona_cmd.add_argument(
-        "--questions", type=Path, default=Path("data/questions.json"), help="Path to questions catalog JSON"
+        "--side-order",
+        default="12",
+        choices=["12", "21"],
+        help="Which scenario side maps to Alpha/Beta (12=side_1->Alpha, 21=side_2->Alpha)",
+    )
+    persona_cmd.add_argument("--turns", type=int, default=5, help="Number of turns each agent should take")
+    persona_cmd.add_argument(
+        "--catalog",
+        type=Path,
+        default=Path("data/debate_construction.json"),
+        help="Path to the combined debate catalog JSON",
     )
     persona_cmd.add_argument(
         "--prompts", type=Path, default=DEFAULT_PROMPT_PATH, help="Path to prompt catalog JSON"
