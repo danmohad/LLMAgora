@@ -6,13 +6,12 @@ from agora.agent import Agent
 from agora.agora import Agora
 from agora.workflows import (
     build_agents_from_configs,
-    build_persona_agent_configs,
+    build_scenario_agent_configs,
     extract_instruction,
     format_history_for_agent,
     load_prompt_catalog,
     load_prompt_templates,
-    load_persona_catalog,
-    load_question_catalog,
+    load_debate_construction,
     run_debate_session,
 )
 
@@ -135,15 +134,11 @@ def test_format_history_for_agent_renders_turns(stub_llm_factory):
 
 
 def test_persona_builder_uses_catalogues():
-    personas = load_persona_catalog("data/personas.json")
-    questions = load_question_catalog("data/questions.json")
+    catalog = load_debate_construction("data/debate_construction.json")
 
-    configs = build_persona_agent_configs(
-        alpha_persona_id="high_wealth_founder",
-        beta_persona_id="unionized_warehouse_worker",
-        question_id="hier_account_1_q",
-        personas=personas,
-        questions=questions,
+    configs = build_scenario_agent_configs(
+        scenario_id="hier_account_1",
+        catalog=catalog,
         alpha_model="alpha-model",
         beta_model="beta-model",
     )
@@ -152,27 +147,20 @@ def test_persona_builder_uses_catalogues():
     assert "Persona" in configs[0]["self_role"] or "persona" in configs[0]["self_role"].lower()
 
     with pytest.raises(KeyError):
-        build_persona_agent_configs(
-            alpha_persona_id="missing",
-            beta_persona_id="unionized_warehouse_worker",
-            question_id="hier_account_1_q",
-            personas=personas,
-            questions=questions,
+        build_scenario_agent_configs(
+            scenario_id="missing",
+            catalog=catalog,
             alpha_model="alpha-model",
             beta_model="beta-model",
         )
 
 
 def test_persona_builder_honors_keep_flags():
-    personas = load_persona_catalog("data/personas.json")
-    questions = load_question_catalog("data/questions.json")
+    catalog = load_debate_construction("data/debate_construction.json")
 
-    configs = build_persona_agent_configs(
-        alpha_persona_id="high_wealth_founder",
-        beta_persona_id="unionized_warehouse_worker",
-        question_id="hier_account_1_q",
-        personas=personas,
-        questions=questions,
+    configs = build_scenario_agent_configs(
+        scenario_id="hier_account_1",
+        catalog=catalog,
         alpha_model="alpha-model",
         beta_model="beta-model",
         private_response_keep=False,

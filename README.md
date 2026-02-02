@@ -51,9 +51,9 @@ agora run --config data/agents_persona_example.json --verbose
 
 # Run the persona demo directly from the datasets
 agora persona \
-  --alpha-id high_wealth_founder \
-  --beta-id unionized_warehouse_worker \
-  --question-id work \
+  --scenario-id hier_account_1 \
+  --question-variant controversial \
+  --side-order 12 \
   --prompts data/prompts.json \
   --prompt-set default \
   --keep-private-response \

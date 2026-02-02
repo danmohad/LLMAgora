@@ -92,7 +92,7 @@ class PersonaEvaluator:
         
         Args:
             llm_client: LLM client for making evaluation requests
-            personas: Dictionary containing persona definitions (from personas.json)
+            personas: Dictionary containing persona definitions (from the combined debate catalog)
             model: Model to use for evaluation
         """
         self.llm_client = llm_client

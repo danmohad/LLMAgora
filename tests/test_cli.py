@@ -13,12 +13,8 @@ def test_build_parser_registers_subcommands():
 
     persona_args = parser.parse_args([
         "persona",
-        "--alpha-id",
-        "alpha",
-        "--beta-id",
-        "beta",
-        "--question-id",
-        "question",
+        "--scenario-id",
+        "scenario",
     ])
     assert persona_args.func is cli._run_persona
 
@@ -93,9 +89,7 @@ def test_run_from_config_uses_agent_configs(tmp_path, monkeypatch):
 
 def test_run_from_config_persona_path(tmp_path, monkeypatch):
     config = {
-        "alpha_persona_id": "alpha",
-        "beta_persona_id": "beta",
-        "question_id": "question",
+        "scenario_id": "scenario",
         "turns_per_agent": 2,
     }
     config_path = tmp_path / "config.json"
@@ -103,19 +97,15 @@ def test_run_from_config_persona_path(tmp_path, monkeypatch):
 
     calls = {}
 
-    def fake_load_persona_catalog(path):
-        calls["personas"] = path
-        return {"personas": {"alpha": {}, "beta": {}}}
-
-    def fake_load_question_catalog(path):
-        calls["questions"] = path
-        return {"questions": {"question": {"question": "Q"}}}
+    def fake_load_debate_construction(path):
+        calls["catalog"] = path
+        return {"personas": {"alpha": {}, "beta": {}}, "questions": {"question": {"question": "Q"}}}
 
     def fake_load_prompt_catalog(path):
         calls["prompts"] = path
         return {"prompt_sets": {"default": {}}}
 
-    def fake_build_persona_agent_configs(**kwargs):
+    def fake_build_scenario_agent_configs(**kwargs):
         calls["persona_args"] = kwargs
         return [
             {
@@ -134,10 +124,9 @@ def test_run_from_config_persona_path(tmp_path, monkeypatch):
     def fake_print_agent_histories(agents):
         calls["printed"] = list(agents)
 
-    monkeypatch.setattr(cli, "load_persona_catalog", fake_load_persona_catalog)
-    monkeypatch.setattr(cli, "load_question_catalog", fake_load_question_catalog)
+    monkeypatch.setattr(cli, "load_debate_construction", fake_load_debate_construction)
     monkeypatch.setattr(cli, "load_prompt_catalog", fake_load_prompt_catalog)
-    monkeypatch.setattr(cli, "build_persona_agent_configs", fake_build_persona_agent_configs)
+    monkeypatch.setattr(cli, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
     monkeypatch.setattr(cli, "run_debate_session", fake_run_debate_session)
     monkeypatch.setattr(cli, "print_agent_histories", fake_print_agent_histories)
 
@@ -155,7 +144,7 @@ def test_run_from_config_persona_path(tmp_path, monkeypatch):
 
     assert calls["turns_per_agent"] == 5
     assert calls["printed"] == ["alpha"]
-    assert calls["persona_args"]["alpha_persona_id"] == "alpha"
+    assert calls["persona_args"]["scenario_id"] == "scenario"
 
 
 def test_run_from_config_requires_turns(tmp_path):
@@ -210,19 +199,15 @@ def test_run_from_config_requires_persona_ids(tmp_path):
 def test_run_persona_happy_path(monkeypatch):
     calls = {}
 
-    def fake_load_persona_catalog(path):
-        calls["personas"] = path
-        return {"personas": {}}
-
-    def fake_load_question_catalog(path):
-        calls["questions"] = path
-        return {"questions": {}}
+    def fake_load_debate_construction(path):
+        calls["catalog"] = path
+        return {"personas": {}, "questions": {}}
 
     def fake_load_prompt_catalog(path):
         calls["prompts"] = path
         return {"prompt_sets": {"default": {}}}
 
-    def fake_build_persona_agent_configs(**kwargs):
+    def fake_build_scenario_agent_configs(**kwargs):
         calls["persona_args"] = kwargs
         return [
             {
@@ -241,22 +226,20 @@ def test_run_persona_happy_path(monkeypatch):
     def fake_print_agent_histories(agents):
         calls["printed"] = list(agents)
 
-    monkeypatch.setattr(cli, "load_persona_catalog", fake_load_persona_catalog)
-    monkeypatch.setattr(cli, "load_question_catalog", fake_load_question_catalog)
+    monkeypatch.setattr(cli, "load_debate_construction", fake_load_debate_construction)
     monkeypatch.setattr(cli, "load_prompt_catalog", fake_load_prompt_catalog)
-    monkeypatch.setattr(cli, "build_persona_agent_configs", fake_build_persona_agent_configs)
+    monkeypatch.setattr(cli, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
     monkeypatch.setattr(cli, "run_debate_session", fake_run_debate_session)
     monkeypatch.setattr(cli, "print_agent_histories", fake_print_agent_histories)
 
     args = SimpleNamespace(
-        alpha_id="alpha",
-        beta_id="beta",
-        question_id="question",
+        scenario_id="scenario",
         alpha_model="alpha-model",
         beta_model="beta-model",
+        question_variant="controversial",
+        side_order="12",
         turns=2,
-        personas="data/personas.json",
-        questions="data/questions.json",
+        catalog="data/debate_construction.json",
         prompts=cli.DEFAULT_PROMPT_PATH,
         prompt_set=cli.DEFAULT_PROMPT_SET,
         snapshot=None,
@@ -273,7 +256,7 @@ def test_run_persona_happy_path(monkeypatch):
 
     assert calls["turns_per_agent"] == 2
     assert calls["printed"] == ["alpha"]
-    assert calls["persona_args"]["alpha_persona_id"] == "alpha"
+    assert calls["persona_args"]["scenario_id"] == "scenario"
 
 
 def test_main_dispatches(monkeypatch):
