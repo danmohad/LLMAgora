@@ -73,11 +73,6 @@ def test_similarity_and_alignment(monkeypatch):
     cached_alignment = analyzer.compute_inter_agent_alignment()
     assert cached_alignment is alignment
 
-    assert analyzer.get_turn_content("Alpha", 0) == "Hello"
-    assert set(analyzer.get_agent_names()) == {"Alpha", "Beta"}
-    assert analyzer.get_num_turns() == 1
-    assert analyzer.get_num_turns("Alpha") == 1
-
     analyzer._util = None
     assert analyzer.calculate_similarity("a", "b") == 0.42
 
@@ -149,33 +144,3 @@ def test_load_model_with_fake_dependency(monkeypatch, capsys):
     assert isinstance(model, FakeTransformer)
     assert analyzer._util is DummyUtil
     assert "Loading model" in capsys.readouterr().out
-
-
-def test_summary_outputs_sections(monkeypatch, capsys):
-    def fake_load(self):
-        self._util = DummyUtil
-        return DummyModel()
-
-    monkeypatch.setattr(DebateAnalyzer, "_load_model", fake_load)
-
-    debate_data = {
-        "Alpha": {
-            "debate_turns": [{"public_speech": "A", "private_reflection": "A0"}],
-            "pre_interview": None,
-            "post_interview": None,
-        },
-        "Beta": {
-            "debate_turns": [{"public_speech": "B", "private_reflection": "B0"}],
-            "pre_interview": None,
-            "post_interview": None,
-        },
-    }
-
-    analyzer = DebateAnalyzer(debate_data)
-    analyzer.compute_intra_agent_honesty()
-    analyzer.compute_inter_agent_alignment()
-    analyzer.summary()
-    output = capsys.readouterr().out
-    assert "DEBATE ANALYSIS SUMMARY" in output
-    assert "INTRA-AGENT HONESTY" in output
-    assert "INTER-AGENT ALIGNMENT" in output

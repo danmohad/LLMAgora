@@ -137,8 +137,10 @@ class Agora:
             speech = agent.generate_public_speech(opening=opening_turn)
             opening_turn = False
             recorded_speech = speech
-            
-            # Ask the selected agent for the survey
+
+            # Survey results are keyed by the pre-public turn counter so
+            # round 0 captures the initial survey and later keys align to
+            # the public turn that follows this block.
             if agent.do_survey_eval:
                 if agent.enable_public_survey:
                     response = agent.generate_public_survey_response(agent.survey_questions)
@@ -165,7 +167,7 @@ class Agora:
                         print(f"Private survey response from {agent.name}:")
                         print(response_private)
                         print("#" * 10)
-            
+
             self._turn_counter += 1
             turn = MemoryTurn(
                 turn_id=self._turn_counter,
@@ -242,11 +244,6 @@ class Agora:
                 for agent in self._agents:
                     agent.observe_turn(turn)
             self._turn_counter = max(self._turn_counter, turn.turn_id)
-
-    def agent_count(self) -> int:
-        """Return the number of agents currently participating in the Agora."""
-
-        return len(self._agents)
 
     def history_for_agent(self, agent_id: str) -> List[MemoryTurn]:
         """Return the history view appropriate for a particular agent."""

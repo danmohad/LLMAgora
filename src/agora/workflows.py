@@ -92,7 +92,6 @@ def build_agents_from_configs(
             enable_public_survey=enable_public_survey,
             enable_private_survey=enable_private_survey,
             public_survey_keep=public_survey_keep,
-        
         )
         agents.append(agent)
     return agents
@@ -124,6 +123,7 @@ def run_debate_session(
 
     try:
         snapshot_file = Path(snapshot_path) if snapshot_path else None
+        # Snapshot loading bypasses config-based agent construction.
         if load_snapshot_flag and snapshot_file and snapshot_file.exists():
             agora = load_snapshot(snapshot_file, lambda _state: llm_client)
             agents = list(agora.agents)
@@ -244,17 +244,6 @@ def load_prompt_templates(
         payload["opening_instruction"] = payload["public_instruction"]
     return payload
 
-# TODO are these necessary? If not, remove.
-DEFAULT_PROMPTS = load_prompt_templates(DEFAULT_PROMPT_SET)
-DEFAULT_BASE_PROMPT = DEFAULT_PROMPTS["base_prompt"]
-DEFAULT_PERCEIVED_PROMPT = DEFAULT_PROMPTS["perceived_prompt"]
-DEFAULT_DEBATE_ARENA_PROMPT = DEFAULT_PROMPTS["debate_arena_prompt"]
-DEFAULT_PUBLIC_INSTRUCTION = DEFAULT_PROMPTS["public_instruction"]
-DEFAULT_OPENING_INSTRUCTION = DEFAULT_PROMPTS["opening_instruction"]
-DEFAULT_PRIVATE_INSTRUCTION = DEFAULT_PROMPTS["private_instruction"]
-DEFAULT_PRE_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["pre_interview_instruction"]
-DEFAULT_POST_INTERVIEW_INSTRUCTION = DEFAULT_PROMPTS["post_interview_instruction"]
-
 
 def build_scenario_agent_configs(
     *,
@@ -298,18 +287,9 @@ def build_scenario_agent_configs(
                                Pass NEUTRAL_DEBATE_ARENA for a neutral setting.
     """
 
-    prompts = prompt_templates
-    if prompts is None:
-        if (
-            prompt_set == DEFAULT_PROMPT_SET
-            and prompt_catalog is None
-            and prompt_path is None
-        ):
-            prompts = DEFAULT_PROMPTS
-        else:
-            prompts = load_prompt_templates(
-                prompt_set, prompt_catalog=prompt_catalog, prompt_path=prompt_path
-            )
+    prompts = prompt_templates or load_prompt_templates(
+        prompt_set, prompt_catalog=prompt_catalog, prompt_path=prompt_path
+    )
 
     base_prompt = base_prompt or prompts["base_prompt"]
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
@@ -443,20 +423,11 @@ def build_scenario_agent_configs(
         },
     ]
 
-# TODO are these necessary? If not, remove.
 __all__ = [
     "build_agents_from_configs",
     "build_scenario_agent_configs",
     "DEFAULT_PROMPT_PATH",
     "DEFAULT_PROMPT_SET",
-    "DEFAULT_BASE_PROMPT",
-    "DEFAULT_PERCEIVED_PROMPT",
-    "DEFAULT_DEBATE_ARENA_PROMPT",
-    "DEFAULT_PUBLIC_INSTRUCTION",
-    "DEFAULT_OPENING_INSTRUCTION",
-    "DEFAULT_PRIVATE_INSTRUCTION",
-    "DEFAULT_PRE_INTERVIEW_INSTRUCTION",
-    "DEFAULT_POST_INTERVIEW_INSTRUCTION",
     "load_prompt_catalog",
     "extract_instruction",
     "format_history_for_agent",

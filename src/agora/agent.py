@@ -47,7 +47,10 @@ class Agent:
             system_prompt: Optional system message prepended to every call.
             response_instruction: Final user message directing the agent's public reply.
             opening_instruction: Optional user message directing the opening public remark.
-            survey_base_prompt: Survey instructions prepended to question list.
+            survey_public_prompt: Template prepended to public survey questions.
+            survey_private_prompt: Template prepended to private survey questions.
+            enable_public_survey: Whether to ask public survey questions.
+            enable_private_survey: Whether to ask private survey questions.
             private_response_instruction: Optional user message directing private reflections.
             private_response_keep: Whether to keep reflections in local memory.
             pre_interview_instruction: Optional pre-run interview prompt.
@@ -132,11 +135,11 @@ class Agent:
     @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
-    
+
     @property
     def public_survey_keep(self) -> bool:
         return self._public_survey_keep
-    
+
     @property
     def survey_public_prompt(self) -> str:
         if not self._survey_public_prompt:
@@ -144,7 +147,7 @@ class Agent:
                 "Survey prompt missing; configure 'survey_public_prompt' in prompts.json."
             )
         return self._survey_public_prompt
-    
+
     @property
     def survey_private_prompt(self) -> str:
         if not self._survey_private_prompt:
@@ -214,7 +217,7 @@ class Agent:
             messages=messages, model=self.model, survey_questions=survey_questions
         )
         return self._strip_speaker_prefix(response.strip())
-    
+
     def generate_private_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a private survey response with JSON structured format."""
         if not self._enable_private_survey:
@@ -298,13 +301,8 @@ class Agent:
         if self._system_prompt:
             messages.append({"role": "system", "content": self._system_prompt})
 
-        # Use speaker labels only when more than two agents are in the Agora.
-        multi_party = bool(self._agora and self._agora.agent_count() > 2)
-
         for turn in self._memory:
-            chat_message = turn.to_chat_message(
-                viewer_id=self.id, multi_party=multi_party
-            )
+            chat_message = turn.to_chat_message(viewer_id=self.id)
             if chat_message:
                 messages.append(chat_message)
 

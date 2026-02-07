@@ -51,9 +51,7 @@ class MemoryTurn:
             keep=payload.get("keep", True),
         )
 
-    def to_chat_message(
-        self, *, viewer_id: str, multi_party: bool = False
-    ) -> Optional[ChatMessage]:
+    def to_chat_message(self, *, viewer_id: str) -> Optional[ChatMessage]:
         """Render the turn as a standard chat completion message."""
 
         if not self.keep:
@@ -61,11 +59,7 @@ class MemoryTurn:
 
         role = "assistant" if self.speaker_id == viewer_id else "user"
         if self.public_speech:
-            content = self.public_speech
-            if role == "user" and multi_party:
-                speaker = self.metadata.get("speaker_name") or self.speaker_id
-                content = f"{speaker}: {content}"
-            return ChatMessage(role=role, content=content)
+            return ChatMessage(role=role, content=self.public_speech)
 
         if self.private_reflection and self.speaker_id == viewer_id:
             return ChatMessage(role="assistant", content=self.private_reflection)

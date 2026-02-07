@@ -281,6 +281,7 @@ def load_experiment_config(path: Path | str) -> ExperimentConfig:
 
 
 def _merge_config(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> ExperimentConfig:
+    # CLI overrides use None for "not provided", so only merge concrete values.
     merged = dict(base)
     for key, value in overrides.items():
         if value is not None:
@@ -312,6 +313,7 @@ def run_persona_experiment(
 
     cfg = config if isinstance(config, ExperimentConfig) else build_experiment_config(config)
 
+    # Runs with all optional outputs disabled execute in-memory only.
     write_outputs = _should_write_outputs(cfg)
     run_dir: Optional[Path] = None
     run_id: Optional[str] = None
