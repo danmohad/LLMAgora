@@ -117,8 +117,8 @@ def test_opening_instruction_used_for_first_public_turn(stub_llm_factory):
     assert beta_messages[-1]["content"] == "Beta respond."
 
 
-def test_multi_agent_histories_label_user_messages(stub_llm_factory):
-    """When more than two speakers exist, user messages include the speaker name."""
+def test_agora_rejects_more_than_two_agents(stub_llm_factory):
+    """Agora should reject unsupported multi-party runs (>2 agents)."""
 
     llm_a = stub_llm_factory(["Alpha turn 1", "Alpha turn 2"])
     llm_b = stub_llm_factory(["Beta turn 1", "Beta turn 2"])
@@ -127,13 +127,8 @@ def test_multi_agent_histories_label_user_messages(stub_llm_factory):
     agent_b = Agent(name="Beta", model="demo", llm_client=llm_b, response_instruction="Beta respond.")
     agent_c = Agent(name="Gamma", model="demo", llm_client=llm_c, response_instruction="Gamma respond.")
 
-    Agora([agent_a, agent_b, agent_c]).run(max_turns_per_agent=1)
-
-    beta_messages = llm_b.calls[0]["messages"]
-    assert any(
-        msg["role"] == "user" and msg["content"].startswith("Alpha:")
-        for msg in beta_messages
-    )
+    with pytest.raises(ValueError, match="at most two agents"):
+        Agora([agent_a, agent_b, agent_c])
 
 
 def test_private_reflections_are_private(stub_llm_factory):

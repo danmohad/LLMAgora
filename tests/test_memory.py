@@ -15,3 +15,18 @@ def test_to_chat_message_hidden_reflection():
         keep=True,
     )
     assert turn.to_chat_message(viewer_id="b") is None
+
+
+def test_to_chat_message_multi_party_prefixes_user_content():
+    turn = MemoryTurn(
+        turn_id=3,
+        speaker_id="a",
+        role="assistant",
+        public_speech="Hello",
+        metadata={"speaker_name": "Alpha"},
+        keep=True,
+    )
+    rendered = turn.to_chat_message(viewer_id="b", multi_party=True)
+    assert rendered is not None
+    assert rendered["role"] == "user"
+    assert rendered["content"] == "Alpha: Hello"

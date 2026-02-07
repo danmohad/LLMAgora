@@ -134,7 +134,7 @@ def test_format_history_for_agent_renders_turns(stub_llm_factory):
 
 
 def test_persona_builder_uses_catalogues():
-    catalog = load_debate_construction("data/debate_construction.json")
+    catalog = load_debate_construction("data/scenarios.json")
 
     configs = build_scenario_agent_configs(
         scenario_id="hier_account_1",
@@ -156,7 +156,7 @@ def test_persona_builder_uses_catalogues():
 
 
 def test_persona_builder_honors_keep_flags():
-    catalog = load_debate_construction("data/debate_construction.json")
+    catalog = load_debate_construction("data/scenarios.json")
 
     configs = build_scenario_agent_configs(
         scenario_id="hier_account_1",

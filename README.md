@@ -26,7 +26,7 @@ Pre- and post-interviews can be optionally included. Agent personas, topics of t
 ## Running tests
 
 ```bash
-pytest --cov=agora
+.venv/bin/python3 -m pytest --cov=agora
 ```
 
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
@@ -36,29 +36,43 @@ Tests assume the package is installed (editable install recommended).
 
 Runs `pytest` with coverage report, and comments the coverage percentage on the PR. Note that it doesn't install the package in 'analysis' mode, because the `sentence-transformers` package is too large for GitHub free nodes.
 
-## Notebook demos
+## Notebook demo
 
-Ready-to-run walkthroughs live in `notebooks/demo.ipynb` (basic debate flows) and `notebooks/demo_persona.ipynb` (persona-driven debates with plotting). Both notebooks now call into reusable helpers rather than embedding logic inline.
-For `demo_persona_eval.ipynb` (semantic analysis), the analysis extra is required; it's included if you used the setup command above.
+There is one canonical notebook: `notebooks/demo.ipynb`.
+It is intentionally thin and calls the high-level source workflow in `agora.experiment`.
 
 ## CLI
 
-Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command:
+Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command.
+
+Canonical config lives at `data/example.json` and matches the notebook and CLI arguments exactly.
+All optional features are `false` by default and must be explicitly enabled.
 
 ```bash
-# Use the persona config; the example mirrors the `demo_persona.ipynb` notebook
-agora run --config data/agents_persona_example.json --verbose
+# Run with config
+agora run --config data/example.json
 
-# Run the persona demo directly from the datasets
-agora persona \
+# Override specific fields from config
+agora run --config data/example.json \
+  --scenario-id peer_collab_1 \
+  --question-variant agreeable \
+  --enable-analyzer \
+  --enable-plots
+
+# Run with no config file (all args via CLI)
+agora run \
   --scenario-id hier_account_1 \
   --question-variant controversial \
   --side-order 12 \
-  --prompts data/prompts.json \
-  --prompt-set default \
-  --keep-private-response \
-  --no-keep-pre-interview \
-  --no-keep-post-interview \
-  --verbose
+  --turns-per-agent 2
+
+# Indexed output mode: run folder is a short unique ID and index row is appended
+agora run --config data/example.json --indexed-output
 ```
-Prompt templates (base prompt, public and private instructions, etc.) live in JSON under `data/prompts.json`. Use `--prompt-set` to choose which template entry to load (e.g., `default`).
+
+Output behavior:
+- default mode writes to a readable folder name under `outputs/` (for example `outputs/peer_collab_1_agreeable_12_neutral`)
+- indexed mode writes to `outputs/<run_id>` and appends one row per run to `outputs/index.csv`
+- if output-related features are all disabled, no output directory is created
+- when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
+- `eval_data.json` is written only when at least one evaluation stream is enabled (`enable_analyzer`, `enable_persona_evaluation`, or `enable_surveys`)

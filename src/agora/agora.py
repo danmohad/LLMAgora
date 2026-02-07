@@ -17,6 +17,8 @@ class Agora:
         if not agents:
             raise ValueError("Agora requires at least one agent")
         self._agents: List[Agent] = list(agents)
+        if len(self._agents) > 2:
+            raise ValueError("Agora currently supports at most two agents")
         self._agent_lookup: Dict[str, Agent] = {
             agent.id: agent for agent in self._agents
         }

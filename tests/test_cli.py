@@ -1,262 +1,229 @@
-import json
+from dataclasses import asdict
+from pathlib import Path
 from types import SimpleNamespace
+from typing import Optional
 
 import pytest
 
 from agora import cli
+from agora.experiment import ExperimentConfig, ExperimentResult
 
 
-def test_build_parser_registers_subcommands():
+class DummyAgora:
+    survey_public_response = {}
+    survey_private_response = {}
+
+    def history(self):
+        return []
+
+
+class DummyAgent:
+    def __init__(self, name):
+        self.name = name
+
+
+def _result(run_dir: Optional[Path], run_id=None):
+    return ExperimentResult(
+        agora=DummyAgora(),
+        agents=[DummyAgent("Alpha")],
+        eval_data={},
+        run_dir=run_dir,
+        run_id=run_id,
+        analyzer=None,
+        persona_eval=None,
+    )
+
+
+def test_build_parser_registers_run_subcommand():
     parser = cli.build_parser()
-    run_args = parser.parse_args(["run", "--config", "config.json", "--turns", "2"])
-    assert run_args.func is cli._run_from_config
-
-    persona_args = parser.parse_args([
-        "persona",
-        "--scenario-id",
-        "scenario",
-    ])
-    assert persona_args.func is cli._run_persona
+    args = parser.parse_args(["run", "--scenario-id", "s1"])
+    assert args.func is cli._run
 
 
-def test_load_agent_payload_requires_object(tmp_path):
-    path = tmp_path / "config.json"
-    path.write_text(json.dumps([1, 2, 3]))
-    with pytest.raises(ValueError):
-        cli._load_agent_payload(path)
+def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
+    captured = {}
+    cfg_from_file = ExperimentConfig(scenario_id="from-file")
 
+    def fake_load(path):
+        captured["config_path"] = path
+        return cfg_from_file
 
-def test_run_from_config_uses_agent_configs(tmp_path, monkeypatch):
-    config = {
-        "agent_configs": [
-            {
-                "name": "Alpha",
-                "model": "demo",
-                "self_role": "role",
-                "response_instruction": "respond",
-            }
-        ],
-        "turns_per_agent": 3,
-    }
-    config_path = tmp_path / "config.json"
-    config_path.write_text(json.dumps(config))
+    def fake_merge(base, overrides):
+        captured["base"] = base
+        captured["overrides"] = overrides
+        return ExperimentConfig(scenario_id="override-scenario", indexed_output=True)
 
-    calls = {}
+    def fake_run_persona_experiment(config):
+        captured["final_cfg"] = config
+        captured["called"] = True
+        return _result(tmp_path / "outputs" / "abc123", run_id="abc123")
 
-    def fake_run_debate_session(
-        agent_configs,
-        *,
-        turns_per_agent,
-        verbose,
-        skip_first_agent_first_reflection,
-        snapshot_path,
-        load_snapshot_flag,
-        save_snapshot_flag,
-    ):
-        calls["agent_configs"] = agent_configs
-        calls["turns_per_agent"] = turns_per_agent
-        calls["verbose"] = verbose
-        calls["skip_first"] = skip_first_agent_first_reflection
-        calls["snapshot_path"] = snapshot_path
-        calls["load_snapshot"] = load_snapshot_flag
-        calls["save_snapshot"] = save_snapshot_flag
-        return object(), ["alpha"]
-
-    def fake_print_agent_histories(agents):
-        calls["printed"] = list(agents)
-
-    monkeypatch.setattr(cli, "run_debate_session", fake_run_debate_session)
-    monkeypatch.setattr(cli, "print_agent_histories", fake_print_agent_histories)
+    monkeypatch.setattr(cli, "load_experiment_config", fake_load)
+    monkeypatch.setattr(cli, "_merge_config", fake_merge)
+    monkeypatch.setattr(cli, "run_persona_experiment", fake_run_persona_experiment)
+    monkeypatch.setattr(cli, "print_agent_histories", lambda agents: captured.setdefault("printed", True))
 
     args = SimpleNamespace(
-        config=config_path,
-        turns=None,
-        verbose=True,
-        skip_first_reflection=True,
-        snapshot=tmp_path / "snap.json",
-        load_snapshot=True,
-        save_snapshot=True,
+        config=tmp_path / "example.json",
+        scenario_id="override-scenario",
+        question_variant=None,
+        side_order=None,
+        prompt_set=None,
+        alpha_model=None,
+        beta_model=None,
+        turns_per_agent=None,
+        verbose=None,
+        use_neutral_arena=None,
+        enable_private_reflection=None,
+        keep_private_reflection=None,
+        skip_first_agent_first_reflection=None,
+        enable_pre_interview=None,
+        keep_pre_interview=None,
+        enable_post_interview=None,
+        keep_post_interview=None,
+        enable_surveys=None,
+        keep_public_survey=None,
+        enable_analyzer=None,
+        enable_persona_evaluation=None,
+        persona_eval_model=None,
+        persona_eval_verbose=None,
+        persona_n_samples=None,
+        enable_plots=None,
+        show_plots=None,
+        load_snapshot=None,
+        save_snapshot=None,
+        outputs_root=None,
+        run_name=None,
+        indexed_output=True,
+        index_csv=None,
+        catalog_path=None,
+        prompts_path=None,
+        print_histories=True,
     )
 
-    cli._run_from_config(args)
+    cli._run(args)
 
-    assert calls["turns_per_agent"] == 3
-    assert calls["printed"] == ["alpha"]
-    assert calls["snapshot_path"] == args.snapshot
-    assert calls["load_snapshot"] is True
-    assert calls["save_snapshot"] is True
+    assert captured["config_path"] == args.config
+    assert captured["base"] == asdict(cfg_from_file)
+    assert captured["overrides"]["scenario_id"] == "override-scenario"
+    assert captured["called"] is True
+    assert captured["printed"] is True
+
+    output = capsys.readouterr().out
+    assert "Run directory:" in output
+    assert "Run ID: abc123" in output
 
 
-def test_run_from_config_persona_path(tmp_path, monkeypatch):
-    config = {
-        "scenario_id": "scenario",
-        "turns_per_agent": 2,
-    }
-    config_path = tmp_path / "config.json"
-    config_path.write_text(json.dumps(config))
+def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
+    captured = {}
 
-    calls = {}
+    def fake_build(payload):
+        captured["payload"] = payload
+        return ExperimentConfig(scenario_id="from-flags")
 
-    def fake_load_debate_construction(path):
-        calls["catalog"] = path
-        return {"personas": {"alpha": {}, "beta": {}}, "questions": {"question": {"question": "Q"}}}
+    def fake_run_persona_experiment(config):
+        captured["cfg"] = config
+        captured["called"] = True
+        return _result(tmp_path / "outputs" / "named")
 
-    def fake_load_prompt_catalog(path):
-        calls["prompts"] = path
-        return {"prompt_sets": {"default": {}}}
-
-    def fake_build_scenario_agent_configs(**kwargs):
-        calls["persona_args"] = kwargs
-        return [
-            {
-                "name": "Alpha",
-                "model": "demo",
-                "self_role": "role",
-                "response_instruction": "respond",
-            }
-        ]
-
-    def fake_run_debate_session(agent_configs, *, turns_per_agent, **kwargs):
-        calls["turns_per_agent"] = turns_per_agent
-        calls["agent_configs"] = agent_configs
-        return object(), ["alpha"]
-
-    def fake_print_agent_histories(agents):
-        calls["printed"] = list(agents)
-
-    monkeypatch.setattr(cli, "load_debate_construction", fake_load_debate_construction)
-    monkeypatch.setattr(cli, "load_prompt_catalog", fake_load_prompt_catalog)
-    monkeypatch.setattr(cli, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
-    monkeypatch.setattr(cli, "run_debate_session", fake_run_debate_session)
-    monkeypatch.setattr(cli, "print_agent_histories", fake_print_agent_histories)
+    monkeypatch.setattr(cli, "build_experiment_config", fake_build)
+    monkeypatch.setattr(cli, "run_persona_experiment", fake_run_persona_experiment)
 
     args = SimpleNamespace(
-        config=config_path,
-        turns=5,
-        verbose=False,
-        skip_first_reflection=False,
-        snapshot=None,
-        load_snapshot=False,
-        save_snapshot=False,
-    )
-
-    cli._run_from_config(args)
-
-    assert calls["turns_per_agent"] == 5
-    assert calls["printed"] == ["alpha"]
-    assert calls["persona_args"]["scenario_id"] == "scenario"
-
-
-def test_run_from_config_requires_turns(tmp_path):
-    config_path = tmp_path / "config.json"
-    config_path.write_text(
-        json.dumps(
-            {
-                "agent_configs": [
-                    {
-                        "name": "Alpha",
-                        "model": "demo",
-                        "self_role": "role",
-                        "response_instruction": "respond",
-                    }
-                ]
-            }
-        )
-    )
-
-    args = SimpleNamespace(
-        config=config_path,
-        turns=None,
-        verbose=False,
-        skip_first_reflection=False,
-        snapshot=None,
-        load_snapshot=False,
-        save_snapshot=False,
-    )
-
-    with pytest.raises(ValueError):
-        cli._run_from_config(args)
-
-
-def test_run_from_config_requires_persona_ids(tmp_path):
-    config_path = tmp_path / "config.json"
-    config_path.write_text(json.dumps({"agent_configs": []}))
-
-    args = SimpleNamespace(
-        config=config_path,
-        turns=1,
-        verbose=False,
-        skip_first_reflection=False,
-        snapshot=None,
-        load_snapshot=False,
-        save_snapshot=False,
-    )
-
-    with pytest.raises(ValueError):
-        cli._run_from_config(args)
-
-
-def test_run_persona_happy_path(monkeypatch):
-    calls = {}
-
-    def fake_load_debate_construction(path):
-        calls["catalog"] = path
-        return {"personas": {}, "questions": {}}
-
-    def fake_load_prompt_catalog(path):
-        calls["prompts"] = path
-        return {"prompt_sets": {"default": {}}}
-
-    def fake_build_scenario_agent_configs(**kwargs):
-        calls["persona_args"] = kwargs
-        return [
-            {
-                "name": "Alpha",
-                "model": "demo",
-                "self_role": "role",
-                "response_instruction": "respond",
-            }
-        ]
-
-    def fake_run_debate_session(agent_configs, *, turns_per_agent, **kwargs):
-        calls["turns_per_agent"] = turns_per_agent
-        calls["agent_configs"] = agent_configs
-        return object(), ["alpha"]
-
-    def fake_print_agent_histories(agents):
-        calls["printed"] = list(agents)
-
-    monkeypatch.setattr(cli, "load_debate_construction", fake_load_debate_construction)
-    monkeypatch.setattr(cli, "load_prompt_catalog", fake_load_prompt_catalog)
-    monkeypatch.setattr(cli, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
-    monkeypatch.setattr(cli, "run_debate_session", fake_run_debate_session)
-    monkeypatch.setattr(cli, "print_agent_histories", fake_print_agent_histories)
-
-    args = SimpleNamespace(
-        scenario_id="scenario",
-        alpha_model="alpha-model",
-        beta_model="beta-model",
-        question_variant="controversial",
+        config=None,
+        scenario_id="from-flags",
+        question_variant="agreeable",
         side_order="12",
-        turns=2,
-        catalog="data/debate_construction.json",
-        prompts=cli.DEFAULT_PROMPT_PATH,
-        prompt_set=cli.DEFAULT_PROMPT_SET,
-        snapshot=None,
+        prompt_set="default",
+        alpha_model="a",
+        beta_model="b",
+        turns_per_agent=2,
+        verbose=False,
+        use_neutral_arena=False,
+        enable_private_reflection=False,
+        keep_private_reflection=False,
+        skip_first_agent_first_reflection=False,
+        enable_pre_interview=False,
+        keep_pre_interview=False,
+        enable_post_interview=False,
+        keep_post_interview=False,
+        enable_surveys=False,
+        keep_public_survey=False,
+        enable_analyzer=False,
+        enable_persona_evaluation=False,
+        persona_eval_model="m",
+        persona_eval_verbose=False,
+        persona_n_samples=1,
+        enable_plots=False,
+        show_plots=False,
         load_snapshot=False,
         save_snapshot=False,
-        skip_first_reflection=False,
-        verbose=False,
-        keep_private_response=True,
-        keep_pre_interview=False,
-        keep_post_interview=False,
+        outputs_root=tmp_path / "outputs",
+        run_name="demo",
+        indexed_output=False,
+        index_csv=tmp_path / "outputs" / "index.csv",
+        catalog_path=tmp_path / "catalog.json",
+        prompts_path=tmp_path / "prompts.json",
+        print_histories=False,
     )
 
-    cli._run_persona(args)
+    cli._run(args)
 
-    assert calls["turns_per_agent"] == 2
-    assert calls["printed"] == ["alpha"]
-    assert calls["persona_args"]["scenario_id"] == "scenario"
+    assert captured["payload"]["scenario_id"] == "from-flags"
+    assert captured["called"] is True
+
+
+def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys):
+    def fake_build(_payload):
+        return ExperimentConfig(scenario_id="from-flags")
+
+    def fake_run_persona_experiment(_config):
+        return _result(None)
+
+    monkeypatch.setattr(cli, "build_experiment_config", fake_build)
+    monkeypatch.setattr(cli, "run_persona_experiment", fake_run_persona_experiment)
+
+    args = SimpleNamespace(
+        config=None,
+        scenario_id="from-flags",
+        question_variant="agreeable",
+        side_order="12",
+        prompt_set="default",
+        alpha_model="a",
+        beta_model="b",
+        turns_per_agent=2,
+        verbose=False,
+        use_neutral_arena=False,
+        enable_private_reflection=False,
+        keep_private_reflection=False,
+        skip_first_agent_first_reflection=False,
+        enable_pre_interview=False,
+        keep_pre_interview=False,
+        enable_post_interview=False,
+        keep_post_interview=False,
+        enable_surveys=False,
+        keep_public_survey=False,
+        enable_analyzer=False,
+        enable_persona_evaluation=False,
+        persona_eval_model="m",
+        persona_eval_verbose=False,
+        persona_n_samples=1,
+        enable_plots=False,
+        show_plots=False,
+        load_snapshot=False,
+        save_snapshot=False,
+        outputs_root=tmp_path / "outputs",
+        run_name="demo",
+        indexed_output=False,
+        index_csv=tmp_path / "outputs" / "index.csv",
+        catalog_path=tmp_path / "catalog.json",
+        prompts_path=tmp_path / "prompts.json",
+        print_histories=False,
+    )
+
+    cli._run(args)
+    output = capsys.readouterr().out
+    assert "<none> (outputs disabled by config)" in output
 
 
 def test_main_dispatches(monkeypatch):
