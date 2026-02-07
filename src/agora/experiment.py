@@ -18,7 +18,7 @@ from .agora import ALLOWED_SUBTURN_EVENTS, Agora
 from .debate_analyzer import DebateAnalyzer
 from .llm import OpenRouterClient
 from .persona_evaluator import PersonaEvaluator, plot_persona_adherence
-from .plotting import plot_survey_responses
+from .plotting import plot_survey_distance, plot_survey_responses
 from .workflows import (
     build_scenario_agent_configs,
     load_debate_construction,
@@ -601,6 +601,15 @@ def run_persona_experiment(
                     survey_questions=survey_questions,
                     title=f"Private {survey_title}",
                     output_path=run_dir / "private_survey.png",
+                )
+            if cfg.enable_private_survey and cfg.enable_public_survey:
+                plot_survey_distance(
+                    public_responses=public_survey_responses,
+                    private_responses=private_survey_responses,
+                    agents=agents,
+                    survey_questions=survey_questions,
+                    title=f"Public vs Private {survey_title}",
+                    output_path=run_dir / "diff_survey.png",
                 )
 
     eval_data: dict[str, Any] = {

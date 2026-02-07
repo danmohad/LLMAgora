@@ -92,6 +92,7 @@ def plot_survey_distance(
     public_responses: dict,
     private_responses: dict,
     agents: list[Agent],
+    survey_questions: list[str],
     title: str,
     output_path: Path,
 ):
@@ -106,6 +107,14 @@ def plot_survey_distance(
     if not agent_ids:
         return
 
+    num_base_questions = 5
+    base_questions_distances = {
+        agent_id: {
+            question + 1: {"rounds": [], "distance": []}
+            for question in range(num_base_questions)
+        }
+        for agent_id in agent_ids
+    }
     distances = {agent_id: {"rounds": [], "distance": []} for agent_id in agent_ids}
 
     for agent_id in agent_ids:
@@ -123,42 +132,95 @@ def plot_survey_distance(
                 my_round, private_agent_data.get(str(my_round), {})
             )
 
-            all_questions = set(public_round_data.keys()) | set(private_round_data.keys())
+            all_questions = set(public_round_data.keys()) | set(
+                private_round_data.keys()
+            )
             if not all_questions:
                 continue
 
-            sum_sq_diff = 0
+            sum_diff = 0
             count = 0
             for question in all_questions:
+                q_num = int(question.removeprefix("Q"))
+
                 public_score = public_round_data.get(question)
                 private_score = private_round_data.get(question)
-
-                if public_score is not None and private_score is not None:
-                    sum_sq_diff += (public_score - private_score) ** 2
+                
+                if public_score is None or private_score is None:
+                    continue
+                response_diff = public_score - private_score
+                
+                if q_num <= num_base_questions:
+                    base_questions_distances[agent_id][q_num]["rounds"].append(my_round)
+                    base_questions_distances[agent_id][q_num]["distance"].append(response_diff)
+                else:
+                    sum_diff += response_diff
                     count += 1
 
             if count > 0:
                 distances[agent_id]["rounds"].append(my_round)
-                distances[agent_id]["distance"].append(math.sqrt(sum_sq_diff))
+                distances[agent_id]["distance"].append(sum_diff/count)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    n = num_base_questions + 1
+    ncols = min(6, n)
+    nrows = math.ceil(n / ncols)
 
-    for agent_id, data in distances.items():
-        if data["rounds"]:
+    fig, axes = plt.subplots(
+        nrows,
+        ncols,
+        figsize=(3 * ncols, 3 * nrows),
+        sharex=True,
+        sharey=True,
+    )
+
+    axes = axes.flatten() if n > 1 else [axes]
+
+    for ax, q_num in zip(axes, range(num_base_questions)):
+        for agent_id in agent_ids:
+            agent_plot_data = base_questions_distances[agent_id][q_num + 1]
+            if agent_plot_data["rounds"]:
+                ax.plot(
+                    agent_plot_data["rounds"],
+                    agent_plot_data["distance"],
+                    marker="o",
+                    label=agents_dict[agent_id],
+                )
+
+        ax.axhline(0, color='grey', linewidth=0.8)
+        max_length = 20
+        my_str = survey_questions[q_num]
+        truncated_str = my_str[:max_length] + "..." if len(my_str) > max_length else my_str
+        ax.set_title(truncated_str)
+        ax.grid(True)
+    
+    # Plot average distance for other questions
+    ax = axes[num_base_questions]
+    for agent_id in agent_ids:
+        agent_plot_data = distances[agent_id]
+        if agent_plot_data["rounds"]:
             ax.plot(
-                data["rounds"],
-                data["distance"],
+                agent_plot_data["rounds"],
+                agent_plot_data["distance"],
                 marker="o",
-                label=agents_dict.get(agent_id, agent_id),
+                label=agents_dict[agent_id],
             )
-
-    ax.set_title(title)
-    ax.set_xlabel("Turn Number")
-    ax.set_ylabel("Euclidean Distance")
+    ax.axhline(0, color='grey', linewidth=0.8)
+    ax.set_title("Avg. Other Qs Dist.")
     ax.grid(True)
-    ax.legend()
-    ax.set_ylim(bottom=0)
-    plt.tight_layout()
 
+
+    # Hide unused subplots
+    for ax in axes[n:]:
+        ax.set_visible(False)
+
+    fig.suptitle(title)
+    fig.supxlabel("Turn Number")
+    fig.supylabel("Public - Private Response Score")
+
+    handles, labels = axes[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc="upper center", ncol=len(agent_ids), bbox_to_anchor=(0.5, 0.95))
+    fig.tight_layout(rect=[0, 0.03, 1, 0.9])
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
