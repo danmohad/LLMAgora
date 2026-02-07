@@ -107,7 +107,7 @@ def plot_survey_distance(
     if not agent_ids:
         return
 
-    num_base_questions = 5
+    num_base_questions = min(5, len(survey_questions))
     base_questions_distances = {
         agent_id: {
             question + 1: {"rounds": [], "distance": []}
@@ -207,11 +207,6 @@ def plot_survey_distance(
     ax.axhline(0, color='grey', linewidth=0.8)
     ax.set_title("Avg. Other Qs Dist.")
     ax.grid(True)
-
-
-    # Hide unused subplots
-    for ax in axes[n:]:
-        ax.set_visible(False)
 
     fig.suptitle(title)
     fig.supxlabel("Turn Number")
