@@ -44,13 +44,19 @@ def test_agora_runs_with_turn_limit(stub_llm_factory):
 def test_agora_rejects_invalid_turn_limit(stub_llm_factory):
     """Verify invalid turn thresholds raise user-friendly errors."""
 
-    agent = Agent(
-        name="Solo",
+    agent_a = Agent(
+        name="Alpha",
         model="demo-model",
         llm_client=stub_llm_factory(["only response"]),
-        response_instruction="Solo respond.",
+        response_instruction="Alpha respond.",
     )
-    agora = Agora([agent])
+    agent_b = Agent(
+        name="Beta",
+        model="demo-model",
+        llm_client=stub_llm_factory(["only response"]),
+        response_instruction="Beta respond.",
+    )
+    agora = Agora([agent_a, agent_b])
     with pytest.raises(ValueError):
         agora.run(max_turns_per_agent=0)
 
@@ -117,8 +123,13 @@ def test_opening_instruction_used_for_first_public_turn(stub_llm_factory):
     assert beta_messages[-1]["content"] == "Beta respond."
 
 
-def test_multi_agent_histories_label_user_messages(stub_llm_factory):
-    """When more than two speakers exist, user messages include the speaker name."""
+def test_agora_rejects_more_than_two_agents(stub_llm_factory):
+    """Agora should require exactly two agents."""
+
+    llm = stub_llm_factory(["Alpha turn 1"])
+    solo = Agent(name="Solo", model="demo", llm_client=llm, response_instruction="respond.")
+    with pytest.raises(ValueError, match="exactly two agents"):
+        Agora([solo])
 
     llm_a = stub_llm_factory(["Alpha turn 1", "Alpha turn 2"])
     llm_b = stub_llm_factory(["Beta turn 1", "Beta turn 2"])
@@ -127,13 +138,8 @@ def test_multi_agent_histories_label_user_messages(stub_llm_factory):
     agent_b = Agent(name="Beta", model="demo", llm_client=llm_b, response_instruction="Beta respond.")
     agent_c = Agent(name="Gamma", model="demo", llm_client=llm_c, response_instruction="Gamma respond.")
 
-    Agora([agent_a, agent_b, agent_c]).run(max_turns_per_agent=1)
-
-    beta_messages = llm_b.calls[0]["messages"]
-    assert any(
-        msg["role"] == "user" and msg["content"].startswith("Alpha:")
-        for msg in beta_messages
-    )
+    with pytest.raises(ValueError, match="exactly two agents"):
+        Agora([agent_a, agent_b, agent_c])
 
 
 def test_private_reflections_are_private(stub_llm_factory):
@@ -270,10 +276,16 @@ def test_interviews_respect_keep_flag(stub_llm_factory):
         post_interview_instruction="post",
         post_interview_keep=False,
     )
-    agora = Agora([agent])
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["beta public"]),
+        response_instruction="public",
+    )
+    agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1, verbose=False)
-    assert [t.role for t in history] == ["pre_interview", "assistant", "post_interview"]
-    assert len(agent.view_history()) == 1  # only the public turn is kept
+    assert [t.role for t in history] == ["pre_interview", "assistant", "assistant", "post_interview"]
+    assert len(agent.view_history()) == 2  # both public turns are visible
 
 
 def test_private_reflection_keep_flag(stub_llm_factory):
@@ -288,7 +300,13 @@ def test_private_reflection_keep_flag(stub_llm_factory):
         private_response_instruction="think",
         private_response_keep=False,
     )
-    agora = Agora([agent])
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["beta says"]),
+        response_instruction="say",
+    )
+    agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1)
     assert any(t.role == "reflection" for t in history)
     assert all(t.role != "reflection" for t in agent.view_history())
@@ -308,6 +326,12 @@ def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
         pre_interview_instruction="pre",
         pre_interview_keep=False,
     )
-    history = Agora([agent]).run(max_turns_per_agent=1, skip_first_agent_first_reflection=True)
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["beta says"]),
+        response_instruction="say",
+    )
+    history = Agora([agent, beta]).run(max_turns_per_agent=1, skip_first_agent_first_reflection=True)
     # Should see pre-interview + public turn only
-    assert [t.role for t in history] == ["pre_interview", "assistant"]
+    assert [t.role for t in history] == ["pre_interview", "assistant", "assistant"]

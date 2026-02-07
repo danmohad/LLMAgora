@@ -1,5 +1,8 @@
+"""Plot helpers used by experiment output generation."""
+
 import math
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 
 from agora.agent import Agent
@@ -91,7 +94,10 @@ def plot_survey_distance(
     output_path: Path,
 ):
     """
-    Plots the distance between public and private survey responses.
+    Plot per-round distance between public and private survey answers.
+
+    NOTE: This helper is intentionally retained while the integration work is
+    still in progress. It is not fully wired into the high-level experiment flow yet.
     """
     agents_dict = {agent.id: agent.name for agent in agents}
     agent_ids = list(public_responses.keys())
@@ -103,34 +109,31 @@ def plot_survey_distance(
     for agent_id in agent_ids:
         public_agent_data = public_responses.get(agent_id, {})
         private_agent_data = private_responses.get(agent_id, {})
-        
+
         # Use rounds from public responses as the primary source
         sorted_rounds = sorted(public_agent_data.keys())
-        
-        for r in sorted_rounds:
-            public_round_data = public_agent_data.get(r, {})
-            private_round_data = private_agent_data.get(r, {})
-            
+
+        for my_round in sorted_rounds:
+            public_round_data = public_agent_data.get(my_round, {})
+            private_round_data = private_agent_data.get(my_round, {})
+
             all_questions = set(public_round_data.keys()) | set(private_round_data.keys())
-            
             if not all_questions:
                 continue
 
             sum_sq_diff = 0
             count = 0
-            for q in all_questions:
-                public_score = public_round_data.get(q)
-                private_score = private_round_data.get(q)
-                
-                # Ensure both scores are available
+            for question in all_questions:
+                public_score = public_round_data.get(question)
+                private_score = private_round_data.get(question)
+
                 if public_score is not None and private_score is not None:
                     sum_sq_diff += (public_score - private_score) ** 2
                     count += 1
-            
+
             if count > 0:
-                distance = math.sqrt(sum_sq_diff)
-                distances[agent_id]["rounds"].append(r)
-                distances[agent_id]["distance"].append(distance)
+                distances[agent_id]["rounds"].append(my_round)
+                distances[agent_id]["distance"].append(math.sqrt(sum_sq_diff))
 
     fig, ax = plt.subplots(figsize=(10, 6))
 

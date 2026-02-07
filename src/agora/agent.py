@@ -25,7 +25,10 @@ class Agent:
         survey_questions: Optional[list[str]] = None,
         survey_public_prompt: Optional[str] = None,
         survey_private_prompt: Optional[str] = None,
+        enable_public_survey: bool = True,
+        enable_private_survey: bool = True,
         public_survey_keep: bool = False,
+        private_survey_keep: bool = False,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -45,7 +48,10 @@ class Agent:
             system_prompt: Optional system message prepended to every call.
             response_instruction: Final user message directing the agent's public reply.
             opening_instruction: Optional user message directing the opening public remark.
-            survey_base_prompt: Survey instructions prepended to question list.
+            survey_public_prompt: Template prepended to public survey questions.
+            survey_private_prompt: Template prepended to private survey questions.
+            enable_public_survey: Whether to ask public survey questions.
+            enable_private_survey: Whether to ask private survey questions.
             private_response_instruction: Optional user message directing private reflections.
             private_response_keep: Whether to keep reflections in local memory.
             pre_interview_instruction: Optional pre-run interview prompt.
@@ -64,7 +70,10 @@ class Agent:
         self._survey_questions = survey_questions
         self._survey_public_prompt = survey_public_prompt or ""
         self._survey_private_prompt = survey_private_prompt or ""
+        self._enable_public_survey = enable_public_survey
+        self._enable_private_survey = enable_private_survey
         self._public_survey_keep = public_survey_keep
+        self._private_survey_keep = private_survey_keep
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
         self._pre_instruction = pre_interview_instruction
@@ -128,11 +137,15 @@ class Agent:
     @property
     def private_response_instruction(self) -> Optional[str]:
         return self._private_instruction
-    
+
     @property
     def public_survey_keep(self) -> bool:
         return self._public_survey_keep
-    
+
+    @property
+    def private_survey_keep(self) -> bool:
+        return self._private_survey_keep
+
     @property
     def survey_public_prompt(self) -> str:
         if not self._survey_public_prompt:
@@ -140,7 +153,7 @@ class Agent:
                 "Survey prompt missing; configure 'survey_public_prompt' in prompts.json."
             )
         return self._survey_public_prompt
-    
+
     @property
     def survey_private_prompt(self) -> str:
         if not self._survey_private_prompt:
@@ -150,11 +163,23 @@ class Agent:
         return self._survey_private_prompt
 
     @property
-    def do_survey_eval(self) -> bool:
-        return self._survey_questions is not None and self._survey_questions != []
+    def enable_public_survey(self) -> bool:
+        return self._enable_public_survey
 
     @property
-    def survey_questions(self) -> str:
+    def enable_private_survey(self) -> bool:
+        return self._enable_private_survey
+
+    @property
+    def do_survey_eval(self) -> bool:
+        return (
+            self._survey_questions is not None
+            and self._survey_questions != []
+            and (self._enable_public_survey or self._enable_private_survey)
+        )
+
+    @property
+    def survey_questions(self) -> Optional[list[str]]:
         return self._survey_questions
 
     def generate_public_speech(self, *, opening: bool = False) -> str:
@@ -187,6 +212,8 @@ class Agent:
 
     def generate_public_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a public survey response with JSON structured format."""
+        if not self._enable_public_survey:
+            raise RuntimeError("Public survey requested but disabled for this agent")
         survey_prompt = self.survey_public_prompt
         for i, q in enumerate(survey_questions, start=1):
             survey_prompt += f"Q{i}. {q}\n"
@@ -196,9 +223,11 @@ class Agent:
             messages=messages, model=self.model, survey_questions=survey_questions
         )
         return self._strip_speaker_prefix(response.strip())
-    
+
     def generate_private_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a private survey response with JSON structured format."""
+        if not self._enable_private_survey:
+            raise RuntimeError("Private survey requested but disabled for this agent")
         survey_prompt = self.survey_private_prompt
         for i, q in enumerate(survey_questions, start=1):
             survey_prompt += f"Q{i}. {q}\n"
@@ -235,8 +264,13 @@ class Agent:
             "pre_interview_keep": self._pre_keep,
             "post_interview_instruction": self._post_instruction,
             "post_interview_keep": self._post_keep,
+            "survey_questions": self._survey_questions,
             "survey_public_prompt": self._survey_public_prompt,
             "survey_private_prompt": self._survey_private_prompt,
+            "enable_public_survey": self._enable_public_survey,
+            "enable_private_survey": self._enable_private_survey,
+            "public_survey_keep": self._public_survey_keep,
+            "private_survey_keep": self._private_survey_keep,
         }
 
     @classmethod
@@ -258,8 +292,13 @@ class Agent:
             pre_interview_keep=bool(config.get("pre_interview_keep", True)),
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=bool(config.get("post_interview_keep", True)),
+            survey_questions=config.get("survey_questions"),
             survey_public_prompt=config.get("survey_public_prompt"),
             survey_private_prompt=config.get("survey_private_prompt"),
+            enable_public_survey=bool(config.get("enable_public_survey", True)),
+            enable_private_survey=bool(config.get("enable_private_survey", True)),
+            public_survey_keep=bool(config.get("public_survey_keep", False)),
+            private_survey_keep=bool(config.get("private_survey_keep", False)),
             agent_id=config.get("id"),
         )
 
@@ -270,13 +309,8 @@ class Agent:
         if self._system_prompt:
             messages.append({"role": "system", "content": self._system_prompt})
 
-        # Use speaker labels only when more than two agents are in the Agora.
-        multi_party = bool(self._agora and self._agora.agent_count() > 2)
-
         for turn in self._memory:
-            chat_message = turn.to_chat_message(
-                viewer_id=self.id, multi_party=multi_party
-            )
+            chat_message = turn.to_chat_message(viewer_id=self.id)
             if chat_message:
                 messages.append(chat_message)
 
