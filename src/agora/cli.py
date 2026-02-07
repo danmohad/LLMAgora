@@ -53,7 +53,7 @@ def _run(args: argparse.Namespace) -> None:
         "persona_eval_model": args.persona_eval_model,
         "persona_eval_verbose": args.persona_eval_verbose,
         "persona_n_samples": args.persona_n_samples,
-        "enable_plots": args.enable_plots,
+        "save_plots": args.save_plots,
         "show_plots": args.show_plots,
         "load_snapshot": args.load_snapshot,
         "load_dir": args.load_dir,
@@ -127,7 +127,7 @@ def build_parser() -> argparse.ArgumentParser:
     _add_bool(run_cmd, "persona-eval-verbose", "Verbose persona evaluation progress")
     run_cmd.add_argument("--persona-n-samples", type=int)
 
-    _add_bool(run_cmd, "enable-plots", "Save plots for enabled analyses")
+    _add_bool(run_cmd, "save-plots", "Save plots for enabled analyses")
     _add_bool(run_cmd, "show-plots", "Display plots while running")
 
     _add_bool(run_cmd, "load-snapshot", "Load existing snapshot from --load-dir")

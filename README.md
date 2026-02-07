@@ -57,7 +57,7 @@ agora run --config data/example.json \
   --scenario-id peer_collab_1 \
   --question-variant agreeable \
   --enable-analyzer \
-  --enable-plots
+  --save-plots
 
 # Run with no config file (all args via CLI)
 agora run \
@@ -84,6 +84,6 @@ Output behavior:
 - indexed mode writes to `outputs/<run_id>` and appends one row per run to `outputs/index.csv`
 - if output-related features are all disabled, no output directory is created
 - `load_snapshot=true` requires `load_dir` (directory containing `debate_snapshot.json`)
-- `show_plots=true` requires `enable_plots=true`
+- `show_plots=true` requires `save_plots=true`
 - when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
 - `eval_data.json` is written only when at least one evaluation stream is enabled (`enable_analyzer`, `enable_persona_evaluation`, `enable_public_survey`, or `enable_private_survey`)

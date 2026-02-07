@@ -24,7 +24,7 @@
   "persona_eval_model": "anthropic/claude-sonnet-4",
   "persona_eval_verbose": false,
   "persona_n_samples": 1,
-  "enable_plots": false,
+  "save_plots": false,
   "show_plots": false,
   "load_snapshot": false,
   "load_dir": null,

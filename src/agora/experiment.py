@@ -68,7 +68,7 @@ class ExperimentConfig:
     persona_eval_verbose: bool = False
     persona_n_samples: int = 1
 
-    enable_plots: bool = False
+    save_plots: bool = False
     show_plots: bool = False
 
     load_snapshot: bool = False
@@ -271,8 +271,8 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("side_order must be '12' or '21'")
     if cfg.question_variant not in {"agreeable", "controversial"}:
         raise ValueError("question_variant must be 'agreeable' or 'controversial'")
-    if cfg.show_plots and not cfg.enable_plots:
-        raise ValueError("show_plots requires enable_plots=True")
+    if cfg.show_plots and not cfg.save_plots:
+        raise ValueError("show_plots requires save_plots=True")
     if cfg.keep_public_survey and not cfg.enable_public_survey:
         raise ValueError("keep_public_survey requires enable_public_survey=True")
     if cfg.keep_private_survey and not cfg.enable_private_survey:
@@ -309,7 +309,7 @@ def _should_write_outputs(cfg: ExperimentConfig) -> bool:
 
     return any(
         [
-            cfg.enable_plots,
+            cfg.save_plots,
             cfg.enable_analyzer,
             cfg.enable_persona_evaluation,
             cfg.enable_public_survey,
@@ -463,7 +463,7 @@ def run_persona_experiment(
     alpha_name = alpha_persona.get("name", "Alpha")
     beta_name = beta_persona.get("name", "Beta")
 
-    if cfg.enable_plots and run_dir is not None:
+    if cfg.save_plots and run_dir is not None:
         label_map = {"Alpha": f"Alpha: {alpha_name}", "Beta": f"Beta: {beta_name}"}
 
         if intra_scores is not None and inter_external is not None and inter_internal is not None:

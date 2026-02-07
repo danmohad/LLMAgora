@@ -149,7 +149,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "question_variant": "bad"})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "show_plots": True, "enable_plots": False})
+        build_experiment_config({"scenario_id": "s1", "show_plots": True, "save_plots": False})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "keep_public_survey": True, "enable_public_survey": False})
     with pytest.raises(ValueError):
@@ -354,7 +354,7 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         enable_private_survey=False,
         enable_analyzer=False,
         enable_persona_evaluation=False,
-        enable_plots=False,
+        save_plots=False,
         save_snapshot=False,
     )
 
@@ -569,7 +569,7 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
         enable_public_survey=False,
         enable_private_survey=True,
         keep_public_survey=False,
-        enable_plots=True,
+        save_plots=True,
     )
 
     result = run_persona_experiment(cfg)
@@ -807,7 +807,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         persona_eval_model="eval-model",
         persona_eval_verbose=True,
         persona_n_samples=3,
-        enable_plots=True,
+        save_plots=True,
         show_plots=False,
         load_snapshot=True,
         load_dir=tmp_path / "resume_from",
