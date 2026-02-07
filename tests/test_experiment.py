@@ -224,6 +224,8 @@ def test_defaults_constants():
     assert DEFAULT_PROMPTS_PATH == Path("data/prompts.json")
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1")) is False
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_analyzer=True)) is True
+    assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_public_survey=True)) is True
+    assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_private_survey=True)) is True
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", indexed_output=True)) is True
     assert _resolve_index_csv(ExperimentConfig(scenario_id="s1")) == Path("outputs/index.csv")
     assert _resolve_index_csv(
@@ -322,7 +324,8 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         enable_private_reflection=False,
         enable_pre_interview=False,
         enable_post_interview=False,
-        enable_surveys=False,
+        enable_public_survey=False,
+        enable_private_survey=False,
         enable_analyzer=False,
         enable_persona_evaluation=False,
         enable_plots=False,
@@ -426,6 +429,155 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
     assert (result.run_dir / "eval_data.json").exists()
     eval_payload = json.loads((result.run_dir / "eval_data.json").read_text(encoding="utf-8"))
     assert eval_payload["intra_agent_honesty"] is not None
+
+
+def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    captured = {}
+
+    class AgoraWithPrivateSurvey(DummyAgora):
+        def __init__(self):
+            super().__init__()
+            self.survey_private_response = {"alpha": {0: {"Q1": 1}}}
+
+    def fake_build_scenario_agent_configs(**kwargs):
+        captured["build_kwargs"] = kwargs
+        return [
+            {
+                "name": "Alpha",
+                "model": "a",
+                "self_role": "alpha",
+                "response_instruction": "pub",
+                "private_response": {"instruction": "private", "keep": True},
+                "pre_interview": {"instruction": "pre", "keep": True},
+                "post_interview": {"instruction": "post", "keep": True},
+                "survey": {
+                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_public_prompt": "sp",
+                    "survey_private_prompt": "spr",
+                    "public_survey_keep": True,
+                },
+            },
+            {
+                "name": "Beta",
+                "model": "b",
+                "self_role": "beta",
+                "response_instruction": "pub",
+                "private_response": {"instruction": "private", "keep": True},
+                "pre_interview": {"instruction": "pre", "keep": True},
+                "post_interview": {"instruction": "post", "keep": True},
+                "survey": {
+                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_public_prompt": "sp",
+                    "survey_private_prompt": "spr",
+                    "public_survey_keep": True,
+                },
+            },
+        ]
+
+    def fake_run_debate_session(agent_configs, **_kwargs):
+        captured["agent_configs"] = agent_configs
+        return AgoraWithPrivateSurvey(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        run_name="private_only",
+        enable_public_survey=False,
+        enable_private_survey=True,
+        keep_public_survey=True,
+        enable_plots=True,
+    )
+
+    result = run_persona_experiment(cfg)
+
+    assert result.run_dir is not None
+    for agent_cfg in captured["agent_configs"]:
+        assert agent_cfg["survey"]["enable_public_survey"] is False
+        assert agent_cfg["survey"]["enable_private_survey"] is True
+        assert agent_cfg["survey"]["survey_public_prompt"] is None
+        assert agent_cfg["survey"]["public_survey_keep"] is False
+    assert (result.run_dir / "private_survey.png").exists()
+    assert not (result.run_dir / "public_survey.png").exists()
+    assert (result.run_dir / "eval_data.json").exists()
+
+
+def test_run_persona_experiment_public_survey_only(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    captured = {}
+
+    def fake_build_scenario_agent_configs(**kwargs):
+        captured["build_kwargs"] = kwargs
+        return [
+            {
+                "name": "Alpha",
+                "model": "a",
+                "self_role": "alpha",
+                "response_instruction": "pub",
+                "private_response": {"instruction": "private", "keep": True},
+                "pre_interview": {"instruction": "pre", "keep": True},
+                "post_interview": {"instruction": "post", "keep": True},
+                "survey": {
+                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_public_prompt": "sp",
+                    "survey_private_prompt": "spr",
+                    "public_survey_keep": True,
+                },
+            },
+            {
+                "name": "Beta",
+                "model": "b",
+                "self_role": "beta",
+                "response_instruction": "pub",
+                "private_response": {"instruction": "private", "keep": True},
+                "pre_interview": {"instruction": "pre", "keep": True},
+                "post_interview": {"instruction": "post", "keep": True},
+                "survey": {
+                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_public_prompt": "sp",
+                    "survey_private_prompt": "spr",
+                    "public_survey_keep": True,
+                },
+            },
+        ]
+
+    def fake_run_debate_session(agent_configs, **_kwargs):
+        captured["agent_configs"] = agent_configs
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        run_name="public_only",
+        enable_public_survey=True,
+        enable_private_survey=False,
+        keep_public_survey=True,
+    )
+
+    run_persona_experiment(cfg)
+
+    for agent_cfg in captured["agent_configs"]:
+        assert agent_cfg["survey"]["enable_public_survey"] is True
+        assert agent_cfg["survey"]["enable_private_survey"] is False
+        assert agent_cfg["survey"]["survey_private_prompt"] is None
 
 
 def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, monkeypatch):
@@ -573,7 +725,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         keep_pre_interview=True,
         enable_post_interview=True,
         keep_post_interview=True,
-        enable_surveys=True,
+        enable_public_survey=True,
+        enable_private_survey=True,
         keep_public_survey=True,
         enable_analyzer=True,
         enable_persona_evaluation=True,

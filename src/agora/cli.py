@@ -44,7 +44,8 @@ def _run(args: argparse.Namespace) -> None:
         "keep_pre_interview": args.keep_pre_interview,
         "enable_post_interview": args.enable_post_interview,
         "keep_post_interview": args.keep_post_interview,
-        "enable_surveys": args.enable_surveys,
+        "enable_public_survey": args.enable_public_survey,
+        "enable_private_survey": args.enable_private_survey,
         "keep_public_survey": args.keep_public_survey,
         "enable_analyzer": args.enable_analyzer,
         "enable_persona_evaluation": args.enable_persona_evaluation,
@@ -113,7 +114,8 @@ def build_parser() -> argparse.ArgumentParser:
     _add_bool(run_cmd, "enable-post-interview", "Enable post-interview stage")
     _add_bool(run_cmd, "keep-post-interview", "Keep post-interview notes in local history")
 
-    _add_bool(run_cmd, "enable-surveys", "Enable survey rounds")
+    _add_bool(run_cmd, "enable-public-survey", "Enable public survey rounds")
+    _add_bool(run_cmd, "enable-private-survey", "Enable private survey rounds")
     _add_bool(run_cmd, "keep-public-survey", "Append public survey text to public utterances")
 
     _add_bool(run_cmd, "enable-analyzer", "Compute semantic analyzer metrics")

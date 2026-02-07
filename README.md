@@ -66,6 +66,9 @@ agora run \
   --side-order 12 \
   --turns-per-agent 2
 
+# Enable surveys independently
+agora run --config data/example.json --enable-public-survey --enable-private-survey
+
 # Indexed output mode: run folder is a short unique ID and index row is appended
 agora run --config data/example.json --indexed-output
 ```
@@ -75,4 +78,4 @@ Output behavior:
 - indexed mode writes to `outputs/<run_id>` and appends one row per run to `outputs/index.csv`
 - if output-related features are all disabled, no output directory is created
 - when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
-- `eval_data.json` is written only when at least one evaluation stream is enabled (`enable_analyzer`, `enable_persona_evaluation`, or `enable_surveys`)
+- `eval_data.json` is written only when at least one evaluation stream is enabled (`enable_analyzer`, `enable_persona_evaluation`, `enable_public_survey`, or `enable_private_survey`)

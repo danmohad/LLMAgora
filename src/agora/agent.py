@@ -25,6 +25,8 @@ class Agent:
         survey_questions: Optional[list[str]] = None,
         survey_public_prompt: Optional[str] = None,
         survey_private_prompt: Optional[str] = None,
+        enable_public_survey: bool = True,
+        enable_private_survey: bool = True,
         public_survey_keep: bool = False,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
@@ -64,6 +66,8 @@ class Agent:
         self._survey_questions = survey_questions
         self._survey_public_prompt = survey_public_prompt or ""
         self._survey_private_prompt = survey_private_prompt or ""
+        self._enable_public_survey = enable_public_survey
+        self._enable_private_survey = enable_private_survey
         self._public_survey_keep = public_survey_keep
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
@@ -150,11 +154,23 @@ class Agent:
         return self._survey_private_prompt
 
     @property
-    def do_survey_eval(self) -> bool:
-        return self._survey_questions is not None and self._survey_questions != []
+    def enable_public_survey(self) -> bool:
+        return self._enable_public_survey
 
     @property
-    def survey_questions(self) -> str:
+    def enable_private_survey(self) -> bool:
+        return self._enable_private_survey
+
+    @property
+    def do_survey_eval(self) -> bool:
+        return (
+            self._survey_questions is not None
+            and self._survey_questions != []
+            and (self._enable_public_survey or self._enable_private_survey)
+        )
+
+    @property
+    def survey_questions(self) -> Optional[list[str]]:
         return self._survey_questions
 
     def generate_public_speech(self, *, opening: bool = False) -> str:
@@ -187,6 +203,8 @@ class Agent:
 
     def generate_public_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a public survey response with JSON structured format."""
+        if not self._enable_public_survey:
+            raise RuntimeError("Public survey requested but disabled for this agent")
         survey_prompt = self.survey_public_prompt
         for i, q in enumerate(survey_questions, start=1):
             survey_prompt += f"Q{i}. {q}\n"
@@ -199,6 +217,8 @@ class Agent:
     
     def generate_private_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a private survey response with JSON structured format."""
+        if not self._enable_private_survey:
+            raise RuntimeError("Private survey requested but disabled for this agent")
         survey_prompt = self.survey_private_prompt
         for i, q in enumerate(survey_questions, start=1):
             survey_prompt += f"Q{i}. {q}\n"
@@ -235,8 +255,12 @@ class Agent:
             "pre_interview_keep": self._pre_keep,
             "post_interview_instruction": self._post_instruction,
             "post_interview_keep": self._post_keep,
+            "survey_questions": self._survey_questions,
             "survey_public_prompt": self._survey_public_prompt,
             "survey_private_prompt": self._survey_private_prompt,
+            "enable_public_survey": self._enable_public_survey,
+            "enable_private_survey": self._enable_private_survey,
+            "public_survey_keep": self._public_survey_keep,
         }
 
     @classmethod
@@ -258,8 +282,12 @@ class Agent:
             pre_interview_keep=bool(config.get("pre_interview_keep", True)),
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=bool(config.get("post_interview_keep", True)),
+            survey_questions=config.get("survey_questions"),
             survey_public_prompt=config.get("survey_public_prompt"),
             survey_private_prompt=config.get("survey_private_prompt"),
+            enable_public_survey=bool(config.get("enable_public_survey", True)),
+            enable_private_survey=bool(config.get("enable_private_survey", True)),
+            public_survey_keep=bool(config.get("public_survey_keep", False)),
             agent_id=config.get("id"),
         )
 

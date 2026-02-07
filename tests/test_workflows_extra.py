@@ -32,19 +32,37 @@ def test_extract_instruction_rejects_invalid_type():
 
 
 def test_extract_survey_instructions_handles_missing_and_present():
-    questions, public_prompt, private_prompt, keep = extract_survey_instructions({})
+    (
+        questions,
+        public_prompt,
+        private_prompt,
+        keep,
+        enable_public,
+        enable_private,
+    ) = extract_survey_instructions({})
     assert questions == []
     assert public_prompt is None
     assert private_prompt is None
     assert keep is False
+    assert enable_public is False
+    assert enable_private is False
 
-    questions, public_prompt, private_prompt, keep = extract_survey_instructions(
+    (
+        questions,
+        public_prompt,
+        private_prompt,
+        keep,
+        enable_public,
+        enable_private,
+    ) = extract_survey_instructions(
         {
             "survey": {
                 "survey_questions": ["q1", "q2"],
                 "survey_public_prompt": "public",
                 "survey_private_prompt": "private",
                 "public_survey_keep": True,
+                "enable_public_survey": False,
+                "enable_private_survey": True,
             }
         }
     )
@@ -52,6 +70,8 @@ def test_extract_survey_instructions_handles_missing_and_present():
     assert public_prompt == "public"
     assert private_prompt == "private"
     assert keep is True
+    assert enable_public is False
+    assert enable_private is True
 
 
 def test_format_and_print_history_includes_exclusions(capsys):
@@ -101,7 +121,13 @@ def test_format_and_print_history_includes_exclusions(capsys):
         llm_client=llm_client,
         response_instruction="respond",
     )
-    Agora([agent]).run(max_turns_per_agent=1)
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["public beta"]),
+        response_instruction="respond",
+    )
+    Agora([agent, beta]).run(max_turns_per_agent=1)
 
     print_agent_histories([agent])
     output = capsys.readouterr().out

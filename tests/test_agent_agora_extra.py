@@ -97,6 +97,24 @@ def test_agent_generate_survey_passes_questions_private():
     assert "Q1." in llm_client.calls[0]["messages"][-1]["content"]
 
 
+def test_agent_survey_generation_rejects_disabled_modes():
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=QueueLLM(["hi"]),
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_public_prompt="public",
+        survey_private_prompt="private",
+        enable_public_survey=False,
+        enable_private_survey=False,
+    )
+    with pytest.raises(RuntimeError, match="Public survey requested but disabled"):
+        agent.generate_public_survey_response(["q1"])
+    with pytest.raises(RuntimeError, match="Private survey requested but disabled"):
+        agent.generate_private_survey_response(["q1"])
+
+
 def test_strip_speaker_prefix():
     agent = Agent(
         name="Alpha",
@@ -151,7 +169,7 @@ def test_build_system_prompt_validation_errors():
 
 
 def test_agora_requires_agents():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="exactly two agents"):
         Agora([])
 
 
@@ -193,8 +211,14 @@ def test_agora_survey_flow_and_unknown_agent(capsys):
         survey_public_prompt="Base\n",
         survey_private_prompt="Base\n",
     )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
 
-    agora = Agora([agent])
+    agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1, verbose=True)
     assert history[0].role == "assistant"
     assert 0 in agora.survey_public_response[agent.id]
@@ -224,11 +248,74 @@ def test_agora_public_survey_keep_appends_to_speech():
         survey_private_prompt="Base\n",
         public_survey_keep=True,
     )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
 
-    agora = Agora([agent])
+    agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1)
-    assert history[-1].public_speech.startswith("public speech")
-    assert history[-1].public_speech.endswith(survey_payload)
+    alpha_turn = next(turn for turn in history if turn.metadata.get("speaker_name") == "Alpha")
+    assert alpha_turn.public_speech.startswith("public speech")
+    assert alpha_turn.public_speech.endswith(survey_payload)
+
+
+def test_agora_public_survey_only():
+    survey_payload = json.dumps({"Q1": "Neutral"})
+    llm_client = QueueLLM([survey_payload, "public speech", survey_payload])
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm_client,
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_public_prompt="Base\n",
+        survey_private_prompt="Base\n",
+        enable_public_survey=True,
+        enable_private_survey=False,
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+
+    agora = Agora([agent, beta])
+    agora.run(max_turns_per_agent=1)
+    assert agent.id in agora.survey_public_response
+    assert agent.id not in agora.survey_private_response
+
+
+def test_agora_private_survey_only():
+    survey_payload = json.dumps({"Q1": "Agree"})
+    llm_client = QueueLLM([survey_payload, "public speech", survey_payload])
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=llm_client,
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_public_prompt="Base\n",
+        survey_private_prompt="Base\n",
+        enable_public_survey=False,
+        enable_private_survey=True,
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+
+    agora = Agora([agent, beta])
+    history = agora.run(max_turns_per_agent=1)
+    assert agent.id in agora.survey_private_response
+    assert agent.id not in agora.survey_public_response
+    alpha_turn = next(turn for turn in history if turn.metadata.get("speaker_name") == "Alpha")
+    assert alpha_turn.public_speech == "public speech"
 
 
 def test_agora_pre_post_keep_true():
@@ -242,9 +329,15 @@ def test_agora_pre_post_keep_true():
         pre_interview_instruction="pre",
         post_interview_instruction="post",
     )
-    agora = Agora([agent])
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+    agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1)
-    assert [turn.role for turn in history] == ["pre_interview", "assistant", "post_interview"]
+    assert [turn.role for turn in history] == ["pre_interview", "assistant", "assistant", "post_interview"]
     assert any(turn.role == "pre_interview" for turn in agent.view_history())
     assert any(turn.role == "post_interview" for turn in agent.view_history())
 
@@ -264,6 +357,12 @@ def test_agora_verbose_excluded_notes(capsys):
         post_interview_instruction="post",
         post_interview_keep=False,
     )
-    Agora([agent]).run(max_turns_per_agent=1, verbose=True)
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+    Agora([agent, beta]).run(max_turns_per_agent=1, verbose=True)
     output = capsys.readouterr().out
     assert "(excluded)" in output

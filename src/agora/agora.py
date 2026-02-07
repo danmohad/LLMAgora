@@ -14,11 +14,9 @@ class Agora:
     def __init__(self, agents: Sequence[Agent]) -> None:
         """Attach agents to the arena and initialize shared bookkeeping."""
 
-        if not agents:
-            raise ValueError("Agora requires at least one agent")
         self._agents: List[Agent] = list(agents)
-        if len(self._agents) > 2:
-            raise ValueError("Agora currently supports at most two agents")
+        if len(self._agents) != 2:
+            raise ValueError("Agora requires exactly two agents")
         self._agent_lookup: Dict[str, Agent] = {
             agent.id: agent for agent in self._agents
         }
@@ -55,20 +53,23 @@ class Agora:
         # Pre-interview round for survey and statement
         for agent in self._agents:
             if agent.do_survey_eval:
-                response = agent.generate_public_survey_response(agent.survey_questions)
-                self.survey_public_response[agent.id] = {0: parse_survey_response_str(response)}
+                if agent.enable_public_survey:
+                    response = agent.generate_public_survey_response(agent.survey_questions)
+                    self.survey_public_response[agent.id] = {0: parse_survey_response_str(response)}
+                    if verbose:
+                        print("#" * 10)
+                        print(f"Public survey response from {agent.name}:")
+                        print(response)
+                        print("#" * 10)
 
-                response_private = agent.generate_private_survey_response(agent.survey_questions)
-                self.survey_private_response[agent.id] = {0: parse_survey_response_str(response_private)}
-
-                if verbose:
-                    print("#" * 10)
-                    print(f"Public survey response from {agent.name}:")
-                    print(response)
-                    print("*" * 10)
-                    print(f"Private survey response from {agent.name}:")
-                    print(response_private)
-                    print("#" * 10)
+                if agent.enable_private_survey:
+                    response_private = agent.generate_private_survey_response(agent.survey_questions)
+                    self.survey_private_response[agent.id] = {0: parse_survey_response_str(response_private)}
+                    if verbose:
+                        print("#" * 10)
+                        print(f"Private survey response from {agent.name}:")
+                        print(response_private)
+                        print("#" * 10)
 
             # Optional pre-interviews
             if not agent.pre_interview_instruction:
@@ -139,26 +140,31 @@ class Agora:
             
             # Ask the selected agent for the survey
             if agent.do_survey_eval:
-                response = agent.generate_public_survey_response(agent.survey_questions)
-                self.survey_public_response[agent.id][self._turn_counter] = (
-                    parse_survey_response_str(response)
-                )
-                if agent.public_survey_keep:
-                    recorded_speech += response
+                if agent.enable_public_survey:
+                    response = agent.generate_public_survey_response(agent.survey_questions)
+                    self.survey_public_response[agent.id][self._turn_counter] = (
+                        parse_survey_response_str(response)
+                    )
+                    if agent.public_survey_keep:
+                        recorded_speech += response
 
-                response_private = agent.generate_private_survey_response(agent.survey_questions)
-                self.survey_private_response[agent.id][self._turn_counter] = (
-                    parse_survey_response_str(response_private)
-                )
+                    if verbose:
+                        print("#" * 10)
+                        print(f"Public survey response from {agent.name}:")
+                        print(response)
+                        print("#" * 10)
 
-                if verbose:
-                    print("#" * 10)
-                    print(f"Public survey response from {agent.name}:")
-                    print(response)
-                    print("*" * 10)
-                    print(f"Private survey response from {agent.name}:")
-                    print(response_private)
-                    print("#" * 10)
+                if agent.enable_private_survey:
+                    response_private = agent.generate_private_survey_response(agent.survey_questions)
+                    self.survey_private_response[agent.id][self._turn_counter] = (
+                        parse_survey_response_str(response_private)
+                    )
+
+                    if verbose:
+                        print("#" * 10)
+                        print(f"Private survey response from {agent.name}:")
+                        print(response_private)
+                        print("#" * 10)
             
             self._turn_counter += 1
             turn = MemoryTurn(

@@ -57,7 +57,8 @@ class ExperimentConfig:
     enable_post_interview: bool = False
     keep_post_interview: bool = False
 
-    enable_surveys: bool = False
+    enable_public_survey: bool = False
+    enable_private_survey: bool = False
     keep_public_survey: bool = False
 
     enable_analyzer: bool = False
@@ -295,7 +296,8 @@ def _should_write_outputs(cfg: ExperimentConfig) -> bool:
             cfg.enable_plots,
             cfg.enable_analyzer,
             cfg.enable_persona_evaluation,
-            cfg.enable_surveys,
+            cfg.enable_public_survey,
+            cfg.enable_private_survey,
             cfg.save_snapshot,
             cfg.load_snapshot,
             cfg.indexed_output,
@@ -336,7 +338,7 @@ def run_persona_experiment(
             )
 
     survey_questions = []
-    if cfg.enable_surveys:
+    if cfg.enable_public_survey or cfg.enable_private_survey:
         default_questions = list(prompt_payload.get("survey_questions", []))
         scenario_questions = list(scenario.get("surveys", {}).get(cfg.question_variant, []))
         survey_questions = default_questions + scenario_questions
@@ -355,6 +357,8 @@ def run_persona_experiment(
         pre_interview_keep=cfg.keep_pre_interview,
         post_interview_keep=cfg.keep_post_interview,
         public_survey_keep=cfg.keep_public_survey,
+        enable_public_survey=cfg.enable_public_survey,
+        enable_private_survey=cfg.enable_private_survey,
         survey_questions=survey_questions,
     )
 
@@ -365,13 +369,23 @@ def run_persona_experiment(
             agent_cfg["pre_interview"] = {"instruction": None, "keep": False}
         if not cfg.enable_post_interview:
             agent_cfg["post_interview"] = {"instruction": None, "keep": False}
-        if not cfg.enable_surveys:
+        if not cfg.enable_public_survey and not cfg.enable_private_survey:
             agent_cfg["survey"] = {
                 "survey_questions": [],
                 "survey_public_prompt": None,
                 "survey_private_prompt": None,
+                "enable_public_survey": False,
+                "enable_private_survey": False,
                 "public_survey_keep": False,
             }
+        else:
+            if not cfg.enable_public_survey:
+                agent_cfg["survey"]["survey_public_prompt"] = None
+                agent_cfg["survey"]["public_survey_keep"] = False
+            if not cfg.enable_private_survey:
+                agent_cfg["survey"]["survey_private_prompt"] = None
+            agent_cfg["survey"]["enable_public_survey"] = cfg.enable_public_survey
+            agent_cfg["survey"]["enable_private_survey"] = cfg.enable_private_survey
 
     snapshot_path = run_dir / "debate_snapshot.json" if run_dir is not None else None
 
@@ -463,26 +477,28 @@ def run_persona_experiment(
                 show_plot=cfg.show_plots,
             )
 
-        if cfg.enable_surveys:
+        if cfg.enable_public_survey or cfg.enable_private_survey:
             survey_title = (
                 f"Survey Responses | {question_label} | {cfg.question_variant}"
                 f" | {cfg.side_order}"
                 f" | {'neutral' if cfg.use_neutral_arena else 'biased'}"
             )
-            plot_survey_responses(
-                responses=agora.survey_public_response,
-                agents=agents,
-                survey_questions=survey_questions,
-                title=f"Public {survey_title}",
-                output_path=run_dir / "public_survey.png",
-            )
-            plot_survey_responses(
-                responses=agora.survey_private_response,
-                agents=agents,
-                survey_questions=survey_questions,
-                title=f"Private {survey_title}",
-                output_path=run_dir / "private_survey.png",
-            )
+            if cfg.enable_public_survey:
+                plot_survey_responses(
+                    responses=agora.survey_public_response,
+                    agents=agents,
+                    survey_questions=survey_questions,
+                    title=f"Public {survey_title}",
+                    output_path=run_dir / "public_survey.png",
+                )
+            if cfg.enable_private_survey:
+                plot_survey_responses(
+                    responses=agora.survey_private_response,
+                    agents=agents,
+                    survey_questions=survey_questions,
+                    title=f"Private {survey_title}",
+                    output_path=run_dir / "private_survey.png",
+                )
 
     eval_data: dict[str, Any] = {
         "intra_agent_honesty": intra_scores,
@@ -499,7 +515,8 @@ def run_persona_experiment(
         [
             cfg.enable_analyzer,
             cfg.enable_persona_evaluation,
-            cfg.enable_surveys,
+            cfg.enable_public_survey,
+            cfg.enable_private_survey,
         ]
     )
 
