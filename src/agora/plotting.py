@@ -81,3 +81,75 @@ def plot_survey_responses(
     fig.legend(handles, labels, loc="upper center", ncol=len(agent_ids))
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
+def plot_survey_distance(
+    public_responses: dict,
+    private_responses: dict,
+    agents: list[Agent],
+    title: str,
+    output_path: Path,
+):
+    """
+    Plots the distance between public and private survey responses.
+    """
+    agents_dict = {agent.id: agent.name for agent in agents}
+    agent_ids = list(public_responses.keys())
+    if not agent_ids:
+        return
+
+    distances = {agent_id: {"rounds": [], "distance": []} for agent_id in agent_ids}
+
+    for agent_id in agent_ids:
+        public_agent_data = public_responses.get(agent_id, {})
+        private_agent_data = private_responses.get(agent_id, {})
+        
+        # Use rounds from public responses as the primary source
+        sorted_rounds = sorted(public_agent_data.keys())
+        
+        for r in sorted_rounds:
+            public_round_data = public_agent_data.get(r, {})
+            private_round_data = private_agent_data.get(r, {})
+            
+            all_questions = set(public_round_data.keys()) | set(private_round_data.keys())
+            
+            if not all_questions:
+                continue
+
+            sum_sq_diff = 0
+            count = 0
+            for q in all_questions:
+                public_score = public_round_data.get(q)
+                private_score = private_round_data.get(q)
+                
+                # Ensure both scores are available
+                if public_score is not None and private_score is not None:
+                    sum_sq_diff += (public_score - private_score) ** 2
+                    count += 1
+            
+            if count > 0:
+                distance = math.sqrt(sum_sq_diff)
+                distances[agent_id]["rounds"].append(r)
+                distances[agent_id]["distance"].append(distance)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    for agent_id, data in distances.items():
+        if data["rounds"]:
+            ax.plot(
+                range(len(data["rounds"])),
+                data["distance"],
+                marker="o",
+                label=agents_dict.get(agent_id, agent_id),
+            )
+
+    ax.set_title(title)
+    ax.set_xlabel("Round index (order only)")
+    ax.set_ylabel("Euclidean Distance")
+    ax.grid(True)
+    ax.legend()
+    ax.set_ylim(bottom=0)
+    plt.tight_layout()
+
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
