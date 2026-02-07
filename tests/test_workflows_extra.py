@@ -167,6 +167,16 @@ def test_load_prompt_templates_adds_opening_instruction():
     catalog = {
         "prompt_sets": {
             "custom": {
+                "question_variant_language": {
+                    "agreeable": {
+                        "interaction_noun": "conversation",
+                        "counterpart_noun": "partner",
+                    },
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    },
+                },
                 "base_prompt": "{persona}", 
                 "debate_arena_prompt": "what's up",
                 "perceived_prompt": "{perceived_persona}",
@@ -197,6 +207,16 @@ def test_build_scenario_agent_configs_errors_and_custom_prompts():
     prompt_catalog = {
         "prompt_sets": {
             "custom": {
+                "question_variant_language": {
+                    "agreeable": {
+                        "interaction_noun": "conversation",
+                        "counterpart_noun": "partner",
+                    },
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    },
+                },
                 "base_prompt": "{speaker_id}:{question}:{persona}",
                 "debate_arena_prompt": "Arena: {debate_arena}",
                 "perceived_prompt": "{perceived_persona}",
@@ -291,3 +311,246 @@ def test_build_scenario_agent_configs_errors_and_custom_prompts():
         prompt_catalog=prompt_catalog,
     )
     assert "Custom arena" in configs[0]["self_role"]
+
+
+def test_build_scenario_agent_configs_applies_variant_language_tokens():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"agreeable": "Agree Q", "controversial": "Contro Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": {
+                    "agreeable": {
+                        "interaction_noun": "conversation",
+                        "counterpart_noun": "partner",
+                    },
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    },
+                },
+                "base_prompt": "mode={interaction_noun}|q={question}|p={persona}",
+                "debate_arena_prompt": "{interaction_noun}@{debate_arena}",
+                "perceived_prompt": "{perceived_persona}",
+                "public_instruction": "Speak to your {counterpart_noun}",
+                "private_instruction": "Private re {counterpart_noun}",
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "Public for {counterpart_noun}",
+                "survey_private_prompt": "Private for {counterpart_noun}",
+            }
+        }
+    }
+
+    controversial = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
+        alpha_model="alpha",
+        beta_model="beta",
+        question_variant="controversial",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+        survey_questions=["{interaction_noun}:{counterpart_noun}"],
+    )
+    assert "mode=debate" in controversial[0]["self_role"]
+    assert controversial[0]["response_instruction"] == "Speak to your opponent"
+    assert controversial[0]["survey"]["survey_questions"] == ["debate:opponent"]
+
+    agreeable = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
+        alpha_model="alpha",
+        beta_model="beta",
+        question_variant="agreeable",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+        survey_questions=["{interaction_noun}:{counterpart_noun}"],
+    )
+    assert "mode=conversation" in agreeable[0]["self_role"]
+    assert agreeable[0]["response_instruction"] == "Speak to your partner"
+    assert agreeable[0]["survey"]["survey_questions"] == ["conversation:partner"]
+
+
+def test_build_scenario_agent_configs_rejects_unknown_variant_language():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"custom": "Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": {
+                    "agreeable": {
+                        "interaction_noun": "conversation",
+                        "counterpart_noun": "partner",
+                    },
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    },
+                },
+                "base_prompt": "{question}:{persona}",
+                "debate_arena_prompt": "arena {debate_arena}",
+                "perceived_prompt": "{perceived_persona}",
+                "public_instruction": "pub",
+                "private_instruction": "priv",
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
+            }
+        }
+    }
+
+    with pytest.raises(ValueError):
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog=catalog,
+            alpha_model="alpha",
+            beta_model="beta",
+            question_variant="custom",
+            prompt_set="custom",
+            prompt_catalog=prompt_catalog,
+        )
+
+
+def test_build_scenario_agent_configs_accepts_optional_prompt_fields():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"controversial": "Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": {
+                    "agreeable": {
+                        "interaction_noun": "conversation",
+                        "counterpart_noun": "partner",
+                    },
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    },
+                },
+                "base_prompt": "{question}:{persona}",
+                "debate_arena_prompt": "arena {debate_arena}",
+                "perceived_prompt": "{perceived_persona}",
+                "public_instruction": "pub",
+                "private_instruction": None,
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
+            }
+        }
+    }
+
+    configs = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
+        alpha_model="alpha",
+        beta_model="beta",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+    )
+    assert configs[0]["private_response"]["instruction"] is None
+
+
+def test_build_scenario_agent_configs_requires_question_variant_language_object():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"controversial": "Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": "bad",
+                "base_prompt": "{question}:{persona}",
+                "debate_arena_prompt": "arena {debate_arena}",
+                "perceived_prompt": "{perceived_persona}",
+                "public_instruction": "pub",
+                "private_instruction": "priv",
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
+            }
+        }
+    }
+
+    with pytest.raises(KeyError):
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog=catalog,
+            alpha_model="alpha",
+            beta_model="beta",
+            prompt_set="custom",
+            prompt_catalog=prompt_catalog,
+        )
+
+
+def test_build_scenario_agent_configs_requires_variant_token_keys():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"controversial": "Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": {
+                    "controversial": {"interaction_noun": "debate"},
+                },
+                "base_prompt": "{question}:{persona}",
+                "debate_arena_prompt": "arena {debate_arena}",
+                "perceived_prompt": "{perceived_persona}",
+                "public_instruction": "pub",
+                "private_instruction": "priv",
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
+            }
+        }
+    }
+
+    with pytest.raises(KeyError):
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog=catalog,
+            alpha_model="alpha",
+            beta_model="beta",
+            prompt_set="custom",
+            prompt_catalog=prompt_catalog,
+        )

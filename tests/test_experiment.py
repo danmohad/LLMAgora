@@ -79,6 +79,16 @@ def _catalog_payload():
 def _prompt_payload(with_neutral=True):
     payload = {
         "default": {
+            "question_variant_language": {
+                "agreeable": {
+                    "interaction_noun": "conversation",
+                    "counterpart_noun": "partner",
+                },
+                "controversial": {
+                    "interaction_noun": "debate",
+                    "counterpart_noun": "opponent",
+                },
+            },
             "base_prompt": "base",
             "perceived_prompt": "perceived",
             "debate_arena_prompt": "arena {debate_arena}",

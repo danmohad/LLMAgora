@@ -194,6 +194,49 @@ DEFAULT_PROMPT_SET = "default"
 DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.json"
 
 
+class _SafePromptTokens(dict):
+    """Allow partial template formatting while preserving unknown placeholders."""
+
+    def __missing__(self, key: str) -> str:
+        return "{" + key + "}"
+
+
+def _variant_language_tokens(prompts: dict, question_variant: str) -> dict[str, str]:
+    language_by_variant = prompts.get("question_variant_language")
+    if not isinstance(language_by_variant, dict):
+        raise KeyError(
+            "Prompt set is missing required object: question_variant_language"
+        )
+
+    tokens = language_by_variant.get(question_variant)
+    if not isinstance(tokens, dict):
+        available = ", ".join(sorted(language_by_variant)) or "<none>"
+        raise ValueError(
+            f"Unsupported question_variant '{question_variant}' for prompt set language mapping. "
+            f"Expected one of: {available}"
+        )
+    for required in ("interaction_noun", "counterpart_noun"):
+        if required not in tokens:
+            raise KeyError(
+                f"question_variant_language['{question_variant}'] missing required key '{required}'"
+            )
+    return tokens
+
+
+def _apply_variant_language(template: Optional[str], tokens: dict[str, str]) -> Optional[str]:
+    if template is None:
+        return None
+    return template.format_map(_SafePromptTokens(tokens))
+
+
+def _apply_variant_language_many(
+    templates: Optional[Sequence[str]], tokens: dict[str, str]
+) -> Optional[list[str]]:
+    if templates is None:
+        return None
+    return [item.format_map(_SafePromptTokens(tokens)) for item in templates]
+
+
 def load_prompt_catalog(prompt_path: Path | str | None = None) -> dict:
     """Load prompt template catalog from disk or the repo default."""
 
@@ -227,6 +270,7 @@ def load_prompt_templates(
         )
 
     required_keys = [
+        "question_variant_language",
         "base_prompt",
         "perceived_prompt",
         "debate_arena_prompt",
@@ -325,6 +369,28 @@ def build_scenario_agent_configs(
             f"available variants: {', '.join(sorted(available))}"
         )
     question_text = question_entry[question_variant]
+    variant_tokens = _variant_language_tokens(prompts, question_variant)
+
+    base_prompt = _apply_variant_language(base_prompt, variant_tokens)
+    perceived_prompt = _apply_variant_language(perceived_prompt, variant_tokens)
+    debate_arena_prompt = _apply_variant_language(debate_arena_prompt, variant_tokens)
+    public_instruction = _apply_variant_language(public_instruction, variant_tokens)
+    opening_instruction = _apply_variant_language(opening_instruction, variant_tokens)
+    private_instruction = _apply_variant_language(private_instruction, variant_tokens)
+    pre_interview_instruction = _apply_variant_language(
+        pre_interview_instruction, variant_tokens
+    )
+    post_interview_instruction = _apply_variant_language(
+        post_interview_instruction, variant_tokens
+    )
+    survey_public_prompt = _apply_variant_language(
+        survey_public_prompt, variant_tokens
+    )
+    survey_private_prompt = _apply_variant_language(
+        survey_private_prompt, variant_tokens
+    )
+    survey_questions = _apply_variant_language_many(survey_questions, variant_tokens)
+
     side_1 = scenario.get("side_1", {})
     side_2 = scenario.get("side_2", {})
     if not side_1 or not side_2:
