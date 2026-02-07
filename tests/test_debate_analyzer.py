@@ -144,3 +144,40 @@ def test_load_model_with_fake_dependency(monkeypatch, capsys):
     assert isinstance(model, FakeTransformer)
     assert analyzer._util is DummyUtil
     assert "Loading model" in capsys.readouterr().out
+
+
+def test_canonical_turn_structure_path(monkeypatch):
+    def fake_load(self):
+        self._util = DummyUtil
+        return DummyModel()
+
+    monkeypatch.setattr(DebateAnalyzer, "_load_model", fake_load)
+
+    canonical = {
+        "pre_interviews": {
+            "Alpha": {"response": None},
+            "Beta": {"response": None},
+        },
+        "turns": [
+            {
+                "turn_num": 1,
+                "Alpha": {
+                    "public_utterance": "alpha-public",
+                    "private_utterance": "alpha-private",
+                },
+                "Beta": {
+                    "public_utterance": "beta-public",
+                    "private_utterance": "beta-private",
+                },
+            }
+        ],
+        "post_interviews": {
+            "Alpha": {"response": None},
+            "Beta": {"response": None},
+        },
+    }
+
+    analyzer = DebateAnalyzer(canonical)
+    honesty = analyzer.compute_intra_agent_honesty()
+    assert honesty["Alpha"]["turns"] == [1]
+    assert honesty["Alpha"]["scores"][0] == 0.42

@@ -53,13 +53,15 @@ def plot_survey_responses(
         for agent_id in agent_ids:
             agent_data = responses[agent_id]
 
-            sorted_rounds = sorted(agent_data.keys())
-            round_index = list(range(len(sorted_rounds)))
+            sorted_rounds = sorted(int(turn_num) for turn_num in agent_data.keys())
 
-            y = [agent_data[r].get(q, None) for r in sorted_rounds]
+            y = [
+                agent_data.get(r, agent_data.get(str(r), {})).get(q, None)
+                for r in sorted_rounds
+            ]
 
             ax.plot(
-                round_index,
+                sorted_rounds,
                 y,
                 marker="o",
                 label=agents_dict[agent_id],  # short id
@@ -77,7 +79,7 @@ def plot_survey_responses(
         ax.set_visible(False)
 
     fig.suptitle(title)
-    fig.supxlabel("Round index (order only)")
+    fig.supxlabel("Turn Number")
     fig.supylabel("Response score")
 
     handles, labels = axes[0].get_legend_handles_labels()
@@ -111,11 +113,15 @@ def plot_survey_distance(
         private_agent_data = private_responses.get(agent_id, {})
 
         # Use rounds from public responses as the primary source
-        sorted_rounds = sorted(public_agent_data.keys())
+        sorted_rounds = sorted(int(turn_num) for turn_num in public_agent_data.keys())
 
         for my_round in sorted_rounds:
-            public_round_data = public_agent_data.get(my_round, {})
-            private_round_data = private_agent_data.get(my_round, {})
+            public_round_data = public_agent_data.get(
+                my_round, public_agent_data.get(str(my_round), {})
+            )
+            private_round_data = private_agent_data.get(
+                my_round, private_agent_data.get(str(my_round), {})
+            )
 
             all_questions = set(public_round_data.keys()) | set(private_round_data.keys())
             if not all_questions:
@@ -140,14 +146,14 @@ def plot_survey_distance(
     for agent_id, data in distances.items():
         if data["rounds"]:
             ax.plot(
-                range(len(data["rounds"])),
+                data["rounds"],
                 data["distance"],
                 marker="o",
                 label=agents_dict.get(agent_id, agent_id),
             )
 
     ax.set_title(title)
-    ax.set_xlabel("Round index (order only)")
+    ax.set_xlabel("Turn Number")
     ax.set_ylabel("Euclidean Distance")
     ax.grid(True)
     ax.legend()

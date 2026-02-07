@@ -10,9 +10,6 @@ from agora.experiment import ExperimentConfig, ExperimentResult
 
 
 class DummyAgora:
-    survey_public_response = {}
-    survey_private_response = {}
-
     def history(self):
         return []
 
@@ -71,7 +68,8 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         prompt_set=None,
         alpha_model=None,
         beta_model=None,
-        turns_per_agent=None,
+        num_turns=None,
+        subturn_event_order=None,
         verbose=None,
         use_neutral_arena=None,
         enable_private_reflection=None,
@@ -140,7 +138,8 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         prompt_set="default",
         alpha_model="a",
         beta_model="b",
-        turns_per_agent=2,
+        num_turns=2,
+        subturn_event_order=["public_utterance"],
         verbose=False,
         use_neutral_arena=False,
         enable_private_reflection=False,
@@ -197,7 +196,8 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
         prompt_set="default",
         alpha_model="a",
         beta_model="b",
-        turns_per_agent=2,
+        num_turns=2,
+        subturn_event_order=["public_utterance"],
         verbose=False,
         use_neutral_arena=False,
         enable_private_reflection=False,

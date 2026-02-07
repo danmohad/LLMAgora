@@ -9,12 +9,15 @@ class DebateAnalyzer:
     """Compute honesty/alignment metrics from a structured debate history."""
 
     def __init__(self, memory_turns: Any, model_name: str = "all-mpnet-base-v2"):
-        # Accept either raw MemoryTurn history or pre-structured debate data.
-        if isinstance(memory_turns, dict):
+        # Accept raw MemoryTurn history, canonical turn structure, or already-structured
+        # debate data keyed by speaker.
+        from agora.persona_evaluator import get_structured_debate_history
+
+        if isinstance(memory_turns, dict) and "turns" in memory_turns:
+            self.debate_data = get_structured_debate_history(memory_turns)
+        elif isinstance(memory_turns, dict):
             self.debate_data = memory_turns
         else:
-            from agora.persona_evaluator import get_structured_debate_history
-
             self.debate_data = get_structured_debate_history(memory_turns)
 
         self.model_name = model_name
@@ -58,7 +61,7 @@ class DebateAnalyzer:
 
         self._intra_agent_honesty = {
             speaker_name: {
-                "turns": list(range(len(speaker_data["debate_turns"]))),
+                "turns": [turn.get("turn_num", idx + 1) for idx, turn in enumerate(speaker_data["debate_turns"])],
                 "scores": [
                     self.calculate_similarity(
                         turn["private_reflection"],
@@ -89,16 +92,20 @@ class DebateAnalyzer:
         agent_a, agent_b = agent_ids[:2]
         turns_a = self.debate_data[agent_a]["debate_turns"]
         turns_b = self.debate_data[agent_b]["debate_turns"]
-        num_turns = min(len(turns_a), len(turns_b))
-        turns = list(range(num_turns))
+        by_turn_a = {turn.get("turn_num", index + 1): turn for index, turn in enumerate(turns_a)}
+        by_turn_b = {turn.get("turn_num", index + 1): turn for index, turn in enumerate(turns_b)}
+        turns = sorted(set(by_turn_a) & set(by_turn_b))
 
-        scores = [
-            self.calculate_similarity(
-                turns_a[t][agent_a_narrative],
-                turns_b[t][agent_b_narrative],
+        scores = []
+        for turn_num in turns:
+            entry_a = by_turn_a[turn_num]
+            entry_b = by_turn_b[turn_num]
+            scores.append(
+                self.calculate_similarity(
+                    entry_a[agent_a_narrative],
+                    entry_b[agent_b_narrative],
+                )
             )
-            for t in turns
-        ]
 
         result = {"turns": turns, "scores": scores}
         self._inter_agent_alignment[cache_key] = result

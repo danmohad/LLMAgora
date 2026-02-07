@@ -132,11 +132,45 @@ def test_format_and_print_history_includes_exclusions(capsys):
         llm_client=QueueLLM(["public beta"]),
         response_instruction="respond",
     )
-    Agora([agent, beta]).run(max_turns_per_agent=1)
+    Agora([agent, beta]).run(num_turns=1)
 
     print_agent_histories([agent])
     output = capsys.readouterr().out
     assert "Full history visible" in output
+
+
+def test_format_history_for_agent_includes_survey_roles():
+    class DummyAgent:
+        def __init__(self, turns):
+            self._turns = turns
+
+        def view_history(self):
+            return self._turns
+
+    rendered = format_history_for_agent(
+        DummyAgent(
+            [
+                MemoryTurn(
+                    turn_id=1,
+                    speaker_id="a",
+                    role="public_survey",
+                    public_speech='{"Q1": 0}',
+                    metadata={"speaker_name": "Alpha"},
+                    keep=True,
+                ),
+                MemoryTurn(
+                    turn_id=2,
+                    speaker_id="a",
+                    role="private_survey",
+                    private_reflection='{"Q1": 1}',
+                    metadata={"speaker_name": "Alpha"},
+                    keep=False,
+                ),
+            ]
+        )
+    )
+    assert "public survey" in rendered
+    assert "private survey" in rendered
 
 
 def test_load_prompt_catalog_missing_file(tmp_path):

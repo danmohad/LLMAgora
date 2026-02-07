@@ -87,7 +87,7 @@ def test_run_debate_session_handles_snapshots(tmp_path):
 
     agora, agents = run_debate_session(
         agent_configs,
-        turns_per_agent=1,
+        num_turns=1,
         snapshot_path=snapshot,
         save_snapshot_flag=True,
         client_factory=factory,
@@ -102,7 +102,7 @@ def test_run_debate_session_handles_snapshots(tmp_path):
 
     resumed, resumed_agents = run_debate_session(
         agent_configs,
-        turns_per_agent=1,
+        num_turns=1,
         snapshot_path=snapshot,
         load_snapshot_flag=True,
         client_factory=second_factory,
@@ -126,7 +126,7 @@ def test_format_history_for_agent_renders_turns(stub_llm_factory):
         response_instruction="public",
     )
     agora = Agora([agent_a, agent_b])
-    agora.run(max_turns_per_agent=1)
+    agora.run(num_turns=1)
 
     rendered = format_history_for_agent(agent_a)
     assert "Turn 01" in rendered

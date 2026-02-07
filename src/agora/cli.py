@@ -34,7 +34,8 @@ def _run(args: argparse.Namespace) -> None:
         "prompt_set": args.prompt_set,
         "alpha_model": args.alpha_model,
         "beta_model": args.beta_model,
-        "turns_per_agent": args.turns_per_agent,
+        "num_turns": args.num_turns,
+        "subturn_event_order": args.subturn_event_order,
         "verbose": args.verbose,
         "use_neutral_arena": args.use_neutral_arena,
         "enable_private_reflection": args.enable_private_reflection,
@@ -101,7 +102,16 @@ def build_parser() -> argparse.ArgumentParser:
     run_cmd.add_argument("--prompt-set")
     run_cmd.add_argument("--alpha-model")
     run_cmd.add_argument("--beta-model")
-    run_cmd.add_argument("--turns-per-agent", type=int)
+    run_cmd.add_argument("--num-turns", type=int)
+    run_cmd.add_argument(
+        "--subturn-event-order",
+        nargs="+",
+        choices=["public_utterance", "private_utterance", "public_survey", "private_survey"],
+        help=(
+            "Ordered events inside each sub-turn; must match enabled events exactly, "
+            "for example: public_utterance private_utterance public_survey private_survey"
+        ),
+    )
 
     _add_bool(run_cmd, "verbose", "Print turn-by-turn output")
     _add_bool(run_cmd, "use-neutral-arena", "Use neutral arena prompt instead of alpha persona arena")

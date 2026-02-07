@@ -5,7 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import re
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Mapping, Optional
@@ -14,7 +14,7 @@ from uuid import uuid4
 import matplotlib.pyplot as plt
 
 from .agent import Agent
-from .agora import Agora
+from .agora import ALLOWED_SUBTURN_EVENTS, Agora
 from .debate_analyzer import DebateAnalyzer
 from .llm import OpenRouterClient
 from .persona_evaluator import PersonaEvaluator, plot_persona_adherence
@@ -42,7 +42,10 @@ class ExperimentConfig:
     prompt_set: str = "default"
     alpha_model: str = "openai/gpt-4o-mini"
     beta_model: str = "anthropic/claude-sonnet-4.5"
-    turns_per_agent: int = 2
+    num_turns: int = 2
+    subturn_event_order: list[str] = field(
+        default_factory=lambda: ["public_utterance"]
+    )
     verbose: bool = False
 
     use_neutral_arena: bool = False
@@ -111,6 +114,28 @@ def _coerce_optional_path(value: Any) -> Optional[Path]:
     if isinstance(value, Path):
         return value
     return Path(str(value))
+
+
+def _coerce_event_order(value: Any) -> Optional[list[str]]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        items = [item.strip() for item in value.split(",") if item.strip()]
+        return items
+    if isinstance(value, (list, tuple)):
+        return [str(item) for item in value]
+    raise ValueError("subturn_event_order must be a list/tuple of event names")
+
+
+def _enabled_subturn_events(cfg: ExperimentConfig) -> list[str]:
+    enabled = ["public_utterance"]
+    if cfg.enable_private_reflection:
+        enabled.append("private_utterance")
+    if cfg.enable_public_survey:
+        enabled.append("public_survey")
+    if cfg.enable_private_survey:
+        enabled.append("private_survey")
+    return enabled
 
 
 def _slug(value: str) -> str:
@@ -249,7 +274,7 @@ def _ensure_required(config: dict[str, Any], required: str) -> Any:
 def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
     """Create a validated ``ExperimentConfig`` from dictionary data."""
 
-    data = dict(payload)
+    data = {key: value for key, value in dict(payload).items() if value is not None}
     data["scenario_id"] = _ensure_required(data, "scenario_id")
 
     path_fields: tuple[tuple[str, Path], ...] = (
@@ -261,10 +286,15 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         data[field_name] = _coerce_path(data.get(field_name), fallback=fallback)
     data["index_csv"] = _coerce_optional_path(data.get("index_csv"))
     data["load_dir"] = _coerce_optional_path(data.get("load_dir"))
+    coerced_event_order = _coerce_event_order(data.get("subturn_event_order"))
+    if coerced_event_order is not None:
+        data["subturn_event_order"] = coerced_event_order
+    else:
+        data.pop("subturn_event_order", None)
 
     cfg = ExperimentConfig(**data)
-    if cfg.turns_per_agent <= 0:
-        raise ValueError("turns_per_agent must be positive")
+    if cfg.num_turns <= 0:
+        raise ValueError("num_turns must be positive")
     if cfg.persona_n_samples <= 0:
         raise ValueError("persona_n_samples must be positive")
     if cfg.side_order not in {"12", "21"}:
@@ -283,6 +313,24 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("load_dir must be provided when load_snapshot is enabled")
     if not cfg.load_snapshot and cfg.load_dir is not None:
         raise ValueError("load_dir must be None when load_snapshot is disabled")
+    if not cfg.subturn_event_order:
+        raise ValueError("subturn_event_order must not be empty")
+    unknown_events = [
+        event for event in cfg.subturn_event_order if event not in ALLOWED_SUBTURN_EVENTS
+    ]
+    if unknown_events:
+        raise ValueError(
+            "subturn_event_order contains unknown events: "
+            + ", ".join(sorted(set(unknown_events)))
+        )
+    if len(cfg.subturn_event_order) != len(set(cfg.subturn_event_order)):
+        raise ValueError("subturn_event_order must not contain duplicates")
+    enabled_events = _enabled_subturn_events(cfg)
+    if set(cfg.subturn_event_order) != set(enabled_events):
+        raise ValueError(
+            "subturn_event_order must match enabled events 1:1. "
+            f"Enabled: {enabled_events}. Provided: {cfg.subturn_event_order}."
+        )
     return cfg
 
 
@@ -320,12 +368,34 @@ def _should_write_outputs(cfg: ExperimentConfig) -> bool:
     )
 
 
+def _survey_responses_by_agent(
+    turns: list[dict], event_key: str
+) -> dict[str, dict[int, dict[str, int]]]:
+    responses: dict[str, dict[int, dict[str, int]]] = {}
+    for turn in turns:
+        turn_num = int(turn.get("turn_num", 0))
+        for slot in ("Alpha", "Beta"):
+            subturn = turn.get(slot, {})
+            scores = subturn.get(event_key)
+            if scores is None:
+                continue
+            speaker_id = subturn.get("speaker_id")
+            if not speaker_id:
+                continue
+            responses.setdefault(speaker_id, {})[turn_num] = scores
+    return responses
+
+
 def run_persona_experiment(
     config: ExperimentConfig | Mapping[str, Any],
 ) -> ExperimentResult:
     """Run one scenario-based experiment and persist all artifacts in one folder."""
 
-    cfg = config if isinstance(config, ExperimentConfig) else build_experiment_config(config)
+    cfg = (
+        build_experiment_config(asdict(config))
+        if isinstance(config, ExperimentConfig)
+        else build_experiment_config(config)
+    )
 
     # Runs with all optional outputs disabled execute in-memory only.
     write_outputs = _should_write_outputs(cfg)
@@ -358,6 +428,10 @@ def run_persona_experiment(
         default_questions = list(prompt_payload.get("survey_questions", []))
         scenario_questions = list(scenario.get("surveys", {}).get(cfg.question_variant, []))
         survey_questions = default_questions + scenario_questions
+        if not survey_questions:
+            raise ValueError(
+                "Survey is enabled but no survey questions are configured in prompts/scenario data."
+            )
 
     agent_configs = build_scenario_agent_configs(
         scenario_id=cfg.scenario_id,
@@ -415,13 +489,18 @@ def run_persona_experiment(
 
     agora, agents = run_debate_session(
         agent_configs,
-        turns_per_agent=cfg.turns_per_agent,
+        num_turns=cfg.num_turns,
+        event_order=cfg.subturn_event_order,
         verbose=cfg.verbose,
         skip_first_agent_first_reflection=cfg.skip_first_agent_first_reflection,
         snapshot_path=snapshot_path,
         load_snapshot_flag=cfg.load_snapshot,
         save_snapshot_flag=cfg.save_snapshot,
     )
+    structured_history = agora.structured_history()
+    turns = structured_history.get("turns", [])
+    public_survey_responses = _survey_responses_by_agent(turns, "public_survey")
+    private_survey_responses = _survey_responses_by_agent(turns, "private_survey")
 
     analyzer = None
     intra_scores = None
@@ -429,7 +508,7 @@ def run_persona_experiment(
     inter_internal = None
 
     if cfg.enable_analyzer:
-        analyzer = DebateAnalyzer(agora.history())
+        analyzer = DebateAnalyzer(structured_history)
         intra_scores = analyzer.compute_intra_agent_honesty()
         inter_external = analyzer.compute_inter_agent_alignment("public_speech", "public_speech")
         inter_internal = analyzer.compute_inter_agent_alignment("private_reflection", "private_reflection")
@@ -449,7 +528,7 @@ def run_persona_experiment(
                 model=cfg.persona_eval_model,
             )
             persona_eval = evaluator.evaluate_debate_from_history(
-                memory_turns=agora.history(),
+                memory_turns=structured_history,
                 alpha_persona_id=alpha_persona["id"],
                 beta_persona_id=beta_persona["id"],
                 verbose=cfg.persona_eval_verbose,
@@ -509,7 +588,7 @@ def run_persona_experiment(
             )
             if cfg.enable_public_survey:
                 plot_survey_responses(
-                    responses=agora.survey_public_response,
+                    responses=public_survey_responses,
                     agents=agents,
                     survey_questions=survey_questions,
                     title=f"Public {survey_title}",
@@ -517,7 +596,7 @@ def run_persona_experiment(
                 )
             if cfg.enable_private_survey:
                 plot_survey_responses(
-                    responses=agora.survey_private_response,
+                    responses=private_survey_responses,
                     agents=agents,
                     survey_questions=survey_questions,
                     title=f"Private {survey_title}",
@@ -531,16 +610,12 @@ def run_persona_experiment(
             "internal": inter_internal,
         },
         "persona_adherence": persona_eval_dict,
-        "public_survey_responses": agora.survey_public_response,
-        "private_survey_responses": agora.survey_private_response,
     }
 
     should_write_eval_data = any(
         [
             cfg.enable_analyzer,
             cfg.enable_persona_evaluation,
-            cfg.enable_public_survey,
-            cfg.enable_private_survey,
         ]
     )
 
