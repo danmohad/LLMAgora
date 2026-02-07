@@ -20,6 +20,7 @@ from agora.experiment import (
     _resolve_run_dir,
     _resolve_index_csv,
     _scenario_entry,
+    _survey_responses_by_agent,
     _should_write_outputs,
     _slug,
     build_experiment_config,
@@ -35,12 +36,25 @@ class DummyAgent:
 
 
 class DummyAgora:
-    def __init__(self):
-        self.survey_public_response = {}
-        self.survey_private_response = {}
+    def __init__(self, turns=None):
+        self._structured = {
+            "event_order": ["public_utterance"],
+            "pre_interviews": {
+                "Alpha": {"speaker_id": "alpha", "speaker_name": "Alpha", "response": None, "keep": False},
+                "Beta": {"speaker_id": "beta", "speaker_name": "Beta", "response": None, "keep": False},
+            },
+            "turns": list(turns or []),
+            "post_interviews": {
+                "Alpha": {"speaker_id": "alpha", "speaker_name": "Alpha", "response": None, "keep": False},
+                "Beta": {"speaker_id": "beta", "speaker_name": "Beta", "response": None, "keep": False},
+            },
+        }
 
     def history(self):
         return []
+
+    def structured_history(self):
+        return self._structured
 
 
 def _catalog_payload():
@@ -126,6 +140,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
     assert cfg.load_dir is None
     assert cfg.catalog_path == tmp_path / "catalog.json"
     assert cfg.prompts_path == tmp_path / "prompts.json"
+    assert cfg.subturn_event_order == ["public_utterance"]
 
     cfg_paths = build_experiment_config(
         {
@@ -151,7 +166,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
     assert cfg_paths_obj.index_csv == tmp_path / "already-path-2" / "index.csv"
 
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "turns_per_agent": 0})
+        build_experiment_config({"scenario_id": "s1", "num_turns": 0})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "persona_n_samples": 0})
     with pytest.raises(ValueError):
@@ -171,6 +186,39 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "load_dir": "outputs/somewhere"})
     with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "enable_private_reflection": True})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "subturn_event_order": []})
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "subturn_event_order": ["public_utterance", "public_utterance"],
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "subturn_event_order": ["public_utterance", "not_real"],
+            }
+        )
+    cfg_from_string = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "enable_private_reflection": True,
+            "subturn_event_order": "public_utterance,private_utterance",
+        }
+    )
+    assert cfg_from_string.subturn_event_order == [
+        "public_utterance",
+        "private_utterance",
+    ]
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {"scenario_id": "s1", "subturn_event_order": {"bad": "value"}}
+        )
+    with pytest.raises(ValueError):
         build_experiment_config({})
 
     payload_file = tmp_path / "cfg.json"
@@ -183,8 +231,8 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         load_experiment_config(bad_file)
 
-    merged = _merge_config({"scenario_id": "s1", "turns_per_agent": 2}, {"turns_per_agent": None, "verbose": True})
-    assert merged.turns_per_agent == 2
+    merged = _merge_config({"scenario_id": "s1", "num_turns": 2}, {"num_turns": None, "verbose": True})
+    assert merged.num_turns == 2
     assert merged.verbose is True
 
     assert _slug("  hi there  ") == "hi_there"
@@ -284,6 +332,18 @@ def test_plot_helpers_show_branch(tmp_path, monkeypatch):
     assert calls["show"] == 2
 
 
+def test_survey_responses_by_agent_skips_missing_speaker_ids():
+    turns = [
+        {
+            "turn_num": 1,
+            "Alpha": {"speaker_id": "alpha", "public_survey": {"Q1": 1}},
+            "Beta": {"speaker_id": None, "public_survey": {"Q1": -1}},
+        }
+    ]
+    responses = _survey_responses_by_agent(turns, "public_survey")
+    assert responses == {"alpha": {1: {"Q1": 1}}}
+
+
 def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatch):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
@@ -330,7 +390,8 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
     def fake_run_debate_session(
         agent_configs,
         *,
-        turns_per_agent,
+        num_turns,
+        event_order,
         verbose,
         skip_first_agent_first_reflection,
         snapshot_path,
@@ -339,7 +400,7 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
     ):
         captured["agent_configs"] = agent_configs
         captured["session_args"] = {
-            "turns": turns_per_agent,
+            "turns": num_turns,
             "verbose": verbose,
             "skip_first": skip_first_agent_first_reflection,
             "snapshot_path": snapshot_path,
@@ -398,7 +459,8 @@ def test_run_persona_experiment_loads_snapshot_from_load_dir_without_output_dir(
     def fake_run_debate_session(
         agent_configs,
         *,
-        turns_per_agent,
+        num_turns,
+        event_order,
         verbose,
         skip_first_agent_first_reflection,
         snapshot_path,
@@ -409,7 +471,7 @@ def test_run_persona_experiment_loads_snapshot_from_load_dir_without_output_dir(
             "snapshot_path": snapshot_path,
             "load_snapshot": load_snapshot_flag,
             "save_snapshot": save_snapshot_flag,
-            "turns": turns_per_agent,
+            "turns": num_turns,
         }
         return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
 
@@ -442,14 +504,15 @@ def test_run_persona_experiment_writes_expected_files_when_outputs_enabled(tmp_p
     def fake_run_debate_session(
         _agent_configs,
         *,
-        turns_per_agent,
+        num_turns,
+        event_order,
         verbose,
         skip_first_agent_first_reflection,
         snapshot_path,
         load_snapshot_flag,
         save_snapshot_flag,
     ):
-        assert turns_per_agent == 2
+        assert num_turns == 2
         assert verbose is False
         assert skip_first_agent_first_reflection is False
         assert load_snapshot_flag is False
@@ -512,6 +575,11 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
     assert result.run_dir is not None
     assert (result.run_dir / "eval_data.json").exists()
     eval_payload = json.loads((result.run_dir / "eval_data.json").read_text(encoding="utf-8"))
+    assert set(eval_payload.keys()) == {
+        "intra_agent_honesty",
+        "inter_agent_alignment",
+        "persona_adherence",
+    }
     assert eval_payload["intra_agent_honesty"] is not None
 
 
@@ -525,8 +593,29 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
 
     class AgoraWithPrivateSurvey(DummyAgora):
         def __init__(self):
-            super().__init__()
-            self.survey_private_response = {"alpha": {0: {"Q1": 1}}}
+            super().__init__(
+                turns=[
+                    {
+                        "turn_num": 1,
+                        "Alpha": {
+                            "speaker_id": "alpha",
+                            "speaker_name": "Alpha",
+                            "public_utterance": "alpha public",
+                            "private_utterance": None,
+                            "public_survey": None,
+                            "private_survey": {"Q1": 1},
+                        },
+                        "Beta": {
+                            "speaker_id": "beta",
+                            "speaker_name": "Beta",
+                            "public_utterance": "beta public",
+                            "private_utterance": None,
+                            "public_survey": None,
+                            "private_survey": None,
+                        },
+                    }
+                ]
+            )
 
     def fake_build_scenario_agent_configs(**kwargs):
         captured["build_kwargs"] = kwargs
@@ -578,6 +667,7 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
         run_name="private_only",
         enable_public_survey=False,
         enable_private_survey=True,
+        subturn_event_order=["public_utterance", "private_survey"],
         keep_public_survey=False,
         save_plots=True,
     )
@@ -592,7 +682,7 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
         assert agent_cfg["survey"]["public_survey_keep"] is False
     assert (result.run_dir / "private_survey.png").exists()
     assert not (result.run_dir / "public_survey.png").exists()
-    assert (result.run_dir / "eval_data.json").exists()
+    assert not (result.run_dir / "eval_data.json").exists()
 
 
 def test_run_persona_experiment_public_survey_only(tmp_path, monkeypatch):
@@ -653,6 +743,7 @@ def test_run_persona_experiment_public_survey_only(tmp_path, monkeypatch):
         run_name="public_only",
         enable_public_survey=True,
         enable_private_survey=False,
+        subturn_event_order=["public_utterance", "public_survey"],
         keep_public_survey=True,
     )
 
@@ -674,9 +765,48 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
 
     class AgoraWithSurvey(DummyAgora):
         def __init__(self):
-            super().__init__()
-            self.survey_public_response = {"alpha": {0: {"Q1": 1}, 1: {"Q1": 2}}}
-            self.survey_private_response = {"alpha": {0: {"Q1": 1}, 1: {"Q1": 2}}}
+            super().__init__(
+                turns=[
+                    {
+                        "turn_num": 1,
+                        "Alpha": {
+                            "speaker_id": "alpha",
+                            "speaker_name": "Alpha",
+                            "public_utterance": "alpha public 1",
+                            "private_utterance": "alpha private 1",
+                            "public_survey": {"Q1": 1},
+                            "private_survey": {"Q1": 1},
+                        },
+                        "Beta": {
+                            "speaker_id": "beta",
+                            "speaker_name": "Beta",
+                            "public_utterance": "beta public 1",
+                            "private_utterance": "beta private 1",
+                            "public_survey": {"Q1": 1},
+                            "private_survey": {"Q1": 1},
+                        },
+                    },
+                    {
+                        "turn_num": 2,
+                        "Alpha": {
+                            "speaker_id": "alpha",
+                            "speaker_name": "Alpha",
+                            "public_utterance": "alpha public 2",
+                            "private_utterance": "alpha private 2",
+                            "public_survey": {"Q1": 2},
+                            "private_survey": {"Q1": 2},
+                        },
+                        "Beta": {
+                            "speaker_id": "beta",
+                            "speaker_name": "Beta",
+                            "public_utterance": "beta public 2",
+                            "private_utterance": "beta private 2",
+                            "public_survey": {"Q1": 2},
+                            "private_survey": {"Q1": 2},
+                        },
+                    },
+                ]
+            )
 
     calls = {"run_session": None, "persona": None, "client_closed": False}
 
@@ -717,7 +847,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     def fake_run_debate_session(
         agent_configs,
         *,
-        turns_per_agent,
+        num_turns,
+        event_order,
         verbose,
         skip_first_agent_first_reflection,
         snapshot_path,
@@ -728,7 +859,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
             "load_snapshot": load_snapshot_flag,
             "save_snapshot": save_snapshot_flag,
             "snapshot_path": snapshot_path,
-            "turns": turns_per_agent,
+            "turns": num_turns,
             "verbose": verbose,
             "skip_first": skip_first_agent_first_reflection,
         }
@@ -804,6 +935,12 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         index_csv=None,
         use_neutral_arena=True,
         enable_private_reflection=True,
+        subturn_event_order=[
+            "public_utterance",
+            "private_utterance",
+            "public_survey",
+            "private_survey",
+        ],
         keep_private_reflection=True,
         enable_pre_interview=True,
         keep_pre_interview=True,
@@ -857,6 +994,29 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     with (tmp_path / "outputs" / "index.csv").open(newline="", encoding="utf-8") as handle:
         rows = list(csv.DictReader(handle))
     assert len(rows) == 2
+
+
+def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    catalog = _catalog_payload()
+    catalog["scenarios"][0]["surveys"] = {}
+    prompts = _prompt_payload()
+    prompts["default"]["survey_questions"] = []
+    _write_json(catalog_path, catalog)
+    _write_json(prompts_path, prompts)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        enable_public_survey=True,
+        subturn_event_order=["public_utterance", "public_survey"],
+    )
+
+    with pytest.raises(ValueError, match="Survey is enabled but no survey questions"):
+        run_persona_experiment(cfg)
 
 
 def test_run_persona_experiment_requires_neutral_prompt_when_enabled(tmp_path):

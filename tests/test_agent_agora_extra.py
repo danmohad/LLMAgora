@@ -221,10 +221,11 @@ def test_agora_survey_flow_and_unknown_agent(capsys):
     )
 
     agora = Agora([agent, beta])
-    history = agora.run(max_turns_per_agent=1, verbose=True)
+    history = agora.run(num_turns=1, verbose=True)
     assert history[0].role == "assistant"
-    assert 1 in agora.survey_public_response[agent.id]
-    assert any("survey response" in line for line in capsys.readouterr().out.splitlines())
+    structured = agora.structured_history()
+    assert structured["turns"][0]["Alpha"]["public_survey"] == {"Q1": 0}
+    assert any("public survey" in line for line in capsys.readouterr().out.splitlines())
 
     with pytest.raises(KeyError):
         agora.history_for_agent("missing")
@@ -256,7 +257,7 @@ def test_agora_public_survey_keep_does_not_modify_public_speech():
     )
 
     agora = Agora([agent, beta])
-    history = agora.run(max_turns_per_agent=1)
+    history = agora.run(num_turns=1)
     alpha_turn = next(turn for turn in history if turn.metadata.get("speaker_name") == "Alpha")
     assert alpha_turn.public_speech == "public speech"
 
@@ -283,9 +284,10 @@ def test_agora_public_survey_only():
     )
 
     agora = Agora([agent, beta])
-    agora.run(max_turns_per_agent=1)
-    assert agent.id in agora.survey_public_response
-    assert agent.id not in agora.survey_private_response
+    agora.run(num_turns=1)
+    structured = agora.structured_history()
+    assert structured["turns"][0]["Alpha"]["public_survey"] == {"Q1": 0}
+    assert structured["turns"][0]["Alpha"]["private_survey"] is None
 
 
 def test_agora_private_survey_only():
@@ -310,9 +312,10 @@ def test_agora_private_survey_only():
     )
 
     agora = Agora([agent, beta])
-    history = agora.run(max_turns_per_agent=1)
-    assert agent.id in agora.survey_private_response
-    assert agent.id not in agora.survey_public_response
+    history = agora.run(num_turns=1)
+    structured = agora.structured_history()
+    assert structured["turns"][0]["Alpha"]["private_survey"] == {"Q1": 1}
+    assert structured["turns"][0]["Alpha"]["public_survey"] is None
     alpha_turn = next(turn for turn in history if turn.metadata.get("speaker_name") == "Alpha")
     assert alpha_turn.public_speech == "public speech"
 
@@ -335,14 +338,14 @@ def test_agora_pre_post_keep_true():
         response_instruction="respond",
     )
     agora = Agora([agent, beta])
-    history = agora.run(max_turns_per_agent=1)
+    history = agora.run(num_turns=1)
     assert [turn.role for turn in history] == ["pre_interview", "assistant", "assistant", "post_interview"]
     assert any(turn.role == "pre_interview" for turn in agent.view_history())
     assert any(turn.role == "post_interview" for turn in agent.view_history())
 
 
 def test_agora_verbose_excluded_notes(capsys):
-    responses = ["pre", "reflect", "public", "post"]
+    responses = ["pre", "public", "reflect", "post"]
     llm_client = QueueLLM(responses)
     agent = Agent(
         name="Alpha",
@@ -362,6 +365,6 @@ def test_agora_verbose_excluded_notes(capsys):
         llm_client=QueueLLM(["beta public"]),
         response_instruction="respond",
     )
-    Agora([agent, beta]).run(max_turns_per_agent=1, verbose=True)
+    Agora([agent, beta]).run(num_turns=1, verbose=True)
     output = capsys.readouterr().out
     assert "(excluded)" in output

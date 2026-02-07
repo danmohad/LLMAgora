@@ -64,13 +64,22 @@ agora run \
   --scenario-id hier_account_1 \
   --question-variant controversial \
   --side-order 12 \
-  --turns-per-agent 2
+  --num-turns 2
 
 # Enable surveys independently
-agora run --config data/example.json --enable-public-survey --enable-private-survey
+agora run --config data/example.json \
+  --enable-public-survey --enable-private-survey \
+  --subturn-event-order public_utterance public_survey private_survey
+
+# Explicit sub-turn event order (must match enabled events 1:1)
+agora run --config data/example.json \
+  --enable-private-survey \
+  --subturn-event-order public_utterance private_survey
 
 # Optional retention toggles for survey streams
-agora run --config data/example.json --enable-private-survey --keep-private-survey
+agora run --config data/example.json \
+  --enable-private-survey --keep-private-survey \
+  --subturn-event-order public_utterance private_survey
 
 # Resume from an existing snapshot directory
 agora run --config data/example.json --load-snapshot --load-dir outputs/hier_account_1_controversial_12_biased
@@ -85,5 +94,10 @@ Output behavior:
 - if output-related features are all disabled, no output directory is created
 - `load_snapshot=true` requires `load_dir` (directory containing `debate_snapshot.json`)
 - `show_plots=true` requires `save_plots=true`
+- `subturn_event_order` must match enabled events exactly:
+- always include `public_utterance`
+- include `private_utterance` iff `enable_private_reflection=true`
+- include `public_survey` iff `enable_public_survey=true`
+- include `private_survey` iff `enable_private_survey=true`
 - when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
 - `eval_data.json` is written only when at least one evaluation stream is enabled (`enable_analyzer`, `enable_persona_evaluation`, `enable_public_survey`, or `enable_private_survey`)

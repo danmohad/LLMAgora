@@ -103,7 +103,8 @@ def build_agents_from_configs(
 def run_debate_session(
     agent_configs: Sequence[dict],
     *,
-    turns_per_agent: int,
+    num_turns: int,
+    event_order: Optional[Sequence[str]] = None,
     verbose: bool = False,
     skip_first_agent_first_reflection: bool = False,
     snapshot_path: Optional[Path | str] = None,
@@ -132,10 +133,10 @@ def run_debate_session(
             agents = list(agora.agents)
         else:
             agents = build_agents_from_configs(agent_configs, llm_client)
-            agora = Agora(agents)
+            agora = Agora(agents, event_order=event_order)
 
         agora.run(
-            max_turns_per_agent=turns_per_agent,
+            num_turns=num_turns,
             verbose=verbose,
             skip_first_agent_first_reflection=skip_first_agent_first_reflection,
         )
@@ -156,7 +157,13 @@ def format_history_for_agent(agent: Agent) -> str:
         speaker = turn.metadata.get("speaker_name", turn.speaker_id)
         note = ""
         if (
-            turn.role in {"reflection", "pre_interview", "post_interview"}
+            turn.role in {
+                "reflection",
+                "pre_interview",
+                "post_interview",
+                "public_survey",
+                "private_survey",
+            }
             and not turn.keep
         ):
             note = " (excluded)"
@@ -170,6 +177,14 @@ def format_history_for_agent(agent: Agent) -> str:
             )
             lines.append(
                 f"Turn {turn.turn_id:02d} | {speaker} ({label}){note}: {turn.private_reflection}"
+            )
+        elif turn.role == "public_survey":
+            lines.append(
+                f"Turn {turn.turn_id:02d} | {speaker} (public survey){note}: {turn.public_speech}"
+            )
+        elif turn.role == "private_survey":
+            lines.append(
+                f"Turn {turn.turn_id:02d} | {speaker} (private survey){note}: {turn.private_reflection}"
             )
         else:
             lines.append(f"Turn {turn.turn_id:02d} | {speaker}: {turn.public_speech}")

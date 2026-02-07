@@ -357,6 +357,70 @@ def test_get_structured_debate_history_multiple_turns():
     assert structured["Beta"]["debate_turns"][0]["private_reflection"] == "beta-priv-1"
 
 
+def test_get_structured_debate_history_from_canonical_turn_structure():
+    payload = {
+        "pre_interviews": {
+            "Alpha": {"response": "alpha pre"},
+            "Beta": {"response": "beta pre"},
+        },
+        "turns": [
+            {
+                "turn_num": 1,
+                "Alpha": {
+                    "public_utterance": "alpha pub",
+                    "private_utterance": "alpha priv",
+                },
+                "Beta": {
+                    "public_utterance": "beta pub",
+                    "private_utterance": "beta priv",
+                },
+            }
+        ],
+        "post_interviews": {
+            "Alpha": {"response": "alpha post"},
+            "Beta": {"response": "beta post"},
+        },
+    }
+
+    structured = get_structured_debate_history(payload)
+    assert structured["Alpha"]["pre_interview"] == "alpha pre"
+    assert structured["Beta"]["post_interview"] == "beta post"
+    assert structured["Alpha"]["debate_turns"][0]["turn_num"] == 1
+    assert structured["Alpha"]["debate_turns"][0]["private_reflection"] == "alpha priv"
+
+
+def test_get_structured_debate_history_prefers_metadata_turn_mapping():
+    turns = [
+        MemoryTurn(
+            turn_id=1,
+            speaker_id="a",
+            role="reflection",
+            private_reflection="alpha-priv",
+            metadata={
+                "speaker_name": "Alpha",
+                "turn_num": 2,
+                "event_type": "private_utterance",
+            },
+        ),
+        MemoryTurn(
+            turn_id=2,
+            speaker_id="a",
+            role="assistant",
+            public_speech="alpha-pub",
+            metadata={
+                "speaker_name": "Alpha",
+                "turn_num": 2,
+                "event_type": "public_utterance",
+            },
+        ),
+    ]
+
+    structured = get_structured_debate_history(turns)
+    assert structured["Alpha"]["debate_turns"][0]["turn_num"] == 2
+    assert structured["Alpha"]["debate_turns"][0]["public_speech"] == "alpha-pub"
+    assert structured["Alpha"]["debate_turns"][0]["private_reflection"] == "alpha-priv"
+
+
 def test_personas_with_nested_structure():
     """Test that evaluator handles both nested and flat persona structures."""
     nested = {"personas": {"p1": {"actual_persona": "Test"}}}

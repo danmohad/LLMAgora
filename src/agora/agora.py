@@ -1,222 +1,508 @@
 """The Agora orchestrator for agent interactions."""
 
-from typing import Dict, List, Sequence
+from __future__ import annotations
+
+import json
+from typing import Dict, List, Optional, Sequence
 
 from agora.survey import parse_survey_response_str
 
 from .agent import Agent
 from .memory import MemoryTurn
 
+ALLOWED_SUBTURN_EVENTS = (
+    "public_utterance",
+    "private_utterance",
+    "public_survey",
+    "private_survey",
+)
+
 
 class Agora:
-    """Coordinates agents, enforces rules, and records public history."""
+    """Coordinates agents, enforces event order, and records structured turns."""
 
-    def __init__(self, agents: Sequence[Agent]) -> None:
-        """Attach agents to the arena and initialize shared bookkeeping."""
-
+    def __init__(
+        self,
+        agents: Sequence[Agent],
+        *,
+        event_order: Optional[Sequence[str]] = None,
+    ) -> None:
         self._agents: List[Agent] = list(agents)
         if len(self._agents) != 2:
             raise ValueError("Agora requires exactly two agents")
-        self._agent_lookup: Dict[str, Agent] = {
-            agent.id: agent for agent in self._agents
-        }
+        self._agent_lookup: Dict[str, Agent] = {agent.id: agent for agent in self._agents}
         if len(self._agent_lookup) != len(self._agents):
             raise ValueError("Agent identifiers must be unique")
         for agent in self._agents:
             agent.attach_agora(self)
-        self._turn_log: List[MemoryTurn] = []
-        self._turn_counter = 0
-        self.survey_public_response = {}
-        self.survey_private_response = {}
+
+        self._event_log: List[MemoryTurn] = []
+        self._event_counter = 0
+        self._turns: List[dict] = []
+        self._pre_interviews = self._empty_interview_stage(stage="pre")
+        self._post_interviews = self._empty_interview_stage(stage="post")
+        self._event_order = self._resolve_event_order(event_order)
+
+    def _empty_interview_stage(self, *, stage: str) -> dict:
+        if stage not in {"pre", "post"}:
+            raise ValueError(f"Unknown interview stage: {stage}")
+        return {
+            "Alpha": {
+                "speaker_id": self._agents[0].id,
+                "speaker_name": self._agents[0].name,
+                "response": None,
+                "keep": (
+                    self._agents[0].pre_interview_keep
+                    if stage == "pre"
+                    else self._agents[0].post_interview_keep
+                ),
+            },
+            "Beta": {
+                "speaker_id": self._agents[1].id,
+                "speaker_name": self._agents[1].name,
+                "response": None,
+                "keep": (
+                    self._agents[1].pre_interview_keep
+                    if stage == "pre"
+                    else self._agents[1].post_interview_keep
+                ),
+            },
+        }
+
+    def _enabled_subturn_events(self) -> list[str]:
+        enabled = ["public_utterance"]
+        if any(agent.supports_private_reflection for agent in self._agents):
+            enabled.append("private_utterance")
+        if any(
+            agent.do_survey_eval and agent.enable_public_survey
+            for agent in self._agents
+        ):
+            enabled.append("public_survey")
+        if any(
+            agent.do_survey_eval and agent.enable_private_survey
+            for agent in self._agents
+        ):
+            enabled.append("private_survey")
+        return enabled
+
+    def _resolve_event_order(self, event_order: Optional[Sequence[str]]) -> list[str]:
+        enabled = self._enabled_subturn_events()
+        if event_order is None:
+            return list(enabled)
+
+        order = list(event_order)
+        if not order:
+            raise ValueError("event_order must not be empty")
+        unknown = [event for event in order if event not in ALLOWED_SUBTURN_EVENTS]
+        if unknown:
+            raise ValueError(
+                f"event_order contains unknown events: {', '.join(unknown)}"
+            )
+        if len(order) != len(set(order)):
+            raise ValueError("event_order must not contain duplicates")
+        if set(order) != set(enabled):
+            raise ValueError(
+                "event_order must match enabled events 1:1. "
+                f"Enabled: {enabled}. Provided: {order}."
+            )
+        return order
+
+    def _next_event_id(self) -> int:
+        self._event_counter += 1
+        return self._event_counter
+
+    def _slot_name(self, index: int) -> str:
+        return "Alpha" if index == 0 else "Beta"
+
+    def _blank_subturn(self, agent: Agent) -> dict:
+        return {
+            "speaker_id": agent.id,
+            "speaker_name": agent.name,
+            "public_utterance": None,
+            "private_utterance": None,
+            "public_survey": None,
+            "private_survey": None,
+        }
+
+    def _append_event_turn(self, turn: MemoryTurn, recipients: Sequence[Agent]) -> None:
+        self._event_log.append(turn)
+        for agent in recipients:
+            agent.observe_turn(turn)
 
     def run(
         self,
         *,
-        max_turns_per_agent: int,
+        num_turns: int,
         verbose: bool = False,
         skip_first_agent_first_reflection: bool = False,
     ) -> List[MemoryTurn]:
-        """
-        Run the Agora until each agent has taken the specified number of turns.
+        """Run periodic macro-turns; each turn contains Alpha then Beta sub-turns."""
 
-        Args:
-            max_turns_per_agent: Stop once every agent has produced this many public turns.
-            verbose: When True, print turn-by-turn diagnostics for debugging.
-            skip_first_agent_first_reflection: If True, suppress the very first
-                reflection from the first agent (useful when pre-interviews already
-                cover initial state).
-        """
-
-        if max_turns_per_agent <= 0:
-            raise ValueError("max_turns_per_agent must be positive")
-
-        # Optional pre-interviews.
-        for agent in self._agents:
-            if not agent.pre_interview_instruction:
-                continue
-            response = agent.generate_interview_response(
-                agent.pre_interview_instruction
-            )
-            self._turn_counter += 1
-            pre_turn = MemoryTurn(
-                turn_id=self._turn_counter,
-                speaker_id=agent.id,
-                role="pre_interview",
-                private_reflection=response,
-                metadata={"speaker_name": agent.name},
-                keep=agent.pre_interview_keep,
-            )
-            self._turn_log.append(pre_turn)
-            if agent.pre_interview_keep:
-                agent.observe_turn(pre_turn)
-            if verbose:
-                suffix = " (excluded)" if not agent.pre_interview_keep else ""
-                print(
-                    f"Turn {self._turn_counter} | {agent.name} (pre-interview){suffix}: {response}"
-                )
-
-        # Track how many turns each agent has already taken.
-        turns_taken: Dict[str, int] = {agent.id: 0 for agent in self._agents}
-        agent_index = 0
-        opening_turn = not any(turn.role == "assistant" for turn in self._turn_log)
+        if num_turns <= 0:
+            raise ValueError("num_turns must be positive")
 
         first_reflection_skipped = False
+        starting_turn_num = len(self._turns)
 
-        while True:
-            if all(count >= max_turns_per_agent for count in turns_taken.values()):
-                break
+        # Turn 0 special case: optional pre-interviews, once per conversation.
+        if starting_turn_num == 0:
+            for index, agent in enumerate(self._agents):
+                slot = self._slot_name(index)
+                if not agent.pre_interview_instruction:
+                    continue
+                response = agent.generate_interview_response(agent.pre_interview_instruction)
+                self._pre_interviews[slot]["response"] = response
+                self._pre_interviews[slot]["keep"] = agent.pre_interview_keep
+                pre_turn = MemoryTurn(
+                    turn_id=self._next_event_id(),
+                    speaker_id=agent.id,
+                    role="pre_interview",
+                    private_reflection=response,
+                    metadata={
+                        "speaker_name": agent.name,
+                        "turn_num": 0,
+                        "subturn": slot,
+                        "event_type": "pre_interview",
+                    },
+                    keep=agent.pre_interview_keep,
+                )
+                recipients = [agent] if agent.pre_interview_keep else []
+                self._append_event_turn(pre_turn, recipients)
+                if verbose:
+                    suffix = " (excluded)" if not agent.pre_interview_keep else ""
+                    print(f"Turn 0 | {slot} (pre-interview){suffix}: {response}")
 
-            agent = self._agents[agent_index % len(self._agents)]
-            agent_index += 1
+        for offset in range(1, num_turns + 1):
+            turn_num = starting_turn_num + offset
+            turn_entry = {
+                "turn_num": turn_num,
+                "Alpha": self._blank_subturn(self._agents[0]),
+                "Beta": self._blank_subturn(self._agents[1]),
+            }
 
-            # Allow the agent to privately reflect before speaking publicly.
-            if agent.supports_private_reflection:
-                if skip_first_agent_first_reflection and not first_reflection_skipped:
-                    first_reflection_skipped = True
-                else:
-                    reflection = agent.generate_private_reflection()
-                    self._turn_counter += 1
-                    reflection_turn = MemoryTurn(
-                        turn_id=self._turn_counter,
-                        speaker_id=agent.id,
-                        role="reflection",
-                        private_reflection=reflection,
-                        metadata={"speaker_name": agent.name},
-                        keep=agent.private_keep,
-                    )
-                    self._turn_log.append(reflection_turn)
-                    if agent.private_keep:
-                        agent.observe_turn(reflection_turn)
-                    if verbose:
-                        suffix = " (excluded)" if not agent.private_keep else ""
-                        print(
-                            f"Turn {self._turn_counter} | {agent.name} (reflection){suffix}: {reflection}"
+            for index, agent in enumerate(self._agents):
+                slot = self._slot_name(index)
+                subturn = turn_entry[slot]
+                opening = turn_num == 1 and slot == "Alpha"
+
+                for event_name in self._event_order:
+                    if event_name == "public_utterance":
+                        speech = agent.generate_public_speech(opening=opening)
+                        subturn["public_utterance"] = speech
+                        public_turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=agent.id,
+                            role="assistant",
+                            public_speech=speech,
+                            metadata={
+                                "speaker_name": agent.name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "public_utterance",
+                            },
                         )
+                        self._append_event_turn(public_turn, self._agents)
+                        if verbose:
+                            print(f"Turn {turn_num} | {slot} (public): {speech}")
 
-            # Ask the selected agent for its next public utterance.
-            speech = agent.generate_public_speech(opening=opening_turn)
-            opening_turn = False
-            self._turn_counter += 1
-            turn = MemoryTurn(
-                turn_id=self._turn_counter,
-                speaker_id=agent.id,
-                role="assistant",
-                public_speech=speech,
-                metadata={"speaker_name": agent.name},
-            )
-            self._turn_log.append(turn)
-            # Broadcast the public turn into every agent's local memory.
-            for recipient in self._agents:
-                recipient.observe_turn(turn)
-            turns_taken[agent.id] += 1
-            if verbose:
-                print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
+                    elif event_name == "private_utterance":
+                        if not agent.supports_private_reflection:
+                            continue
+                        if (
+                            skip_first_agent_first_reflection
+                            and slot == "Alpha"
+                            and turn_num == 1
+                            and not first_reflection_skipped
+                        ):
+                            first_reflection_skipped = True
+                            continue
+                        reflection = agent.generate_private_reflection()
+                        subturn["private_utterance"] = reflection
+                        reflection_turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=agent.id,
+                            role="reflection",
+                            private_reflection=reflection,
+                            metadata={
+                                "speaker_name": agent.name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "private_utterance",
+                            },
+                            keep=agent.private_keep,
+                        )
+                        recipients = [agent] if agent.private_keep else []
+                        self._append_event_turn(reflection_turn, recipients)
+                        if verbose:
+                            suffix = " (excluded)" if not agent.private_keep else ""
+                            print(
+                                f"Turn {turn_num} | {slot} (private){suffix}: {reflection}"
+                            )
 
-            # Survey responses are collected after the public turn, and keyed
-            # by that public turn id.
-            if agent.do_survey_eval:
-                if agent.enable_public_survey:
-                    response = agent.generate_public_survey_response(agent.survey_questions)
-                    self.survey_public_response.setdefault(agent.id, {})[self._turn_counter] = (
-                        parse_survey_response_str(response)
-                    )
-                    if verbose:
-                        print("#" * 10)
-                        print(f"Public survey response from {agent.name}:")
-                        print(response)
-                        print("#" * 10)
+                    elif event_name == "public_survey":
+                        if not (agent.do_survey_eval and agent.enable_public_survey):
+                            continue
+                        response = agent.generate_public_survey_response(
+                            agent.survey_questions
+                        )
+                        parsed = parse_survey_response_str(response)
+                        subturn["public_survey"] = parsed
+                        survey_turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=agent.id,
+                            role="public_survey",
+                            public_speech=json.dumps(parsed),
+                            metadata={
+                                "speaker_name": agent.name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "public_survey",
+                                "survey_scores": parsed,
+                            },
+                            keep=agent.public_survey_keep,
+                        )
+                        recipients = list(self._agents) if agent.public_survey_keep else []
+                        self._append_event_turn(survey_turn, recipients)
+                        if verbose:
+                            suffix = " (excluded)" if not agent.public_survey_keep else ""
+                            print(
+                                f"Turn {turn_num} | {slot} (public survey){suffix}: {parsed}"
+                            )
 
-                if agent.enable_private_survey:
-                    response_private = agent.generate_private_survey_response(agent.survey_questions)
-                    self.survey_private_response.setdefault(agent.id, {})[self._turn_counter] = (
-                        parse_survey_response_str(response_private)
-                    )
-                    if verbose:
-                        print("#" * 10)
-                        print(f"Private survey response from {agent.name}:")
-                        print(response_private)
-                        print("#" * 10)
+                    elif event_name == "private_survey":
+                        if not (agent.do_survey_eval and agent.enable_private_survey):
+                            continue
+                        response_private = agent.generate_private_survey_response(
+                            agent.survey_questions
+                        )
+                        parsed_private = parse_survey_response_str(response_private)
+                        subturn["private_survey"] = parsed_private
+                        survey_turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=agent.id,
+                            role="private_survey",
+                            private_reflection=json.dumps(parsed_private),
+                            metadata={
+                                "speaker_name": agent.name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "private_survey",
+                                "survey_scores": parsed_private,
+                            },
+                            keep=agent.private_survey_keep,
+                        )
+                        recipients = [agent] if agent.private_survey_keep else []
+                        self._append_event_turn(survey_turn, recipients)
+                        if verbose:
+                            suffix = " (excluded)" if not agent.private_survey_keep else ""
+                            print(
+                                f"Turn {turn_num} | {slot} (private survey){suffix}: {parsed_private}"
+                            )
 
-        # Optional post-interviews
-        for agent in self._agents:
+            self._turns.append(turn_entry)
+
+        # Turn N+1 special case: optional post-interviews.
+        final_turn_num = len(self._turns) + 1
+        for index, agent in enumerate(self._agents):
+            slot = self._slot_name(index)
             if not agent.post_interview_instruction:
                 continue
-            response = agent.generate_interview_response(
-                agent.post_interview_instruction
-            )
-            self._turn_counter += 1
+            response = agent.generate_interview_response(agent.post_interview_instruction)
+            self._post_interviews[slot] = {
+                "speaker_id": agent.id,
+                "speaker_name": agent.name,
+                "response": response,
+                "keep": agent.post_interview_keep,
+            }
             post_turn = MemoryTurn(
-                turn_id=self._turn_counter,
+                turn_id=self._next_event_id(),
                 speaker_id=agent.id,
                 role="post_interview",
                 private_reflection=response,
-                metadata={"speaker_name": agent.name},
+                metadata={
+                    "speaker_name": agent.name,
+                    "turn_num": final_turn_num,
+                    "subturn": slot,
+                    "event_type": "post_interview",
+                },
                 keep=agent.post_interview_keep,
             )
-            self._turn_log.append(post_turn)
-            if agent.post_interview_keep:
-                agent.observe_turn(post_turn)
+            recipients = [agent] if agent.post_interview_keep else []
+            self._append_event_turn(post_turn, recipients)
             if verbose:
                 suffix = " (excluded)" if not agent.post_interview_keep else ""
-                print(
-                    f"Turn {self._turn_counter} | {agent.name} (post-interview){suffix}: {response}"
-                )
+                print(f"Turn {final_turn_num} | {slot} (post-interview){suffix}: {response}")
 
-        return list(self._turn_log)
+        return list(self._event_log)
 
     def history(self) -> List[MemoryTurn]:
-        """Return the full history, including private reflections."""
+        """Return the event log used for model context and diagnostics."""
+        return list(self._event_log)
 
-        return list(self._turn_log)
+    def structured_history(self) -> dict:
+        """Return canonical turn-structured history for outputs and analytics."""
+        return {
+            "event_order": list(self._event_order),
+            "pre_interviews": json.loads(json.dumps(self._pre_interviews)),
+            "turns": json.loads(json.dumps(self._turns)),
+            "post_interviews": json.loads(json.dumps(self._post_interviews)),
+        }
 
     @property
     def agents(self) -> Sequence[Agent]:
-        """Expose the list of agents participating in this Agora."""
-
         return tuple(self._agents)
 
-    def load_history(self, turns: Sequence[MemoryTurn]) -> None:
-        """
-        Replace the Agora's history with the provided turns.
+    def load_structured_history(
+        self,
+        *,
+        event_order: Sequence[str],
+        pre_interviews: dict,
+        turns: Sequence[dict],
+        post_interviews: dict,
+    ) -> None:
+        """Load canonical structured history and rebuild event-log memory."""
 
-        Intended for snapshots; assumes the agents are freshly attached.
-        """
+        self._event_order = self._resolve_event_order(event_order)
+        self._pre_interviews = json.loads(json.dumps(pre_interviews))
+        self._turns = json.loads(json.dumps(list(turns)))
+        self._post_interviews = json.loads(json.dumps(post_interviews))
 
         for agent in self._agents:
             agent.reset_memory()
-        self._turn_log = []
-        self._turn_counter = 0
+        self._event_log = []
+        self._event_counter = 0
 
-        for turn in turns:
-            self._turn_log.append(turn)
-            if turn.role in {"reflection", "pre_interview", "post_interview"}:
-                speaker = self._agent_lookup.get(turn.speaker_id)
-                if speaker and turn.keep:
-                    speaker.observe_turn(turn)
-            elif turn.role == "assistant":
-                for agent in self._agents:
-                    agent.observe_turn(turn)
-            self._turn_counter = max(self._turn_counter, turn.turn_id)
+        # Rebuild event log from canonical representation.
+        for slot in ("Alpha", "Beta"):
+            stage = self._pre_interviews.get(slot, {})
+            response = stage.get("response")
+            if response is None:
+                continue
+            speaker_id = stage.get("speaker_id")
+            speaker_name = stage.get("speaker_name", slot)
+            keep = bool(stage.get("keep", False))
+            turn = MemoryTurn(
+                turn_id=self._next_event_id(),
+                speaker_id=speaker_id,
+                role="pre_interview",
+                private_reflection=response,
+                metadata={"speaker_name": speaker_name, "turn_num": 0, "subturn": slot, "event_type": "pre_interview"},
+                keep=keep,
+            )
+            recipients = [self._agent_lookup[speaker_id]] if keep and speaker_id in self._agent_lookup else []
+            self._append_event_turn(turn, recipients)
+
+        for turn_entry in self._turns:
+            turn_num = int(turn_entry.get("turn_num", 0))
+            for slot_index, slot in enumerate(("Alpha", "Beta")):
+                agent = self._agents[slot_index]
+                subturn = turn_entry.get(slot, {})
+                speaker_id = subturn.get("speaker_id", agent.id)
+                speaker_name = subturn.get("speaker_name", agent.name)
+                for event_name in self._event_order:
+                    if event_name == "public_utterance":
+                        speech = subturn.get("public_utterance")
+                        if speech is None:
+                            continue
+                        turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=speaker_id,
+                            role="assistant",
+                            public_speech=speech,
+                            metadata={
+                                "speaker_name": speaker_name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "public_utterance",
+                            },
+                        )
+                        self._append_event_turn(turn, self._agents)
+
+                    elif event_name == "private_utterance":
+                        reflection = subturn.get("private_utterance")
+                        if reflection is None:
+                            continue
+                        turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=speaker_id,
+                            role="reflection",
+                            private_reflection=reflection,
+                            metadata={
+                                "speaker_name": speaker_name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "private_utterance",
+                            },
+                            keep=agent.private_keep,
+                        )
+                        recipients = [agent] if agent.private_keep else []
+                        self._append_event_turn(turn, recipients)
+
+                    elif event_name == "public_survey":
+                        scores = subturn.get("public_survey")
+                        if scores is None:
+                            continue
+                        turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=speaker_id,
+                            role="public_survey",
+                            public_speech=json.dumps(scores),
+                            metadata={
+                                "speaker_name": speaker_name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "public_survey",
+                                "survey_scores": scores,
+                            },
+                            keep=agent.public_survey_keep,
+                        )
+                        recipients = list(self._agents) if agent.public_survey_keep else []
+                        self._append_event_turn(turn, recipients)
+
+                    elif event_name == "private_survey":
+                        scores = subturn.get("private_survey")
+                        if scores is None:
+                            continue
+                        turn = MemoryTurn(
+                            turn_id=self._next_event_id(),
+                            speaker_id=speaker_id,
+                            role="private_survey",
+                            private_reflection=json.dumps(scores),
+                            metadata={
+                                "speaker_name": speaker_name,
+                                "turn_num": turn_num,
+                                "subturn": slot,
+                                "event_type": "private_survey",
+                                "survey_scores": scores,
+                            },
+                            keep=agent.private_survey_keep,
+                        )
+                        recipients = [agent] if agent.private_survey_keep else []
+                        self._append_event_turn(turn, recipients)
+
+        for slot in ("Alpha", "Beta"):
+            stage = self._post_interviews.get(slot, {})
+            response = stage.get("response")
+            if response is None:
+                continue
+            speaker_id = stage.get("speaker_id")
+            speaker_name = stage.get("speaker_name", slot)
+            keep = bool(stage.get("keep", False))
+            turn = MemoryTurn(
+                turn_id=self._next_event_id(),
+                speaker_id=speaker_id,
+                role="post_interview",
+                private_reflection=response,
+                metadata={
+                    "speaker_name": speaker_name,
+                    "turn_num": len(self._turns) + 1,
+                    "subturn": slot,
+                    "event_type": "post_interview",
+                },
+                keep=keep,
+            )
+            recipients = [self._agent_lookup[speaker_id]] if keep and speaker_id in self._agent_lookup else []
+            self._append_event_turn(turn, recipients)
 
     def history_for_agent(self, agent_id: str) -> List[MemoryTurn]:
         """Return the history view appropriate for a particular agent."""
@@ -224,14 +510,15 @@ class Agora:
         if agent_id not in self._agent_lookup:
             raise KeyError(f"Unknown agent id: {agent_id}")
         visible: List[MemoryTurn] = []
-        for turn in self._turn_log:
-            if turn.role in {"reflection", "pre_interview", "post_interview"}:
-                if turn.speaker_id != agent_id:
+        for turn in self._event_log:
+            if turn.role in {"reflection", "pre_interview", "post_interview", "private_survey"}:
+                if turn.speaker_id != agent_id or not turn.keep:
                     continue
+            elif turn.role == "public_survey":
                 if not turn.keep:
                     continue
             visible.append(turn)
         return visible
 
 
-__all__ = ["Agora"]
+__all__ = ["ALLOWED_SUBTURN_EVENTS", "Agora"]

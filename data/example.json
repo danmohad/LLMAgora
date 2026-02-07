@@ -5,7 +5,10 @@
   "prompt_set": "default",
   "alpha_model": "openai/gpt-4o-mini",
   "beta_model": "anthropic/claude-sonnet-4.5",
-  "turns_per_agent": 2,
+  "num_turns": 2,
+  "subturn_event_order": [
+    "public_utterance"
+  ],
   "verbose": false,
   "use_neutral_arena": false,
   "enable_private_reflection": false,

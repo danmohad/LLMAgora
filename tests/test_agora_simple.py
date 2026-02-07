@@ -26,7 +26,7 @@ def test_agora_runs_with_turn_limit(stub_llm_factory):
 
     agora = Agora([agent_a, agent_b])
 
-    history = agora.run(max_turns_per_agent=2)
+    history = agora.run(num_turns=2)
 
     assert len(history) == 4
     assert [turn.metadata["speaker_name"] for turn in history] == [
@@ -58,7 +58,7 @@ def test_agora_rejects_invalid_turn_limit(stub_llm_factory):
     )
     agora = Agora([agent_a, agent_b])
     with pytest.raises(ValueError):
-        agora.run(max_turns_per_agent=0)
+        agora.run(num_turns=0)
 
 
 def test_agent_message_roles_follow_schema(stub_llm_factory):
@@ -80,7 +80,7 @@ def test_agent_message_roles_follow_schema(stub_llm_factory):
         system_prompt="You are Beta.",
         response_instruction="Beta respond.",
     )
-    Agora([agent_a, agent_b]).run(max_turns_per_agent=2)
+    Agora([agent_a, agent_b]).run(num_turns=2)
 
     # Alpha's first call should just have system + final user prompt.
     alpha_messages = llm_a.calls[0]["messages"]
@@ -115,7 +115,7 @@ def test_opening_instruction_used_for_first_public_turn(stub_llm_factory):
         response_instruction="Beta respond.",
     )
 
-    Agora([agent_a, agent_b]).run(max_turns_per_agent=1)
+    Agora([agent_a, agent_b]).run(num_turns=1)
 
     alpha_messages = llm_a.calls[0]["messages"]
     beta_messages = llm_b.calls[0]["messages"]
@@ -145,7 +145,7 @@ def test_agora_rejects_more_than_two_agents(stub_llm_factory):
 def test_private_reflections_are_private(stub_llm_factory):
     """Private reflections should only enter the speaking agent's memory."""
 
-    llm_alpha = stub_llm_factory(["Alpha thinks", "Alpha turn 1"])
+    llm_alpha = stub_llm_factory(["Alpha turn 1", "Alpha thinks"])
     llm_beta = stub_llm_factory(["Beta turn 1"])
     agent_a = Agent(
         name="Alpha",
@@ -157,11 +157,11 @@ def test_private_reflections_are_private(stub_llm_factory):
     agent_b = Agent(name="Beta", model="demo", llm_client=llm_beta, response_instruction="Beta public")
 
     agora = Agora([agent_a, agent_b])
-    history = agora.run(max_turns_per_agent=1)
+    history = agora.run(num_turns=1)
 
-    assert len(history) == 3  # reflection + two public turns
-    assert history[0].role == "reflection"
-    assert history[0].private_reflection == "Alpha thinks"
+    assert len(history) == 3  # two public turns + reflection
+    assert history[1].role == "reflection"
+    assert history[1].private_reflection == "Alpha thinks"
 
     alpha_history = agent_a.view_history()
     beta_history = agent_b.view_history()
@@ -203,7 +203,7 @@ def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
         response_instruction="Beta respond",
     )
     agora = Agora([agent_a, agent_b])
-    agora.run(max_turns_per_agent=1)
+    agora.run(num_turns=1)
 
     snapshot_path = tmp_path / "snapshot.json"
     save_snapshot(snapshot_path, agora)
@@ -283,7 +283,7 @@ def test_interviews_respect_keep_flag(stub_llm_factory):
         response_instruction="public",
     )
     agora = Agora([agent, beta])
-    history = agora.run(max_turns_per_agent=1, verbose=False)
+    history = agora.run(num_turns=1, verbose=False)
     assert [t.role for t in history] == ["pre_interview", "assistant", "assistant", "post_interview"]
     assert len(agent.view_history()) == 2  # both public turns are visible
 
@@ -291,7 +291,7 @@ def test_interviews_respect_keep_flag(stub_llm_factory):
 def test_private_reflection_keep_flag(stub_llm_factory):
     """Private reflections can be excluded from agent memory when keep=False."""
 
-    llm = stub_llm_factory(["think", "say"])
+    llm = stub_llm_factory(["say", "think"])
     agent = Agent(
         name="Alpha",
         model="demo",
@@ -307,7 +307,7 @@ def test_private_reflection_keep_flag(stub_llm_factory):
         response_instruction="say",
     )
     agora = Agora([agent, beta])
-    history = agora.run(max_turns_per_agent=1)
+    history = agora.run(num_turns=1)
     assert any(t.role == "reflection" for t in history)
     assert all(t.role != "reflection" for t in agent.view_history())
 
@@ -315,7 +315,7 @@ def test_private_reflection_keep_flag(stub_llm_factory):
 def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
     """Skip flag should suppress the first reflection even if pre-interviews advance the counter."""
 
-    llm = stub_llm_factory(["pre", "think", "say"])
+    llm = stub_llm_factory(["pre", "say"])
     agent = Agent(
         name="Alpha",
         model="demo",
@@ -332,6 +332,146 @@ def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
         llm_client=stub_llm_factory(["beta says"]),
         response_instruction="say",
     )
-    history = Agora([agent, beta]).run(max_turns_per_agent=1, skip_first_agent_first_reflection=True)
+    history = Agora([agent, beta]).run(num_turns=1, skip_first_agent_first_reflection=True)
     # Should see pre-interview + public turn only
     assert [t.role for t in history] == ["pre_interview", "assistant", "assistant"]
+
+
+def test_agora_event_order_validation(stub_llm_factory):
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=stub_llm_factory(["a pub", "a priv"]),
+        response_instruction="say",
+        private_response_instruction="think",
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["b pub"]),
+        response_instruction="say",
+    )
+
+    with pytest.raises(ValueError, match="event_order must not be empty"):
+        Agora([alpha, beta], event_order=[])
+    with pytest.raises(ValueError, match="unknown events"):
+        Agora([alpha, beta], event_order=["public_utterance", "not_real"])
+    with pytest.raises(ValueError, match="must not contain duplicates"):
+        Agora([alpha, beta], event_order=["public_utterance", "public_utterance"])
+    with pytest.raises(ValueError, match="must match enabled events 1:1"):
+        Agora([alpha, beta], event_order=["public_utterance"])
+
+    agora = Agora([alpha, beta])
+    with pytest.raises(ValueError, match="Unknown interview stage"):
+        agora._empty_interview_stage(stage="invalid")
+
+
+def test_agora_load_structured_history_rebuilds_all_event_types(stub_llm_factory):
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=stub_llm_factory(["unused"]),
+        response_instruction="say",
+        private_response_instruction="think",
+        survey_questions=["q1"],
+        survey_public_prompt="Public\n",
+        survey_private_prompt="Private\n",
+        enable_public_survey=True,
+        enable_private_survey=True,
+        public_survey_keep=False,
+        private_survey_keep=True,
+        post_interview_instruction="post",
+        post_interview_keep=True,
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["unused"]),
+        response_instruction="say",
+        private_response_instruction="think",
+        survey_questions=["q1"],
+        survey_public_prompt="Public\n",
+        survey_private_prompt="Private\n",
+        enable_public_survey=True,
+        enable_private_survey=True,
+        public_survey_keep=False,
+        private_survey_keep=True,
+        post_interview_instruction="post",
+        post_interview_keep=True,
+    )
+    agora = Agora(
+        [alpha, beta],
+        event_order=[
+            "public_utterance",
+            "private_utterance",
+            "public_survey",
+            "private_survey",
+        ],
+    )
+
+    agora.load_structured_history(
+        event_order=[
+            "public_utterance",
+            "private_utterance",
+            "public_survey",
+            "private_survey",
+        ],
+        pre_interviews={
+            "Alpha": {
+                "speaker_id": "missing",
+                "speaker_name": "Alpha",
+                "response": "alpha pre",
+                "keep": True,
+            },
+            "Beta": {
+                "speaker_id": beta.id,
+                "speaker_name": "Beta",
+                "response": None,
+                "keep": True,
+            },
+        },
+        turns=[
+            {
+                "turn_num": 1,
+                "Alpha": {
+                    "speaker_id": alpha.id,
+                    "speaker_name": "Alpha",
+                    "public_utterance": "alpha public",
+                    "private_utterance": "alpha private",
+                    "public_survey": {"Q1": 0},
+                    "private_survey": None,
+                },
+                "Beta": {
+                    "speaker_id": beta.id,
+                    "speaker_name": "Beta",
+                    "public_utterance": None,
+                    "private_utterance": "beta private",
+                    "public_survey": None,
+                    "private_survey": {"Q1": 2},
+                },
+            }
+        ],
+        post_interviews={
+            "Alpha": {
+                "speaker_id": "missing",
+                "speaker_name": "Alpha",
+                "response": "alpha post",
+                "keep": True,
+            },
+            "Beta": {
+                "speaker_id": beta.id,
+                "speaker_name": "Beta",
+                "response": None,
+                "keep": True,
+            },
+        },
+    )
+
+    roles = [turn.role for turn in agora.history()]
+    assert "public_survey" in roles
+    assert "private_survey" in roles
+    alpha_visible_roles = [turn.role for turn in agora.history_for_agent(alpha.id)]
+    assert "public_survey" not in alpha_visible_roles
+    assert "private_survey" not in alpha_visible_roles
+    beta_visible_roles = [turn.role for turn in agora.history_for_agent(beta.id)]
+    assert "private_survey" in beta_visible_roles
