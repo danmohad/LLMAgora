@@ -50,28 +50,8 @@ class Agora:
         if max_turns_per_agent <= 0:
             raise ValueError("max_turns_per_agent must be positive")
 
-        # Pre-interview round for survey and statement
+        # Optional pre-interviews.
         for agent in self._agents:
-            if agent.do_survey_eval:
-                if agent.enable_public_survey:
-                    response = agent.generate_public_survey_response(agent.survey_questions)
-                    self.survey_public_response[agent.id] = {0: parse_survey_response_str(response)}
-                    if verbose:
-                        print("#" * 10)
-                        print(f"Public survey response from {agent.name}:")
-                        print(response)
-                        print("#" * 10)
-
-                if agent.enable_private_survey:
-                    response_private = agent.generate_private_survey_response(agent.survey_questions)
-                    self.survey_private_response[agent.id] = {0: parse_survey_response_str(response_private)}
-                    if verbose:
-                        print("#" * 10)
-                        print(f"Private survey response from {agent.name}:")
-                        print(response_private)
-                        print("#" * 10)
-
-            # Optional pre-interviews
             if not agent.pre_interview_instruction:
                 continue
             response = agent.generate_interview_response(
@@ -136,44 +116,12 @@ class Agora:
             # Ask the selected agent for its next public utterance.
             speech = agent.generate_public_speech(opening=opening_turn)
             opening_turn = False
-            recorded_speech = speech
-
-            # Survey results are keyed by the pre-public turn counter so
-            # round 0 captures the initial survey and later keys align to
-            # the public turn that follows this block.
-            if agent.do_survey_eval:
-                if agent.enable_public_survey:
-                    response = agent.generate_public_survey_response(agent.survey_questions)
-                    self.survey_public_response[agent.id][self._turn_counter] = (
-                        parse_survey_response_str(response)
-                    )
-                    if agent.public_survey_keep:
-                        recorded_speech += response
-
-                    if verbose:
-                        print("#" * 10)
-                        print(f"Public survey response from {agent.name}:")
-                        print(response)
-                        print("#" * 10)
-
-                if agent.enable_private_survey:
-                    response_private = agent.generate_private_survey_response(agent.survey_questions)
-                    self.survey_private_response[agent.id][self._turn_counter] = (
-                        parse_survey_response_str(response_private)
-                    )
-
-                    if verbose:
-                        print("#" * 10)
-                        print(f"Private survey response from {agent.name}:")
-                        print(response_private)
-                        print("#" * 10)
-
             self._turn_counter += 1
             turn = MemoryTurn(
                 turn_id=self._turn_counter,
                 speaker_id=agent.id,
                 role="assistant",
-                public_speech=recorded_speech,
+                public_speech=speech,
                 metadata={"speaker_name": agent.name},
             )
             self._turn_log.append(turn)
@@ -183,6 +131,31 @@ class Agora:
             turns_taken[agent.id] += 1
             if verbose:
                 print(f"Turn {self._turn_counter} | {agent.name} (public): {speech}")
+
+            # Survey responses are collected after the public turn, and keyed
+            # by that public turn id.
+            if agent.do_survey_eval:
+                if agent.enable_public_survey:
+                    response = agent.generate_public_survey_response(agent.survey_questions)
+                    self.survey_public_response.setdefault(agent.id, {})[self._turn_counter] = (
+                        parse_survey_response_str(response)
+                    )
+                    if verbose:
+                        print("#" * 10)
+                        print(f"Public survey response from {agent.name}:")
+                        print(response)
+                        print("#" * 10)
+
+                if agent.enable_private_survey:
+                    response_private = agent.generate_private_survey_response(agent.survey_questions)
+                    self.survey_private_response.setdefault(agent.id, {})[self._turn_counter] = (
+                        parse_survey_response_str(response_private)
+                    )
+                    if verbose:
+                        print("#" * 10)
+                        print(f"Private survey response from {agent.name}:")
+                        print(response_private)
+                        print("#" * 10)
 
         # Optional post-interviews
         for agent in self._agents:

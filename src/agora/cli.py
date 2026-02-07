@@ -47,6 +47,7 @@ def _run(args: argparse.Namespace) -> None:
         "enable_public_survey": args.enable_public_survey,
         "enable_private_survey": args.enable_private_survey,
         "keep_public_survey": args.keep_public_survey,
+        "keep_private_survey": args.keep_private_survey,
         "enable_analyzer": args.enable_analyzer,
         "enable_persona_evaluation": args.enable_persona_evaluation,
         "persona_eval_model": args.persona_eval_model,
@@ -55,6 +56,7 @@ def _run(args: argparse.Namespace) -> None:
         "enable_plots": args.enable_plots,
         "show_plots": args.show_plots,
         "load_snapshot": args.load_snapshot,
+        "load_dir": args.load_dir,
         "save_snapshot": args.save_snapshot,
         "outputs_root": args.outputs_root,
         "run_name": args.run_name,
@@ -116,7 +118,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     _add_bool(run_cmd, "enable-public-survey", "Enable public survey rounds")
     _add_bool(run_cmd, "enable-private-survey", "Enable private survey rounds")
-    _add_bool(run_cmd, "keep-public-survey", "Append public survey text to public utterances")
+    _add_bool(run_cmd, "keep-public-survey", "Reserved survey retention flag (does not modify public_speech)")
+    _add_bool(run_cmd, "keep-private-survey", "Reserved survey retention flag for private survey responses")
 
     _add_bool(run_cmd, "enable-analyzer", "Compute semantic analyzer metrics")
     _add_bool(run_cmd, "enable-persona-evaluation", "Compute persona adherence scores")
@@ -127,8 +130,9 @@ def build_parser() -> argparse.ArgumentParser:
     _add_bool(run_cmd, "enable-plots", "Save plots for enabled analyses")
     _add_bool(run_cmd, "show-plots", "Display plots while running")
 
-    _add_bool(run_cmd, "load-snapshot", "Load existing snapshot from this run directory")
-    _add_bool(run_cmd, "save-snapshot", "Save snapshot into this run directory")
+    _add_bool(run_cmd, "load-snapshot", "Load existing snapshot from --load-dir")
+    run_cmd.add_argument("--load-dir", type=Path, default=None, help="Directory containing debate_snapshot.json to load")
+    _add_bool(run_cmd, "save-snapshot", "Save snapshot (to load dir when loading, otherwise to current run dir)")
 
     run_cmd.add_argument("--outputs-root", type=Path, default=None, help=f"Root outputs directory (default: {DEFAULT_OUTPUTS_ROOT})")
     run_cmd.add_argument("--run-name", help="Explicit output directory name (human-readable mode)")

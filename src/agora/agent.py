@@ -28,6 +28,7 @@ class Agent:
         enable_public_survey: bool = True,
         enable_private_survey: bool = True,
         public_survey_keep: bool = False,
+        private_survey_keep: bool = False,
         private_response_instruction: Optional[str] = None,
         private_response_keep: bool = True,
         pre_interview_instruction: Optional[str] = None,
@@ -72,6 +73,7 @@ class Agent:
         self._enable_public_survey = enable_public_survey
         self._enable_private_survey = enable_private_survey
         self._public_survey_keep = public_survey_keep
+        self._private_survey_keep = private_survey_keep
         self._private_instruction = private_response_instruction
         self._private_keep = private_response_keep
         self._pre_instruction = pre_interview_instruction
@@ -139,6 +141,10 @@ class Agent:
     @property
     def public_survey_keep(self) -> bool:
         return self._public_survey_keep
+
+    @property
+    def private_survey_keep(self) -> bool:
+        return self._private_survey_keep
 
     @property
     def survey_public_prompt(self) -> str:
@@ -264,6 +270,7 @@ class Agent:
             "enable_public_survey": self._enable_public_survey,
             "enable_private_survey": self._enable_private_survey,
             "public_survey_keep": self._public_survey_keep,
+            "private_survey_keep": self._private_survey_keep,
         }
 
     @classmethod
@@ -291,6 +298,7 @@ class Agent:
             enable_public_survey=bool(config.get("enable_public_survey", True)),
             enable_private_survey=bool(config.get("enable_private_survey", True)),
             public_survey_keep=bool(config.get("public_survey_keep", False)),
+            private_survey_keep=bool(config.get("private_survey_keep", False)),
             agent_id=config.get("id"),
         )
 

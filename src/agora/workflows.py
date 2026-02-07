@@ -35,17 +35,18 @@ def extract_instruction(config: dict, key: str) -> Tuple[Optional[str], bool]:
 
 def extract_survey_instructions(
     config: dict,
-) -> Tuple[List[str], Optional[str], Optional[str], bool, bool, bool]:
+) -> Tuple[List[str], Optional[str], Optional[str], bool, bool, bool, bool]:
     """Parse survey instructions from an agent configuration dict."""
     entry = config.get("survey")
     if not isinstance(entry, dict):
-        return [], None, None, False, False, False
+        return [], None, None, False, False, False, False
 
     return (
         entry.get("survey_questions") or [],
         entry.get("survey_public_prompt"),
         entry.get("survey_private_prompt"),
         bool(entry.get("public_survey_keep", False)),
+        bool(entry.get("private_survey_keep", False)),
         bool(entry.get("enable_public_survey", True)),
         bool(entry.get("enable_private_survey", True)),
     )
@@ -69,6 +70,7 @@ def build_agents_from_configs(
             survey_public_prompt,
             survey_private_prompt,
             public_survey_keep,
+            private_survey_keep,
             enable_public_survey,
             enable_private_survey,
         ) = extract_survey_instructions(cfg)
@@ -92,6 +94,7 @@ def build_agents_from_configs(
             enable_public_survey=enable_public_survey,
             enable_private_survey=enable_private_survey,
             public_survey_keep=public_survey_keep,
+            private_survey_keep=private_survey_keep,
         )
         agents.append(agent)
     return agents
@@ -267,6 +270,7 @@ def build_scenario_agent_configs(
     enable_public_survey: bool = True,
     enable_private_survey: bool = True,
     public_survey_keep: bool = False,
+    private_survey_keep: bool = False,
     prompt_set: str = DEFAULT_PROMPT_SET,
     private_response_keep: bool = True,
     pre_interview_keep: bool = False,
@@ -389,6 +393,7 @@ def build_scenario_agent_configs(
                 "enable_public_survey": enable_public_survey,
                 "enable_private_survey": enable_private_survey,
                 "public_survey_keep": public_survey_keep,
+                "private_survey_keep": private_survey_keep,
             },
         },
         {
@@ -419,6 +424,7 @@ def build_scenario_agent_configs(
                 "enable_public_survey": enable_public_survey,
                 "enable_private_survey": enable_private_survey,
                 "public_survey_keep": public_survey_keep,
+                "private_survey_keep": private_survey_keep,
             },
         },
     ]

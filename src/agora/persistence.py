@@ -35,6 +35,7 @@ class AgentState:
     enable_public_survey: bool = True
     enable_private_survey: bool = True
     public_survey_keep: bool = False
+    private_survey_keep: bool = False
 
     @classmethod
     def from_agent(cls, agent: Agent) -> "AgentState":
@@ -58,6 +59,7 @@ class AgentState:
             enable_public_survey=config.get("enable_public_survey", True),
             enable_private_survey=config.get("enable_private_survey", True),
             public_survey_keep=config.get("public_survey_keep", False),
+            private_survey_keep=config.get("private_survey_keep", False),
         )
 
     def to_dict(self) -> dict:
@@ -80,6 +82,7 @@ class AgentState:
             "enable_public_survey": self.enable_public_survey,
             "enable_private_survey": self.enable_private_survey,
             "public_survey_keep": self.public_survey_keep,
+            "private_survey_keep": self.private_survey_keep,
         }
 
     @classmethod
@@ -103,6 +106,7 @@ class AgentState:
             enable_public_survey=payload.get("enable_public_survey", True),
             enable_private_survey=payload.get("enable_private_survey", True),
             public_survey_keep=payload.get("public_survey_keep", False),
+            private_survey_keep=payload.get("private_survey_keep", False),
         )
 
 

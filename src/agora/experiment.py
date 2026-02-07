@@ -60,6 +60,7 @@ class ExperimentConfig:
     enable_public_survey: bool = False
     enable_private_survey: bool = False
     keep_public_survey: bool = False
+    keep_private_survey: bool = False
 
     enable_analyzer: bool = False
     enable_persona_evaluation: bool = False
@@ -71,6 +72,7 @@ class ExperimentConfig:
     show_plots: bool = False
 
     load_snapshot: bool = False
+    load_dir: Optional[Path] = None
     save_snapshot: bool = False
 
     outputs_root: Path = DEFAULT_OUTPUTS_ROOT
@@ -258,6 +260,7 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
     for field_name, fallback in path_fields:
         data[field_name] = _coerce_path(data.get(field_name), fallback=fallback)
     data["index_csv"] = _coerce_optional_path(data.get("index_csv"))
+    data["load_dir"] = _coerce_optional_path(data.get("load_dir"))
 
     cfg = ExperimentConfig(**data)
     if cfg.turns_per_agent <= 0:
@@ -268,6 +271,18 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("side_order must be '12' or '21'")
     if cfg.question_variant not in {"agreeable", "controversial"}:
         raise ValueError("question_variant must be 'agreeable' or 'controversial'")
+    if cfg.show_plots and not cfg.enable_plots:
+        raise ValueError("show_plots requires enable_plots=True")
+    if cfg.keep_public_survey and not cfg.enable_public_survey:
+        raise ValueError("keep_public_survey requires enable_public_survey=True")
+    if cfg.keep_private_survey and not cfg.enable_private_survey:
+        raise ValueError("keep_private_survey requires enable_private_survey=True")
+    if cfg.persona_eval_verbose and not cfg.enable_persona_evaluation:
+        raise ValueError("persona_eval_verbose requires enable_persona_evaluation=True")
+    if cfg.load_snapshot and cfg.load_dir is None:
+        raise ValueError("load_dir must be provided when load_snapshot is enabled")
+    if not cfg.load_snapshot and cfg.load_dir is not None:
+        raise ValueError("load_dir must be None when load_snapshot is disabled")
     return cfg
 
 
@@ -300,7 +315,6 @@ def _should_write_outputs(cfg: ExperimentConfig) -> bool:
             cfg.enable_public_survey,
             cfg.enable_private_survey,
             cfg.save_snapshot,
-            cfg.load_snapshot,
             cfg.indexed_output,
         ]
     )
@@ -359,6 +373,7 @@ def run_persona_experiment(
         pre_interview_keep=cfg.keep_pre_interview,
         post_interview_keep=cfg.keep_post_interview,
         public_survey_keep=cfg.keep_public_survey,
+        private_survey_keep=cfg.keep_private_survey,
         enable_public_survey=cfg.enable_public_survey,
         enable_private_survey=cfg.enable_private_survey,
         survey_questions=survey_questions,
@@ -379,6 +394,7 @@ def run_persona_experiment(
                 "enable_public_survey": False,
                 "enable_private_survey": False,
                 "public_survey_keep": False,
+                "private_survey_keep": False,
             }
         else:
             if not cfg.enable_public_survey:
@@ -386,10 +402,16 @@ def run_persona_experiment(
                 agent_cfg["survey"]["public_survey_keep"] = False
             if not cfg.enable_private_survey:
                 agent_cfg["survey"]["survey_private_prompt"] = None
+                agent_cfg["survey"]["private_survey_keep"] = False
             agent_cfg["survey"]["enable_public_survey"] = cfg.enable_public_survey
             agent_cfg["survey"]["enable_private_survey"] = cfg.enable_private_survey
 
-    snapshot_path = run_dir / "debate_snapshot.json" if run_dir is not None else None
+    snapshot_path: Optional[Path] = None
+    if cfg.load_snapshot:
+        # Explicit source of truth for resume behavior.
+        snapshot_path = cfg.load_dir / "debate_snapshot.json"
+    elif cfg.save_snapshot and run_dir is not None:
+        snapshot_path = run_dir / "debate_snapshot.json"
 
     agora, agents = run_debate_session(
         agent_configs,

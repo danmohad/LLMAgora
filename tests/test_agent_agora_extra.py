@@ -143,10 +143,14 @@ def test_agent_property_accessors():
         response_instruction="respond",
         system_prompt="system",
         opening_instruction="open",
+        public_survey_keep=True,
+        private_survey_keep=True,
     )
     assert agent.system_prompt == "system"
     assert agent.response_instruction == "respond"
     assert agent.opening_instruction == "open"
+    assert agent.public_survey_keep is True
+    assert agent.private_survey_keep is True
 
 
 def test_build_system_prompt_without_perceived_roles():
@@ -195,11 +199,9 @@ def test_agora_requires_unique_ids():
 
 def test_agora_survey_flow_and_unknown_agent(capsys):
     responses = [
-        json.dumps({"Q1": "Neutral"}),
-        json.dumps({"Q1": "Agree"}),
         "public",
-        json.dumps({"Q1": "Agree"}),
         json.dumps({"Q1": "Neutral"}),
+        json.dumps({"Q1": "Agree"}),
     ]
     llm_client = QueueLLM(responses)
     agent = Agent(
@@ -221,18 +223,16 @@ def test_agora_survey_flow_and_unknown_agent(capsys):
     agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1, verbose=True)
     assert history[0].role == "assistant"
-    assert 0 in agora.survey_public_response[agent.id]
+    assert 1 in agora.survey_public_response[agent.id]
     assert any("survey response" in line for line in capsys.readouterr().out.splitlines())
 
     with pytest.raises(KeyError):
         agora.history_for_agent("missing")
 
 
-def test_agora_public_survey_keep_appends_to_speech():
+def test_agora_public_survey_keep_does_not_modify_public_speech():
     survey_payload = json.dumps({"Q1": "Neutral"})
     responses = [
-        survey_payload,
-        json.dumps({"Q1": "Agree"}),
         "public speech",
         survey_payload,
         json.dumps({"Q1": "Agree"}),
@@ -258,13 +258,12 @@ def test_agora_public_survey_keep_appends_to_speech():
     agora = Agora([agent, beta])
     history = agora.run(max_turns_per_agent=1)
     alpha_turn = next(turn for turn in history if turn.metadata.get("speaker_name") == "Alpha")
-    assert alpha_turn.public_speech.startswith("public speech")
-    assert alpha_turn.public_speech.endswith(survey_payload)
+    assert alpha_turn.public_speech == "public speech"
 
 
 def test_agora_public_survey_only():
     survey_payload = json.dumps({"Q1": "Neutral"})
-    llm_client = QueueLLM([survey_payload, "public speech", survey_payload])
+    llm_client = QueueLLM(["public speech", survey_payload])
     agent = Agent(
         name="Alpha",
         model="demo",
@@ -291,7 +290,7 @@ def test_agora_public_survey_only():
 
 def test_agora_private_survey_only():
     survey_payload = json.dumps({"Q1": "Agree"})
-    llm_client = QueueLLM([survey_payload, "public speech", survey_payload])
+    llm_client = QueueLLM(["public speech", survey_payload])
     agent = Agent(
         name="Alpha",
         model="demo",

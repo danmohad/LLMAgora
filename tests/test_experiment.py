@@ -113,6 +113,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
     assert cfg.scenario_id == "s1"
     assert cfg.outputs_root == tmp_path / "outputs"
     assert cfg.index_csv is None
+    assert cfg.load_dir is None
     assert cfg.catalog_path == tmp_path / "catalog.json"
     assert cfg.prompts_path == tmp_path / "prompts.json"
 
@@ -121,12 +122,15 @@ def test_build_experiment_config_and_helpers(tmp_path):
             "scenario_id": "s1",
             "outputs_root": tmp_path / "already-path",
             "index_csv": str(tmp_path / "already-path" / "index.csv"),
+            "load_snapshot": True,
+            "load_dir": str(tmp_path / "already-path" / "from-run"),
             "catalog_path": tmp_path / "already-path" / "catalog.json",
             "prompts_path": tmp_path / "already-path" / "prompts.json",
         }
     )
     assert cfg_paths.outputs_root == tmp_path / "already-path"
     assert cfg_paths.index_csv == tmp_path / "already-path" / "index.csv"
+    assert cfg_paths.load_dir == tmp_path / "already-path" / "from-run"
 
     cfg_paths_obj = build_experiment_config(
         {
@@ -144,6 +148,18 @@ def test_build_experiment_config_and_helpers(tmp_path):
         build_experiment_config({"scenario_id": "s1", "side_order": "bad"})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "question_variant": "bad"})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "show_plots": True, "enable_plots": False})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "keep_public_survey": True, "enable_public_survey": False})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "keep_private_survey": True, "enable_private_survey": False})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "persona_eval_verbose": True, "enable_persona_evaluation": False})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "load_snapshot": True})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "load_dir": "outputs/somewhere"})
     with pytest.raises(ValueError):
         build_experiment_config({})
 
@@ -226,6 +242,16 @@ def test_defaults_constants():
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_analyzer=True)) is True
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_public_survey=True)) is True
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_private_survey=True)) is True
+    assert (
+        _should_write_outputs(
+            ExperimentConfig(
+                scenario_id="s1",
+                load_snapshot=True,
+                load_dir=Path("outputs/existing"),
+            )
+        )
+        is False
+    )
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", indexed_output=True)) is True
     assert _resolve_index_csv(ExperimentConfig(scenario_id="s1")) == Path("outputs/index.csv")
     assert _resolve_index_csv(
@@ -346,6 +372,54 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
     assert captured["session_args"]["snapshot_path"] is None
     assert result.eval_data["intra_agent_honesty"] is None
     assert result.eval_data["persona_adherence"] is None
+    assert not (tmp_path / "outputs").exists()
+
+
+def test_run_persona_experiment_loads_snapshot_from_load_dir_without_output_dir(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    load_dir = tmp_path / "resume_here"
+    load_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    captured = {}
+
+    def fake_run_debate_session(
+        agent_configs,
+        *,
+        turns_per_agent,
+        verbose,
+        skip_first_agent_first_reflection,
+        snapshot_path,
+        load_snapshot_flag,
+        save_snapshot_flag,
+    ):
+        captured["session_args"] = {
+            "snapshot_path": snapshot_path,
+            "load_snapshot": load_snapshot_flag,
+            "save_snapshot": save_snapshot_flag,
+            "turns": turns_per_agent,
+        }
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        load_snapshot=True,
+        load_dir=load_dir,
+        save_snapshot=False,
+    )
+
+    result = run_persona_experiment(cfg)
+    assert result.run_dir is None
+    assert captured["session_args"]["snapshot_path"] == load_dir / "debate_snapshot.json"
+    assert captured["session_args"]["load_snapshot"] is True
+    assert captured["session_args"]["save_snapshot"] is False
     assert not (tmp_path / "outputs").exists()
 
 
@@ -494,7 +568,7 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
         run_name="private_only",
         enable_public_survey=False,
         enable_private_survey=True,
-        keep_public_survey=True,
+        keep_public_survey=False,
         enable_plots=True,
     )
 
@@ -736,6 +810,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         enable_plots=True,
         show_plots=False,
         load_snapshot=True,
+        load_dir=tmp_path / "resume_from",
         save_snapshot=True,
         verbose=True,
         skip_first_agent_first_reflection=True,

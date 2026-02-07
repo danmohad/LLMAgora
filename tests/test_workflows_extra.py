@@ -37,6 +37,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         public_prompt,
         private_prompt,
         keep,
+        keep_private,
         enable_public,
         enable_private,
     ) = extract_survey_instructions({})
@@ -44,6 +45,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
     assert public_prompt is None
     assert private_prompt is None
     assert keep is False
+    assert keep_private is False
     assert enable_public is False
     assert enable_private is False
 
@@ -52,6 +54,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         public_prompt,
         private_prompt,
         keep,
+        keep_private,
         enable_public,
         enable_private,
     ) = extract_survey_instructions(
@@ -61,6 +64,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
                 "survey_public_prompt": "public",
                 "survey_private_prompt": "private",
                 "public_survey_keep": True,
+                "private_survey_keep": False,
                 "enable_public_survey": False,
                 "enable_private_survey": True,
             }
@@ -70,6 +74,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
     assert public_prompt == "public"
     assert private_prompt == "private"
     assert keep is True
+    assert keep_private is False
     assert enable_public is False
     assert enable_private is True
 
