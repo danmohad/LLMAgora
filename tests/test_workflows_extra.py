@@ -413,6 +413,101 @@ def test_build_scenario_agent_configs_applies_variant_language_tokens():
     assert agreeable[0]["survey"]["survey_questions"] == ["conversation:partner"]
 
 
+def test_build_scenario_agent_configs_preserves_escaped_braces_in_format_twice_templates():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"controversial": "Contro Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": {
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    }
+                },
+                "base_prompt": 'JSON={{"mode":"{interaction_noun}","speaker":"{speaker_id}"}}|q={question}|p={persona}',
+                "debate_arena_prompt": ' arena={{"label":"{debate_arena}","kind":"{interaction_noun}"}}',
+                "perceived_prompt": '{{"persona":"{perceived_persona}","counterpart":"{counterpart_noun}"}}',
+                "public_instruction": "Speak to your {counterpart_noun}",
+                "private_instruction": "Private re {counterpart_noun}",
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "Public for {counterpart_noun}",
+                "survey_private_prompt": "Private for {counterpart_noun}",
+            }
+        }
+    }
+
+    configs = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
+        alpha_model="alpha",
+        beta_model="beta",
+        question_variant="controversial",
+        debate_arena_override="Town Hall",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+    )
+    assert 'JSON={"mode":"debate","speaker":"A"}' in configs[0]["self_role"]
+    assert 'arena={"label":"Town Hall","kind":"debate"}' in configs[0]["self_role"]
+    assert '{"persona":"PB","counterpart":"opponent"}' in configs[0][
+        "perceived_nonself_roles"
+    ][0]["role"]
+
+
+def test_build_scenario_agent_configs_preserves_unknown_variant_placeholders():
+    catalog = {
+        "scenarios": [
+            {
+                "id": "s1",
+                "question": {"controversial": "Contro Q"},
+                "side_1": {"actual_persona": "A", "perceived_persona": "PA"},
+                "side_2": {"actual_persona": "B", "perceived_persona": "PB"},
+            }
+        ]
+    }
+    prompt_catalog = {
+        "prompt_sets": {
+            "custom": {
+                "question_variant_language": {
+                    "controversial": {
+                        "interaction_noun": "debate",
+                        "counterpart_noun": "opponent",
+                    }
+                },
+                "base_prompt": "{question}:{persona}",
+                "debate_arena_prompt": "arena {debate_arena}",
+                "perceived_prompt": "{perceived_persona}",
+                "public_instruction": "Speak in {interaction_noun} mode with {unknown_token}",
+                "private_instruction": "priv",
+                "pre_interview_instruction": "pre",
+                "post_interview_instruction": "post",
+                "survey_public_prompt": "survey",
+                "survey_private_prompt": "survey",
+            }
+        }
+    }
+
+    configs = build_scenario_agent_configs(
+        scenario_id="s1",
+        catalog=catalog,
+        alpha_model="alpha",
+        beta_model="beta",
+        question_variant="controversial",
+        prompt_set="custom",
+        prompt_catalog=prompt_catalog,
+    )
+    assert configs[0]["response_instruction"] == "Speak in debate mode with {unknown_token}"
+
+
 def test_build_scenario_agent_configs_rejects_unknown_variant_language():
     catalog = {
         "scenarios": [
