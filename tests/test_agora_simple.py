@@ -288,6 +288,43 @@ def test_interviews_respect_keep_flag(stub_llm_factory):
     assert len(agent.view_history()) == 2  # both public turns are visible
 
 
+def test_continuation_replaces_old_post_interviews(stub_llm_factory):
+    alpha_llm = stub_llm_factory(
+        ["alpha public 1", "alpha post 1", "alpha public 2", "alpha post 2"]
+    )
+    beta_llm = stub_llm_factory(
+        ["beta public 1", "beta post 1", "beta public 2", "beta post 2"]
+    )
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=alpha_llm,
+        response_instruction="say",
+        post_interview_instruction="post",
+        post_interview_keep=True,
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=beta_llm,
+        response_instruction="say",
+        post_interview_instruction="post",
+        post_interview_keep=True,
+    )
+    agora = Agora([alpha, beta])
+
+    agora.run(num_turns=1)
+    agora.run(num_turns=1)
+
+    history = agora.history()
+    post_turns = [turn for turn in history if turn.role == "post_interview"]
+    assert len(post_turns) == 2
+    assert {turn.metadata["turn_num"] for turn in post_turns} == {3}
+    assert not any(
+        msg["content"] == "alpha post 1" for msg in alpha_llm.calls[2]["messages"]
+    )
+
+
 def test_private_reflection_keep_flag(stub_llm_factory):
     """Private reflections can be excluded from agent memory when keep=False."""
 

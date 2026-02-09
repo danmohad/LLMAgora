@@ -112,6 +112,61 @@ def test_run_debate_session_handles_snapshots(tmp_path):
     assert len(resumed_agents) == 2
 
 
+def test_run_debate_session_resuming_replaces_old_post_interviews(tmp_path):
+    agent_configs = [
+        {
+            "name": "Alpha",
+            "model": "demo",
+            "self_role": "Alpha",
+            "response_instruction": "Say",
+            "post_interview": {"instruction": "Post", "keep": True},
+        },
+        {
+            "name": "Beta",
+            "model": "demo",
+            "self_role": "Beta",
+            "response_instruction": "Say",
+            "post_interview": {"instruction": "Post", "keep": True},
+        },
+    ]
+    snapshot = tmp_path / "snap.json"
+    clients = []
+
+    def first_factory():
+        client = CloseableStub(["alpha1", "beta1", "alpha post1", "beta post1"])
+        clients.append(client)
+        return client
+
+    run_debate_session(
+        agent_configs,
+        num_turns=1,
+        snapshot_path=snapshot,
+        save_snapshot_flag=True,
+        client_factory=first_factory,
+    )
+
+    def second_factory():
+        client = CloseableStub(["alpha2", "beta2", "alpha post2", "beta post2"])
+        clients.append(client)
+        return client
+
+    resumed, _ = run_debate_session(
+        agent_configs,
+        num_turns=1,
+        snapshot_path=snapshot,
+        load_snapshot_flag=True,
+        client_factory=second_factory,
+    )
+
+    post_turns = [turn for turn in resumed.history() if turn.role == "post_interview"]
+    assert len(post_turns) == 2
+    assert {turn.metadata["turn_num"] for turn in post_turns} == {3}
+    assert not any(
+        msg["content"] in {"alpha post1", "beta post1"}
+        for msg in clients[-1].calls[0]["messages"]
+    )
+
+
 def test_format_history_for_agent_renders_turns(stub_llm_factory):
     agent_a = Agent(
         name="Alpha",

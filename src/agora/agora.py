@@ -129,6 +129,20 @@ class Agora:
         for agent in recipients:
             agent.observe_turn(turn)
 
+    def _clear_post_interviews_for_continuation(self) -> None:
+        """Drop previously finalized post-interviews before adding more turns."""
+        if not any(turn.role == "post_interview" for turn in self._event_log):
+            return
+
+        self._post_interviews = self._empty_interview_stage(stage="post")
+        self._event_log = [turn for turn in self._event_log if turn.role != "post_interview"]
+
+        for agent in self._agents:
+            agent.reset_memory()
+        for agent in self._agents:
+            for turn in self.history_for_agent(agent.id):
+                agent.observe_turn(turn)
+
     def run(
         self,
         *,
@@ -143,6 +157,7 @@ class Agora:
 
         first_reflection_skipped = False
         starting_turn_num = len(self._turns)
+        self._clear_post_interviews_for_continuation()
 
         # Turn 0 special case: optional pre-interviews, once per conversation.
         if starting_turn_num == 0:
