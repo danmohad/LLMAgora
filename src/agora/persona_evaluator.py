@@ -513,6 +513,7 @@ def plot_persona_adherence(
         matplotlib figure
     """
     import matplotlib.pyplot as plt
+    from matplotlib.ticker import MaxNLocator, StrMethodFormatter
     
     fig, axes = plt.subplots(1, 2, figsize=(16, 6))
     fig.suptitle('Persona Adherence Scores Over Time', fontsize=16)
@@ -525,6 +526,13 @@ def plot_persona_adherence(
     alpha_color = 'tab:blue'
     beta_color = 'tab:orange'
     
+    def _apply_integer_xticks(ax, *series_turns: list[int]) -> None:
+        all_turns = sorted({int(turn) for turns in series_turns for turn in turns})
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+        if all_turns:
+            ax.set_xticks(all_turns)
+
     # Left panel: Individual Turn Scores
     ax = axes[0]
     
@@ -572,6 +580,13 @@ def plot_persona_adherence(
         color=beta_color, linestyle='--'
     )
     
+    _apply_integer_xticks(
+        ax,
+        alpha_pub_ind["turns"],
+        alpha_priv_ind["turns"],
+        beta_pub_ind["turns"],
+        beta_priv_ind["turns"],
+    )
     ax.set_title('Individual Turn Scores')
     ax.set_xlabel('Turn Number')
     ax.set_ylabel('Score (1-5)')
@@ -626,6 +641,13 @@ def plot_persona_adherence(
         color=beta_color, linestyle='--'
     )
     
+    _apply_integer_xticks(
+        ax,
+        alpha_pub_cum["turns"],
+        alpha_priv_cum["turns"],
+        beta_pub_cum["turns"],
+        beta_priv_cum["turns"],
+    )
     ax.set_title('Cumulative Scores')
     ax.set_xlabel('Turn Number')
     ax.set_ylabel('Score (1-5)')

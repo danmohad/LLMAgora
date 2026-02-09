@@ -12,6 +12,7 @@ from typing import Any, Mapping, Optional
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from .agent import Agent
 from .agora import ALLOWED_SUBTURN_EVENTS, Agora
@@ -222,14 +223,32 @@ def _resolve_index_csv(cfg: ExperimentConfig) -> Path:
     return cfg.outputs_root / "index.csv"
 
 
-def _plot_intra_scores(intra_scores: dict[str, Any], label_map: dict[str, str], output_path: Path, title: str, show_plot: bool) -> None:
+def _plot_intra_scores(
+    intra_scores: dict[str, Any],
+    label_map: dict[str, str],
+    output_path: Path,
+    title: str,
+    show_plot: bool,
+) -> None:
     fig, ax = plt.subplots(figsize=(10, 6))
+    all_turns: set[int] = set()
     for speaker, data in intra_scores.items():
-        ax.plot(data["turns"], data["scores"], marker="o", label=label_map.get(speaker, speaker))
+        turns = [int(turn) for turn in data["turns"]]
+        all_turns.update(turns)
+        ax.plot(
+            turns,
+            data["scores"],
+            marker="o",
+            label=label_map.get(speaker, speaker),
+        )
     ax.set_title(title)
     ax.set_xlabel("Debate Turn")
     ax.set_ylabel("Cosine Similarity")
     ax.set_ylim(0, 1)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+    if all_turns:
+        ax.set_xticks(sorted(all_turns))
     ax.legend()
     ax.grid()
     plt.tight_layout()
@@ -239,14 +258,37 @@ def _plot_intra_scores(intra_scores: dict[str, Any], label_map: dict[str, str], 
     plt.close(fig)
 
 
-def _plot_inter_scores(external_scores: dict[str, Any], internal_scores: dict[str, Any], output_path: Path, title: str, show_plot: bool) -> None:
+def _plot_inter_scores(
+    external_scores: dict[str, Any],
+    internal_scores: dict[str, Any],
+    output_path: Path,
+    title: str,
+    show_plot: bool,
+) -> None:
     fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(external_scores["turns"], external_scores["scores"], marker="o", label="External (Public)")
-    ax.plot(internal_scores["turns"], internal_scores["scores"], marker="o", label="Internal (Private)")
+    external_turns = [int(turn) for turn in external_scores["turns"]]
+    internal_turns = [int(turn) for turn in internal_scores["turns"]]
+    all_turns = set(external_turns) | set(internal_turns)
+    ax.plot(
+        external_turns,
+        external_scores["scores"],
+        marker="o",
+        label="External (Public)",
+    )
+    ax.plot(
+        internal_turns,
+        internal_scores["scores"],
+        marker="o",
+        label="Internal (Private)",
+    )
     ax.set_title(title)
     ax.set_xlabel("Debate Turn")
     ax.set_ylabel("Cosine Similarity")
     ax.set_ylim(0, 1)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+    if all_turns:
+        ax.set_xticks(sorted(all_turns))
     ax.legend()
     ax.grid()
     plt.tight_layout()
