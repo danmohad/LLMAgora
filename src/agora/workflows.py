@@ -386,9 +386,6 @@ def build_scenario_agent_configs(
     question_text = question_entry[question_variant]
     variant_tokens = _variant_language_tokens(prompts, question_variant)
 
-    base_prompt = _apply_variant_language(base_prompt, variant_tokens)
-    perceived_prompt = _apply_variant_language(perceived_prompt, variant_tokens)
-    debate_arena_prompt = _apply_variant_language(debate_arena_prompt, variant_tokens)
     public_instruction = _apply_variant_language(public_instruction, variant_tokens)
     opening_instruction = _apply_variant_language(opening_instruction, variant_tokens)
     private_instruction = _apply_variant_language(private_instruction, variant_tokens)
@@ -426,13 +423,21 @@ def build_scenario_agent_configs(
 
     arena_context = ""
     if arena_text:
-        arena_context = debate_arena_prompt.format(debate_arena=arena_text)
+        arena_context = debate_arena_prompt.format(
+            debate_arena=arena_text, **variant_tokens
+        )
 
     alpha_self_role = base_prompt.format(
-        speaker_id="A", question=question_text, persona=alpha_persona["actual_persona"]
+        speaker_id="A",
+        question=question_text,
+        persona=alpha_persona["actual_persona"],
+        **variant_tokens,
     )
     beta_self_role = base_prompt.format(
-        speaker_id="B", question=question_text, persona=beta_persona["actual_persona"]
+        speaker_id="B",
+        question=question_text,
+        persona=beta_persona["actual_persona"],
+        **variant_tokens,
     )
 
     # Append debate arena context to both agents' self_role
@@ -441,10 +446,10 @@ def build_scenario_agent_configs(
         beta_self_role = beta_self_role + arena_context
 
     alpha_perceives_beta = perceived_prompt.format(
-        perceived_persona=beta_persona["perceived_persona"]
+        perceived_persona=beta_persona["perceived_persona"], **variant_tokens
     )
     beta_perceives_alpha = perceived_prompt.format(
-        perceived_persona=alpha_persona["perceived_persona"]
+        perceived_persona=alpha_persona["perceived_persona"], **variant_tokens
     )
 
     return [
