@@ -130,3 +130,54 @@ def test_plot_survey_distance_with_extra_questions(tmp_path):
     )
     assert output_path.exists()
     assert output_path.stat().st_size > 0
+
+
+def test_plot_survey_distance_sets_distinct_y_limits(tmp_path, monkeypatch):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+
+    # Capture the created axes so we can assert y-limits after the call.
+    import matplotlib.pyplot as plt
+
+    real_subplots = plt.subplots
+    captured: dict[str, object] = {}
+
+    def capturing_subplots(*args, **kwargs):
+        fig, axes = real_subplots(*args, **kwargs)
+        captured["fig"] = fig
+        captured["axes"] = axes
+        return fig, axes
+
+    monkeypatch.setattr(plt, "subplots", capturing_subplots)
+    monkeypatch.setattr(plt, "close", lambda *args, **kwargs: None)
+
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    public_responses = {"a": {0: {"Q1": 1, "Q3": 4}}}
+    private_responses = {"a": {0: {"Q1": 4, "Q3": 1}}}
+
+    # With 2 survey questions, Q1 and Q2 are "base"; Q3 becomes an "other" question
+    # and is plotted in the Avg. Other Qs Dist. panel.
+    plot_survey_distance(
+        public_responses,
+        private_responses,
+        agents,
+        ["question1", "question2"],
+        "Distance",
+        output_path,
+        y_limits_base=(-4, 4),
+        y_limits_avg=(0, 4),
+    )
+
+    assert output_path.exists()
+    assert output_path.stat().st_size > 0
+
+    axes = captured["axes"]
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+
+    base_ax_0 = axes_list[0]
+    base_ax_1 = axes_list[1]
+    avg_ax = axes_list[2]
+
+    assert base_ax_0.get_ylim() == (-4.0, 4.0)
+    assert base_ax_1.get_ylim() == (-4.0, 4.0)
+    assert avg_ax.get_ylim() == (0.0, 4.0)

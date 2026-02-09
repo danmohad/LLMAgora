@@ -4,6 +4,7 @@ import math
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from agora.agent import Agent
 
@@ -49,6 +50,14 @@ def plot_survey_responses(
 
     axes = axes.flatten() if n > 1 else [axes]
 
+    all_rounds = sorted(
+        {
+            int(turn_num)
+            for agent_data in responses.values()
+            for turn_num in agent_data.keys()
+        }
+    )
+
     for ax, q in zip(axes, questions):
         for agent_id in agent_ids:
             agent_data = responses[agent_id]
@@ -68,6 +77,10 @@ def plot_survey_responses(
             )
 
         ax.axhline(0)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+        if all_rounds:
+            ax.set_xticks(all_rounds)
         max_length = 20
         my_str = survey_questions[int(q[1:]) - 1]
         truncated_str = my_str[:max_length] + "..." if len(my_str) > 20 else my_str
@@ -95,6 +108,8 @@ def plot_survey_distance(
     survey_questions: list[str],
     title: str,
     output_path: Path,
+    y_limits_base: tuple[float, float] | None = None,
+    y_limits_avg: tuple[float, float] | None = None,
 ):
     """
     Plot per-round distance between public and private survey answers.
@@ -108,6 +123,10 @@ def plot_survey_distance(
         return
 
     num_base_questions = min(5, len(survey_questions))
+    if y_limits_base is None:
+        y_limits_base = (-4, 4)
+    if y_limits_avg is None:
+        y_limits_avg = (0, 4)
     base_questions_distances = {
         agent_id: {
             question + 1: {"rounds": [], "distance": []}
@@ -154,7 +173,7 @@ def plot_survey_distance(
                     base_questions_distances[agent_id][q_num]["rounds"].append(my_round)
                     base_questions_distances[agent_id][q_num]["distance"].append(response_diff)
                 else:
-                    sum_diff += response_diff
+                    sum_diff += abs(response_diff)
                     count += 1
 
             if count > 0:
@@ -165,17 +184,21 @@ def plot_survey_distance(
     ncols = min(6, n)
     nrows = math.ceil(n / ncols)
 
+    # We apply different y-limits for base vs average panels, so don't share y-axes.
+    sharey = False
+
     fig, axes = plt.subplots(
         nrows,
         ncols,
         figsize=(3 * ncols, 3 * nrows),
         sharex=True,
-        sharey=True,
+        sharey=sharey,
     )
 
     axes = axes.flatten() if n > 1 else [axes]
 
     for ax, q_num in zip(axes, range(num_base_questions)):
+        question_rounds: set[int] = set()
         for agent_id in agent_ids:
             agent_plot_data = base_questions_distances[agent_id][q_num + 1]
             if agent_plot_data["rounds"]:
@@ -185,16 +208,24 @@ def plot_survey_distance(
                     marker="o",
                     label=agents_dict[agent_id],
                 )
+                question_rounds.update(agent_plot_data["rounds"])
 
         ax.axhline(0, color='grey', linewidth=0.8)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+        if question_rounds:
+            ax.set_xticks(sorted(question_rounds))
         max_length = 20
         my_str = survey_questions[q_num]
         truncated_str = my_str[:max_length] + "..." if len(my_str) > max_length else my_str
         ax.set_title(truncated_str)
         ax.grid(True)
+        if y_limits_base is not None:
+            ax.set_ylim(*y_limits_base)
     
     # Plot average distance for other questions
     ax = axes[num_base_questions]
+    avg_rounds: set[int] = set()
     for agent_id in agent_ids:
         agent_plot_data = distances[agent_id]
         if agent_plot_data["rounds"]:
@@ -204,9 +235,16 @@ def plot_survey_distance(
                 marker="o",
                 label=agents_dict[agent_id],
             )
+            avg_rounds.update(agent_plot_data["rounds"])
     ax.axhline(0, color='grey', linewidth=0.8)
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+    if avg_rounds:
+        ax.set_xticks(sorted(avg_rounds))
     ax.set_title("Avg. Other Qs Dist.")
     ax.grid(True)
+    if y_limits_avg is not None:
+        ax.set_ylim(*y_limits_avg)
 
     fig.suptitle(title)
     fig.supxlabel("Turn Number")
