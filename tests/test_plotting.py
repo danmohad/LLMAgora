@@ -46,7 +46,7 @@ def test_plot_survey_responses_saves_file(tmp_path):
 def test_plot_survey_distance_no_agents(tmp_path):
     matplotlib.use("Agg", force=True)
     output_path = tmp_path / "plot.png"
-    plot_survey_distance({}, {}, [], "Distance", output_path)
+    plot_survey_distance({}, {}, [], [], "Distance", output_path)
     assert not output_path.exists()
 
 
@@ -69,6 +69,115 @@ def test_plot_survey_distance_saves_file(tmp_path):
             2: {},
         }
     }
-    plot_survey_distance(public_responses, private_responses, agents, "Distance", output_path)
+    plot_survey_distance(
+        public_responses,
+        private_responses,
+        agents,
+        ["question1", "question2"],
+        "Distance",
+        output_path,
+    )
     assert output_path.exists()
     assert output_path.stat().st_size > 0
+
+
+def test_plot_survey_distance_with_extra_questions(tmp_path):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+    agents = [
+        SimpleNamespace(id="a", name="Alpha"),
+        SimpleNamespace(id="b", name="Beta"),
+    ]
+    public_responses = {
+        "a": {
+            0: {"Q1": 1, "Q2": 2, "Q6": 3, "Q7": 4},
+            1: {"Q1": 2, "Q3": 1, "Q8": 2, "Q9": 1},
+        },
+        "b": {
+            0: {"Q1": 1, "Q10": 5},
+            1: {"Q2": 2},
+        },
+    }
+    private_responses = {
+        "a": {
+            0: {"Q1": 2, "Q2": 1, "Q6": 2, "Q7": 3},
+            1: {"Q1": 3, "Q3": 2, "Q8": 1, "Q9": 2},
+        },
+        "b": {
+            0: {"Q1": 2, "Q10": 4},
+            1: {"Q2": 3},
+        },
+    }
+    questions = [
+        "question1",
+        "question2",
+        "question3",
+        "question4",
+        "question5",
+        "extra6",
+        "extra7",
+        "extra8",
+        "extra9",
+        "extra10",
+    ]
+    plot_survey_distance(
+        public_responses,
+        private_responses,
+        agents,
+        questions,
+        "Distance with Extra Questions",
+        output_path,
+    )
+    assert output_path.exists()
+    assert output_path.stat().st_size > 0
+
+
+def test_plot_survey_distance_sets_distinct_y_limits(tmp_path, monkeypatch):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+
+    # Capture the created axes so we can assert y-limits after the call.
+    import matplotlib.pyplot as plt
+
+    real_subplots = plt.subplots
+    captured: dict[str, object] = {}
+
+    def capturing_subplots(*args, **kwargs):
+        fig, axes = real_subplots(*args, **kwargs)
+        captured["fig"] = fig
+        captured["axes"] = axes
+        return fig, axes
+
+    monkeypatch.setattr(plt, "subplots", capturing_subplots)
+    monkeypatch.setattr(plt, "close", lambda *args, **kwargs: None)
+
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    public_responses = {"a": {0: {"Q1": 1, "Q3": 4}}}
+    private_responses = {"a": {0: {"Q1": 4, "Q3": 1}}}
+
+    # With 2 survey questions, Q1 and Q2 are "base"; Q3 becomes an "other" question
+    # and is plotted in the Avg. Other Qs Dist. panel.
+    plot_survey_distance(
+        public_responses,
+        private_responses,
+        agents,
+        ["question1", "question2"],
+        "Distance",
+        output_path,
+        y_limits_base=(-4, 4),
+        y_limits_avg=(0, 4),
+    )
+
+    assert output_path.exists()
+    assert output_path.stat().st_size > 0
+
+    axes = captured["axes"]
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+
+    base_ax_0 = axes_list[0]
+    base_ax_1 = axes_list[1]
+    avg_ax = axes_list[2]
+
+    assert base_ax_0.get_ylim() == (-4.0, 4.0)
+    assert base_ax_1.get_ylim() == (-4.0, 4.0)
+    assert avg_ax.get_ylim() == (0.0, 4.0)

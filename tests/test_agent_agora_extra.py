@@ -135,6 +135,41 @@ def test_strip_speaker_prefix():
     assert agent._strip_speaker_prefix("Beta: Hi") == "Hi"
 
 
+def test_agent_normalizes_apostrophes_in_responses():
+    responses = [
+        "It\u2019s public.",
+        "It\u2019s private.",
+        "It\u2019s interview.",
+        json.dumps({"Q1": "It\u2019s public survey."}),
+        json.dumps({"Q1": "It\u2019s private survey."}),
+    ]
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=QueueLLM(responses),
+        response_instruction="respond",
+        private_response_instruction="reflect",
+        survey_questions=["q1"],
+        survey_public_prompt="Base\n",
+        survey_private_prompt="Base\n",
+    )
+    assert agent.generate_public_speech() == "It's public."
+    assert agent.generate_private_reflection() == "It's private."
+    assert agent.generate_interview_response("Interview") == "It's interview."
+    assert agent.generate_public_survey_response(["q1"]) == '{"Q1": "It\'s public survey."}'
+    assert agent.generate_private_survey_response(["q1"]) == '{"Q1": "It\'s private survey."}'
+
+
+def test_agent_normalizes_empty_responses():
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=QueueLLM([""]),
+        response_instruction="respond",
+    )
+    assert agent.generate_public_speech() == ""
+
+
 def test_agent_property_accessors():
     agent = Agent(
         name="Alpha",

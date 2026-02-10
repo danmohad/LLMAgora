@@ -190,7 +190,8 @@ class Agent:
             instruction = self._opening_instruction
         messages = self._build_messages(final_instruction=instruction)
         response = self._llm.complete(messages=messages, model=self.model)
-        return self._strip_speaker_prefix(response.strip())
+        cleaned = self._strip_speaker_prefix(response.strip())
+        return self._normalize_apostrophes(cleaned)
 
     def generate_private_reflection(self) -> str:
         """Ask the LLM client for the agent's private reflection."""
@@ -201,14 +202,16 @@ class Agent:
             )
         messages = self._build_messages(final_instruction=self._private_instruction)
         response = self._llm.complete(messages=messages, model=self.model)
-        return self._strip_speaker_prefix(response.strip())
+        cleaned = self._strip_speaker_prefix(response.strip())
+        return self._normalize_apostrophes(cleaned)
 
     def generate_interview_response(self, instruction: str) -> str:
         """Ask the LLM client for an interview response (pre/post)."""
 
         messages = self._build_messages(final_instruction=instruction)
         response = self._llm.complete(messages=messages, model=self.model)
-        return self._strip_speaker_prefix(response.strip())
+        cleaned = self._strip_speaker_prefix(response.strip())
+        return self._normalize_apostrophes(cleaned)
 
     def generate_public_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a public survey response with JSON structured format."""
@@ -222,7 +225,8 @@ class Agent:
         response = self._llm.complete(
             messages=messages, model=self.model, survey_questions=survey_questions
         )
-        return self._strip_speaker_prefix(response.strip())
+        cleaned = self._strip_speaker_prefix(response.strip())
+        return self._normalize_apostrophes(cleaned)
 
     def generate_private_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a private survey response with JSON structured format."""
@@ -236,7 +240,8 @@ class Agent:
         response = self._llm.complete(
             messages=messages, model=self.model, survey_questions=survey_questions
         )
-        return self._strip_speaker_prefix(response.strip())
+        cleaned = self._strip_speaker_prefix(response.strip())
+        return self._normalize_apostrophes(cleaned)
 
     def observe_turn(self, turn: MemoryTurn) -> None:
         """Append a public turn to the agent's personal memory."""
@@ -336,6 +341,14 @@ class Agent:
             if new_text != text:
                 return new_text
         return text
+
+    def _normalize_apostrophes(self, text: str) -> str:
+        """Normalize typographic apostrophes to ASCII."""
+
+        if not text:
+            return text
+        normalized = text.replace("\\u2019", "'").replace("\\u2018", "'")
+        return normalized.replace("\u2019", "'").replace("\u2018", "'")
 
 
 def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:
