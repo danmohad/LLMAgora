@@ -459,10 +459,15 @@ def run_persona_experiment(
 
     debate_arena_override = None
     if cfg.use_neutral_arena:
-        debate_arena_override = prompt_payload.get("neutral_arena_prompt")
+        neutral_arena_prompt = prompt_payload.get("neutral_arena_prompt")
+        if not isinstance(neutral_arena_prompt, dict):
+            raise KeyError(
+                f"Prompt set '{cfg.prompt_set}' must include 'neutral_arena_prompt' as an object keyed by question variant when use_neutral_arena is enabled"
+            )
+        debate_arena_override = neutral_arena_prompt.get(cfg.question_variant)
         if not debate_arena_override:
             raise KeyError(
-                f"Prompt set '{cfg.prompt_set}' must include 'neutral_arena_prompt' when use_neutral_arena is enabled"
+                f"Prompt set '{cfg.prompt_set}' must include 'neutral_arena_prompt.{cfg.question_variant}' when use_neutral_arena is enabled"
             )
 
     survey_questions = []

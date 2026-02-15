@@ -117,7 +117,10 @@ def _prompt_payload(with_neutral=True):
         }
     }
     if with_neutral:
-        payload["default"]["neutral_arena_prompt"] = "neutral"
+        payload["default"]["neutral_arena_prompt"] = {
+            "agreeable": "neutral agreeable",
+            "controversial": "neutral controversial",
+        }
     return payload
 
 
@@ -1019,6 +1022,63 @@ def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path)
         run_persona_experiment(cfg)
 
 
+def test_run_persona_experiment_uses_variant_neutral_arena_prompt(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    prompts = _prompt_payload()
+    prompts["default"]["neutral_arena_prompt"] = {
+        "agreeable": "neutral agreeable arena",
+        "controversial": "neutral controversial arena",
+    }
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, prompts)
+
+    captured = {}
+
+    def fake_build_scenario_agent_configs(**kwargs):
+        captured["build_kwargs"] = kwargs
+        return [
+            {
+                "name": "Alpha",
+                "model": "a",
+                "self_role": "alpha",
+                "response_instruction": "pub",
+                "private_response": {"instruction": None, "keep": False},
+                "pre_interview": {"instruction": None, "keep": False},
+                "post_interview": {"instruction": None, "keep": False},
+                "survey": {},
+            },
+            {
+                "name": "Beta",
+                "model": "b",
+                "self_role": "beta",
+                "response_instruction": "pub",
+                "private_response": {"instruction": None, "keep": False},
+                "pre_interview": {"instruction": None, "keep": False},
+                "post_interview": {"instruction": None, "keep": False},
+                "survey": {},
+            },
+        ]
+
+    def fake_run_debate_session(*args, **kwargs):
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        question_variant="agreeable",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        use_neutral_arena=True,
+    )
+
+    run_persona_experiment(cfg)
+    assert captured["build_kwargs"]["debate_arena_override"] == "neutral agreeable arena"
+
+
 def test_run_persona_experiment_requires_neutral_prompt_when_enabled(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
@@ -1034,4 +1094,45 @@ def test_run_persona_experiment_requires_neutral_prompt_when_enabled(tmp_path):
     )
 
     with pytest.raises(KeyError):
+        run_persona_experiment(cfg)
+
+
+def test_run_persona_experiment_rejects_legacy_string_neutral_prompt(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    prompts = _prompt_payload()
+    prompts["default"]["neutral_arena_prompt"] = "neutral"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, prompts)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        use_neutral_arena=True,
+    )
+
+    with pytest.raises(KeyError, match="object keyed by question variant"):
+        run_persona_experiment(cfg)
+
+
+def test_run_persona_experiment_requires_variant_key_in_neutral_prompt(tmp_path):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    prompts = _prompt_payload()
+    prompts["default"]["neutral_arena_prompt"] = {"controversial": "neutral controversial"}
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, prompts)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        question_variant="agreeable",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        use_neutral_arena=True,
+    )
+
+    with pytest.raises(KeyError, match="neutral_arena_prompt.agreeable"):
         run_persona_experiment(cfg)
