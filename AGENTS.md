@@ -1,5 +1,7 @@
 - Start by reading the README.md
 - Always use the local virtual environment to run Python, pytest, etc: `.venv/bin/python3`
-- Never modify sourcecode to make tests pass - tests are for validating code, not the other way around!
+- Never modify sourcecode just to naively make tests pass, or vice versa. Tests are for validating code! If a test fails, always seek the root cause of that failure in the source code and in the test code, and then address it.
 - Always run the coverage report `--cov=agora` with the pytests; our CI requires maintaining 100% coverage to submit a PR.
 - No implementation is complete until it has tests and coverage is 100%.
+- When implementing changes, pay no heed to backward compatibility. We want our codebase (including our tests) to be minimal. 
+- Don't keep code around just to pass tests. All code must be functional.
