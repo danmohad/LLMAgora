@@ -13,7 +13,6 @@
   "use_neutral_arena": false,
   "enable_private_reflection": false,
   "keep_private_reflection": false,
-  "skip_first_agent_first_reflection": false,
   "enable_pre_interview": false,
   "keep_pre_interview": false,
   "enable_post_interview": false,

@@ -8,7 +8,7 @@ import re
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Mapping, Optional
+from typing import Any, Mapping, Optional, Sequence
 from uuid import uuid4
 
 import matplotlib.pyplot as plt
@@ -53,7 +53,6 @@ class ExperimentConfig:
 
     enable_private_reflection: bool = False
     keep_private_reflection: bool = False
-    skip_first_agent_first_reflection: bool = False
 
     enable_pre_interview: bool = False
     keep_pre_interview: bool = False
@@ -137,6 +136,14 @@ def _enabled_subturn_events(cfg: ExperimentConfig) -> list[str]:
     if cfg.enable_private_survey:
         enabled.append("private_survey")
     return enabled
+
+
+def _derive_skip_first_reflection(event_order: Sequence[str]) -> bool:
+    """Skip first reflection only when private reflection runs before public speech."""
+
+    if "private_utterance" not in event_order:
+        return False
+    return event_order.index("private_utterance") < event_order.index("public_utterance")
 
 
 def _slug(value: str) -> str:
@@ -539,7 +546,7 @@ def run_persona_experiment(
         num_turns=cfg.num_turns,
         event_order=cfg.subturn_event_order,
         verbose=cfg.verbose,
-        skip_first_agent_first_reflection=cfg.skip_first_agent_first_reflection,
+        skip_first_agent_first_reflection=_derive_skip_first_reflection(cfg.subturn_event_order),
         snapshot_path=snapshot_path,
         load_snapshot_flag=cfg.load_snapshot,
         save_snapshot_flag=cfg.save_snapshot,
