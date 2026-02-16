@@ -35,6 +35,8 @@ def test_build_parser_registers_run_subcommand():
     parser = cli.build_parser()
     args = parser.parse_args(["run", "--scenario-id", "s1"])
     assert args.func is cli._run
+    with pytest.raises(SystemExit):
+        parser.parse_args(["run", "--scenario-id", "s1", "--skip-first-agent-first-reflection"])
 
 
 def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
@@ -74,7 +76,6 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         use_neutral_arena=None,
         enable_private_reflection=None,
         keep_private_reflection=None,
-        skip_first_agent_first_reflection=None,
         enable_pre_interview=None,
         keep_pre_interview=None,
         enable_post_interview=None,
@@ -144,7 +145,6 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         use_neutral_arena=False,
         enable_private_reflection=False,
         keep_private_reflection=False,
-        skip_first_agent_first_reflection=False,
         enable_pre_interview=False,
         keep_pre_interview=False,
         enable_post_interview=False,
@@ -202,7 +202,6 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
         use_neutral_arena=False,
         enable_private_reflection=False,
         keep_private_reflection=False,
-        skip_first_agent_first_reflection=False,
         enable_pre_interview=False,
         keep_pre_interview=False,
         enable_post_interview=False,

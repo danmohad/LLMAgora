@@ -40,7 +40,6 @@ def _run(args: argparse.Namespace) -> None:
         "use_neutral_arena": args.use_neutral_arena,
         "enable_private_reflection": args.enable_private_reflection,
         "keep_private_reflection": args.keep_private_reflection,
-        "skip_first_agent_first_reflection": args.skip_first_agent_first_reflection,
         "enable_pre_interview": args.enable_pre_interview,
         "keep_pre_interview": args.keep_pre_interview,
         "enable_post_interview": args.enable_post_interview,
@@ -118,7 +117,6 @@ def build_parser() -> argparse.ArgumentParser:
 
     _add_bool(run_cmd, "enable-private-reflection", "Enable private reflections")
     _add_bool(run_cmd, "keep-private-reflection", "Keep private reflections in local history")
-    _add_bool(run_cmd, "skip-first-agent-first-reflection", "Skip the first reflection for the first agent")
 
     _add_bool(run_cmd, "enable-pre-interview", "Enable pre-interview stage")
     _add_bool(run_cmd, "keep-pre-interview", "Keep pre-interview notes in local history")

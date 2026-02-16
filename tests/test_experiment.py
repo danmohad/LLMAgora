@@ -217,6 +217,17 @@ def test_build_experiment_config_and_helpers(tmp_path):
         "public_utterance",
         "private_utterance",
     ]
+    cfg_private_first = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "enable_private_reflection": True,
+            "subturn_event_order": "private_utterance,public_utterance",
+        }
+    )
+    assert cfg_private_first.subturn_event_order == [
+        "private_utterance",
+        "public_utterance",
+    ]
     with pytest.raises(ValueError):
         build_experiment_config(
             {"scenario_id": "s1", "subturn_event_order": {"bad": "value"}}
@@ -542,6 +553,46 @@ def test_run_persona_experiment_writes_expected_files_when_outputs_enabled(tmp_p
     assert not (result.run_dir / "scenarios.json").exists()
     assert not (result.run_dir / "prompts.json").exists()
     assert not (result.run_dir / "run_metadata.json").exists()
+
+
+def test_run_persona_experiment_derives_skip_first_from_event_order(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    captured = {}
+
+    def fake_run_debate_session(
+        _agent_configs,
+        *,
+        num_turns,
+        event_order,
+        verbose,
+        skip_first_agent_first_reflection,
+        snapshot_path,
+        load_snapshot_flag,
+        save_snapshot_flag,
+    ):
+        captured["skip_first"] = skip_first_agent_first_reflection
+        captured["event_order"] = list(event_order)
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        enable_private_reflection=True,
+        subturn_event_order=["private_utterance", "public_utterance"],
+    )
+    run_persona_experiment(cfg)
+
+    assert captured["event_order"] == ["private_utterance", "public_utterance"]
+    assert captured["skip_first"] is True
+
 
 def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, monkeypatch):
     catalog_path = tmp_path / "catalog.json"
@@ -963,7 +1014,6 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         load_dir=tmp_path / "resume_from",
         save_snapshot=True,
         verbose=True,
-        skip_first_agent_first_reflection=True,
     )
 
     result = run_persona_experiment(cfg)
@@ -974,7 +1024,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     assert calls["run_session"]["load_snapshot"] is True
     assert calls["run_session"]["save_snapshot"] is True
     assert calls["run_session"]["verbose"] is True
-    assert calls["run_session"]["skip_first"] is True
+    assert calls["run_session"]["skip_first"] is False
     assert calls["persona"]["samples"] == 3
     assert calls["client_closed"] is True
 

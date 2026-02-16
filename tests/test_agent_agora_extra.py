@@ -355,6 +355,55 @@ def test_agora_private_survey_only():
     assert alpha_turn.public_speech == "public speech"
 
 
+def test_agora_survey_calls_include_same_turn_context():
+    alpha_llm = QueueLLM(
+        [
+            "alpha public",
+            "alpha private",
+            json.dumps({"Q1": "Neutral"}),
+            json.dumps({"Q1": "Agree"}),
+        ]
+    )
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=alpha_llm,
+        response_instruction="respond",
+        private_response_instruction="reflect",
+        private_response_keep=True,
+        survey_questions=["q1"],
+        survey_public_prompt="Base\n",
+        survey_private_prompt="Base\n",
+        enable_public_survey=True,
+        enable_private_survey=True,
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+
+    agora = Agora(
+        [alpha, beta],
+        event_order=[
+            "public_utterance",
+            "private_utterance",
+            "public_survey",
+            "private_survey",
+        ],
+    )
+    agora.run(num_turns=1)
+
+    public_survey_messages = alpha_llm.calls[2]["messages"]
+    private_survey_messages = alpha_llm.calls[3]["messages"]
+
+    assert any(msg["content"] == "alpha public" for msg in public_survey_messages)
+    assert any(msg["content"] == "alpha public" for msg in private_survey_messages)
+    assert any(msg["content"] == "alpha private" for msg in public_survey_messages)
+    assert any(msg["content"] == "alpha private" for msg in private_survey_messages)
+
+
 def test_agora_pre_post_keep_true():
     responses = ["pre", "public", "post"]
     llm_client = QueueLLM(responses)
