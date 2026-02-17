@@ -10,7 +10,7 @@
         "counterpart_noun": "opponent"
       }
     },
-    "base_prompt": "You are in a {interaction_noun} with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) Role-play strictly as the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), and (b) the Other speaker persona summary.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
+    "base_prompt": "You are in a {interaction_noun} with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), and (b) the Other speaker persona summary.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
     "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
     "debate_arena_prompt": "This {interaction_noun} is taking place in {debate_arena}.\n",
     "neutral_arena_prompt": {
