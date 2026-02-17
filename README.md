@@ -71,19 +71,13 @@ agora run \
   --side-order 12 \
   --num-turns 2
 
-# Enable surveys independently
+# Enable surveys via sub-turn events
 agora run --config data/example.json \
-  --enable-public-survey --enable-private-survey \
-  --subturn-event-order public_utterance public_survey private_survey
-
-# Explicit sub-turn event order (must match enabled events 1:1)
-agora run --config data/example.json \
-  --enable-private-survey \
   --subturn-event-order public_utterance private_survey
 
 # Optional retention toggles for survey streams
 agora run --config data/example.json \
-  --enable-private-survey --keep-private-survey \
+  --keep-private-survey \
   --subturn-event-order public_utterance private_survey
 
 # Resume from an existing snapshot directory
@@ -99,10 +93,11 @@ Output behavior:
 - if output-related features are all disabled, no output directory is created
 - `load_snapshot=true` requires `load_dir` (directory containing `debate_snapshot.json`)
 - `show_plots=true` requires `save_plots=true`
-- `subturn_event_order` must match enabled events exactly:
-- always include `public_utterance`
-- include `private_utterance` iff `enable_private_reflection=true`
-- include `public_survey` iff `enable_public_survey=true`
-- include `private_survey` iff `enable_private_survey=true`
+- `subturn_event_order` drives event enablement directly:
+- must include `public_utterance`
+- include `private_utterance` to enable private reflection
+- include `public_survey` to enable public survey
+- include `private_survey` to enable private survey
+- `keep_private_reflection`, `keep_public_survey`, and `keep_private_survey` require their respective events in `subturn_event_order`
 - when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
 - `eval_data.json` is written only when at least one analysis stream is enabled (`semantic_analysis_metrics` or `persona_analysis_metrics`)

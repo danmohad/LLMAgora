@@ -40,14 +40,11 @@ def _run(args: argparse.Namespace) -> None:
         "subturn_event_order": args.subturn_event_order,
         "verbose": args.verbose,
         "use_neutral_arena": args.use_neutral_arena,
-        "enable_private_reflection": args.enable_private_reflection,
         "keep_private_reflection": args.keep_private_reflection,
         "enable_pre_interview": args.enable_pre_interview,
         "keep_pre_interview": args.keep_pre_interview,
         "enable_post_interview": args.enable_post_interview,
         "keep_post_interview": args.keep_post_interview,
-        "enable_public_survey": args.enable_public_survey,
-        "enable_private_survey": args.enable_private_survey,
         "keep_public_survey": args.keep_public_survey,
         "keep_private_survey": args.keep_private_survey,
         "semantic_analysis_metrics": args.semantic_analysis_metrics,
@@ -109,15 +106,14 @@ def build_parser() -> argparse.ArgumentParser:
         nargs="+",
         choices=["public_utterance", "private_utterance", "public_survey", "private_survey"],
         help=(
-            "Ordered events inside each sub-turn; must match enabled events exactly, "
-            "for example: public_utterance private_utterance public_survey private_survey"
+            "Ordered events inside each sub-turn. Always include public_utterance. "
+            "Include private_utterance/public_survey/private_survey to enable those features."
         ),
     )
 
     _add_bool(run_cmd, "verbose", "Print turn-by-turn output")
     _add_bool(run_cmd, "use-neutral-arena", "Use neutral arena prompt instead of alpha persona arena")
 
-    _add_bool(run_cmd, "enable-private-reflection", "Enable private reflections")
     _add_bool(run_cmd, "keep-private-reflection", "Keep private reflections in local history")
 
     _add_bool(run_cmd, "enable-pre-interview", "Enable pre-interview stage")
@@ -126,8 +122,6 @@ def build_parser() -> argparse.ArgumentParser:
     _add_bool(run_cmd, "enable-post-interview", "Enable post-interview stage")
     _add_bool(run_cmd, "keep-post-interview", "Keep post-interview notes in local history")
 
-    _add_bool(run_cmd, "enable-public-survey", "Enable public survey rounds")
-    _add_bool(run_cmd, "enable-private-survey", "Enable private survey rounds")
     _add_bool(run_cmd, "keep-public-survey", "Reserved survey retention flag (does not modify public_speech)")
     _add_bool(run_cmd, "keep-private-survey", "Reserved survey retention flag for private survey responses")
 

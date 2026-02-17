@@ -71,7 +71,6 @@ class ExperimentConfig:
 
     use_neutral_arena: bool = False
 
-    enable_private_reflection: bool = False
     keep_private_reflection: bool = False
 
     enable_pre_interview: bool = False
@@ -80,8 +79,6 @@ class ExperimentConfig:
     enable_post_interview: bool = False
     keep_post_interview: bool = False
 
-    enable_public_survey: bool = False
-    enable_private_survey: bool = False
     keep_public_survey: bool = False
     keep_private_survey: bool = False
 
@@ -105,6 +102,18 @@ class ExperimentConfig:
 
     catalog_path: Path = DEFAULT_CATALOG_PATH
     prompts_path: Path = DEFAULT_PROMPTS_PATH
+
+    @property
+    def enable_private_reflection(self) -> bool:
+        return "private_utterance" in self.subturn_event_order
+
+    @property
+    def enable_public_survey(self) -> bool:
+        return "public_survey" in self.subturn_event_order
+
+    @property
+    def enable_private_survey(self) -> bool:
+        return "private_survey" in self.subturn_event_order
 
 
 @dataclass(slots=True)
@@ -171,17 +180,6 @@ def _validate_metric_list(
         )
     if len(values) != len(set(values)):
         raise ValueError(f"{field_name} must not contain duplicates")
-
-
-def _enabled_subturn_events(cfg: ExperimentConfig) -> list[str]:
-    enabled = ["public_utterance"]
-    if cfg.enable_private_reflection:
-        enabled.append("private_utterance")
-    if cfg.enable_public_survey:
-        enabled.append("public_survey")
-    if cfg.enable_private_survey:
-        enabled.append("private_survey")
-    return enabled
 
 
 def _derive_skip_first_reflection(event_order: Sequence[str]) -> bool:
@@ -415,10 +413,14 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("question_variant must be 'agreeable' or 'controversial'")
     if cfg.show_plots and not cfg.save_plots:
         raise ValueError("show_plots requires save_plots=True")
+    if cfg.keep_private_reflection and not cfg.enable_private_reflection:
+        raise ValueError(
+            "keep_private_reflection requires private_utterance in subturn_event_order"
+        )
     if cfg.keep_public_survey and not cfg.enable_public_survey:
-        raise ValueError("keep_public_survey requires enable_public_survey=True")
+        raise ValueError("keep_public_survey requires public_survey in subturn_event_order")
     if cfg.keep_private_survey and not cfg.enable_private_survey:
-        raise ValueError("keep_private_survey requires enable_private_survey=True")
+        raise ValueError("keep_private_survey requires private_survey in subturn_event_order")
     _validate_metric_list(
         values=cfg.semantic_analysis_metrics,
         allowed=SEMANTIC_ANALYSIS_METRICS,
@@ -449,12 +451,8 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         )
     if len(cfg.subturn_event_order) != len(set(cfg.subturn_event_order)):
         raise ValueError("subturn_event_order must not contain duplicates")
-    enabled_events = _enabled_subturn_events(cfg)
-    if set(cfg.subturn_event_order) != set(enabled_events):
-        raise ValueError(
-            "subturn_event_order must match enabled events 1:1. "
-            f"Enabled: {enabled_events}. Provided: {cfg.subturn_event_order}."
-        )
+    if "public_utterance" not in cfg.subturn_event_order:
+        raise ValueError("subturn_event_order must include public_utterance")
     return cfg
 
 

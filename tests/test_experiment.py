@@ -180,9 +180,11 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "show_plots": True, "save_plots": False})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "keep_public_survey": True, "enable_public_survey": False})
+        build_experiment_config({"scenario_id": "s1", "keep_private_reflection": True})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "keep_private_survey": True, "enable_private_survey": False})
+        build_experiment_config({"scenario_id": "s1", "keep_public_survey": True})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "keep_private_survey": True})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "persona_scoring_verbose": True, "persona_analysis_metrics": []})
     with pytest.raises(ValueError):
@@ -217,7 +219,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
         build_experiment_config({"scenario_id": "s1", "load_snapshot": True})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "load_dir": "outputs/somewhere"})
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         build_experiment_config({"scenario_id": "s1", "enable_private_reflection": True})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "subturn_event_order": []})
@@ -238,7 +240,6 @@ def test_build_experiment_config_and_helpers(tmp_path):
     cfg_from_string = build_experiment_config(
         {
             "scenario_id": "s1",
-            "enable_private_reflection": True,
             "subturn_event_order": "public_utterance,private_utterance",
         }
     )
@@ -246,10 +247,10 @@ def test_build_experiment_config_and_helpers(tmp_path):
         "public_utterance",
         "private_utterance",
     ]
+    assert cfg_from_string.enable_private_reflection is True
     cfg_private_first = build_experiment_config(
         {
             "scenario_id": "s1",
-            "enable_private_reflection": True,
             "subturn_event_order": "private_utterance,public_utterance",
         }
     )
@@ -261,6 +262,8 @@ def test_build_experiment_config_and_helpers(tmp_path):
         build_experiment_config(
             {"scenario_id": "s1", "subturn_event_order": {"bad": "value"}}
         )
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "subturn_event_order": ["private_utterance"]})
     with pytest.raises(ValueError):
         build_experiment_config({})
 
@@ -349,8 +352,18 @@ def test_defaults_constants():
         )
         is True
     )
-    assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_public_survey=True)) is True
-    assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_private_survey=True)) is True
+    assert (
+        _should_write_outputs(
+            ExperimentConfig(scenario_id="s1", subturn_event_order=["public_utterance", "public_survey"])
+        )
+        is True
+    )
+    assert (
+        _should_write_outputs(
+            ExperimentConfig(scenario_id="s1", subturn_event_order=["public_utterance", "private_survey"])
+        )
+        is True
+    )
     assert (
         _should_write_outputs(
             ExperimentConfig(
@@ -469,11 +482,8 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         catalog_path=catalog_path,
         prompts_path=prompts_path,
         run_name="my_run",
-        enable_private_reflection=False,
         enable_pre_interview=False,
         enable_post_interview=False,
-        enable_public_survey=False,
-        enable_private_survey=False,
         semantic_analysis_metrics=[],
         persona_analysis_metrics=[],
         save_plots=False,
@@ -622,7 +632,6 @@ def test_run_persona_experiment_derives_skip_first_from_event_order(tmp_path, mo
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
-        enable_private_reflection=True,
         subturn_event_order=["private_utterance", "public_utterance"],
     )
     run_persona_experiment(cfg)
@@ -759,8 +768,6 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
         catalog_path=catalog_path,
         prompts_path=prompts_path,
         run_name="private_only",
-        enable_public_survey=False,
-        enable_private_survey=True,
         subturn_event_order=["public_utterance", "private_survey"],
         keep_public_survey=False,
         save_plots=True,
@@ -835,8 +842,6 @@ def test_run_persona_experiment_public_survey_only(tmp_path, monkeypatch):
         catalog_path=catalog_path,
         prompts_path=prompts_path,
         run_name="public_only",
-        enable_public_survey=True,
-        enable_private_survey=False,
         subturn_event_order=["public_utterance", "public_survey"],
         keep_public_survey=True,
     )
@@ -1029,7 +1034,6 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         indexed_output=True,
         index_csv=None,
         use_neutral_arena=True,
-        enable_private_reflection=True,
         subturn_event_order=[
             "public_utterance",
             "private_utterance",
@@ -1041,8 +1045,6 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         keep_pre_interview=True,
         enable_post_interview=True,
         keep_post_interview=True,
-        enable_public_survey=True,
-        enable_private_survey=True,
         keep_public_survey=True,
         semantic_analysis_metrics=[
             "self_consistency",
@@ -1116,7 +1118,6 @@ def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path)
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
-        enable_public_survey=True,
         subturn_event_order=["public_utterance", "public_survey"],
     )
 
