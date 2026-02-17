@@ -14,6 +14,8 @@ from .experiment import (
     DEFAULT_INDEX_CSV,
     DEFAULT_OUTPUTS_ROOT,
     DEFAULT_PROMPTS_PATH,
+    PERSONA_ANALYSIS_METRICS,
+    SEMANTIC_ANALYSIS_METRICS,
     _merge_config,
     build_experiment_config,
     load_experiment_config,
@@ -48,11 +50,11 @@ def _run(args: argparse.Namespace) -> None:
         "enable_private_survey": args.enable_private_survey,
         "keep_public_survey": args.keep_public_survey,
         "keep_private_survey": args.keep_private_survey,
-        "enable_analyzer": args.enable_analyzer,
-        "enable_persona_evaluation": args.enable_persona_evaluation,
-        "persona_eval_model": args.persona_eval_model,
-        "persona_eval_verbose": args.persona_eval_verbose,
-        "persona_n_samples": args.persona_n_samples,
+        "semantic_analysis_metrics": args.semantic_analysis_metrics,
+        "persona_analysis_metrics": args.persona_analysis_metrics,
+        "persona_scoring_model": args.persona_scoring_model,
+        "persona_scoring_verbose": args.persona_scoring_verbose,
+        "persona_score_samples": args.persona_score_samples,
         "save_plots": args.save_plots,
         "show_plots": args.show_plots,
         "load_snapshot": args.load_snapshot,
@@ -129,11 +131,27 @@ def build_parser() -> argparse.ArgumentParser:
     _add_bool(run_cmd, "keep-public-survey", "Reserved survey retention flag (does not modify public_speech)")
     _add_bool(run_cmd, "keep-private-survey", "Reserved survey retention flag for private survey responses")
 
-    _add_bool(run_cmd, "enable-analyzer", "Compute semantic analyzer metrics")
-    _add_bool(run_cmd, "enable-persona-evaluation", "Compute persona adherence scores")
-    run_cmd.add_argument("--persona-eval-model")
-    _add_bool(run_cmd, "persona-eval-verbose", "Verbose persona evaluation progress")
-    run_cmd.add_argument("--persona-n-samples", type=int)
+    run_cmd.add_argument(
+        "--semantic-analysis-metrics",
+        nargs="+",
+        choices=list(SEMANTIC_ANALYSIS_METRICS),
+        help=(
+            "Select semantic similarity metrics. "
+            f"Choices: {', '.join(SEMANTIC_ANALYSIS_METRICS)}"
+        ),
+    )
+    run_cmd.add_argument(
+        "--persona-analysis-metrics",
+        nargs="+",
+        choices=list(PERSONA_ANALYSIS_METRICS),
+        help=(
+            "Select persona adherence metrics. "
+            f"Choices: {', '.join(PERSONA_ANALYSIS_METRICS)}"
+        ),
+    )
+    run_cmd.add_argument("--persona-scoring-model")
+    _add_bool(run_cmd, "persona-scoring-verbose", "Verbose persona adherence scoring progress")
+    run_cmd.add_argument("--persona-score-samples", type=int)
 
     _add_bool(run_cmd, "save-plots", "Save plots for enabled analyses")
     _add_bool(run_cmd, "show-plots", "Display plots while running")

@@ -16,9 +16,17 @@ from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from .agent import Agent
 from .agora import ALLOWED_SUBTURN_EVENTS, Agora
-from .debate_analyzer import DebateAnalyzer
+from .debate_analyzer import (
+    PRIVATE_NARRATIVE_FIELD,
+    PUBLIC_NARRATIVE_FIELD,
+    SemanticSimilarityAnalyzer,
+)
 from .llm import OpenRouterClient
-from .persona_evaluator import PersonaEvaluator, plot_persona_adherence
+from .persona_evaluator import (
+    PERSONA_ANALYSIS_METRICS,
+    PersonaEvaluator,
+    plot_persona_adherence,
+)
 from .plotting import plot_survey_distance, plot_survey_responses
 from .workflows import (
     build_scenario_agent_configs,
@@ -31,6 +39,15 @@ DEFAULT_CATALOG_PATH = Path("data/scenarios.json")
 DEFAULT_PROMPTS_PATH = Path("data/prompts.json")
 DEFAULT_OUTPUTS_ROOT = Path("outputs")
 DEFAULT_INDEX_CSV = DEFAULT_OUTPUTS_ROOT / "index.csv"
+
+SEMANTIC_METRIC_SELF_CONSISTENCY = "self_consistency"
+SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT = "cross_agent_public_alignment"
+SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT = "cross_agent_private_alignment"
+SEMANTIC_ANALYSIS_METRICS: tuple[str, ...] = (
+    SEMANTIC_METRIC_SELF_CONSISTENCY,
+    SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT,
+    SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT,
+)
 
 
 @dataclass(slots=True)
@@ -65,11 +82,11 @@ class ExperimentConfig:
     keep_public_survey: bool = False
     keep_private_survey: bool = False
 
-    enable_analyzer: bool = False
-    enable_persona_evaluation: bool = False
-    persona_eval_model: str = "anthropic/claude-sonnet-4"
-    persona_eval_verbose: bool = False
-    persona_n_samples: int = 1
+    semantic_analysis_metrics: list[str] = field(default_factory=list)
+    persona_analysis_metrics: list[str] = field(default_factory=list)
+    persona_scoring_model: str = "anthropic/claude-sonnet-4"
+    persona_scoring_verbose: bool = False
+    persona_score_samples: int = 1
 
     save_plots: bool = False
     show_plots: bool = False
@@ -96,8 +113,8 @@ class ExperimentResult:
     eval_data: dict[str, Any]
     run_dir: Optional[Path]
     run_id: Optional[str]
-    analyzer: Optional[DebateAnalyzer]
-    persona_eval: Optional[dict[str, Any]]
+    semantic_analyzer: Optional[SemanticSimilarityAnalyzer]
+    persona_adherence_eval: Optional[dict[str, Any]]
 
 
 def _coerce_path(value: Any, *, fallback: Path) -> Path:
@@ -125,6 +142,32 @@ def _coerce_event_order(value: Any) -> Optional[list[str]]:
     if isinstance(value, (list, tuple)):
         return [str(item) for item in value]
     raise ValueError("subturn_event_order must be a list/tuple of event names")
+
+
+def _coerce_metric_list(value: Any, *, field_name: str) -> Optional[list[str]]:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return [item.strip() for item in value.split(",") if item.strip()]
+    if isinstance(value, (list, tuple)):
+        return [str(item) for item in value]
+    raise ValueError(f"{field_name} must be a list/tuple of metric names")
+
+
+def _validate_metric_list(
+    *,
+    values: Sequence[str],
+    allowed: Sequence[str],
+    field_name: str,
+) -> None:
+    unknown = [metric for metric in values if metric not in allowed]
+    if unknown:
+        raise ValueError(
+            f"{field_name} contains unknown metrics: {sorted(set(unknown))}. "
+            f"Allowed: {list(allowed)}"
+        )
+    if len(values) != len(set(values)):
+        raise ValueError(f"{field_name} must not contain duplicates")
 
 
 def _enabled_subturn_events(cfg: ExperimentConfig) -> list[str]:
@@ -266,28 +309,32 @@ def _plot_intra_scores(
 
 
 def _plot_inter_scores(
-    external_scores: dict[str, Any],
-    internal_scores: dict[str, Any],
+    public_alignment_scores: Optional[dict[str, Any]],
+    private_alignment_scores: Optional[dict[str, Any]],
     output_path: Path,
     title: str,
     show_plot: bool,
 ) -> None:
     fig, ax = plt.subplots(figsize=(10, 6))
-    external_turns = [int(turn) for turn in external_scores["turns"]]
-    internal_turns = [int(turn) for turn in internal_scores["turns"]]
-    all_turns = set(external_turns) | set(internal_turns)
-    ax.plot(
-        external_turns,
-        external_scores["scores"],
-        marker="o",
-        label="External (Public)",
-    )
-    ax.plot(
-        internal_turns,
-        internal_scores["scores"],
-        marker="o",
-        label="Internal (Private)",
-    )
+    all_turns: set[int] = set()
+    if public_alignment_scores:
+        public_turns = [int(turn) for turn in public_alignment_scores["turns"]]
+        all_turns.update(public_turns)
+        ax.plot(
+            public_turns,
+            public_alignment_scores["scores"],
+            marker="o",
+            label="Cross-Agent Public Alignment",
+        )
+    if private_alignment_scores:
+        private_turns = [int(turn) for turn in private_alignment_scores["turns"]]
+        all_turns.update(private_turns)
+        ax.plot(
+            private_turns,
+            private_alignment_scores["scores"],
+            marker="o",
+            label="Cross-Agent Private Alignment",
+        )
     ax.set_title(title)
     ax.set_xlabel("Debate Turn")
     ax.set_ylabel("Cosine Similarity")
@@ -296,7 +343,8 @@ def _plot_inter_scores(
     ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
     if all_turns:
         ax.set_xticks(sorted(all_turns))
-    ax.legend()
+    if ax.has_data():
+        ax.legend()
     ax.grid()
     plt.tight_layout()
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
@@ -340,12 +388,24 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         data["subturn_event_order"] = coerced_event_order
     else:
         data.pop("subturn_event_order", None)
+    semantic_metrics = _coerce_metric_list(
+        data.get("semantic_analysis_metrics"),
+        field_name="semantic_analysis_metrics",
+    )
+    if semantic_metrics is not None:
+        data["semantic_analysis_metrics"] = semantic_metrics
+    persona_metrics = _coerce_metric_list(
+        data.get("persona_analysis_metrics"),
+        field_name="persona_analysis_metrics",
+    )
+    if persona_metrics is not None:
+        data["persona_analysis_metrics"] = persona_metrics
 
     cfg = ExperimentConfig(**data)
     if cfg.num_turns <= 0:
         raise ValueError("num_turns must be positive")
-    if cfg.persona_n_samples <= 0:
-        raise ValueError("persona_n_samples must be positive")
+    if cfg.persona_score_samples <= 0:
+        raise ValueError("persona_score_samples must be positive")
     if cfg.side_order not in {"12", "21"}:
         raise ValueError("side_order must be '12' or '21'")
     if cfg.question_variant not in {"agreeable", "controversial"}:
@@ -356,8 +416,20 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("keep_public_survey requires enable_public_survey=True")
     if cfg.keep_private_survey and not cfg.enable_private_survey:
         raise ValueError("keep_private_survey requires enable_private_survey=True")
-    if cfg.persona_eval_verbose and not cfg.enable_persona_evaluation:
-        raise ValueError("persona_eval_verbose requires enable_persona_evaluation=True")
+    _validate_metric_list(
+        values=cfg.semantic_analysis_metrics,
+        allowed=SEMANTIC_ANALYSIS_METRICS,
+        field_name="semantic_analysis_metrics",
+    )
+    _validate_metric_list(
+        values=cfg.persona_analysis_metrics,
+        allowed=PERSONA_ANALYSIS_METRICS,
+        field_name="persona_analysis_metrics",
+    )
+    if cfg.persona_scoring_verbose and not cfg.persona_analysis_metrics:
+        raise ValueError(
+            "persona_scoring_verbose requires at least one persona_analysis_metrics value"
+        )
     if cfg.load_snapshot and cfg.load_dir is None:
         raise ValueError("load_dir must be provided when load_snapshot is enabled")
     if not cfg.load_snapshot and cfg.load_dir is not None:
@@ -407,8 +479,8 @@ def _should_write_outputs(cfg: ExperimentConfig) -> bool:
     return any(
         [
             cfg.save_plots,
-            cfg.enable_analyzer,
-            cfg.enable_persona_evaluation,
+            bool(cfg.semantic_analysis_metrics),
+            bool(cfg.persona_analysis_metrics),
             cfg.enable_public_survey,
             cfg.enable_private_survey,
             cfg.save_snapshot,
@@ -556,19 +628,39 @@ def run_persona_experiment(
     public_survey_responses = _survey_responses_by_agent(turns, "public_survey")
     private_survey_responses = _survey_responses_by_agent(turns, "private_survey")
 
-    analyzer = None
-    intra_scores = None
-    inter_external = None
-    inter_internal = None
+    selected_semantic_metrics = set(cfg.semantic_analysis_metrics)
+    semantic_analyzer = None
+    self_consistency_scores = None
+    cross_agent_public_alignment = None
+    cross_agent_private_alignment = None
 
-    if cfg.enable_analyzer:
-        analyzer = DebateAnalyzer(structured_history)
-        intra_scores = analyzer.compute_intra_agent_honesty()
-        inter_external = analyzer.compute_inter_agent_alignment("public_speech", "public_speech")
-        inter_internal = analyzer.compute_inter_agent_alignment("private_reflection", "private_reflection")
+    if selected_semantic_metrics:
+        semantic_analyzer = SemanticSimilarityAnalyzer(structured_history)
+        if SEMANTIC_METRIC_SELF_CONSISTENCY in selected_semantic_metrics:
+            self_consistency_scores = semantic_analyzer.compute_self_consistency_scores()
+        if (
+            SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT
+            in selected_semantic_metrics
+        ):
+            cross_agent_public_alignment = (
+                semantic_analyzer.compute_cross_agent_alignment_scores(
+                    PUBLIC_NARRATIVE_FIELD,
+                    PUBLIC_NARRATIVE_FIELD,
+                )
+            )
+        if (
+            SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT
+            in selected_semantic_metrics
+        ):
+            cross_agent_private_alignment = (
+                semantic_analyzer.compute_cross_agent_alignment_scores(
+                    PRIVATE_NARRATIVE_FIELD,
+                    PRIVATE_NARRATIVE_FIELD,
+                )
+            )
 
-    persona_eval_dict = None
-    if cfg.enable_persona_evaluation:
+    persona_adherence_eval = None
+    if cfg.persona_analysis_metrics:
         eval_client = OpenRouterClient()
         try:
             evaluator = PersonaEvaluator(
@@ -579,16 +671,17 @@ def run_persona_experiment(
                         beta_persona["id"]: beta_persona,
                     }
                 },
-                model=cfg.persona_eval_model,
+                model=cfg.persona_scoring_model,
             )
             persona_eval = evaluator.evaluate_debate_from_history(
                 memory_turns=structured_history,
                 alpha_persona_id=alpha_persona["id"],
                 beta_persona_id=beta_persona["id"],
-                verbose=cfg.persona_eval_verbose,
-                n_samples=cfg.persona_n_samples,
+                verbose=cfg.persona_scoring_verbose,
+                n_samples=cfg.persona_score_samples,
+                metrics=cfg.persona_analysis_metrics,
             )
-            persona_eval_dict = persona_eval.to_dict()
+            persona_adherence_eval = persona_eval.to_dict()
         finally:
             if hasattr(eval_client, "close"):
                 eval_client.close()
@@ -599,25 +692,29 @@ def run_persona_experiment(
     if cfg.save_plots and run_dir is not None:
         label_map = {"Alpha": f"Alpha: {alpha_name}", "Beta": f"Beta: {beta_name}"}
 
-        if intra_scores is not None and inter_external is not None and inter_internal is not None:
+        if self_consistency_scores is not None:
             _plot_intra_scores(
-                intra_scores,
+                self_consistency_scores,
                 label_map,
-                run_dir / "intra_agent.png",
+                run_dir / "semantic_self_consistency.png",
                 (
-                    "Intra-Agent Honesty"
+                    "Semantic Self-Consistency"
                     f" | {question_label} | {cfg.question_variant}"
                     f" | {cfg.side_order}"
                     f" | {'neutral' if cfg.use_neutral_arena else 'biased'}"
                 ),
                 cfg.show_plots,
             )
+        if (
+            cross_agent_public_alignment is not None
+            or cross_agent_private_alignment is not None
+        ):
             _plot_inter_scores(
-                inter_external,
-                inter_internal,
-                run_dir / "inter_agent.png",
+                cross_agent_public_alignment,
+                cross_agent_private_alignment,
+                run_dir / "semantic_cross_agent_alignment.png",
                 (
-                    "Inter-Agent Alignment"
+                    "Cross-Agent Semantic Alignment"
                     f" | {question_label} | {cfg.question_variant}"
                     f" | {cfg.side_order}"
                     f" | {'neutral' if cfg.use_neutral_arena else 'biased'}"
@@ -625,9 +722,9 @@ def run_persona_experiment(
                 cfg.show_plots,
             )
 
-        if persona_eval_dict is not None:
+        if persona_adherence_eval is not None:
             plot_persona_adherence(
-                eval_dict=persona_eval_dict,
+                eval_dict=persona_adherence_eval,
                 alpha_persona_name=alpha_name,
                 beta_persona_name=beta_name,
                 save_path=str(run_dir / "persona_adherence.png"),
@@ -667,18 +764,18 @@ def run_persona_experiment(
                 )
 
     eval_data: dict[str, Any] = {
-        "intra_agent_honesty": intra_scores,
-        "inter_agent_alignment": {
-            "external": inter_external,
-            "internal": inter_internal,
+        "semantic_similarity": {
+            SEMANTIC_METRIC_SELF_CONSISTENCY: self_consistency_scores,
+            SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT: cross_agent_public_alignment,
+            SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT: cross_agent_private_alignment,
         },
-        "persona_adherence": persona_eval_dict,
+        "persona_adherence": persona_adherence_eval,
     }
 
     should_write_eval_data = any(
         [
-            cfg.enable_analyzer,
-            cfg.enable_persona_evaluation,
+            bool(cfg.semantic_analysis_metrics),
+            bool(cfg.persona_analysis_metrics),
         ]
     )
 
@@ -702,8 +799,8 @@ def run_persona_experiment(
         eval_data=eval_data,
         run_dir=run_dir,
         run_id=run_id,
-        analyzer=analyzer,
-        persona_eval=persona_eval_dict,
+        semantic_analyzer=semantic_analyzer,
+        persona_adherence_eval=persona_adherence_eval,
     )
 
 
@@ -712,6 +809,11 @@ __all__ = [
     "DEFAULT_INDEX_CSV",
     "DEFAULT_OUTPUTS_ROOT",
     "DEFAULT_PROMPTS_PATH",
+    "SEMANTIC_ANALYSIS_METRICS",
+    "SEMANTIC_METRIC_SELF_CONSISTENCY",
+    "SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT",
+    "SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT",
+    "PERSONA_ANALYSIS_METRICS",
     "ExperimentConfig",
     "ExperimentResult",
     "build_experiment_config",
