@@ -4,7 +4,7 @@ import types
 
 import pytest
 
-from agora.debate_analyzer import DebateAnalyzer
+from agora.debate_analyzer import SemanticSimilarityAnalyzer
 from agora.memory import MemoryTurn
 
 
@@ -31,7 +31,7 @@ def test_model_requires_dependency(monkeypatch):
         return real_import(name, globals, locals, fromlist, level)
 
     monkeypatch.setattr(builtins, "__import__", fake_import)
-    analyzer = DebateAnalyzer({"A": {"debate_turns": [], "pre_interview": None, "post_interview": None}})
+    analyzer = SemanticSimilarityAnalyzer({"A": {"debate_turns": [], "pre_interview": None, "post_interview": None}})
     with pytest.raises(RuntimeError):
         _ = analyzer.model
 
@@ -41,7 +41,7 @@ def test_similarity_and_alignment(monkeypatch):
         self._util = DummyUtil
         return DummyModel()
 
-    monkeypatch.setattr(DebateAnalyzer, "_load_model", fake_load)
+    monkeypatch.setattr(SemanticSimilarityAnalyzer, "_load_model", fake_load)
 
     debate_data = {
         "Alpha": {
@@ -60,21 +60,21 @@ def test_similarity_and_alignment(monkeypatch):
         },
     }
 
-    analyzer = DebateAnalyzer(debate_data)
-    honesty = analyzer.compute_intra_agent_honesty()
+    analyzer = SemanticSimilarityAnalyzer(debate_data)
+    honesty = analyzer.compute_self_consistency_scores()
     assert honesty["Alpha"]["scores"][0] == 0.42
 
-    cached = analyzer.compute_intra_agent_honesty()
+    cached = analyzer.compute_self_consistency_scores()
     assert cached is honesty
 
-    alignment = analyzer.compute_inter_agent_alignment()
+    alignment = analyzer.compute_cross_agent_alignment_scores()
     assert alignment["scores"][0] == 0.42
 
-    cached_alignment = analyzer.compute_inter_agent_alignment()
+    cached_alignment = analyzer.compute_cross_agent_alignment_scores()
     assert cached_alignment is alignment
 
     analyzer._util = None
-    assert analyzer.calculate_similarity("a", "b") == 0.42
+    assert analyzer.cosine_similarity("a", "b") == 0.42
 
 
 def test_compute_alignment_requires_two_agents(monkeypatch):
@@ -82,7 +82,7 @@ def test_compute_alignment_requires_two_agents(monkeypatch):
         self._util = DummyUtil
         return DummyModel()
 
-    monkeypatch.setattr(DebateAnalyzer, "_load_model", fake_load)
+    monkeypatch.setattr(SemanticSimilarityAnalyzer, "_load_model", fake_load)
 
     debate_data = {
         "Solo": {
@@ -94,9 +94,9 @@ def test_compute_alignment_requires_two_agents(monkeypatch):
         }
     }
 
-    analyzer = DebateAnalyzer(debate_data)
+    analyzer = SemanticSimilarityAnalyzer(debate_data)
     with pytest.raises(ValueError):
-        analyzer.compute_inter_agent_alignment()
+        analyzer.compute_cross_agent_alignment_scores()
 
 
 def test_structured_history_path(monkeypatch):
@@ -104,7 +104,7 @@ def test_structured_history_path(monkeypatch):
         self._util = DummyUtil
         return DummyModel()
 
-    monkeypatch.setattr(DebateAnalyzer, "_load_model", fake_load)
+    monkeypatch.setattr(SemanticSimilarityAnalyzer, "_load_model", fake_load)
 
     turns = [
         MemoryTurn(
@@ -123,8 +123,8 @@ def test_structured_history_path(monkeypatch):
         ),
     ]
 
-    analyzer = DebateAnalyzer(turns)
-    result = analyzer.compute_intra_agent_honesty(force_recompute=True)
+    analyzer = SemanticSimilarityAnalyzer(turns)
+    result = analyzer.compute_self_consistency_scores(force_recompute=True)
     assert "Alpha" in result
 
 
@@ -139,7 +139,7 @@ def test_load_model_with_fake_dependency(monkeypatch, capsys):
     fake_module = types.SimpleNamespace(SentenceTransformer=FakeTransformer, util=DummyUtil)
     monkeypatch.setitem(sys.modules, "sentence_transformers", fake_module)
 
-    analyzer = DebateAnalyzer({"A": {"debate_turns": [], "pre_interview": None, "post_interview": None}})
+    analyzer = SemanticSimilarityAnalyzer({"A": {"debate_turns": [], "pre_interview": None, "post_interview": None}})
     model = analyzer._load_model()
     assert isinstance(model, FakeTransformer)
     assert analyzer._util is DummyUtil
@@ -151,7 +151,7 @@ def test_canonical_turn_structure_path(monkeypatch):
         self._util = DummyUtil
         return DummyModel()
 
-    monkeypatch.setattr(DebateAnalyzer, "_load_model", fake_load)
+    monkeypatch.setattr(SemanticSimilarityAnalyzer, "_load_model", fake_load)
 
     canonical = {
         "pre_interviews": {
@@ -177,7 +177,7 @@ def test_canonical_turn_structure_path(monkeypatch):
         },
     }
 
-    analyzer = DebateAnalyzer(canonical)
-    honesty = analyzer.compute_intra_agent_honesty()
+    analyzer = SemanticSimilarityAnalyzer(canonical)
+    honesty = analyzer.compute_self_consistency_scores()
     assert honesty["Alpha"]["turns"] == [1]
     assert honesty["Alpha"]["scores"][0] == 0.42

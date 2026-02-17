@@ -13,6 +13,7 @@ from agora.experiment import (
     DEFAULT_OUTPUTS_ROOT,
     DEFAULT_PROMPTS_PATH,
     ExperimentConfig,
+    SEMANTIC_METRIC_SELF_CONSISTENCY,
     _merge_config,
     _plot_inter_scores,
     _plot_intra_scores,
@@ -171,7 +172,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "num_turns": 0})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "persona_n_samples": 0})
+        build_experiment_config({"scenario_id": "s1", "persona_score_samples": 0})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "side_order": "bad"})
     with pytest.raises(ValueError):
@@ -183,7 +184,35 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "keep_private_survey": True, "enable_private_survey": False})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "persona_eval_verbose": True, "enable_persona_evaluation": False})
+        build_experiment_config({"scenario_id": "s1", "persona_scoring_verbose": True, "persona_analysis_metrics": []})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "semantic_analysis_metrics": ["bad_metric"]})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "persona_analysis_metrics": ["bad_metric"]})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "semantic_analysis_metrics": ["self_consistency", "self_consistency"]})
+    cfg_metric_strings = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "semantic_analysis_metrics": "self_consistency,cross_agent_public_alignment",
+            "persona_analysis_metrics": "public_per_turn,full_debate_public",
+        }
+    )
+    assert cfg_metric_strings.semantic_analysis_metrics == [
+        "self_consistency",
+        "cross_agent_public_alignment",
+    ]
+    assert cfg_metric_strings.persona_analysis_metrics == [
+        "public_per_turn",
+        "full_debate_public",
+    ]
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "semantic_analysis_metrics": {"bad": "value"},
+            }
+        )
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "load_snapshot": True})
     with pytest.raises(ValueError):
@@ -311,7 +340,15 @@ def test_defaults_constants():
     assert DEFAULT_CATALOG_PATH == Path("data/scenarios.json")
     assert DEFAULT_PROMPTS_PATH == Path("data/prompts.json")
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1")) is False
-    assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_analyzer=True)) is True
+    assert (
+        _should_write_outputs(
+            ExperimentConfig(
+                scenario_id="s1",
+                semantic_analysis_metrics=[SEMANTIC_METRIC_SELF_CONSISTENCY],
+            )
+        )
+        is True
+    )
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_public_survey=True)) is True
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", enable_private_survey=True)) is True
     assert (
@@ -437,8 +474,8 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         enable_post_interview=False,
         enable_public_survey=False,
         enable_private_survey=False,
-        enable_analyzer=False,
-        enable_persona_evaluation=False,
+        semantic_analysis_metrics=[],
+        persona_analysis_metrics=[],
         save_plots=False,
         save_snapshot=False,
     )
@@ -455,7 +492,7 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
 
     assert captured["session_args"]["save_snapshot"] is False
     assert captured["session_args"]["snapshot_path"] is None
-    assert result.eval_data["intra_agent_honesty"] is None
+    assert result.eval_data["semantic_similarity"]["self_consistency"] is None
     assert result.eval_data["persona_adherence"] is None
     assert not (tmp_path / "outputs").exists()
 
@@ -607,14 +644,14 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
         def __init__(self, _turns):
             pass
 
-        def compute_intra_agent_honesty(self):
+        def compute_self_consistency_scores(self):
             return {"Alpha": {"turns": [0], "scores": [0.5]}}
 
-        def compute_inter_agent_alignment(self, _a, _b):
+        def compute_cross_agent_alignment_scores(self, _a, _b):
             return {"turns": [0], "scores": [0.3]}
 
     monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
-    monkeypatch.setattr(experiment, "DebateAnalyzer", FakeAnalyzer)
+    monkeypatch.setattr(experiment, "SemanticSimilarityAnalyzer", FakeAnalyzer)
 
     cfg = ExperimentConfig(
         scenario_id="s1",
@@ -623,18 +660,21 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
         prompts_path=prompts_path,
         run_name="with_eval",
         save_snapshot=True,
-        enable_analyzer=True,
+        semantic_analysis_metrics=[
+            "self_consistency",
+            "cross_agent_public_alignment",
+            "cross_agent_private_alignment",
+        ],
     )
     result = run_persona_experiment(cfg)
     assert result.run_dir is not None
     assert (result.run_dir / "eval_data.json").exists()
     eval_payload = json.loads((result.run_dir / "eval_data.json").read_text(encoding="utf-8"))
     assert set(eval_payload.keys()) == {
-        "intra_agent_honesty",
-        "inter_agent_alignment",
+        "semantic_similarity",
         "persona_adherence",
     }
-    assert eval_payload["intra_agent_honesty"] is not None
+    assert eval_payload["semantic_similarity"]["self_consistency"] is not None
 
 
 def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
@@ -923,10 +963,10 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         def __init__(self, turns):
             self.turns = turns
 
-        def compute_intra_agent_honesty(self):
+        def compute_self_consistency_scores(self):
             return {"Alpha": {"turns": [0], "scores": [0.5]}, "Beta": {"turns": [0], "scores": [0.4]}}
 
-        def compute_inter_agent_alignment(self, a, b):
+        def compute_cross_agent_alignment_scores(self, a, b):
             assert (a, b) in {
                 ("public_speech", "public_speech"),
                 ("private_reflection", "private_reflection"),
@@ -937,8 +977,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         def to_dict(self):
             return {
                 "alpha": {
-                    "public_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "private_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
+                    "public_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
+                    "private_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
                     "public_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
                     "private_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
                     "full_debate_public_score": {"mean": 4, "std": 0},
@@ -946,8 +986,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
                     "persona_id": "p1",
                 },
                 "beta": {
-                    "public_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "private_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
+                    "public_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
+                    "private_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
                     "public_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
                     "private_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
                     "full_debate_public_score": {"mean": 4, "std": 0},
@@ -960,12 +1000,13 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         def __init__(self, llm_client, personas, model):
             calls["persona_init"] = {"personas": personas, "model": model}
 
-        def evaluate_debate_from_history(self, *, memory_turns, alpha_persona_id, beta_persona_id, verbose, n_samples):
+        def evaluate_debate_from_history(self, *, memory_turns, alpha_persona_id, beta_persona_id, verbose, n_samples, metrics):
             calls["persona"] = {
                 "alpha": alpha_persona_id,
                 "beta": beta_persona_id,
                 "verbose": verbose,
                 "samples": n_samples,
+                "metrics": metrics,
                 "history": memory_turns,
             }
             return FakeEvalResult()
@@ -976,7 +1017,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
 
     monkeypatch.setattr(experiment, "build_scenario_agent_configs", fake_build_scenario_agent_configs)
     monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
-    monkeypatch.setattr(experiment, "DebateAnalyzer", FakeAnalyzer)
+    monkeypatch.setattr(experiment, "SemanticSimilarityAnalyzer", FakeAnalyzer)
     monkeypatch.setattr(experiment, "PersonaEvaluator", FakePersonaEvaluator)
     monkeypatch.setattr(experiment, "OpenRouterClient", FakeClient)
 
@@ -1003,11 +1044,22 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         enable_public_survey=True,
         enable_private_survey=True,
         keep_public_survey=True,
-        enable_analyzer=True,
-        enable_persona_evaluation=True,
-        persona_eval_model="eval-model",
-        persona_eval_verbose=True,
-        persona_n_samples=3,
+        semantic_analysis_metrics=[
+            "self_consistency",
+            "cross_agent_public_alignment",
+            "cross_agent_private_alignment",
+        ],
+        persona_analysis_metrics=[
+            "public_per_turn",
+            "private_per_turn",
+            "public_cumulative",
+            "private_cumulative",
+            "full_debate_public",
+            "full_debate_private",
+        ],
+        persona_scoring_model="eval-model",
+        persona_scoring_verbose=True,
+        persona_score_samples=3,
         save_plots=True,
         show_plots=False,
         load_snapshot=True,
@@ -1019,8 +1071,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     result = run_persona_experiment(cfg)
 
     assert result.run_id is not None
-    assert result.analyzer is not None
-    assert result.persona_eval is not None
+    assert result.semantic_analyzer is not None
+    assert result.persona_adherence_eval is not None
     assert calls["run_session"]["load_snapshot"] is True
     assert calls["run_session"]["save_snapshot"] is True
     assert calls["run_session"]["verbose"] is True
@@ -1029,8 +1081,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     assert calls["client_closed"] is True
 
     # Plots produced by enabled features
-    assert (result.run_dir / "intra_agent.png").exists()
-    assert (result.run_dir / "inter_agent.png").exists()
+    assert (result.run_dir / "semantic_self_consistency.png").exists()
+    assert (result.run_dir / "semantic_cross_agent_alignment.png").exists()
     assert (result.run_dir / "persona_adherence.png").exists()
     assert (result.run_dir / "public_survey.png").exists()
     assert (result.run_dir / "private_survey.png").exists()

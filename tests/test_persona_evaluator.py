@@ -5,6 +5,8 @@ from agora.memory import MemoryTurn
 from agora.persona_evaluator import (
     AgentPersonaEvaluation,
     DebatePersonaEvaluation,
+    PERSONA_METRIC_FULL_DEBATE_PRIVATE,
+    PERSONA_METRIC_FULL_DEBATE_PUBLIC,
     PersonaEvaluator,
     PersonaScore,
     get_structured_debate_history,
@@ -31,43 +33,43 @@ def _personas():
     return {"personas": {"p1": {"actual_persona": "Test persona"}}}
 
 
-def test_score_text_handles_empty():
+def test_sample_persona_scores_handles_empty():
     evaluator = PersonaEvaluator(StubClient(), _personas())
-    result = evaluator._score_text("", "p1", n_samples=1)
+    result = evaluator._sample_persona_scores("", "p1", n_samples=1)
     assert result == [3]
 
 
-def test_score_text_parses_number():
+def test_sample_persona_scores_parses_number():
     evaluator = PersonaEvaluator(StubClient(["Score: 4"]), _personas())
-    result = evaluator._score_text("Hello", "p1", n_samples=1)
+    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=1)
     assert result == [4]
 
 
-def test_score_text_multiple_samples():
+def test_sample_persona_scores_multiple_samples():
     evaluator = PersonaEvaluator(StubClient(["4", "5", "4"]), _personas())
-    result = evaluator._score_text("Hello", "p1", n_samples=3)
+    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=3)
     assert result == [4, 5, 4]
 
 
-def test_score_text_handles_invalid_response(capsys):
+def test_sample_persona_scores_handles_invalid_response(capsys):
     evaluator = PersonaEvaluator(StubClient(["no score"]), _personas())
-    result = evaluator._score_text("Hello", "p1", n_samples=1)
+    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=1)
     assert result == [3]
     captured = capsys.readouterr()
     assert "Warning" in captured.out
 
 
-def test_score_text_handles_exception(capsys):
+def test_sample_persona_scores_handles_exception(capsys):
     evaluator = PersonaEvaluator(StubClient(fail=True), _personas())
-    result = evaluator._score_text("Hello", "p1", n_samples=1)
+    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=1)
     assert result == [3]
     captured = capsys.readouterr()
     assert "Error scoring text" in captured.out
 
 
-def test_score_text_only_prints_warning_once(capsys):
+def test_sample_persona_scores_only_prints_warning_once(capsys):
     evaluator = PersonaEvaluator(StubClient(["no score", "no score", "no score"]), _personas())
-    result = evaluator._score_text("Hello", "p1", n_samples=3)
+    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=3)
     assert result == [3, 3, 3]
     captured = capsys.readouterr()
     # Should only print warning once, not three times
@@ -77,7 +79,7 @@ def test_score_text_only_prints_warning_once(capsys):
 def test_create_prompt_requires_known_persona():
     evaluator = PersonaEvaluator(StubClient(), _personas())
     with pytest.raises(ValueError):
-        evaluator._create_evaluation_prompt("text", "missing")
+        evaluator._build_persona_scoring_prompt("text", "missing")
 
 
 def test_evaluate_debate_from_history_requires_two_agents():
@@ -100,11 +102,11 @@ def test_evaluate_debate_scores_and_cumulative(monkeypatch):
     evaluator = PersonaEvaluator(StubClient(), _personas())
     calls = {"count": 0}
 
-    def fake_score(text, persona_id, turn_label="turn", n_samples=1):
+    def fake_score(text, persona_id, slice_label="turn", n_samples=1):
         calls["count"] += 1
         return [5] * n_samples
 
-    monkeypatch.setattr(evaluator, "_score_text", fake_score)
+    monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
 
     # Create proper memory turns
     turns = [
@@ -151,10 +153,10 @@ def test_evaluate_debate_scores_and_cumulative(monkeypatch):
 def test_evaluate_debate_verbose_output(capsys, monkeypatch):
     evaluator = PersonaEvaluator(StubClient(), _personas())
 
-    def fake_score(text, persona_id, turn_label="turn", n_samples=1):
+    def fake_score(text, persona_id, slice_label="turn", n_samples=1):
         return [3] * n_samples
 
-    monkeypatch.setattr(evaluator, "_score_text", fake_score)
+    monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
 
     turns = [
         MemoryTurn(
@@ -190,14 +192,101 @@ def test_evaluate_debate_verbose_output(capsys, monkeypatch):
     evaluator.evaluate_debate_from_history(turns, "p1", "p1", verbose=True, n_samples=1)
     output = capsys.readouterr().out
     assert "Evaluating Alpha" in output
-    assert "Scoring individual public speech" in output
+    assert "scoring public turn adherence" in output
 
 
-def test_evaluate_agent_empty_turns():
+def test_evaluate_single_agent_empty_turns():
     evaluator = PersonaEvaluator(StubClient(), _personas())
-    evaluation = evaluator._evaluate_agent({"debate_turns": []}, "p1", n_samples=1)
+    evaluation = evaluator._evaluate_single_agent(
+        {"debate_turns": []},
+        "p1",
+        selected_metrics={"public_per_turn"},
+        n_samples=1,
+    )
     assert evaluation.persona_id == "p1"
-    assert len(evaluation.public_turn_scores) == 0
+    assert len(evaluation.public_per_turn_scores) == 0
+
+
+def test_evaluate_debate_rejects_unknown_metric():
+    evaluator = PersonaEvaluator(StubClient(), _personas())
+    turns = [
+        MemoryTurn(
+            turn_id=1,
+            speaker_id="a",
+            role="assistant",
+            public_speech="A",
+            metadata={"speaker_name": "Alpha"},
+        ),
+        MemoryTurn(
+            turn_id=2,
+            speaker_id="b",
+            role="assistant",
+            public_speech="B",
+            metadata={"speaker_name": "Beta"},
+        ),
+    ]
+    with pytest.raises(ValueError, match="Unknown persona analysis metrics"):
+        evaluator.evaluate_debate_from_history(
+            turns,
+            "p1",
+            "p1",
+            metrics=["not_real"],
+        )
+
+
+def test_full_debate_metrics_can_run_without_cumulative(monkeypatch):
+    evaluator = PersonaEvaluator(StubClient(), _personas())
+    labels = []
+
+    def fake_score(_text, _persona_id, slice_label="turn", n_samples=1):
+        labels.append(slice_label)
+        return [4] * n_samples
+
+    monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
+    turns = [
+        MemoryTurn(
+            turn_id=1,
+            speaker_id="a",
+            role="assistant",
+            public_speech="A",
+            metadata={"speaker_name": "Alpha"},
+        ),
+        MemoryTurn(
+            turn_id=2,
+            speaker_id="a",
+            role="reflection",
+            private_reflection="A0",
+            metadata={"speaker_name": "Alpha"},
+        ),
+        MemoryTurn(
+            turn_id=3,
+            speaker_id="b",
+            role="assistant",
+            public_speech="B",
+            metadata={"speaker_name": "Beta"},
+        ),
+        MemoryTurn(
+            turn_id=4,
+            speaker_id="b",
+            role="reflection",
+            private_reflection="B0",
+            metadata={"speaker_name": "Beta"},
+        ),
+    ]
+
+    result = evaluator.evaluate_debate_from_history(
+        turns,
+        "p1",
+        "p1",
+        metrics=[
+            PERSONA_METRIC_FULL_DEBATE_PUBLIC,
+            PERSONA_METRIC_FULL_DEBATE_PRIVATE,
+        ],
+    )
+    assert result.alpha.full_debate_public_score is not None
+    assert result.alpha.full_debate_private_score is not None
+    assert "full debate public" in labels
+    assert "full debate private" in labels
 
 
 def test_persona_score_statistics():
@@ -215,16 +304,16 @@ def test_persona_score_single_value():
 def test_evaluation_to_dict_new_structure():
     score = PersonaScore(turn_num=1, scores_raw=[4, 5, 4])
     agent_eval = AgentPersonaEvaluation(persona_id="p1")
-    agent_eval.public_turn_scores.append(score)
+    agent_eval.public_per_turn_scores.append(score)
     agent_eval.full_debate_public_score = (4.33, 0.47)
     
     agent_dict = agent_eval.to_dict()
     
     # Check new structure
-    assert agent_dict["public_turn_scores"]["turns"] == [1]
-    assert agent_dict["public_turn_scores"]["scores"]["mean"] == [pytest.approx(4.33, abs=0.01)]
-    assert agent_dict["public_turn_scores"]["scores"]["std"] == [pytest.approx(0.47, abs=0.01)]
-    assert agent_dict["public_turn_scores"]["scores"]["raw"] == [[4, 5, 4]]
+    assert agent_dict["public_per_turn_scores"]["turns"] == [1]
+    assert agent_dict["public_per_turn_scores"]["scores"]["mean"] == [pytest.approx(4.33, abs=0.01)]
+    assert agent_dict["public_per_turn_scores"]["scores"]["std"] == [pytest.approx(0.47, abs=0.01)]
+    assert agent_dict["public_per_turn_scores"]["scores"]["raw"] == [[4, 5, 4]]
     assert agent_dict["full_debate_public_score"]["mean"] == pytest.approx(4.33, abs=0.01)
     assert agent_dict["full_debate_public_score"]["std"] == pytest.approx(0.47, abs=0.01)
 
@@ -234,7 +323,7 @@ def test_evaluation_to_dict_roundtrip():
     score2 = PersonaScore(turn_num=2, scores_raw=[5, 5, 5])
     
     agent_eval = AgentPersonaEvaluation(persona_id="p1")
-    agent_eval.public_turn_scores.extend([score1, score2])
+    agent_eval.public_per_turn_scores.extend([score1, score2])
     agent_eval.full_debate_public_score = (4.67, 0.47)
     
     debate_eval = DebatePersonaEvaluation(alpha=agent_eval, beta=agent_eval)
@@ -242,7 +331,7 @@ def test_evaluation_to_dict_roundtrip():
 
     assert debate_dict["alpha"]["persona_id"] == "p1"
     assert debate_dict["beta"]["persona_id"] == "p1"
-    assert len(debate_dict["alpha"]["public_turn_scores"]["turns"]) == 2
+    assert len(debate_dict["alpha"]["public_per_turn_scores"]["turns"]) == 2
     assert debate_dict["alpha"]["full_debate_public_score"]["mean"] == pytest.approx(4.67, abs=0.01)
 
 
@@ -440,11 +529,11 @@ def test_n_samples_propagates_through_evaluation(monkeypatch):
     
     n_samples_used = []
     
-    def fake_score(text, persona_id, turn_label="turn", n_samples=1):
+    def fake_score(text, persona_id, slice_label="turn", n_samples=1):
         n_samples_used.append(n_samples)
         return [4] * n_samples
-    
-    monkeypatch.setattr(evaluator, "_score_text", fake_score)
+
+    monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
     
     turns = [
         MemoryTurn(
@@ -492,7 +581,7 @@ def test_full_debate_scores_match_last_cumulative():
     agent_eval = AgentPersonaEvaluation(persona_id="p1")
     agent_eval.public_cumulative_scores.extend([score1, score2])
     
-    # Simulate what _evaluate_agent does
+    # Simulate what evaluator does for full-debate summaries
     last_score = agent_eval.public_cumulative_scores[-1]
     agent_eval.full_debate_public_score = (last_score.score_mean, last_score.score_std)
     
@@ -503,13 +592,13 @@ def test_full_debate_scores_match_last_cumulative():
 def _sample_eval_dict():
     score = PersonaScore(turn_num=1, scores_raw=[4, 5, 4])
     agent_eval = AgentPersonaEvaluation(persona_id="p1")
-    agent_eval.public_turn_scores.append(score)
-    agent_eval.private_turn_scores.append(score)
+    agent_eval.public_per_turn_scores.append(score)
+    agent_eval.private_per_turn_scores.append(score)
     agent_eval.public_cumulative_scores.append(score)
     agent_eval.private_cumulative_scores.append(score)
     beta_eval = AgentPersonaEvaluation(persona_id="p2")
-    beta_eval.public_turn_scores.append(score)
-    beta_eval.private_turn_scores.append(score)
+    beta_eval.public_per_turn_scores.append(score)
+    beta_eval.private_per_turn_scores.append(score)
     beta_eval.public_cumulative_scores.append(score)
     beta_eval.private_cumulative_scores.append(score)
     return DebatePersonaEvaluation(agent_eval, beta_eval).to_dict()
@@ -543,3 +632,29 @@ def test_plot_persona_adherence_show(monkeypatch):
     fig = plot_persona_adherence(_sample_eval_dict(), "Alpha", "Beta", show_plot=True)
     assert calls["count"] == 1
     plt.close(fig)
+
+
+def test_plot_persona_adherence_handles_missing_series():
+    matplotlib.use("Agg", force=True)
+    sparse = {
+        "alpha": {
+            "public_per_turn_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "private_per_turn_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "public_cumulative_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "private_cumulative_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "full_debate_public_score": {"mean": None, "std": None},
+            "full_debate_private_score": {"mean": None, "std": None},
+            "persona_id": "p1",
+        },
+        "beta": {
+            "public_per_turn_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "private_per_turn_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "public_cumulative_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "private_cumulative_scores": {"turns": [], "scores": {"mean": [], "std": [], "raw": []}},
+            "full_debate_public_score": {"mean": None, "std": None},
+            "full_debate_private_score": {"mean": None, "std": None},
+            "persona_id": "p2",
+        },
+    }
+    fig = plot_persona_adherence(sparse, "Alpha", "Beta", show_plot=False)
+    assert fig is not None

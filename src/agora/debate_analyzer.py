@@ -1,16 +1,25 @@
-"""Semantic similarity metrics for a two-agent debate history."""
+"""Semantic similarity analysis for debate transcripts.
+
+The analyzer compares text streams across turns and agents using sentence-level
+embeddings:
+- self-consistency: each agent's private reflection vs their public statement
+- cross-agent alignment: one agent narrative stream vs the other agent stream
+"""
 
 from __future__ import annotations
 
 from typing import Any, Optional
 
+PUBLIC_NARRATIVE_FIELD = "public_speech"
+PRIVATE_NARRATIVE_FIELD = "private_reflection"
 
-class DebateAnalyzer:
-    """Compute honesty/alignment metrics from a structured debate history."""
+
+class SemanticSimilarityAnalyzer:
+    """Compute semantic similarity metrics from structured debate history."""
 
     def __init__(self, memory_turns: Any, model_name: str = "all-mpnet-base-v2"):
-        # Accept raw MemoryTurn history, canonical turn structure, or already-structured
-        # debate data keyed by speaker.
+        # Accept raw memory turns, canonical Agora structured history,
+        # or already-normalized debate data keyed by speaker.
         from agora.persona_evaluator import get_structured_debate_history
 
         if isinstance(memory_turns, dict) and "turns" in memory_turns:
@@ -23,8 +32,10 @@ class DebateAnalyzer:
         self.model_name = model_name
         self._model: Optional[Any] = None
         self._util: Optional[Any] = None
-        self._intra_agent_honesty: Optional[dict[str, dict[str, list[float]]]] = None
-        self._inter_agent_alignment: dict[tuple[str, str], dict[str, list[float]]] = {}
+        self._self_consistency_cache: Optional[dict[str, dict[str, list[float]]]] = None
+        self._cross_agent_alignment_cache: dict[
+            tuple[str, str], dict[str, list[float]]
+        ] = {}
 
     @property
     def model(self) -> Any:
@@ -38,52 +49,60 @@ class DebateAnalyzer:
             from sentence_transformers import SentenceTransformer, util
         except ModuleNotFoundError as exc:
             raise RuntimeError(
-                "sentence-transformers is required for DebateAnalyzer. "
+                "sentence-transformers is required for SemanticSimilarityAnalyzer. "
                 "Install it to compute similarity metrics."
             ) from exc
         self._util = util
         print(f"Loading model: {self.model_name}...")
         return SentenceTransformer(self.model_name)
 
-    def calculate_similarity(self, text1: str, text2: str) -> float:
+    def cosine_similarity(self, text_a: str, text_b: str) -> float:
         """Return cosine similarity between two text snippets."""
-        embedding1 = self.model.encode(text1, convert_to_tensor=True)
-        embedding2 = self.model.encode(text2, convert_to_tensor=True)
+        embedding_a = self.model.encode(text_a, convert_to_tensor=True)
+        embedding_b = self.model.encode(text_b, convert_to_tensor=True)
         if self._util is None:
             self._model = self._load_model()
-        cosine_score = self._util.cos_sim(embedding1, embedding2)
+        cosine_score = self._util.cos_sim(embedding_a, embedding_b)
         return float(cosine_score.item())
 
-    def compute_intra_agent_honesty(self, force_recompute: bool = False) -> dict[str, dict[str, list[float]]]:
-        """Score per-turn similarity between each agent's private and public text."""
-        if self._intra_agent_honesty is not None and not force_recompute:
-            return self._intra_agent_honesty
+    def compute_self_consistency_scores(
+        self, force_recompute: bool = False
+    ) -> dict[str, dict[str, list[float]]]:
+        """Score private-vs-public similarity for each agent on each turn."""
+        if self._self_consistency_cache is not None and not force_recompute:
+            return self._self_consistency_cache
 
-        self._intra_agent_honesty = {
+        self._self_consistency_cache = {
             speaker_name: {
-                "turns": [turn.get("turn_num", idx + 1) for idx, turn in enumerate(speaker_data["debate_turns"])],
+                "turns": [
+                    turn.get("turn_num", idx + 1)
+                    for idx, turn in enumerate(speaker_data["debate_turns"])
+                ],
                 "scores": [
-                    self.calculate_similarity(
-                        turn["private_reflection"],
-                        turn["public_speech"],
+                    self.cosine_similarity(
+                        turn[PRIVATE_NARRATIVE_FIELD],
+                        turn[PUBLIC_NARRATIVE_FIELD],
                     )
                     for turn in speaker_data["debate_turns"]
                 ],
             }
             for speaker_name, speaker_data in self.debate_data.items()
         }
-        return self._intra_agent_honesty
+        return self._self_consistency_cache
 
-    def compute_inter_agent_alignment(
+    def compute_cross_agent_alignment_scores(
         self,
-        agent_a_narrative: str = "public_speech",
-        agent_b_narrative: str = "public_speech",
+        agent_a_field: str = PUBLIC_NARRATIVE_FIELD,
+        agent_b_field: str = PUBLIC_NARRATIVE_FIELD,
         force_recompute: bool = False,
     ) -> dict[str, list[float]]:
-        """Score turn-by-turn similarity between Alpha/Beta narratives."""
-        cache_key = (agent_a_narrative, agent_b_narrative)
-        if cache_key in self._inter_agent_alignment and not force_recompute:
-            return self._inter_agent_alignment[cache_key]
+        """Score turn-by-turn similarity between two agents' selected text fields."""
+        cache_key = (agent_a_field, agent_b_field)
+        if (
+            cache_key in self._cross_agent_alignment_cache
+            and not force_recompute
+        ):
+            return self._cross_agent_alignment_cache[cache_key]
 
         agent_ids = list(self.debate_data.keys())
         if len(agent_ids) < 2:
@@ -101,12 +120,12 @@ class DebateAnalyzer:
             entry_a = by_turn_a[turn_num]
             entry_b = by_turn_b[turn_num]
             scores.append(
-                self.calculate_similarity(
-                    entry_a[agent_a_narrative],
-                    entry_b[agent_b_narrative],
+                self.cosine_similarity(
+                    entry_a[agent_a_field],
+                    entry_b[agent_b_field],
                 )
             )
 
         result = {"turns": turns, "scores": scores}
-        self._inter_agent_alignment[cache_key] = result
+        self._cross_agent_alignment_cache[cache_key] = result
         return result

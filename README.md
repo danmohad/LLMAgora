@@ -46,7 +46,7 @@ It is intentionally thin and calls the high-level source workflow in `agora.expe
 Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command.
 
 Canonical config lives at `data/example.json` and matches the notebook and CLI arguments exactly.
-All optional features are `false` by default and must be explicitly enabled.
+Optional features are disabled by default (`false` flags and empty analysis metric lists).
 
 ```bash
 # Run with config
@@ -56,8 +56,13 @@ agora run --config data/example.json
 agora run --config data/example.json \
   --scenario-id peer_collab_1 \
   --question-variant agreeable \
-  --enable-analyzer \
+  --semantic-analysis-metrics self_consistency cross_agent_public_alignment \
   --save-plots
+
+# Run persona adherence analysis for selected metric slices only
+agora run --config data/example.json \
+  --persona-analysis-metrics public_per_turn full_debate_public \
+  --persona-score-samples 3
 
 # Run with no config file (all args via CLI)
 agora run \
@@ -100,4 +105,4 @@ Output behavior:
 - include `public_survey` iff `enable_public_survey=true`
 - include `private_survey` iff `enable_private_survey=true`
 - when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
-- `eval_data.json` is written only when at least one evaluation stream is enabled (`enable_analyzer`, `enable_persona_evaluation`, `enable_public_survey`, or `enable_private_survey`)
+- `eval_data.json` is written only when at least one analysis stream is enabled (`semantic_analysis_metrics` or `persona_analysis_metrics`)
