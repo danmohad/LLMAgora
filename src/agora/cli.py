@@ -127,20 +127,22 @@ def build_parser() -> argparse.ArgumentParser:
 
     run_cmd.add_argument(
         "--semantic-analysis-metrics",
-        nargs="+",
+        nargs="*",
         choices=list(SEMANTIC_ANALYSIS_METRICS),
         help=(
             "Select semantic similarity metrics. "
-            f"Choices: {', '.join(SEMANTIC_ANALYSIS_METRICS)}"
+            f"Choices: {', '.join(SEMANTIC_ANALYSIS_METRICS)}. "
+            "Pass with no values to clear metrics from --config."
         ),
     )
     run_cmd.add_argument(
         "--persona-analysis-metrics",
-        nargs="+",
+        nargs="*",
         choices=list(PERSONA_ANALYSIS_METRICS),
         help=(
             "Select persona adherence metrics. "
-            f"Choices: {', '.join(PERSONA_ANALYSIS_METRICS)}"
+            f"Choices: {', '.join(PERSONA_ANALYSIS_METRICS)}. "
+            "Pass with no values to clear metrics from --config."
         ),
     )
     run_cmd.add_argument("--persona-scoring-model")

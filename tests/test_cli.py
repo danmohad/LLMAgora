@@ -35,6 +35,14 @@ def test_build_parser_registers_run_subcommand():
     parser = cli.build_parser()
     args = parser.parse_args(["run", "--scenario-id", "s1"])
     assert args.func is cli._run
+    args_semantic_clear = parser.parse_args(
+        ["run", "--scenario-id", "s1", "--semantic-analysis-metrics"]
+    )
+    assert args_semantic_clear.semantic_analysis_metrics == []
+    args_persona_clear = parser.parse_args(
+        ["run", "--scenario-id", "s1", "--persona-analysis-metrics"]
+    )
+    assert args_persona_clear.persona_analysis_metrics == []
     with pytest.raises(SystemExit):
         parser.parse_args(["run", "--scenario-id", "s1", "--skip-first-agent-first-reflection"])
 
@@ -81,8 +89,8 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         keep_post_interview=None,
         keep_public_survey=None,
         keep_private_survey=None,
-        semantic_analysis_metrics=None,
-        persona_analysis_metrics=None,
+        semantic_analysis_metrics=[],
+        persona_analysis_metrics=[],
         persona_scoring_model=None,
         persona_scoring_verbose=None,
         persona_score_samples=None,
@@ -105,6 +113,8 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
     assert captured["config_path"] == args.config
     assert captured["base"] == asdict(cfg_from_file)
     assert captured["overrides"]["scenario_id"] == "override-scenario"
+    assert captured["overrides"]["semantic_analysis_metrics"] == []
+    assert captured["overrides"]["persona_analysis_metrics"] == []
     assert captured["called"] is True
     assert captured["printed"] is True
 
