@@ -112,6 +112,55 @@ def test_run_debate_session_handles_snapshots(tmp_path):
     assert len(resumed_agents) == 2
 
 
+def test_run_debate_session_requires_snapshot_path_when_loading():
+    agent_configs = [
+        {"name": "Alpha", "model": "demo", "self_role": "Alpha", "response_instruction": "Say"},
+        {"name": "Beta", "model": "demo", "self_role": "Beta", "response_instruction": "Say"},
+    ]
+    clients = []
+
+    def factory():
+        client = CloseableStub([])
+        clients.append(client)
+        return client
+
+    with pytest.raises(ValueError, match="snapshot_path is required"):
+        run_debate_session(
+            agent_configs,
+            num_turns=0,
+            load_snapshot_flag=True,
+            snapshot_path=None,
+            client_factory=factory,
+        )
+
+    assert clients[0].closed is True
+
+
+def test_run_debate_session_errors_when_snapshot_file_missing(tmp_path):
+    agent_configs = [
+        {"name": "Alpha", "model": "demo", "self_role": "Alpha", "response_instruction": "Say"},
+        {"name": "Beta", "model": "demo", "self_role": "Beta", "response_instruction": "Say"},
+    ]
+    missing_snapshot = tmp_path / "missing.json"
+    clients = []
+
+    def factory():
+        client = CloseableStub([])
+        clients.append(client)
+        return client
+
+    with pytest.raises(FileNotFoundError, match="Snapshot not found at"):
+        run_debate_session(
+            agent_configs,
+            num_turns=0,
+            load_snapshot_flag=True,
+            snapshot_path=missing_snapshot,
+            client_factory=factory,
+        )
+
+    assert clients[0].closed is True
+
+
 def test_run_debate_session_resuming_replaces_old_post_interviews(tmp_path):
     agent_configs = [
         {
