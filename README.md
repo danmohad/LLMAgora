@@ -38,8 +38,13 @@ Runs `pytest` with coverage report, and comments the coverage percentage on the 
 
 ## Notebook demo
 
-There is one canonical notebook: `notebooks/demo.ipynb`.
-It is intentionally thin and calls the high-level source workflow in `agora.experiment`.
+Canonical notebooks:
+- `notebooks/run_demo.ipynb` for on-the-fly/online runs.
+- `notebooks/offline_analysis_demo.ipynb` for post-processing from an existing `debate_snapshot.json` (offline analysis mode).
+  It loads baseline settings from the source run's `config.json`, so you only choose post-processing overrides.
+  It writes post-processing artifacts back into that same source run directory.
+
+Both are intentionally thin and call the high-level workflow in `agora.experiment`.
 
 ## CLI
 

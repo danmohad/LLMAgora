@@ -168,9 +168,53 @@ def test_build_experiment_config_and_helpers(tmp_path):
         }
     )
     assert cfg_paths_obj.index_csv == tmp_path / "already-path-2" / "index.csv"
+    cfg_zero_turn_snapshot = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "num_turns": 0,
+            "load_snapshot": True,
+            "load_dir": tmp_path / "already-path-3",
+        }
+    )
+    assert cfg_zero_turn_snapshot.num_turns == 0
+    cfg_reuse_outputs = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "num_turns": 0,
+            "load_snapshot": True,
+            "load_dir": tmp_path / "already-path-4",
+            "reuse_load_dir_for_outputs": True,
+        }
+    )
+    assert cfg_reuse_outputs.reuse_load_dir_for_outputs is True
 
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "num_turns": 0})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "num_turns": -1})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "reuse_load_dir_for_outputs": True})
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "num_turns": 1,
+                "load_snapshot": True,
+                "load_dir": tmp_path / "already-path-5",
+                "reuse_load_dir_for_outputs": True,
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "num_turns": 0,
+                "load_snapshot": True,
+                "load_dir": tmp_path / "already-path-6",
+                "reuse_load_dir_for_outputs": True,
+                "indexed_output": True,
+            }
+        )
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "persona_score_samples": 0})
     with pytest.raises(ValueError):
@@ -543,6 +587,7 @@ def test_run_persona_experiment_loads_snapshot_from_load_dir_without_output_dir(
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
+        num_turns=0,
         load_snapshot=True,
         load_dir=load_dir,
         save_snapshot=False,
@@ -553,6 +598,7 @@ def test_run_persona_experiment_loads_snapshot_from_load_dir_without_output_dir(
     assert captured["session_args"]["snapshot_path"] == load_dir / "debate_snapshot.json"
     assert captured["session_args"]["load_snapshot"] is True
     assert captured["session_args"]["save_snapshot"] is False
+    assert captured["session_args"]["turns"] == 0
     assert not (tmp_path / "outputs").exists()
 
 
@@ -684,6 +730,50 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
         "persona_adherence",
     }
     assert eval_payload["semantic_similarity"]["self_consistency"] is not None
+
+
+def test_run_persona_experiment_reuses_load_dir_for_outputs(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    load_dir = tmp_path / "existing_run"
+    load_dir.mkdir(parents=True, exist_ok=True)
+    (load_dir / "config.json").write_text('{"preserve": true}', encoding="utf-8")
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    def fake_run_debate_session(*args, **kwargs):
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    class FakeAnalyzer:
+        def __init__(self, _turns):
+            pass
+
+        def compute_self_consistency_scores(self):
+            return {"Alpha": {"turns": [0], "scores": [0.5]}}
+
+        def compute_cross_agent_alignment_scores(self, _a, _b):
+            return {"turns": [0], "scores": [0.3]}
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+    monkeypatch.setattr(experiment, "SemanticSimilarityAnalyzer", FakeAnalyzer)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        outputs_root=tmp_path / "outputs",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+        num_turns=0,
+        load_snapshot=True,
+        load_dir=load_dir,
+        reuse_load_dir_for_outputs=True,
+        semantic_analysis_metrics=["self_consistency"],
+    )
+
+    result = run_persona_experiment(cfg)
+    assert result.run_dir == load_dir
+    assert (load_dir / "eval_data.json").exists()
+    assert (load_dir / "config.json").read_text(encoding="utf-8") == '{"preserve": true}'
+    assert not (tmp_path / "outputs").exists()
 
 
 def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):

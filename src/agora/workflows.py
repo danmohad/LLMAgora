@@ -135,11 +135,14 @@ def run_debate_session(
             agents = build_agents_from_configs(agent_configs, llm_client)
             agora = Agora(agents, event_order=event_order)
 
-        agora.run(
-            num_turns=num_turns,
-            verbose=verbose,
-            skip_first_agent_first_reflection=skip_first_agent_first_reflection,
-        )
+        # Offline post-processing mode: when resuming from a snapshot with
+        # num_turns=0, return the loaded debate without generating new turns.
+        if num_turns != 0:
+            agora.run(
+                num_turns=num_turns,
+                verbose=verbose,
+                skip_first_agent_first_reflection=skip_first_agent_first_reflection,
+            )
 
         if save_snapshot_flag and snapshot_file:
             save_snapshot(snapshot_file, agora)
