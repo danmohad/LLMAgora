@@ -2,16 +2,16 @@ import matplotlib
 import pytest
 
 from agora.memory import MemoryTurn
-from agora.persona_evaluator import (
+from agora.debate_history import get_structured_debate_history
+from agora.persona_adherence_evaluator import (
     AgentPersonaEvaluation,
     DebatePersonaEvaluation,
     PERSONA_METRIC_FULL_DEBATE_PRIVATE,
     PERSONA_METRIC_FULL_DEBATE_PUBLIC,
     PersonaEvaluator,
     PersonaScore,
-    get_structured_debate_history,
-    plot_persona_adherence,
 )
+from agora.plotting import plot_persona_adherence
 
 
 class StubClient:
