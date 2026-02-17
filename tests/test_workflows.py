@@ -167,6 +167,51 @@ def test_run_debate_session_resuming_replaces_old_post_interviews(tmp_path):
     )
 
 
+def test_run_debate_session_loads_snapshot_without_generating_new_turns(tmp_path):
+    agent_configs = [
+        {"name": "Alpha", "model": "demo", "self_role": "Alpha", "response_instruction": "Say"},
+        {"name": "Beta", "model": "demo", "self_role": "Beta", "response_instruction": "Say"},
+    ]
+    snapshot = tmp_path / "snap.json"
+
+    first_clients = []
+
+    def first_factory():
+        client = CloseableStub(["alpha1", "beta1"])
+        first_clients.append(client)
+        return client
+
+    first_agora, _ = run_debate_session(
+        agent_configs,
+        num_turns=1,
+        snapshot_path=snapshot,
+        save_snapshot_flag=True,
+        client_factory=first_factory,
+    )
+    assert snapshot.exists()
+    assert first_clients[0].closed is True
+
+    second_clients = []
+
+    def second_factory():
+        client = CloseableStub([])
+        second_clients.append(client)
+        return client
+
+    resumed, resumed_agents = run_debate_session(
+        agent_configs,
+        num_turns=0,
+        snapshot_path=snapshot,
+        load_snapshot_flag=True,
+        client_factory=second_factory,
+    )
+
+    assert len(resumed.history()) == len(first_agora.history())
+    assert len(resumed_agents) == 2
+    assert second_clients[0].calls == []
+    assert second_clients[0].closed is True
+
+
 def test_format_history_for_agent_renders_turns(stub_llm_factory):
     agent_a = Agent(
         name="Alpha",

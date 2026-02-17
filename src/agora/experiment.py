@@ -94,6 +94,7 @@ class ExperimentConfig:
     load_snapshot: bool = False
     load_dir: Optional[Path] = None
     save_snapshot: bool = False
+    reuse_load_dir_for_outputs: bool = False
 
     outputs_root: Path = DEFAULT_OUTPUTS_ROOT
     run_name: Optional[str] = None
@@ -403,8 +404,10 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         data["persona_analysis_metrics"] = persona_metrics
 
     cfg = ExperimentConfig(**data)
-    if cfg.num_turns <= 0:
-        raise ValueError("num_turns must be positive")
+    if cfg.num_turns < 0:
+        raise ValueError("num_turns must be non-negative")
+    if cfg.num_turns == 0 and not cfg.load_snapshot:
+        raise ValueError("num_turns can be zero only when load_snapshot is enabled")
     if cfg.persona_score_samples <= 0:
         raise ValueError("persona_score_samples must be positive")
     if cfg.side_order not in {"12", "21"}:
@@ -439,6 +442,12 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("load_dir must be provided when load_snapshot is enabled")
     if not cfg.load_snapshot and cfg.load_dir is not None:
         raise ValueError("load_dir must be None when load_snapshot is disabled")
+    if cfg.reuse_load_dir_for_outputs and not cfg.load_snapshot:
+        raise ValueError("reuse_load_dir_for_outputs requires load_snapshot=True")
+    if cfg.reuse_load_dir_for_outputs and cfg.num_turns != 0:
+        raise ValueError("reuse_load_dir_for_outputs requires num_turns=0")
+    if cfg.reuse_load_dir_for_outputs and cfg.indexed_output:
+        raise ValueError("reuse_load_dir_for_outputs cannot be combined with indexed_output")
     if not cfg.subturn_event_order:
         raise ValueError("subturn_event_order must not be empty")
     unknown_events = [
@@ -524,7 +533,12 @@ def run_persona_experiment(
     run_dir: Optional[Path] = None
     run_id: Optional[str] = None
     if write_outputs:
-        run_dir, run_id = _resolve_run_dir(cfg)
+        if cfg.reuse_load_dir_for_outputs:
+            run_dir = cfg.load_dir
+            assert run_dir is not None  # validated by build_experiment_config
+            run_dir.mkdir(parents=True, exist_ok=True)
+        else:
+            run_dir, run_id = _resolve_run_dir(cfg)
 
     catalog = load_debate_construction(cfg.catalog_path)
     prompt_catalog = load_prompt_catalog(cfg.prompts_path)
@@ -782,7 +796,8 @@ def run_persona_experiment(
 
     if run_dir is not None:
         effective_config = {k: (str(v) if isinstance(v, Path) else v) for k, v in asdict(cfg).items()}
-        _save_json(run_dir / "config.json", effective_config)
+        if not cfg.reuse_load_dir_for_outputs:
+            _save_json(run_dir / "config.json", effective_config)
         if should_write_eval_data:
             _save_json(run_dir / "eval_data.json", eval_data)
 
