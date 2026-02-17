@@ -2,6 +2,7 @@
 
 import math
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, StrMethodFormatter
@@ -256,4 +257,182 @@ def plot_survey_distance(
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
 
+
+def plot_persona_adherence(
+    eval_dict: dict[str, Any],
+    alpha_persona_name: str,
+    beta_persona_name: str,
+    save_path: str | None = None,
+    show_plot: bool = True,
+):
+    """Plot persona adherence scores over time with error bars.
+
+    The plot tolerates partial metric selections. If a given series is missing
+    or empty, that line is omitted.
+    """
+    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    fig.suptitle("Persona Adherence Scores Over Time", fontsize=16)
+
+    alpha_data = eval_dict["alpha"]
+    beta_data = eval_dict["beta"]
+
+    alpha_color = "tab:blue"
+    beta_color = "tab:orange"
+
+    def _apply_integer_xticks(ax: Any, *series_turns: list[int]) -> None:
+        all_turns = sorted({int(turn) for turns in series_turns for turn in turns})
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+        if all_turns:
+            ax.set_xticks(all_turns)
+
+    def _plot_series_if_present(
+        ax: Any,
+        series: dict[str, Any],
+        *,
+        marker: str,
+        label: str,
+        color: str,
+        linestyle: str,
+    ) -> list[int]:
+        turns = list(series.get("turns", []))
+        means = list(series.get("scores", {}).get("mean", []))
+        stds = list(series.get("scores", {}).get("std", []))
+        if not turns:
+            return []
+        ax.errorbar(
+            turns,
+            means,
+            yerr=stds,
+            marker=marker,
+            label=label,
+            linewidth=2,
+            capsize=5,
+            alpha=0.8,
+            color=color,
+            linestyle=linestyle,
+        )
+        return turns
+
+    # Left panel: per-turn scores.
+    ax = axes[0]
+    alpha_pub_ind = alpha_data.get("public_per_turn_scores", {})
+    alpha_priv_ind = alpha_data.get("private_per_turn_scores", {})
+    beta_pub_ind = beta_data.get("public_per_turn_scores", {})
+    beta_priv_ind = beta_data.get("private_per_turn_scores", {})
+
+    _plot_series_if_present(
+        ax,
+        alpha_pub_ind,
+        marker="o",
+        label=f"{alpha_persona_name} - Public",
+        color=alpha_color,
+        linestyle="-",
+    )
+    _plot_series_if_present(
+        ax,
+        alpha_priv_ind,
+        marker="o",
+        label=f"{alpha_persona_name} - Private",
+        color=alpha_color,
+        linestyle="--",
+    )
+    _plot_series_if_present(
+        ax,
+        beta_pub_ind,
+        marker="s",
+        label=f"{beta_persona_name} - Public",
+        color=beta_color,
+        linestyle="-",
+    )
+    _plot_series_if_present(
+        ax,
+        beta_priv_ind,
+        marker="s",
+        label=f"{beta_persona_name} - Private",
+        color=beta_color,
+        linestyle="--",
+    )
+
+    _apply_integer_xticks(
+        ax,
+        alpha_pub_ind.get("turns", []),
+        alpha_priv_ind.get("turns", []),
+        beta_pub_ind.get("turns", []),
+        beta_priv_ind.get("turns", []),
+    )
+    ax.set_title("Individual Turn Scores")
+    ax.set_xlabel("Turn Number")
+    ax.set_ylabel("Score (1-5)")
+    ax.set_ylim(0.5, 5.5)
+    if ax.has_data():
+        ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+
+    # Right panel: cumulative scores.
+    ax = axes[1]
+    alpha_pub_cum = alpha_data.get("public_cumulative_scores", {})
+    alpha_priv_cum = alpha_data.get("private_cumulative_scores", {})
+    beta_pub_cum = beta_data.get("public_cumulative_scores", {})
+    beta_priv_cum = beta_data.get("private_cumulative_scores", {})
+
+    _plot_series_if_present(
+        ax,
+        alpha_pub_cum,
+        marker="o",
+        label=f"{alpha_persona_name} - Public",
+        color=alpha_color,
+        linestyle="-",
+    )
+    _plot_series_if_present(
+        ax,
+        alpha_priv_cum,
+        marker="o",
+        label=f"{alpha_persona_name} - Private",
+        color=alpha_color,
+        linestyle="--",
+    )
+    _plot_series_if_present(
+        ax,
+        beta_pub_cum,
+        marker="s",
+        label=f"{beta_persona_name} - Public",
+        color=beta_color,
+        linestyle="-",
+    )
+    _plot_series_if_present(
+        ax,
+        beta_priv_cum,
+        marker="s",
+        label=f"{beta_persona_name} - Private",
+        color=beta_color,
+        linestyle="--",
+    )
+
+    _apply_integer_xticks(
+        ax,
+        alpha_pub_cum.get("turns", []),
+        alpha_priv_cum.get("turns", []),
+        beta_pub_cum.get("turns", []),
+        beta_priv_cum.get("turns", []),
+    )
+    ax.set_title("Cumulative Scores")
+    ax.set_xlabel("Turn Number")
+    ax.set_ylabel("Score (1-5)")
+    ax.set_ylim(0.5, 5.5)
+    if ax.has_data():
+        ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+
+    plt.tight_layout()
+
+    if save_path:
+        fig.savefig(save_path, dpi=300, bbox_inches="tight")
+
+    if show_plot:
+        plt.show()
+    else:
+        plt.close(fig)
+
+    return fig
 

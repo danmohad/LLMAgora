@@ -10,6 +10,8 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
+from .debate_history import get_structured_debate_history
+
 PUBLIC_NARRATIVE_FIELD = "public_speech"
 PRIVATE_NARRATIVE_FIELD = "private_reflection"
 
@@ -20,8 +22,6 @@ class SemanticSimilarityAnalyzer:
     def __init__(self, memory_turns: Any, model_name: str = "all-mpnet-base-v2"):
         # Accept raw memory turns, canonical Agora structured history,
         # or already-normalized debate data keyed by speaker.
-        from agora.persona_evaluator import get_structured_debate_history
-
         if isinstance(memory_turns, dict) and "turns" in memory_turns:
             self.debate_data = get_structured_debate_history(memory_turns)
         elif isinstance(memory_turns, dict):
@@ -98,10 +98,7 @@ class SemanticSimilarityAnalyzer:
     ) -> dict[str, list[float]]:
         """Score turn-by-turn similarity between two agents' selected text fields."""
         cache_key = (agent_a_field, agent_b_field)
-        if (
-            cache_key in self._cross_agent_alignment_cache
-            and not force_recompute
-        ):
+        if cache_key in self._cross_agent_alignment_cache and not force_recompute:
             return self._cross_agent_alignment_cache[cache_key]
 
         agent_ids = list(self.debate_data.keys())
@@ -111,8 +108,12 @@ class SemanticSimilarityAnalyzer:
         agent_a, agent_b = agent_ids[:2]
         turns_a = self.debate_data[agent_a]["debate_turns"]
         turns_b = self.debate_data[agent_b]["debate_turns"]
-        by_turn_a = {turn.get("turn_num", index + 1): turn for index, turn in enumerate(turns_a)}
-        by_turn_b = {turn.get("turn_num", index + 1): turn for index, turn in enumerate(turns_b)}
+        by_turn_a = {
+            turn.get("turn_num", index + 1): turn for index, turn in enumerate(turns_a)
+        }
+        by_turn_b = {
+            turn.get("turn_num", index + 1): turn for index, turn in enumerate(turns_b)
+        }
         turns = sorted(set(by_turn_a) & set(by_turn_b))
 
         scores = []
@@ -129,3 +130,10 @@ class SemanticSimilarityAnalyzer:
         result = {"turns": turns, "scores": scores}
         self._cross_agent_alignment_cache[cache_key] = result
         return result
+
+
+__all__ = [
+    "SemanticSimilarityAnalyzer",
+    "PUBLIC_NARRATIVE_FIELD",
+    "PRIVATE_NARRATIVE_FIELD",
+]

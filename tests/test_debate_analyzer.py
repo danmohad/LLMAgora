@@ -4,7 +4,7 @@ import types
 
 import pytest
 
-from agora.debate_analyzer import SemanticSimilarityAnalyzer
+from agora.semantic_similarity_analyzer import SemanticSimilarityAnalyzer
 from agora.memory import MemoryTurn
 
 

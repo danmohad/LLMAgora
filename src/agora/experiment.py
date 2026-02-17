@@ -16,18 +16,21 @@ from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from .agent import Agent
 from .agora import ALLOWED_SUBTURN_EVENTS, Agora
-from .debate_analyzer import (
+from .persona_adherence_evaluator import (
+    PERSONA_ANALYSIS_METRICS,
+    PersonaEvaluator,
+)
+from .semantic_similarity_analyzer import (
     PRIVATE_NARRATIVE_FIELD,
     PUBLIC_NARRATIVE_FIELD,
     SemanticSimilarityAnalyzer,
 )
 from .llm import OpenRouterClient
-from .persona_evaluator import (
-    PERSONA_ANALYSIS_METRICS,
-    PersonaEvaluator,
+from .plotting import (
     plot_persona_adherence,
+    plot_survey_distance,
+    plot_survey_responses,
 )
-from .plotting import plot_survey_distance, plot_survey_responses
 from .workflows import (
     build_scenario_agent_configs,
     load_debate_construction,
