@@ -21,6 +21,9 @@ from .persona_adherence_evaluator import (
     PersonaEvaluator,
 )
 from .semantic_similarity_analyzer import (
+    SEMANTIC_SIMILARITY_METHOD_COSINE,
+    SEMANTIC_SIMILARITY_METHOD_NLI,
+    SEMANTIC_SIMILARITY_METHODS,
     PRIVATE_NARRATIVE_FIELD,
     PUBLIC_NARRATIVE_FIELD,
     SemanticSimilarityAnalyzer,
@@ -83,6 +86,9 @@ class ExperimentConfig:
     keep_private_survey: bool = False
 
     semantic_analysis_metrics: list[str] = field(default_factory=list)
+    semantic_similarity_method: str = SEMANTIC_SIMILARITY_METHOD_COSINE
+    semantic_similarity_model: Optional[str] = None
+    semantic_similarity_device: Optional[str] = None
     persona_analysis_metrics: list[str] = field(default_factory=list)
     persona_scoring_model: str = "anthropic/claude-sonnet-4"
     persona_scoring_verbose: bool = False
@@ -295,7 +301,7 @@ def _plot_intra_scores(
         )
     ax.set_title(title)
     ax.set_xlabel("Debate Turn")
-    ax.set_ylabel("Cosine Similarity")
+    ax.set_ylabel("Semantic Similarity Score")
     ax.set_ylim(0, 1)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
@@ -339,7 +345,7 @@ def _plot_inter_scores(
         )
     ax.set_title(title)
     ax.set_xlabel("Debate Turn")
-    ax.set_ylabel("Cosine Similarity")
+    ax.set_ylabel("Semantic Similarity Score")
     ax.set_ylim(0, 1)
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
     ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
@@ -416,6 +422,13 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("question_variant must be 'agreeable' or 'controversial'")
     if cfg.show_plots and not cfg.save_plots:
         raise ValueError("show_plots requires save_plots=True")
+    if cfg.semantic_similarity_method not in SEMANTIC_SIMILARITY_METHODS:
+        raise ValueError(
+            "semantic_similarity_method must be one of "
+            f"{list(SEMANTIC_SIMILARITY_METHODS)}"
+        )
+    if cfg.semantic_similarity_device not in {None, "cpu", "mps"}:
+        raise ValueError("semantic_similarity_device must be one of: cpu, mps")
     if cfg.keep_private_reflection and not cfg.enable_private_reflection:
         raise ValueError(
             "keep_private_reflection requires private_utterance in subturn_event_order"
@@ -650,7 +663,12 @@ def run_persona_experiment(
     cross_agent_private_alignment = None
 
     if selected_semantic_metrics:
-        semantic_analyzer = SemanticSimilarityAnalyzer(structured_history)
+        semantic_analyzer = SemanticSimilarityAnalyzer(
+            structured_history,
+            method=cfg.semantic_similarity_method,
+            model_name=cfg.semantic_similarity_model,
+            device=cfg.semantic_similarity_device,
+        )
         if SEMANTIC_METRIC_SELF_CONSISTENCY in selected_semantic_metrics:
             self_consistency_scores = semantic_analyzer.compute_self_consistency_scores()
         if (
@@ -829,6 +847,9 @@ __all__ = [
     "SEMANTIC_METRIC_SELF_CONSISTENCY",
     "SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT",
     "SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT",
+    "SEMANTIC_SIMILARITY_METHODS",
+    "SEMANTIC_SIMILARITY_METHOD_COSINE",
+    "SEMANTIC_SIMILARITY_METHOD_NLI",
     "PERSONA_ANALYSIS_METRICS",
     "ExperimentConfig",
     "ExperimentResult",

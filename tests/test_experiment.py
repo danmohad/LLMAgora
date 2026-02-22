@@ -224,6 +224,10 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "show_plots": True, "save_plots": False})
     with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "semantic_similarity_method": "bad"})
+    with pytest.raises(ValueError):
+        build_experiment_config({"scenario_id": "s1", "semantic_similarity_device": "cuda"})
+    with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "keep_private_reflection": True})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "keep_public_survey": True})
@@ -252,6 +256,17 @@ def test_build_experiment_config_and_helpers(tmp_path):
         "public_per_turn",
         "full_debate_public",
     ]
+    cfg_similarity_opts = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "semantic_similarity_method": "nli",
+            "semantic_similarity_model": "dleemiller/finecat-nli-l",
+            "semantic_similarity_device": "mps",
+        }
+    )
+    assert cfg_similarity_opts.semantic_similarity_method == "nli"
+    assert cfg_similarity_opts.semantic_similarity_model == "dleemiller/finecat-nli-l"
+    assert cfg_similarity_opts.semantic_similarity_device == "mps"
     with pytest.raises(ValueError):
         build_experiment_config(
             {
@@ -696,7 +711,7 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
         return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
 
     class FakeAnalyzer:
-        def __init__(self, _turns):
+        def __init__(self, _turns, **_kwargs):
             pass
 
         def compute_self_consistency_scores(self):
@@ -745,7 +760,7 @@ def test_run_persona_experiment_reuses_load_dir_for_outputs(tmp_path, monkeypatc
         return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
 
     class FakeAnalyzer:
-        def __init__(self, _turns):
+        def __init__(self, _turns, **_kwargs):
             pass
 
         def compute_self_consistency_scores(self):
@@ -1055,8 +1070,9 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         return AgoraWithSurvey(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
 
     class FakeAnalyzer:
-        def __init__(self, turns):
+        def __init__(self, turns, **kwargs):
             self.turns = turns
+            calls["semantic_init"] = kwargs
 
         def compute_self_consistency_scores(self):
             return {"Alpha": {"turns": [0], "scores": [0.5]}, "Beta": {"turns": [0], "scores": [0.4]}}
@@ -1169,6 +1185,9 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     assert calls["run_session"]["save_snapshot"] is True
     assert calls["run_session"]["verbose"] is True
     assert calls["run_session"]["skip_first"] is False
+    assert calls["semantic_init"]["method"] == "cosine"
+    assert calls["semantic_init"]["model_name"] is None
+    assert calls["semantic_init"]["device"] is None
     assert calls["persona"]["samples"] == 3
     assert calls["client_closed"] is True
 
