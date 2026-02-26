@@ -38,7 +38,7 @@ class OpenRouterClient:
         self,
         api_key: Optional[str] = None,
         *,
-        timeout: float = 30.0,
+        timeout: float = 120.0,
         referer: str = "https://github.com/danmohad/LLMAgora",
         title: str = "LLM Agora",
     ) -> None:
