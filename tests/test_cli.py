@@ -39,6 +39,22 @@ def test_build_parser_registers_run_subcommand():
         ["run", "--scenario-id", "s1", "--incentive-direction", "none"]
     )
     assert args_incentive.incentive_direction == "none"
+    args_nli = parser.parse_args(
+        [
+            "run",
+            "--scenario-id",
+            "s1",
+            "--semantic-similarity-method",
+            "nli",
+            "--semantic-similarity-model",
+            "dleemiller/finecat-nli-l",
+            "--semantic-similarity-device",
+            "mps",
+        ]
+    )
+    assert args_nli.semantic_similarity_method == "nli"
+    assert args_nli.semantic_similarity_model == "dleemiller/finecat-nli-l"
+    assert args_nli.semantic_similarity_device == "mps"
     args_semantic_clear = parser.parse_args(
         ["run", "--scenario-id", "s1", "--semantic-analysis-metrics"]
     )
@@ -93,6 +109,9 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         keep_public_survey=None,
         keep_private_survey=None,
         semantic_analysis_metrics=[],
+        semantic_similarity_method="nli",
+        semantic_similarity_model="dleemiller/finecat-nli-l",
+        semantic_similarity_device="cpu",
         persona_analysis_metrics=[],
         persona_scoring_model=None,
         persona_scoring_verbose=None,
@@ -117,6 +136,9 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
     assert captured["base"] == asdict(cfg_from_file)
     assert captured["overrides"]["scenario_id"] == "override-scenario"
     assert captured["overrides"]["semantic_analysis_metrics"] == []
+    assert captured["overrides"]["semantic_similarity_method"] == "nli"
+    assert captured["overrides"]["semantic_similarity_model"] == "dleemiller/finecat-nli-l"
+    assert captured["overrides"]["semantic_similarity_device"] == "cpu"
     assert captured["overrides"]["persona_analysis_metrics"] == []
     assert captured["called"] is True
     assert captured["printed"] is True
@@ -160,6 +182,9 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         keep_public_survey=False,
         keep_private_survey=False,
         semantic_analysis_metrics=[],
+        semantic_similarity_method="cosine",
+        semantic_similarity_model=None,
+        semantic_similarity_device=None,
         persona_analysis_metrics=[],
         persona_scoring_model="m",
         persona_scoring_verbose=False,
@@ -213,6 +238,9 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
         keep_public_survey=False,
         keep_private_survey=False,
         semantic_analysis_metrics=[],
+        semantic_similarity_method="cosine",
+        semantic_similarity_model=None,
+        semantic_similarity_device=None,
         persona_analysis_metrics=[],
         persona_scoring_model="m",
         persona_scoring_verbose=False,

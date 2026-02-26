@@ -65,6 +65,13 @@ agora run --config data/example.json \
   --semantic-analysis-metrics self_consistency cross_agent_public_alignment \
   --save-plots
 
+# Use NLI for semantic scoring (instead of cosine embeddings)
+agora run --config data/example.json \
+  --semantic-analysis-metrics self_consistency \
+  --semantic-similarity-method nli \
+  --semantic-similarity-model dleemiller/finecat-nli-l \
+  --semantic-similarity-device mps  # or cpu
+
 # Run persona adherence analysis for selected metric slices only
 agora run --config data/example.json \
   --persona-analysis-metrics public_per_turn full_debate_public \

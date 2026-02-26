@@ -16,6 +16,7 @@ from .experiment import (
     DEFAULT_PROMPTS_PATH,
     PERSONA_ANALYSIS_METRICS,
     SEMANTIC_ANALYSIS_METRICS,
+    SEMANTIC_SIMILARITY_METHODS,
     _merge_config,
     build_experiment_config,
     load_experiment_config,
@@ -49,6 +50,9 @@ def _run(args: argparse.Namespace) -> None:
         "keep_public_survey": args.keep_public_survey,
         "keep_private_survey": args.keep_private_survey,
         "semantic_analysis_metrics": args.semantic_analysis_metrics,
+        "semantic_similarity_method": args.semantic_similarity_method,
+        "semantic_similarity_model": args.semantic_similarity_model,
+        "semantic_similarity_device": args.semantic_similarity_device,
         "persona_analysis_metrics": args.persona_analysis_metrics,
         "persona_scoring_model": args.persona_scoring_model,
         "persona_scoring_verbose": args.persona_scoring_verbose,
@@ -134,6 +138,23 @@ def build_parser() -> argparse.ArgumentParser:
             f"Choices: {', '.join(SEMANTIC_ANALYSIS_METRICS)}. "
             "Pass with no values to clear metrics from --config."
         ),
+    )
+    run_cmd.add_argument(
+        "--semantic-similarity-method",
+        choices=list(SEMANTIC_SIMILARITY_METHODS),
+        help="Semantic backend: cosine embeddings or NLI entailment scoring.",
+    )
+    run_cmd.add_argument(
+        "--semantic-similarity-model",
+        help=(
+            "Override semantic model name. "
+            "Defaults: all-mpnet-base-v2 (cosine), dleemiller/finecat-nli-l (nli)."
+        ),
+    )
+    run_cmd.add_argument(
+        "--semantic-similarity-device",
+        choices=["cpu", "mps"],
+        help="Device for semantic model inference.",
     )
     run_cmd.add_argument(
         "--persona-analysis-metrics",
