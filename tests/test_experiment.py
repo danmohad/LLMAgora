@@ -417,7 +417,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
 def test_defaults_constants():
     assert DEFAULT_OUTPUTS_ROOT == Path("outputs")
     assert DEFAULT_INDEX_CSV == Path("outputs/index.csv")
-    assert DEFAULT_CATALOG_PATH == Path("data/scenarios_V3.json")
+    assert DEFAULT_CATALOG_PATH == Path("data/scenarios.json")
     assert DEFAULT_PROMPTS_PATH == Path("data/prompts.json")
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1")) is False
     assert (

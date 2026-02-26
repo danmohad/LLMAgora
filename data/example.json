@@ -34,6 +34,6 @@
   "run_name": null,
   "indexed_output": false,
   "index_csv": null,
-  "catalog_path": "data/scenarios_V3.json",
+  "catalog_path": "data/scenarios.json",
   "prompts_path": "data/prompts.json"
 }

@@ -41,7 +41,7 @@ from .workflows import (
     run_debate_session,
 )
 
-DEFAULT_CATALOG_PATH = Path("data/scenarios_V3.json")
+DEFAULT_CATALOG_PATH = Path("data/scenarios.json")
 DEFAULT_PROMPTS_PATH = Path("data/prompts.json")
 DEFAULT_OUTPUTS_ROOT = Path("outputs")
 DEFAULT_INDEX_CSV = DEFAULT_OUTPUTS_ROOT / "index.csv"
