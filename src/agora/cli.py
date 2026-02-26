@@ -30,11 +30,8 @@ def _run(args: argparse.Namespace) -> None:
     if args.config:
         base = asdict(load_experiment_config(args.config))
 
-    overrides = {
+    raw_overrides = {
         "scenario_id": args.scenario_id,
-        "incentive_direction": (
-            None if args.incentive_direction == "none" else args.incentive_direction
-        ),
         "incentive_type": args.incentive_type,
         "prompt_set": args.prompt_set,
         "alpha_model": args.alpha_model,
@@ -69,6 +66,13 @@ def _run(args: argparse.Namespace) -> None:
         "catalog_path": args.catalog_path,
         "prompts_path": args.prompts_path,
     }
+    # Only pass explicitly provided CLI flags to config merging.
+    # This preserves explicit clears when a flag semantically maps to None.
+    overrides = {key: value for key, value in raw_overrides.items() if value is not None}
+    if args.incentive_direction is not None:
+        overrides["incentive_direction"] = (
+            None if args.incentive_direction == "none" else args.incentive_direction
+        )
 
     cfg = _merge_config(base, overrides) if base else build_experiment_config(overrides)
     result = run_persona_experiment(cfg)

@@ -349,9 +349,14 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         load_experiment_config(bad_file)
 
-    merged = _merge_config({"scenario_id": "s1", "num_turns": 2}, {"num_turns": None, "verbose": True})
+    merged = _merge_config({"scenario_id": "s1", "num_turns": 2}, {"verbose": True})
     assert merged.num_turns == 2
     assert merged.verbose is True
+    cleared = _merge_config(
+        {"scenario_id": "s1", "incentive_direction": "positive"},
+        {"incentive_direction": None},
+    )
+    assert cleared.incentive_direction is None
 
     assert _slug("  hi there  ") == "hi_there"
     assert _slug("***") == "run"

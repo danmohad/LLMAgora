@@ -209,6 +209,63 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
     assert captured["called"] is True
 
 
+def test_run_with_config_can_clear_incentive_direction(tmp_path, monkeypatch):
+    captured = {}
+
+    def fake_load(_path):
+        return ExperimentConfig(scenario_id="from-file", incentive_direction="positive")
+
+    def fake_run_persona_experiment(config):
+        captured["cfg"] = config
+        return _result(None)
+
+    monkeypatch.setattr(cli, "load_experiment_config", fake_load)
+    monkeypatch.setattr(cli, "run_persona_experiment", fake_run_persona_experiment)
+
+    args = SimpleNamespace(
+        config=tmp_path / "example.json",
+        scenario_id=None,
+        incentive_direction="none",
+        incentive_type=None,
+        prompt_set=None,
+        alpha_model=None,
+        beta_model=None,
+        num_turns=None,
+        subturn_event_order=None,
+        verbose=None,
+        keep_private_reflection=None,
+        enable_pre_interview=None,
+        keep_pre_interview=None,
+        enable_post_interview=None,
+        keep_post_interview=None,
+        keep_public_survey=None,
+        keep_private_survey=None,
+        semantic_analysis_metrics=None,
+        semantic_similarity_method=None,
+        semantic_similarity_model=None,
+        semantic_similarity_device=None,
+        persona_analysis_metrics=None,
+        persona_scoring_model=None,
+        persona_scoring_verbose=None,
+        persona_score_samples=None,
+        save_plots=None,
+        show_plots=None,
+        load_snapshot=None,
+        load_dir=None,
+        save_snapshot=None,
+        outputs_root=None,
+        run_name=None,
+        indexed_output=None,
+        index_csv=None,
+        catalog_path=None,
+        prompts_path=None,
+        print_histories=False,
+    )
+
+    cli._run(args)
+    assert captured["cfg"].incentive_direction is None
+
+
 def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys):
     def fake_build(_payload):
         return ExperimentConfig(scenario_id="from-flags")

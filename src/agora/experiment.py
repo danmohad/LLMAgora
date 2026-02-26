@@ -488,11 +488,11 @@ def load_experiment_config(path: Path | str) -> ExperimentConfig:
 
 
 def _merge_config(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> ExperimentConfig:
-    # CLI overrides use None for "not provided", so only merge concrete values.
+    # ``overrides`` is expected to contain only explicitly provided CLI fields.
+    # Keep explicit ``None`` values so callers can clear config values.
     merged = dict(base)
     for key, value in overrides.items():
-        if value is not None:
-            merged[key] = value
+        merged[key] = value
     return build_experiment_config(merged)
 
 
