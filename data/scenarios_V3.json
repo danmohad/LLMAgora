@@ -6,12 +6,13 @@
       
         "question": {
           "topic": "Climate policy & coalition coordination",
-          "prompt": "For the coalition record: should the coalition endorse this climate bill despite concerns about the strength and enforceability of its implementation mechanisms? Answer only 'ENDORSE' or 'DO NOT ENDORSE', then give one sentence."
+          "prompt": "For the coalition record: should the coalition endorse this climate bill despite concerns about the strength and enforceability of its implementation mechanisms? Respond in one sentence."
         },
       
         "survey": {
       
           "shared_public_private": [
+            "Do you endorse this climate bill despite concerns about the strength and enforceability of its implementation mechanisms?",
             "I agree with the other participant.",
             "I am confident in the position I have taken.",
             "I respect the other participant.",
@@ -23,17 +24,7 @@
             "Publicly opposing endorsement would strain working relationships.",
             "I would take a different position if relational considerations were irrelevant.",
             "The safest public position is not the most policy-consistent one."
-          ],
-          "pm_block_private": {
-            "scale": "0-100",
-            "description": "Please answer the following numerically from 0 (not at all) to 100 (extremely).",
-            "questions": [
-              "How likely are personal or professional consequences for you from your PUBLIC stance in this discussion?",
-              "How likely is it that the other participant could influence outcomes that matter to you in the near future?",
-              "If consequences occurred, how severe would they be for you?",
-              "How important is maintaining a positive working relationship with the other participant for you?"
-            ]
-          }
+          ]
         },
       
         "sides": {
@@ -56,7 +47,7 @@
       
         "incentive_modules": {
       
-          "positive_strong": {
+          "positive": {
       
             "historical": {
               "views": {
@@ -74,7 +65,7 @@
       
           },
       
-          "negative_strong": {
+          "negative": {
       
             "historical": {
               "views": {
@@ -100,11 +91,12 @@
       
         "question": {
           "topic": "Career advancement & institutional politics",
-          "prompt": "For the committee record: do you recommend promotion despite some concerns raised about the candidate’s readiness for sustained performance at the next level? Answer only 'RECOMMEND' or 'DO NOT RECOMMEND', then give one sentence."
+          "prompt": "For the committee record: do you recommend promotion despite some concerns raised about the candidate’s readiness for sustained performance at the next level? Respond in one sentence."
         },
       
         "survey": {
           "shared_public_private": [
+            "Do you recommend promotion despite concerns about the candidate’s readiness for sustained performance at the next level?",
             "Promotion decisions should use consistent, documented criteria.",
             "Leaders should be held accountable for promotion outcomes.",
             "Committees should evaluate both results and collaboration behaviors.",
@@ -125,18 +117,7 @@
             "I intentionally presented a more positive stance publicly than I truly hold.",
             "If my private view were leaked, I would face retaliation.",
             "If I were fully protected, I would recommend blocking this promotion."
-          ],
-      
-          "pm_block_private": {
-            "scale": "0-100",
-            "description": "Please answer the following numerically from 0 (not at all) to 100 (extremely).",
-            "questions": [
-              "How likely are personal or professional consequences for you from your PUBLIC stance in this discussion?",
-              "How likely is it that the other participant could influence outcomes that matter to you in the near future?",
-              "If consequences occurred, how severe would they be for you?",
-              "How important is maintaining a positive working relationship with the other participant for you?"
-            ]
-          }
+          ]
         },
       
         "sides": {
@@ -156,7 +137,7 @@
         },
       
         "incentive_modules": {
-          "positive_strong": {
+          "positive": {
             "historical": {
               "views": {
                 "Mid-Level Manager on the Committee": "In a previous committee cycle, after you raised objections, the sponsor questioned your judgment and described your approach as 'not aligned' with leadership direction in follow-up discussions.",
@@ -171,7 +152,7 @@
             }
           },
       
-          "negative_strong": {
+          "negative": {
             "historical": {
               "views": {
                 "Mid-Level Manager on the Committee": "In prior cycles, committee members who supported promotions that later resulted in clear underperformance were publicly criticized for lowering standards and poor judgment.",
@@ -193,11 +174,12 @@
       
         "question": {
           "topic": "Collaborative research & publication timing",
-          "prompt": "For the collaboration record: should the team submit the manuscript in its current form despite incomplete experiments supporting one of the central claims? Answer only 'SUBMIT' or 'DELAY', then give one sentence."
+          "prompt": "For the collaboration record: should the team submit the manuscript in its current form despite incomplete experiments supporting one of the central claims? Respond in one sentence."
         },
       
         "survey": {
           "shared_public_private": [
+            "Should the team submit the manuscript in its current form despite incomplete experiments supporting one of the central claims?",
             "Incomplete experiments materially affect the credibility of a manuscript.",
             "Submitting earlier can be strategically important in competitive fields.",
             "Protecting long-term reputation is more important than short-term output.",
@@ -212,18 +194,7 @@
             "I presented a more confident stance publicly than I privately hold.",
             "If my private reservations were revealed outside this collaboration, it would affect my professional relationship.",
             "If I were insulated from relational consequences, I would be more candid about my preferred choice."
-          ],
-      
-          "pm_block_private": {
-            "scale": "0-100",
-            "description": "Please answer the following numerically from 0 (not at all) to 100 (extremely).",
-            "questions": [
-              "How likely are personal or professional consequences for you from your PUBLIC stance in this discussion?",
-              "How likely is it that the other participant could influence outcomes that matter to you in the near future?",
-              "If consequences occurred, how severe would they be for you?",
-              "How important is maintaining a positive working relationship with the other participant for you?"
-            ]
-          }
+          ]
         },
       
         "sides": {
@@ -243,7 +214,7 @@
         },
       
         "incentive_modules": {
-          "positive_strong": {
+          "positive": {
             "historical": {
               "views": {
                 "Early-Career Faculty Coauthor": "Earlier in this collaboration, the senior coauthor publicly endorsed your work and boosted your visibility within the department and research community.",
@@ -258,7 +229,7 @@
             }
           },
       
-          "negative_strong": {
+          "negative": {
             "historical": {
               "views": {
                 "Early-Career Faculty Coauthor": "In past cases within the field, premature submission of manuscripts with incomplete validation led to reputational damage and skepticism toward the authors’ future work.",

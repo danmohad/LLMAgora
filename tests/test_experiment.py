@@ -62,51 +62,69 @@ def _catalog_payload():
     return {
         "scenarios": [
             {
-                "id": "s1",
+                "scenario_id": "s1",
                 "question": {
                     "topic": "A topic",
-                    "agreeable": "Q agree",
-                    "controversial": "Q contro",
+                    "prompt": "Q prompt",
                 },
-                "surveys": {
-                    "agreeable": ["scenario agreeable"],
-                    "controversial": ["scenario controversial"],
+                "survey": {
+                    "shared_public_private": ["scenario survey"],
                 },
-                "side_1": {
-                    "id": "p1",
-                    "name": "Persona One",
-                    "actual_persona": "alpha",
-                    "perceived_persona": "perceived beta",
-                    "debate_arena": "arena1",
+                "sides": {
+                    "Persona One": {
+                        "id": "p1",
+                        "name": "Persona One",
+                        "actual_persona": "alpha",
+                        "perceived_persona_base": "perceived beta",
+                    },
+                    "Persona Two": {
+                        "id": "p2",
+                        "name": "Persona Two",
+                        "actual_persona": "beta",
+                        "perceived_persona_base": "perceived alpha",
+                    },
                 },
-                "side_2": {
-                    "id": "p2",
-                    "name": "Persona Two",
-                    "actual_persona": "beta",
-                    "perceived_persona": "perceived alpha",
-                    "debate_arena": "arena2",
+                "incentive_modules": {
+                    "positive": {
+                        "historical": {
+                            "views": {
+                                "Persona One": "alpha pos hist",
+                                "Persona Two": "beta pos hist",
+                            }
+                        },
+                        "future": {
+                            "views": {
+                                "Persona One": "alpha pos future",
+                                "Persona Two": "beta pos future",
+                            }
+                        },
+                    },
+                    "negative": {
+                        "historical": {
+                            "views": {
+                                "Persona One": "alpha neg hist",
+                                "Persona Two": "beta neg hist",
+                            }
+                        },
+                        "future": {
+                            "views": {
+                                "Persona One": "alpha neg future",
+                                "Persona Two": "beta neg future",
+                            }
+                        },
+                    },
                 },
             }
         ]
     }
 
 
-def _prompt_payload(with_neutral=True):
+def _prompt_payload():
     payload = {
         "default": {
-            "question_variant_language": {
-                "agreeable": {
-                    "interaction_noun": "conversation",
-                    "counterpart_noun": "partner",
-                },
-                "controversial": {
-                    "interaction_noun": "debate",
-                    "counterpart_noun": "opponent",
-                },
-            },
             "base_prompt": "base",
             "perceived_prompt": "perceived",
-            "debate_arena_prompt": "arena {debate_arena}",
+            "incentive_prompt": " incentive={incentive}",
             "public_instruction": "public",
             "opening_instruction": "opening",
             "private_instruction": "private",
@@ -117,11 +135,6 @@ def _prompt_payload(with_neutral=True):
             "survey_questions": ["default survey"],
         }
     }
-    if with_neutral:
-        payload["default"]["neutral_arena_prompt"] = {
-            "agreeable": "neutral agreeable",
-            "controversial": "neutral controversial",
-        }
     return payload
 
 
@@ -218,9 +231,9 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "persona_score_samples": 0})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "side_order": "bad"})
+        build_experiment_config({"scenario_id": "s1", "incentive_direction": "bad"})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "question_variant": "bad"})
+        build_experiment_config({"scenario_id": "s1", "incentive_type": "bad"})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "show_plots": True, "save_plots": False})
     with pytest.raises(ValueError):
@@ -336,14 +349,14 @@ def test_build_experiment_config_and_helpers(tmp_path):
         _prompt_set_payload({"default": "bad"}, "default")
 
     catalog = _catalog_payload()
-    assert _scenario_entry(catalog, "s1")["id"] == "s1"
+    assert _scenario_entry(catalog, "s1")["scenario_id"] == "s1"
     with pytest.raises(KeyError):
         _scenario_entry(catalog, "missing")
 
     cfg_readable = ExperimentConfig(scenario_id="s1", outputs_root=tmp_path / "outputs1")
     first, run_id = _resolve_run_dir(cfg_readable)
     assert run_id is None
-    assert first.name == "s1_controversial_12_biased"
+    assert first.name == "s1_no_incentive"
     second, _ = _resolve_run_dir(cfg_readable)
     assert second.name.endswith("_2")
 
@@ -373,8 +386,8 @@ def test_build_experiment_config_and_helpers(tmp_path):
 
     # Force readable-name collision to increment beyond _2.
     readable_root = tmp_path / "outputs-readable-collision"
-    base = readable_root / "s1_controversial_12_biased"
-    base_2 = readable_root / "s1_controversial_12_biased_2"
+    base = readable_root / "s1_no_incentive"
+    base_2 = readable_root / "s1_no_incentive_2"
     base.mkdir(parents=True, exist_ok=True)
     base_2.mkdir(parents=True, exist_ok=True)
     resolved, _ = _resolve_run_dir(ExperimentConfig(scenario_id="s1", outputs_root=readable_root))
@@ -384,7 +397,7 @@ def test_build_experiment_config_and_helpers(tmp_path):
 def test_defaults_constants():
     assert DEFAULT_OUTPUTS_ROOT == Path("outputs")
     assert DEFAULT_INDEX_CSV == Path("outputs/index.csv")
-    assert DEFAULT_CATALOG_PATH == Path("data/scenarios.json")
+    assert DEFAULT_CATALOG_PATH == Path("data/scenarios_V3.json")
     assert DEFAULT_PROMPTS_PATH == Path("data/prompts.json")
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1")) is False
     assert (
@@ -822,7 +835,7 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
                 "pre_interview": {"instruction": "pre", "keep": True},
                 "post_interview": {"instruction": "post", "keep": True},
                 "survey": {
-                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_questions": ["default survey", "scenario survey"],
                     "survey_public_prompt": "sp",
                     "survey_private_prompt": "spr",
                     "public_survey_keep": True,
@@ -837,7 +850,7 @@ def test_run_persona_experiment_private_survey_only(tmp_path, monkeypatch):
                 "pre_interview": {"instruction": "pre", "keep": True},
                 "post_interview": {"instruction": "post", "keep": True},
                 "survey": {
-                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_questions": ["default survey", "scenario survey"],
                     "survey_public_prompt": "sp",
                     "survey_private_prompt": "spr",
                     "public_survey_keep": True,
@@ -896,7 +909,7 @@ def test_run_persona_experiment_public_survey_only(tmp_path, monkeypatch):
                 "pre_interview": {"instruction": "pre", "keep": True},
                 "post_interview": {"instruction": "post", "keep": True},
                 "survey": {
-                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_questions": ["default survey", "scenario survey"],
                     "survey_public_prompt": "sp",
                     "survey_private_prompt": "spr",
                     "public_survey_keep": True,
@@ -911,7 +924,7 @@ def test_run_persona_experiment_public_survey_only(tmp_path, monkeypatch):
                 "pre_interview": {"instruction": "pre", "keep": True},
                 "post_interview": {"instruction": "post", "keep": True},
                 "survey": {
-                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_questions": ["default survey", "scenario survey"],
                     "survey_public_prompt": "sp",
                     "survey_private_prompt": "spr",
                     "public_survey_keep": True,
@@ -1010,7 +1023,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
                 "pre_interview": {"instruction": "pre", "keep": True},
                 "post_interview": {"instruction": "post", "keep": True},
                 "survey": {
-                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_questions": ["default survey", "scenario survey"],
                     "survey_public_prompt": "sp",
                     "survey_private_prompt": "spr",
                     "public_survey_keep": True,
@@ -1025,7 +1038,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
                 "pre_interview": {"instruction": "pre", "keep": True},
                 "post_interview": {"instruction": "post", "keep": True},
                 "survey": {
-                    "survey_questions": ["default survey", "scenario controversial"],
+                    "survey_questions": ["default survey", "scenario survey"],
                     "survey_public_prompt": "sp",
                     "survey_private_prompt": "spr",
                     "public_survey_keep": True,
@@ -1123,7 +1136,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         prompts_path=prompts_path,
         indexed_output=True,
         index_csv=None,
-        use_neutral_arena=True,
+        incentive_direction="positive",
+        incentive_type="future",
         subturn_event_order=[
             "public_utterance",
             "private_utterance",
@@ -1197,7 +1211,7 @@ def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path)
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     catalog = _catalog_payload()
-    catalog["scenarios"][0]["surveys"] = {}
+    catalog["scenarios"][0]["survey"] = {}
     prompts = _prompt_payload()
     prompts["default"]["survey_questions"] = []
     _write_json(catalog_path, catalog)
@@ -1215,16 +1229,13 @@ def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path)
         run_persona_experiment(cfg)
 
 
-def test_run_persona_experiment_uses_variant_neutral_arena_prompt(tmp_path, monkeypatch):
+def test_run_persona_experiment_passes_incentive_selection_to_builder(
+    tmp_path, monkeypatch
+):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
-    prompts = _prompt_payload()
-    prompts["default"]["neutral_arena_prompt"] = {
-        "agreeable": "neutral agreeable arena",
-        "controversial": "neutral controversial arena",
-    }
     _write_json(catalog_path, _catalog_payload())
-    _write_json(prompts_path, prompts)
+    _write_json(prompts_path, _prompt_payload())
 
     captured = {}
 
@@ -1261,41 +1272,50 @@ def test_run_persona_experiment_uses_variant_neutral_arena_prompt(tmp_path, monk
 
     cfg = ExperimentConfig(
         scenario_id="s1",
-        question_variant="agreeable",
+        incentive_direction="negative",
+        incentive_type="future",
+        subturn_event_order=["public_utterance", "public_survey"],
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
-        use_neutral_arena=True,
     )
 
     run_persona_experiment(cfg)
-    assert captured["build_kwargs"]["debate_arena_override"] == "neutral agreeable arena"
+    assert captured["build_kwargs"]["incentive_direction"] == "negative"
+    assert captured["build_kwargs"]["incentive_type"] == "future"
+    assert captured["build_kwargs"]["survey_questions"] == [
+        "default survey",
+        "scenario survey",
+    ]
 
 
-def test_run_persona_experiment_requires_neutral_prompt_when_enabled(tmp_path):
+def test_run_persona_experiment_requires_two_sides(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
-    _write_json(catalog_path, _catalog_payload())
-    _write_json(prompts_path, _prompt_payload(with_neutral=False))
+    catalog = _catalog_payload()
+    catalog["scenarios"][0]["sides"] = {"Persona One": catalog["scenarios"][0]["sides"]["Persona One"]}
+    _write_json(catalog_path, catalog)
+    _write_json(prompts_path, _prompt_payload())
 
     cfg = ExperimentConfig(
         scenario_id="s1",
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
-        use_neutral_arena=True,
     )
 
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError, match="exactly two sides"):
         run_persona_experiment(cfg)
 
 
-def test_run_persona_experiment_rejects_legacy_string_neutral_prompt(tmp_path):
+def test_run_persona_experiment_requires_survey_questions(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
+    catalog = _catalog_payload()
+    catalog["scenarios"][0]["survey"] = {}
     prompts = _prompt_payload()
-    prompts["default"]["neutral_arena_prompt"] = "neutral"
-    _write_json(catalog_path, _catalog_payload())
+    prompts["default"]["survey_questions"] = []
+    _write_json(catalog_path, catalog)
     _write_json(prompts_path, prompts)
 
     cfg = ExperimentConfig(
@@ -1303,29 +1323,46 @@ def test_run_persona_experiment_rejects_legacy_string_neutral_prompt(tmp_path):
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
-        use_neutral_arena=True,
+        subturn_event_order=["public_utterance", "public_survey"],
     )
 
-    with pytest.raises(KeyError, match="object keyed by question variant"):
+    with pytest.raises(ValueError, match="Survey is enabled but no survey questions"):
         run_persona_experiment(cfg)
 
 
-def test_run_persona_experiment_requires_variant_key_in_neutral_prompt(tmp_path):
+def test_run_persona_experiment_falls_back_to_question_label_default(tmp_path, monkeypatch):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
+    catalog = _catalog_payload()
+    del catalog["scenarios"][0]["question"]["topic"]
+    _write_json(catalog_path, catalog)
     prompts = _prompt_payload()
-    prompts["default"]["neutral_arena_prompt"] = {"controversial": "neutral controversial"}
-    _write_json(catalog_path, _catalog_payload())
     _write_json(prompts_path, prompts)
+
+    class FakeAnalyzer:
+        def __init__(self, _turns):
+            pass
+
+        def compute_self_consistency_scores(self):
+            return {"Alpha": {"turns": [0], "scores": [0.5]}}
+
+        def compute_cross_agent_alignment_scores(self, _a, _b):
+            return {"turns": [0], "scores": [0.3]}
+
+    def fake_run_debate_session(*args, **kwargs):
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+    monkeypatch.setattr(experiment, "SemanticSimilarityAnalyzer", FakeAnalyzer)
 
     cfg = ExperimentConfig(
         scenario_id="s1",
-        question_variant="agreeable",
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
-        use_neutral_arena=True,
+        save_plots=True,
+        semantic_analysis_metrics=["self_consistency"],
     )
 
-    with pytest.raises(KeyError, match="neutral_arena_prompt.agreeable"):
-        run_persona_experiment(cfg)
+    result = run_persona_experiment(cfg)
+    assert (result.run_dir / "semantic_self_consistency.png").exists()

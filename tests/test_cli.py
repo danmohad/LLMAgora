@@ -35,6 +35,10 @@ def test_build_parser_registers_run_subcommand():
     parser = cli.build_parser()
     args = parser.parse_args(["run", "--scenario-id", "s1"])
     assert args.func is cli._run
+    args_incentive = parser.parse_args(
+        ["run", "--scenario-id", "s1", "--incentive-direction", "none"]
+    )
+    assert args_incentive.incentive_direction == "none"
     args_semantic_clear = parser.parse_args(
         ["run", "--scenario-id", "s1", "--semantic-analysis-metrics"]
     )
@@ -73,15 +77,14 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
     args = SimpleNamespace(
         config=tmp_path / "example.json",
         scenario_id="override-scenario",
-        question_variant=None,
-        side_order=None,
+        incentive_direction=None,
+        incentive_type=None,
         prompt_set=None,
         alpha_model=None,
         beta_model=None,
         num_turns=None,
         subturn_event_order=None,
         verbose=None,
-        use_neutral_arena=None,
         keep_private_reflection=None,
         enable_pre_interview=None,
         keep_pre_interview=None,
@@ -141,15 +144,14 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
     args = SimpleNamespace(
         config=None,
         scenario_id="from-flags",
-        question_variant="agreeable",
-        side_order="12",
+        incentive_direction="positive",
+        incentive_type="future",
         prompt_set="default",
         alpha_model="a",
         beta_model="b",
         num_turns=2,
         subturn_event_order=["public_utterance"],
         verbose=False,
-        use_neutral_arena=False,
         keep_private_reflection=False,
         enable_pre_interview=False,
         keep_pre_interview=False,
@@ -195,15 +197,14 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
     args = SimpleNamespace(
         config=None,
         scenario_id="from-flags",
-        question_variant="agreeable",
-        side_order="12",
+        incentive_direction="none",
+        incentive_type="historical",
         prompt_set="default",
         alpha_model="a",
         beta_model="b",
         num_turns=2,
         subturn_event_order=["public_utterance"],
         verbose=False,
-        use_neutral_arena=False,
         keep_private_reflection=False,
         enable_pre_interview=False,
         keep_pre_interview=False,
