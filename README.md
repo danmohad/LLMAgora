@@ -1,7 +1,7 @@
 # LLM Agora
 
 A minimal arena where LLM-backed agents interact by taking public turns (optionally preceded by private reflections, succeeded by public and private surveys) until each reaches a configurable quota.
-Pre- and post-interviews can be optionally included. Agent personas, topics of the interaction and the arena in which the interaction takes place are all specifiable. An analysis and plotting suite is also included.
+Pre- and post-interviews can be optionally included. Agent personas, topics of the interaction, and scenario incentive modules are configurable. An analysis and plotting suite is also included.
 
 
 ## Requirements
@@ -59,8 +59,9 @@ agora run --config data/example.json
 
 # Override specific fields from config
 agora run --config data/example.json \
-  --scenario-id peer_collab_1 \
-  --question-variant agreeable \
+  --scenario-id ngo_climate_endorsement \
+  --incentive-direction positive \
+  --incentive-type future \
   --semantic-analysis-metrics self_consistency cross_agent_public_alignment \
   --save-plots
 
@@ -78,9 +79,9 @@ agora run --config data/example.json \
 
 # Run with no config file (all args via CLI)
 agora run \
-  --scenario-id hier_account_1 \
-  --question-variant controversial \
-  --side-order 12 \
+  --scenario-id promotion_committee_max_divergence \
+  --incentive-direction none \
+  --incentive-type historical \
   --num-turns 2
 
 # Enable surveys via sub-turn events
@@ -93,14 +94,14 @@ agora run --config data/example.json \
   --subturn-event-order public_utterance private_survey
 
 # Resume from an existing snapshot directory
-agora run --config data/example.json --load-snapshot --load-dir outputs/hier_account_1_controversial_12_biased
+agora run --config data/example.json --load-snapshot --load-dir outputs/promotion_committee_max_divergence_no_incentive
 
 # Indexed output mode: run folder is a short unique ID and index row is appended
 agora run --config data/example.json --indexed-output
 ```
 
 Output behavior:
-- default mode writes to a readable folder name under `outputs/` (for example `outputs/peer_collab_1_agreeable_12_neutral`)
+- default mode writes to a readable folder name under `outputs/` (for example `outputs/promotion_committee_max_divergence_no_incentive`)
 - indexed mode writes to `outputs/<run_id>` and appends one row per run to `outputs/index.csv`
 - if output-related features are all disabled, no output directory is created
 - `load_snapshot=true` requires `load_dir` (directory containing `debate_snapshot.json`)

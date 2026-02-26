@@ -30,17 +30,15 @@ def _run(args: argparse.Namespace) -> None:
     if args.config:
         base = asdict(load_experiment_config(args.config))
 
-    overrides = {
+    raw_overrides = {
         "scenario_id": args.scenario_id,
-        "question_variant": args.question_variant,
-        "side_order": args.side_order,
+        "incentive_type": args.incentive_type,
         "prompt_set": args.prompt_set,
         "alpha_model": args.alpha_model,
         "beta_model": args.beta_model,
         "num_turns": args.num_turns,
         "subturn_event_order": args.subturn_event_order,
         "verbose": args.verbose,
-        "use_neutral_arena": args.use_neutral_arena,
         "keep_private_reflection": args.keep_private_reflection,
         "enable_pre_interview": args.enable_pre_interview,
         "keep_pre_interview": args.keep_pre_interview,
@@ -68,6 +66,13 @@ def _run(args: argparse.Namespace) -> None:
         "catalog_path": args.catalog_path,
         "prompts_path": args.prompts_path,
     }
+    # Only pass explicitly provided CLI flags to config merging.
+    # This preserves explicit clears when a flag semantically maps to None.
+    overrides = {key: value for key, value in raw_overrides.items() if value is not None}
+    if args.incentive_direction is not None:
+        overrides["incentive_direction"] = (
+            None if args.incentive_direction == "none" else args.incentive_direction
+        )
 
     cfg = _merge_config(base, overrides) if base else build_experiment_config(overrides)
     result = run_persona_experiment(cfg)
@@ -99,8 +104,8 @@ def build_parser() -> argparse.ArgumentParser:
     run_cmd = subparsers.add_parser("run", help="Run one experiment from config and/or CLI flags.")
     run_cmd.add_argument("--config", type=Path, help="Path to JSON config file (for example: data/example.json)")
     run_cmd.add_argument("--scenario-id", help="Scenario ID from debate catalog")
-    run_cmd.add_argument("--question-variant", choices=["agreeable", "controversial"])
-    run_cmd.add_argument("--side-order", choices=["12", "21"])
+    run_cmd.add_argument("--incentive-direction", choices=["positive", "negative", "none"])
+    run_cmd.add_argument("--incentive-type", choices=["historical", "future"])
     run_cmd.add_argument("--prompt-set")
     run_cmd.add_argument("--alpha-model")
     run_cmd.add_argument("--beta-model")
@@ -116,7 +121,6 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     _add_bool(run_cmd, "verbose", "Print turn-by-turn output")
-    _add_bool(run_cmd, "use-neutral-arena", "Use neutral arena prompt instead of alpha persona arena")
 
     _add_bool(run_cmd, "keep-private-reflection", "Keep private reflections in local history")
 

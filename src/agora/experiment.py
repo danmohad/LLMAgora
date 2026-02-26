@@ -61,8 +61,8 @@ class ExperimentConfig:
     """Single-source experiment configuration for notebooks and CLI."""
 
     scenario_id: str
-    question_variant: str = "controversial"
-    side_order: str = "12"
+    incentive_direction: Optional[str] = None
+    incentive_type: str = "historical"
     prompt_set: str = "default"
     alpha_model: str = "openai/gpt-4o-mini"
     beta_model: str = "anthropic/claude-sonnet-4.5"
@@ -71,8 +71,6 @@ class ExperimentConfig:
         default_factory=lambda: ["public_utterance"]
     )
     verbose: bool = False
-
-    use_neutral_arena: bool = False
 
     keep_private_reflection: bool = False
 
@@ -226,12 +224,12 @@ def _resolve_run_dir(cfg: ExperimentConfig) -> tuple[Path, Optional[str]]:
         run_dir.mkdir(parents=True, exist_ok=False)
         return run_dir, run_id
 
-    base_name = cfg.run_name or (
-        f"{_slug(cfg.scenario_id)}_"
-        f"{_slug(cfg.question_variant)}_"
-        f"{_slug(cfg.side_order)}_"
-        f"{'neutral' if cfg.use_neutral_arena else 'biased'}"
+    incentive_label = (
+        "no_incentive"
+        if cfg.incentive_direction is None
+        else f"{cfg.incentive_direction}_{cfg.incentive_type}"
     )
+    base_name = cfg.run_name or f"{_slug(cfg.scenario_id)}_{_slug(incentive_label)}"
 
     run_dir = outputs_root / base_name
     if not run_dir.exists():
@@ -363,7 +361,7 @@ def _plot_inter_scores(
 
 def _scenario_entry(catalog: dict[str, Any], scenario_id: str) -> dict[str, Any]:
     scenarios = catalog.get("scenarios", [])
-    scenario = next((s for s in scenarios if s.get("id") == scenario_id), None)
+    scenario = next((s for s in scenarios if s.get("scenario_id") == scenario_id), None)
     if scenario is None:
         raise KeyError(f"Scenario '{scenario_id}' not found")
     return scenario
@@ -416,10 +414,12 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("num_turns can be zero only when load_snapshot is enabled")
     if cfg.persona_score_samples <= 0:
         raise ValueError("persona_score_samples must be positive")
-    if cfg.side_order not in {"12", "21"}:
-        raise ValueError("side_order must be '12' or '21'")
-    if cfg.question_variant not in {"agreeable", "controversial"}:
-        raise ValueError("question_variant must be 'agreeable' or 'controversial'")
+    if cfg.incentive_direction not in {None, "positive", "negative"}:
+        raise ValueError(
+            "incentive_direction must be one of: positive, negative, or None"
+        )
+    if cfg.incentive_type not in {"historical", "future"}:
+        raise ValueError("incentive_type must be 'historical' or 'future'")
     if cfg.show_plots and not cfg.save_plots:
         raise ValueError("show_plots requires save_plots=True")
     if cfg.semantic_similarity_method not in SEMANTIC_SIMILARITY_METHODS:
@@ -488,11 +488,11 @@ def load_experiment_config(path: Path | str) -> ExperimentConfig:
 
 
 def _merge_config(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> ExperimentConfig:
-    # CLI overrides use None for "not provided", so only merge concrete values.
+    # ``overrides`` is expected to contain only explicitly provided CLI fields.
+    # Keep explicit ``None`` values so callers can clear config values.
     merged = dict(base)
     for key, value in overrides.items():
-        if value is not None:
-            merged[key] = value
+        merged[key] = value
     return build_experiment_config(merged)
 
 
@@ -559,28 +559,26 @@ def run_persona_experiment(
     scenario = _scenario_entry(catalog, cfg.scenario_id)
 
     question_label = scenario.get("question", {}).get("topic", "question")
+    sides = scenario.get("sides")
+    if not isinstance(sides, dict) or len(sides) != 2:
+        raise ValueError(
+            f"Scenario '{cfg.scenario_id}' must define exactly two sides in scenario.sides"
+        )
+    side_values = [side for _, side in sides.items()]
+    alpha_persona, beta_persona = side_values[0], side_values[1]
 
-    side_1 = scenario["side_1"]
-    side_2 = scenario["side_2"]
-    alpha_persona, beta_persona = (side_1, side_2) if cfg.side_order == "12" else (side_2, side_1)
-
-    debate_arena_override = None
-    if cfg.use_neutral_arena:
-        neutral_arena_prompt = prompt_payload.get("neutral_arena_prompt")
-        if not isinstance(neutral_arena_prompt, dict):
-            raise KeyError(
-                f"Prompt set '{cfg.prompt_set}' must include 'neutral_arena_prompt' as an object keyed by question variant when use_neutral_arena is enabled"
-            )
-        debate_arena_override = neutral_arena_prompt.get(cfg.question_variant)
-        if not debate_arena_override:
-            raise KeyError(
-                f"Prompt set '{cfg.prompt_set}' must include 'neutral_arena_prompt.{cfg.question_variant}' when use_neutral_arena is enabled"
-            )
+    incentive_label = (
+        "none"
+        if cfg.incentive_direction is None
+        else f"{cfg.incentive_direction}:{cfg.incentive_type}"
+    )
 
     survey_questions = []
     if cfg.enable_public_survey or cfg.enable_private_survey:
         default_questions = list(prompt_payload.get("survey_questions", []))
-        scenario_questions = list(scenario.get("surveys", {}).get(cfg.question_variant, []))
+        scenario_questions = list(
+            scenario.get("survey", {}).get("shared_public_private", [])
+        )
         survey_questions = default_questions + scenario_questions
         if not survey_questions:
             raise ValueError(
@@ -592,9 +590,8 @@ def run_persona_experiment(
         catalog=catalog,
         alpha_model=cfg.alpha_model,
         beta_model=cfg.beta_model,
-        question_variant=cfg.question_variant,
-        side_order=cfg.side_order,
-        debate_arena_override=debate_arena_override,
+        incentive_direction=cfg.incentive_direction,
+        incentive_type=cfg.incentive_type,
         prompt_set=cfg.prompt_set,
         prompt_catalog=prompt_catalog,
         private_response_keep=cfg.keep_private_reflection,
@@ -732,9 +729,8 @@ def run_persona_experiment(
                 run_dir / "semantic_self_consistency.png",
                 (
                     "Semantic Self-Consistency"
-                    f" | {question_label} | {cfg.question_variant}"
-                    f" | {cfg.side_order}"
-                    f" | {'neutral' if cfg.use_neutral_arena else 'biased'}"
+                    f" | {question_label}"
+                    f" | incentive={incentive_label}"
                 ),
                 cfg.show_plots,
             )
@@ -748,9 +744,8 @@ def run_persona_experiment(
                 run_dir / "semantic_cross_agent_alignment.png",
                 (
                     "Cross-Agent Semantic Alignment"
-                    f" | {question_label} | {cfg.question_variant}"
-                    f" | {cfg.side_order}"
-                    f" | {'neutral' if cfg.use_neutral_arena else 'biased'}"
+                    f" | {question_label}"
+                    f" | incentive={incentive_label}"
                 ),
                 cfg.show_plots,
             )
@@ -766,9 +761,8 @@ def run_persona_experiment(
 
         if cfg.enable_public_survey or cfg.enable_private_survey:
             survey_title = (
-                f"Survey Responses | {question_label} | {cfg.question_variant}"
-                f" | {cfg.side_order}"
-                f" | {'neutral' if cfg.use_neutral_arena else 'biased'}"
+                f"Survey Responses | {question_label}"
+                f" | incentive={incentive_label}"
             )
             if cfg.enable_public_survey:
                 plot_survey_responses(

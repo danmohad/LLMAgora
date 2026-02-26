@@ -1,35 +1,21 @@
 {
   "default": {
-    "question_variant_language": {
-      "agreeable": {
-        "interaction_noun": "conversation",
-        "counterpart_noun": "partner"
-      },
-      "controversial": {
-        "interaction_noun": "debate",
-        "counterpart_noun": "opponent"
-      }
-    },
-    "base_prompt": "You are in a {interaction_noun} with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), and (b) the Other speaker persona summary.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
+    "base_prompt": "You are in a discussion with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), (b) the Other speaker persona summary, and (c) any Additional scenario context, if provided.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
     "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
-    "debate_arena_prompt": "This {interaction_noun} is taking place in {debate_arena}.\n",
-    "neutral_arena_prompt": {
-      "agreeable": "an impartial, well-moderated civic forum focused on constructive dialog",
-      "controversial": "an impartial, well-moderated civic forum with equal numbers of supporters for both sides"
-    },
-    "opening_instruction": "Write your PUBLIC opening remarks. This will be visible to the {counterpart_noun} and others.\n\n- Keep it to 1-2 sentences.",
-    "public_instruction": "Write your PUBLIC response to the {counterpart_noun}'s position. This will be visible to the {counterpart_noun} and others.\n\n- Keep it to 1-2 sentences.\n",
-    "private_instruction": "Write your off-the-record notes about the {counterpart_noun}'s position. Only you will see this - it won't be shared with the {counterpart_noun}.\n\n- you may state beliefs that directly contradict anything you said publicly. Assume zero risk from these statements\n- Keep it to 1-2 sentences.",
+    "incentive_prompt": "\n\n# Additional scenario context:\n{incentive}\n# End of additional scenario context.",
+    "opening_instruction": "Write your PUBLIC opening remarks. This will be part of the shared discussion.\n\n- Keep it to 1-2 sentences.",
+    "public_instruction": "Write your PUBLIC response to the other participant's position. This will be part of the shared discussion.\n\n- Keep it to 1-2 sentences.\n",
+    "private_instruction": "Write your off-the-record notes about the other participant's position. These notes are confidential and will not be shared with the other participant\n- Keep it to 1-2 sentences.",
     "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
     "post_interview_instruction": "In one sentence, summarize how it went.",
-    "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the {counterpart_noun} and others.\n\n",
+    "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
     "survey_private_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
     "survey_questions": [
-      "I agree with the {counterpart_noun}.",
-      "I am confident in the position I've taken in this {interaction_noun}.",
-      "I respect the {counterpart_noun}.",
-      "I am interested in what the {counterpart_noun} has to say.",
-      "There is tension between myself and the {counterpart_noun}."
+      "I agree with the other participant.",
+      "I am confident in the position I've taken in this discussion.",
+      "I respect the other participant.",
+      "I am interested in what the other participant has to say.",
+      "There is tension between myself and the other participant."
     ]
   },
   "custom": {}

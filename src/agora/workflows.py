@@ -216,49 +216,8 @@ def load_debate_construction(debate_construction_path: Path | str) -> dict:
 
 DEFAULT_PROMPT_SET = "default"
 DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.json"
-
-
-class _SafePromptTokens(dict):
-    """Allow partial template formatting while preserving unknown placeholders."""
-
-    def __missing__(self, key: str) -> str:
-        return "{" + key + "}"
-
-
-def _variant_language_tokens(prompts: dict, question_variant: str) -> dict[str, str]:
-    language_by_variant = prompts.get("question_variant_language")
-    if not isinstance(language_by_variant, dict):
-        raise KeyError(
-            "Prompt set is missing required object: question_variant_language"
-        )
-
-    tokens = language_by_variant.get(question_variant)
-    if not isinstance(tokens, dict):
-        available = ", ".join(sorted(language_by_variant)) or "<none>"
-        raise ValueError(
-            f"Unsupported question_variant '{question_variant}' for prompt set language mapping. "
-            f"Expected one of: {available}"
-        )
-    for required in ("interaction_noun", "counterpart_noun"):
-        if required not in tokens:
-            raise KeyError(
-                f"question_variant_language['{question_variant}'] missing required key '{required}'"
-            )
-    return tokens
-
-
-def _apply_variant_language(template: Optional[str], tokens: dict[str, str]) -> Optional[str]:
-    if template is None:
-        return None
-    return template.format_map(_SafePromptTokens(tokens))
-
-
-def _apply_variant_language_many(
-    templates: Optional[Sequence[str]], tokens: dict[str, str]
-) -> Optional[list[str]]:
-    if templates is None:
-        return None
-    return [item.format_map(_SafePromptTokens(tokens)) for item in templates]
+ALLOWED_INCENTIVE_DIRECTIONS = {"positive", "negative"}
+ALLOWED_INCENTIVE_TYPES = {"historical", "future"}
 
 
 def load_prompt_catalog(prompt_path: Path | str | None = None) -> dict:
@@ -294,10 +253,8 @@ def load_prompt_templates(
         )
 
     required_keys = [
-        "question_variant_language",
         "base_prompt",
         "perceived_prompt",
-        "debate_arena_prompt",
         "public_instruction",
         "private_instruction",
         "pre_interview_instruction",
@@ -313,7 +270,55 @@ def load_prompt_templates(
     if "opening_instruction" not in payload:
         payload = dict(payload)
         payload["opening_instruction"] = payload["public_instruction"]
+    if "incentive_prompt" not in payload:
+        payload = dict(payload)
+        payload["incentive_prompt"] = "\n\n# Incentive context:\n{incentive}"
     return payload
+
+
+def _incentive_text_for_side(
+    *,
+    scenario_id: str,
+    scenario: dict,
+    side_label: str,
+    incentive_direction: Optional[str],
+    incentive_type: str,
+) -> Optional[str]:
+    if incentive_direction is None:
+        return None
+    if incentive_direction not in ALLOWED_INCENTIVE_DIRECTIONS:
+        raise ValueError(
+            "incentive_direction must be one of: positive, negative, or None"
+        )
+    if incentive_type not in ALLOWED_INCENTIVE_TYPES:
+        raise ValueError("incentive_type must be one of: historical, future")
+
+    modules = scenario.get("incentive_modules")
+    if not isinstance(modules, dict):
+        raise KeyError(
+            f"Scenario '{scenario_id}' missing required object: incentive_modules"
+        )
+    direction_block = modules.get(incentive_direction)
+    if not isinstance(direction_block, dict):
+        raise KeyError(
+            f"Scenario '{scenario_id}' missing incentive module '{incentive_direction}'"
+        )
+    type_block = direction_block.get(incentive_type)
+    if not isinstance(type_block, dict):
+        raise KeyError(
+            f"Scenario '{scenario_id}' incentive '{incentive_direction}' missing type '{incentive_type}'"
+        )
+    views = type_block.get("views")
+    if not isinstance(views, dict):
+        raise KeyError(
+            f"Scenario '{scenario_id}' incentive '{incentive_direction}.{incentive_type}' missing views"
+        )
+    text = views.get(side_label)
+    if not isinstance(text, str) or not text.strip():
+        raise KeyError(
+            f"Scenario '{scenario_id}' incentive '{incentive_direction}.{incentive_type}' missing view for side '{side_label}'"
+        )
+    return text
 
 
 def build_scenario_agent_configs(
@@ -322,12 +327,11 @@ def build_scenario_agent_configs(
     catalog: dict,
     alpha_model: str,
     beta_model: str,
-    question_variant: str = "controversial",
-    side_order: str = "12",
-    debate_arena_override: Optional[str] = None,
+    incentive_direction: Optional[str] = None,
+    incentive_type: str = "historical",
     base_prompt: Optional[str] = None,
     perceived_prompt: Optional[str] = None,
-    debate_arena_prompt: Optional[str] = None,
+    incentive_prompt: Optional[str] = None,
     public_instruction: Optional[str] = None,
     opening_instruction: Optional[str] = None,
     private_instruction: Optional[str] = None,
@@ -352,11 +356,8 @@ def build_scenario_agent_configs(
 
     Args:
         catalog: Debate catalog containing embedded scenarios.
-        question_variant: Which version of the question to use - "agreeable" or "controversial".
-                          Defaults to "controversial".
-        side_order: "12" uses side_1 as Alpha and side_2 as Beta; "21" swaps them.
-        debate_arena_override: If provided, use this arena text instead of alpha's persona arena.
-                               Pass NEUTRAL_DEBATE_ARENA for a neutral setting.
+        incentive_direction: Optional incentive module key ('positive' or 'negative').
+        incentive_type: Incentive subtype ('historical' or 'future').
     """
 
     prompts = prompt_templates or load_prompt_templates(
@@ -365,7 +366,7 @@ def build_scenario_agent_configs(
 
     base_prompt = base_prompt or prompts["base_prompt"]
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
-    debate_arena_prompt = debate_arena_prompt or prompts["debate_arena_prompt"]
+    incentive_prompt = incentive_prompt or prompts["incentive_prompt"]
     public_instruction = public_instruction or prompts["public_instruction"]
     opening_instruction = opening_instruction or prompts["opening_instruction"]
     private_instruction = private_instruction or prompts["private_instruction"]
@@ -379,86 +380,69 @@ def build_scenario_agent_configs(
     survey_private_prompt = survey_private_prompt or prompts["survey_private_prompt"]
 
     scenarios = catalog.get("scenarios", [])
-    scenario = next((item for item in scenarios if item.get("id") == scenario_id), None)
+    scenario = next(
+        (item for item in scenarios if item.get("scenario_id") == scenario_id),
+        None,
+    )
     if scenario is None:
         raise KeyError(f"Unknown scenario id: {scenario_id}")
-    if side_order not in {"12", "21"}:
-        raise ValueError(f"Invalid side order: {side_order}")
 
-    question_entry = scenario.get("question", {})
-    if question_variant not in question_entry:
-        available = [k for k in question_entry if k not in ("id", "topic")]
+    question = scenario.get("question")
+    if not isinstance(question, dict):
+        raise KeyError(f"Scenario '{scenario_id}' missing required object: question")
+    question_text = question.get("prompt")
+    if not isinstance(question_text, str) or not question_text.strip():
+        raise KeyError(f"Scenario '{scenario_id}' missing question.prompt")
+
+    sides = scenario.get("sides")
+    if not isinstance(sides, dict) or len(sides) != 2:
         raise KeyError(
-            f"Question variant '{question_variant}' not found for scenario '{scenario_id}'; "
-            f"available variants: {', '.join(sorted(available))}"
+            f"Scenario '{scenario_id}' must define exactly two sides in scenario.sides"
         )
-    question_text = question_entry[question_variant]
-    variant_tokens = _variant_language_tokens(prompts, question_variant)
+    side_items = list(sides.items())
+    alpha_label, alpha_persona = side_items[0]
+    beta_label, beta_persona = side_items[1]
 
-    public_instruction = _apply_variant_language(public_instruction, variant_tokens)
-    opening_instruction = _apply_variant_language(opening_instruction, variant_tokens)
-    private_instruction = _apply_variant_language(private_instruction, variant_tokens)
-    pre_interview_instruction = _apply_variant_language(
-        pre_interview_instruction, variant_tokens
+    alpha_incentive = _incentive_text_for_side(
+        scenario_id=scenario_id,
+        scenario=scenario,
+        side_label=alpha_label,
+        incentive_direction=incentive_direction,
+        incentive_type=incentive_type,
     )
-    post_interview_instruction = _apply_variant_language(
-        post_interview_instruction, variant_tokens
+    beta_incentive = _incentive_text_for_side(
+        scenario_id=scenario_id,
+        scenario=scenario,
+        side_label=beta_label,
+        incentive_direction=incentive_direction,
+        incentive_type=incentive_type,
     )
-    survey_public_prompt = _apply_variant_language(
-        survey_public_prompt, variant_tokens
-    )
-    survey_private_prompt = _apply_variant_language(
-        survey_private_prompt, variant_tokens
-    )
-    survey_questions = _apply_variant_language_many(survey_questions, variant_tokens)
-
-    side_1 = scenario.get("side_1", {})
-    side_2 = scenario.get("side_2", {})
-    if not side_1 or not side_2:
-        raise KeyError(f"Scenario '{scenario_id}' missing side definitions")
-
-    if side_order == "12":
-        alpha_persona = side_1
-        beta_persona = side_2
-    else:
-        alpha_persona = side_2
-        beta_persona = side_1
-
-    # Determine debate arena: use override if provided, otherwise alpha's arena
-    if debate_arena_override is not None:
-        arena_text = debate_arena_override
-    else:
-        arena_text = alpha_persona.get("debate_arena", "")
-
-    arena_context = ""
-    if arena_text:
-        arena_context = debate_arena_prompt.format(
-            debate_arena=arena_text, **variant_tokens
-        )
 
     alpha_self_role = base_prompt.format(
         speaker_id="A",
         question=question_text,
         persona=alpha_persona["actual_persona"],
-        **variant_tokens,
     )
     beta_self_role = base_prompt.format(
         speaker_id="B",
         question=question_text,
         persona=beta_persona["actual_persona"],
-        **variant_tokens,
     )
 
-    # Append debate arena context to both agents' self_role
-    if arena_context:
-        alpha_self_role = alpha_self_role + arena_context
-        beta_self_role = beta_self_role + arena_context
+    if alpha_incentive:
+        alpha_self_role = alpha_self_role + incentive_prompt.format(
+            incentive=alpha_incentive
+        )
+    if beta_incentive:
+        beta_self_role = beta_self_role + incentive_prompt.format(
+            incentive=beta_incentive
+        )
 
     alpha_perceives_beta = perceived_prompt.format(
-        perceived_persona=beta_persona["perceived_persona"], **variant_tokens
+        perceived_persona=beta_persona["perceived_persona_base"]
     )
     beta_perceives_alpha = perceived_prompt.format(
-        perceived_persona=alpha_persona["perceived_persona"], **variant_tokens
+        perceived_persona=alpha_persona["perceived_persona_base"]
     )
 
     return [

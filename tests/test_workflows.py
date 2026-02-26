@@ -286,14 +286,17 @@ def test_persona_builder_uses_catalogues():
     catalog = load_debate_construction("data/scenarios.json")
 
     configs = build_scenario_agent_configs(
-        scenario_id="hier_account_1",
+        scenario_id="promotion_committee_max_divergence",
         catalog=catalog,
         alpha_model="alpha-model",
         beta_model="beta-model",
+        incentive_direction="positive",
+        incentive_type="historical",
     )
 
     assert configs[0]["model"] == "alpha-model"
     assert "Persona" in configs[0]["self_role"] or "persona" in configs[0]["self_role"].lower()
+    assert "Additional scenario context" in configs[0]["self_role"]
 
     with pytest.raises(KeyError):
         build_scenario_agent_configs(
@@ -308,7 +311,7 @@ def test_persona_builder_honors_keep_flags():
     catalog = load_debate_construction("data/scenarios.json")
 
     configs = build_scenario_agent_configs(
-        scenario_id="hier_account_1",
+        scenario_id="promotion_committee_max_divergence",
         catalog=catalog,
         alpha_model="alpha-model",
         beta_model="beta-model",

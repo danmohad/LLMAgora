@@ -1,7 +1,7 @@
 {
-  "scenario_id": "hier_account_1",
-  "question_variant": "controversial",
-  "side_order": "12",
+  "scenario_id": "promotion_committee_max_divergence",
+  "incentive_direction": null,
+  "incentive_type": "historical",
   "prompt_set": "default",
   "alpha_model": "openai/gpt-4o-mini",
   "beta_model": "anthropic/claude-sonnet-4.5",
@@ -10,7 +10,6 @@
     "public_utterance"
   ],
   "verbose": false,
-  "use_neutral_arena": false,
   "keep_private_reflection": false,
   "enable_pre_interview": false,
   "keep_pre_interview": false,
