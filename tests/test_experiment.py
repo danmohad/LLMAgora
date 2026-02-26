@@ -10,10 +10,13 @@ from agora import experiment
 from agora.experiment import (
     DEFAULT_CATALOG_PATH,
     DEFAULT_INDEX_CSV,
+    DEFAULT_MODEL_CATALOG_PATH,
     DEFAULT_OUTPUTS_ROOT,
     DEFAULT_PROMPTS_PATH,
     ExperimentConfig,
+    MODELS,
     SEMANTIC_METRIC_SELF_CONSISTENCY,
+    ModelCatalog,
     _merge_config,
     _plot_inter_scores,
     _plot_intra_scores,
@@ -25,6 +28,7 @@ from agora.experiment import (
     _should_write_outputs,
     _slug,
     build_experiment_config,
+    load_model_catalog,
     load_experiment_config,
     run_persona_experiment,
 )
@@ -419,6 +423,8 @@ def test_defaults_constants():
     assert DEFAULT_INDEX_CSV == Path("outputs/index.csv")
     assert DEFAULT_CATALOG_PATH == Path("data/scenarios.json")
     assert DEFAULT_PROMPTS_PATH == Path("data/prompts.json")
+    assert DEFAULT_MODEL_CATALOG_PATH.name == "model_catalog.json"
+    assert str(DEFAULT_MODEL_CATALOG_PATH).endswith("data/model_catalog.json")
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1")) is False
     assert (
         _should_write_outputs(
@@ -456,6 +462,47 @@ def test_defaults_constants():
     assert _resolve_index_csv(
         ExperimentConfig(scenario_id="s1", index_csv=Path("custom/index.csv"))
     ) == Path("custom/index.csv")
+
+
+def test_load_model_catalog_reads_default_json():
+    models = load_model_catalog()
+    assert "openai" in models
+    assert "large" in models["openai"]
+
+
+def test_models_mapping_exposes_default_catalog():
+    assert "openai" in MODELS
+    assert len(MODELS) >= 1
+    assert "openai" in list(MODELS)
+    assert isinstance(MODELS["openai"]["large"], str)
+
+
+def test_model_catalog_supports_external_path(tmp_path):
+    models_path = tmp_path / "model_catalog.json"
+    models_path.write_text(json.dumps({"demo": {"large": "demo/large", "small": "demo/small"}}))
+    catalog = ModelCatalog(models_path)
+    assert catalog["demo"]["large"] == "demo/large"
+
+
+def test_model_catalog_raises_on_missing_file(tmp_path):
+    catalog = ModelCatalog(tmp_path / "missing.json")
+    with pytest.raises(FileNotFoundError, match="Model catalog not found"):
+        _ = catalog["openai"]
+
+
+def test_model_catalog_provider_value_must_be_mapping(tmp_path):
+    models_path = tmp_path / "model_catalog.json"
+    models_path.write_text(json.dumps({"bad": "nope"}))
+    catalog = ModelCatalog(models_path)
+    with pytest.raises(TypeError, match="must map to an object"):
+        _ = catalog["bad"]
+
+
+def test_load_model_catalog_requires_top_level_object(tmp_path):
+    models_path = tmp_path / "model_catalog.json"
+    models_path.write_text(json.dumps(["not", "an", "object"]))
+    with pytest.raises(TypeError, match="top level"):
+        _ = load_model_catalog(models_path)
 
 
 def test_plot_helpers_show_branch(tmp_path, monkeypatch):

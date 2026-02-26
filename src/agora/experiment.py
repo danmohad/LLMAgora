@@ -43,6 +43,9 @@ from .workflows import (
 
 DEFAULT_CATALOG_PATH = Path("data/scenarios.json")
 DEFAULT_PROMPTS_PATH = Path("data/prompts.json")
+DEFAULT_MODEL_CATALOG_PATH = (
+    Path(__file__).resolve().parents[2] / "data" / "model_catalog.json"
+)
 DEFAULT_OUTPUTS_ROOT = Path("outputs")
 DEFAULT_INDEX_CSV = DEFAULT_OUTPUTS_ROOT / "index.csv"
 
@@ -54,6 +57,52 @@ SEMANTIC_ANALYSIS_METRICS: tuple[str, ...] = (
     SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT,
     SEMANTIC_METRIC_CROSS_AGENT_PRIVATE_ALIGNMENT,
 )
+
+
+def load_model_catalog(models_path: Path | str | None = None) -> dict[str, Any]:
+    """Load model IDs by provider and size from disk."""
+
+    path = (
+        Path(models_path)
+        if models_path is not None
+        else DEFAULT_MODEL_CATALOG_PATH
+    )
+    if not path.exists():
+        raise FileNotFoundError(f"Model catalog not found at {path}")
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise TypeError("Model catalog must be a JSON object at the top level")
+    return payload
+
+
+class ModelCatalog(Mapping[str, Mapping[str, str]]):
+    """Lazy-loading view over the model catalog JSON."""
+
+    def __init__(self, models_path: Path | str | None = None):
+        self._models_path = Path(models_path) if models_path is not None else None
+        self._cache: Optional[dict[str, Any]] = None
+
+    def _load(self) -> dict[str, Any]:
+        if self._cache is None:
+            self._cache = load_model_catalog(self._models_path)
+        return self._cache
+
+    def __getitem__(self, key: str) -> Mapping[str, str]:
+        value = self._load()[key]
+        if not isinstance(value, Mapping):
+            raise TypeError(
+                f"Model provider '{key}' must map to an object of size -> model id"
+            )
+        return value  # type: ignore[return-value]
+
+    def __iter__(self):
+        return iter(self._load())
+
+    def __len__(self) -> int:
+        return len(self._load())
+
+
+MODELS: Mapping[str, Mapping[str, str]] = ModelCatalog()
 
 
 @dataclass(slots=True)
@@ -835,8 +884,11 @@ def run_persona_experiment(
 __all__ = [
     "DEFAULT_CATALOG_PATH",
     "DEFAULT_INDEX_CSV",
+    "DEFAULT_MODEL_CATALOG_PATH",
     "DEFAULT_OUTPUTS_ROOT",
     "DEFAULT_PROMPTS_PATH",
+    "MODELS",
+    "ModelCatalog",
     "SEMANTIC_ANALYSIS_METRICS",
     "SEMANTIC_METRIC_SELF_CONSISTENCY",
     "SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT",
@@ -848,6 +900,7 @@ __all__ = [
     "ExperimentConfig",
     "ExperimentResult",
     "build_experiment_config",
+    "load_model_catalog",
     "load_experiment_config",
     "run_persona_experiment",
     "_merge_config",
