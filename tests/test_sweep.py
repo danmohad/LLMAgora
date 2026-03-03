@@ -730,6 +730,126 @@ def test_run_sweep_resume_and_stop_on_error(tmp_path, monkeypatch):
     assert summary["run"]["selected_case_count"] == 3
 
 
+def test_run_sweep_stop_on_error_does_not_schedule_after_mixed_done_batch(
+    tmp_path, monkeypatch
+):
+    master_path = tmp_path / "master.jsonc"
+    payload = _master_payload(
+        tmp_path,
+        max_parallel_jobs=2,
+        sweep={
+            "incentive_direction": [None, "positive", "negative"],
+        },
+    )
+    _write_master(master_path, payload)
+    manifest = sweep.generate_sweep(master_path)
+    root = Path(manifest["sweep_root"])
+
+    launched = []
+    case_ids = [case["case_id"] for case in manifest["cases"]]
+    outcomes = {
+        case_ids[0]: 1,
+        case_ids[1]: 0,
+        case_ids[2]: 0,
+    }
+
+    class ImmediatePopen:
+        def __init__(self, cmd, stdout, stderr):
+            self.case_id = Path(cmd[-1]).parent.name
+            launched.append(self.case_id)
+            self.returncode = outcomes[self.case_id]
+            stdout.write(f"log for {self.case_id}\n")
+
+        def wait(self, timeout=None):
+            return self.returncode
+
+        def poll(self):
+            return self.returncode
+
+        def terminate(self):
+            self.returncode = -15
+
+        def kill(self):
+            self.returncode = -9
+
+    original_wait = sweep.wait
+    call_count = {"value": 0}
+
+    def fake_wait(futures, timeout=None, return_when=None):
+        call_count["value"] += 1
+        if call_count["value"] == 1:
+            future_list = list(futures)
+            return set(future_list[:2]), set()
+        return original_wait(futures, timeout=timeout, return_when=return_when)
+
+    monkeypatch.setattr(sweep.subprocess, "Popen", ImmediatePopen)
+    monkeypatch.setattr(sweep, "wait", fake_wait)
+
+    exit_code = sweep.run_sweep(root, stop_on_error=True)
+
+    assert exit_code == 1
+    assert launched == case_ids[:2]
+
+    status = json.loads((root / "status.json").read_text(encoding="utf-8"))
+    assert status["cases"][case_ids[0]]["last_status"] == "failed"
+    assert status["cases"][case_ids[1]]["last_status"] == "succeeded"
+    assert status["cases"][case_ids[2]]["last_status"] == "skipped"
+
+
+def test_run_sweep_respects_explicit_no_stop_on_error_override(tmp_path, monkeypatch):
+    master_path = tmp_path / "master.jsonc"
+    payload = _master_payload(
+        tmp_path,
+        stop_on_error=True,
+        sweep={
+            "incentive_direction": [None, "positive", "negative"],
+        },
+    )
+    _write_master(master_path, payload)
+    manifest = sweep.generate_sweep(master_path)
+    root = Path(manifest["sweep_root"])
+
+    launched = []
+    case_ids = [case["case_id"] for case in manifest["cases"]]
+    outcomes = {
+        case_ids[0]: 1,
+        case_ids[1]: 0,
+        case_ids[2]: 0,
+    }
+
+    class ImmediatePopen:
+        def __init__(self, cmd, stdout, stderr):
+            self.case_id = Path(cmd[-1]).parent.name
+            launched.append(self.case_id)
+            self.returncode = outcomes[self.case_id]
+            stdout.write(f"log for {self.case_id}\n")
+
+        def wait(self, timeout=None):
+            return self.returncode
+
+        def poll(self):
+            return self.returncode
+
+        def terminate(self):
+            self.returncode = -15
+
+        def kill(self):
+            self.returncode = -9
+
+    monkeypatch.setattr(sweep.subprocess, "Popen", ImmediatePopen)
+
+    exit_code = sweep.run_sweep(root, stop_on_error=False)
+
+    assert exit_code == 1
+    assert launched == case_ids
+
+    status = json.loads((root / "status.json").read_text(encoding="utf-8"))
+    assert status["cases"][case_ids[0]]["last_status"] == "failed"
+    assert status["cases"][case_ids[1]]["last_status"] == "succeeded"
+    assert status["cases"][case_ids[2]]["last_status"] == "succeeded"
+    assert status["run_session"]["stop_on_error"] is False
+
+
 def test_run_sweep_modes_noop_and_invalid_mode(tmp_path, monkeypatch):
     master_path = tmp_path / "master.jsonc"
     payload = _master_payload(tmp_path)

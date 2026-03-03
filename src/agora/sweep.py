@@ -938,7 +938,7 @@ def run_sweep(
     max_parallel_jobs: int | None = None,
     mode: str = "resume",
     case_ids: Sequence[str] | None = None,
-    stop_on_error: bool = False,
+    stop_on_error: bool | None = None,
     stream: IO[str] | None = None,
     dashboard_refresh_interval: float = 0.25,
     terminal_size_getter: Any = shutil.get_terminal_size,
@@ -987,7 +987,10 @@ def run_sweep(
         _write_line(stream, "No matching cases to run.")
         return 0
 
-    effective_stop_on_error = bool(manifest["runner_defaults"]["stop_on_error"]) or stop_on_error
+    if stop_on_error is None:
+        effective_stop_on_error = bool(manifest["runner_defaults"]["stop_on_error"])
+    else:
+        effective_stop_on_error = stop_on_error
 
     store = _StatusStore(root_path, status)
     store.start_session(
@@ -1053,7 +1056,9 @@ def run_sweep(
                 )
             if not done:
                 continue
+            completed_slots = 0
             for future in done:
+                completed_slots += 1
                 case_id = futures.pop(future)
                 result = future.result()
                 final_status = result["status"]
@@ -1062,13 +1067,14 @@ def run_sweep(
                 if not live_dashboard:
                     _write_line(stream, f"{final_status.capitalize()}: {case_id}")
 
-                if effective_stop_on_error and failed_this_run:
-                    continue
+            if effective_stop_on_error and failed_this_run:
+                continue
 
+            for _ in range(completed_slots):
                 try:
                     next_case_id = next(iterator)
                 except StopIteration:
-                    continue
+                    break
                 scheduled_case_ids.append(next_case_id)
                 store.mark_case_queued(next_case_id)
                 futures[
