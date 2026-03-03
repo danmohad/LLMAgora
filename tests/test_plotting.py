@@ -1,7 +1,9 @@
 from types import SimpleNamespace
 
 import matplotlib
+import matplotlib.pyplot as plt
 
+from agora import plotting
 from agora.plotting import plot_survey_distance, plot_survey_responses
 
 
@@ -43,6 +45,50 @@ def test_plot_survey_responses_saves_file(tmp_path):
     assert output_path.stat().st_size > 0
 
 
+def test_plot_survey_responses_returns_when_panels_empty(tmp_path, monkeypatch):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    responses = {"a": {0: {"Q1": 1}}}
+
+    monkeypatch.setattr(plotting, "_build_question_panels", lambda *_args, **_kwargs: [])
+
+    plot_survey_responses(responses, agents, ["q1"], "Survey", output_path)
+
+    assert not output_path.exists()
+
+
+def test_plot_survey_responses_hides_unused_subplots(tmp_path, monkeypatch):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    responses = {
+        "a": {
+            0: {f"Q{i}": i for i in range(1, 7)},
+            1: {f"Q{i}": i + 1 for i in range(1, 7)},
+        }
+    }
+    questions = {"default": [f"Question {i}" for i in range(1, 7)]}
+
+    real_subplots = plt.subplots
+    captured: dict[str, object] = {}
+
+    def capturing_subplots(*args, **kwargs):
+        fig, axes = real_subplots(*args, **kwargs)
+        captured["axes"] = axes
+        return fig, axes
+
+    monkeypatch.setattr(plt, "subplots", capturing_subplots)
+    monkeypatch.setattr(plt, "close", lambda *_args, **_kwargs: None)
+
+    plot_survey_responses(responses, agents, questions, "Survey", output_path)
+
+    axes = captured["axes"]
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    assert output_path.exists()
+    assert axes_list[6].get_visible() is False
+
+
 def test_plot_survey_distance_no_agents(tmp_path):
     matplotlib.use("Agg", force=True)
     output_path = tmp_path / "plot.png"
@@ -79,6 +125,25 @@ def test_plot_survey_distance_saves_file(tmp_path):
     )
     assert output_path.exists()
     assert output_path.stat().st_size > 0
+
+
+def test_plot_survey_distance_returns_without_configured_groups(tmp_path):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    public_responses = {"a": {0: {"Q1": 1}}}
+    private_responses = {"a": {0: {"Q1": 0}}}
+
+    plot_survey_distance(
+        public_responses,
+        private_responses,
+        agents,
+        [],
+        "Distance",
+        output_path,
+    )
+
+    assert not output_path.exists()
 
 
 def test_plot_survey_distance_with_extra_questions(tmp_path):
@@ -177,3 +242,19 @@ def test_plot_survey_distance_sets_distinct_y_limits(tmp_path, monkeypatch):
 
     assert base_ax_0.get_ylim() == (-4.0, 4.0)
     assert avg_ax.get_ylim() == (0.0, 4.0)
+
+
+def test_build_question_panels_adds_unknown_question_panel():
+    panels = plotting._build_question_panels(
+        [{"text": "Known", "group": "default"}],
+        ["Q1", "Q3"],
+    )
+
+    assert panels == [
+        {"label": "Known", "questions": ["Q1"]},
+        {"label": "Q3", "questions": ["Q3"]},
+    ]
+
+
+def test_survey_panel_value_returns_none_when_no_values_present():
+    assert plotting._survey_panel_value({"Q1": None}, ["Q1"]) is None
