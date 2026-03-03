@@ -72,6 +72,10 @@ def test_build_parser_registers_run_subcommand():
     )
     assert args_sweep_run.func is cli._sweep_run
     assert args_sweep_run.mode == "failed"
+    args_sweep_run_disable_stop = parser.parse_args(
+        ["sweep", "run", "--root", "outputs/sweeps/example", "--no-stop-on-error"]
+    )
+    assert args_sweep_run_disable_stop.stop_on_error is False
     with pytest.raises(SystemExit):
         parser.parse_args(["run", "--scenario-id", "s1", "--enable-pre-interview"])
     with pytest.raises(SystemExit):
@@ -394,4 +398,3 @@ def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
     assert captured["mode"] == "resume"
     assert captured["case_ids"] == ["abc123def456"]
     assert captured["stop_on_error"] is True
-
