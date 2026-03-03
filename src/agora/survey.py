@@ -1,4 +1,5 @@
 import json
+from typing import Any
 
 LIKERT_VALUES = [
     "Strongly disagree",
@@ -15,6 +16,94 @@ LIKERT_TO_SCORE = {
     "Agree": 1,
     "Strongly agree": 2,
 }
+
+SURVEY_GROUP_DEFAULT = "default"
+SURVEY_GROUP_DIRECT = "direct"
+SURVEY_GROUP_SENTIMENT = "sentiment"
+VALID_SURVEY_GROUPS = {
+    SURVEY_GROUP_DEFAULT,
+    SURVEY_GROUP_DIRECT,
+    SURVEY_GROUP_SENTIMENT,
+}
+
+
+def normalize_survey_questions(
+    question_config: Any,
+    *,
+    default_group: str,
+) -> list[dict[str, str]]:
+    """
+    Normalize survey question config into ordered ``{"text", "group"}`` entries.
+    """
+    if question_config is None:
+        return []
+    if default_group not in VALID_SURVEY_GROUPS:
+        raise ValueError(f"Unknown survey group: {default_group}")
+
+    if isinstance(question_config, list):
+        return [
+            _normalize_survey_question_entry(entry, default_group=default_group)
+            for entry in question_config
+        ]
+
+    if isinstance(question_config, dict):
+        normalized: list[dict[str, str]] = []
+        for group, entries in question_config.items():
+            if group not in VALID_SURVEY_GROUPS:
+                raise ValueError(f"Unknown survey group: {group}")
+            if not isinstance(entries, list):
+                raise ValueError(
+                    f"Survey group '{group}' must contain a list of questions"
+                )
+            normalized.extend(
+                _normalize_survey_question_entry(entry, default_group=group)
+                for entry in entries
+            )
+        return normalized
+
+    raise ValueError("Survey questions must be configured as a list or dict")
+
+
+def merge_survey_question_configs(
+    default_questions: Any,
+    scenario_questions: Any,
+) -> list[dict[str, str]]:
+    """Merge prompt-level and scenario-level survey questions into one ordered list."""
+    return normalize_survey_questions(
+        default_questions, default_group=SURVEY_GROUP_DEFAULT
+    ) + normalize_survey_questions(
+        scenario_questions, default_group=SURVEY_GROUP_DIRECT
+    )
+
+
+def survey_question_texts(question_specs: list[dict[str, str]]) -> list[str]:
+    """Extract plain text questions in order."""
+    return [entry["text"] for entry in question_specs]
+
+
+def survey_question_groups(question_specs: list[dict[str, str]]) -> dict[str, str]:
+    """Map survey question ids (Q1, Q2, ...) to group names."""
+    return {
+        f"Q{index}": entry["group"] for index, entry in enumerate(question_specs, start=1)
+    }
+
+
+def _normalize_survey_question_entry(
+    entry: Any,
+    *,
+    default_group: str,
+) -> dict[str, str]:
+    if isinstance(entry, str):
+        return {"text": entry, "group": default_group}
+    if isinstance(entry, dict):
+        text = entry.get("text")
+        group = entry.get("group", default_group)
+        if group not in VALID_SURVEY_GROUPS:
+            raise ValueError(f"Unknown survey group: {group}")
+        if not isinstance(text, str) or not text:
+            raise ValueError("Survey question entries must include non-empty text")
+        return {"text": text, "group": group}
+    raise ValueError("Survey question entries must be strings or dicts")
 
 
 def build_likert_survey_schema(num_questions: int):
