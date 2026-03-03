@@ -50,15 +50,16 @@ Both are intentionally thin and call the high-level workflow in `agora.experimen
 
 Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command.
 
-Canonical config lives at `data/example.json` and matches the notebook and CLI arguments exactly.
+Canonical config lives at `data/config_example.json` and matches the notebook and CLI arguments exactly.
 Optional retention and analysis features are disabled by default (`false` flags and empty analysis metric lists).
+Sweep generation uses the commented master template at `data/sweep_example.jsonc`.
 
 ```bash
 # Run with config
-agora run --config data/example.json
+agora run --config data/config_example.json
 
 # Override specific fields from config
-agora run --config data/example.json \
+agora run --config data/config_example.json \
   --scenario-id ngo_climate_endorsement \
   --incentive-direction positive \
   --incentive-type future \
@@ -66,14 +67,14 @@ agora run --config data/example.json \
   --save-plots
 
 # Use NLI for semantic scoring (instead of cosine embeddings)
-agora run --config data/example.json \
+agora run --config data/config_example.json \
   --semantic-analysis-metrics self_consistency \
   --semantic-similarity-method nli \
   --semantic-similarity-model dleemiller/finecat-nli-l \
   --semantic-similarity-device mps  # or cpu
 
 # Run persona adherence analysis for selected metric slices only
-agora run --config data/example.json \
+agora run --config data/config_example.json \
   --persona-analysis-metrics public_per_turn full_debate_public \
   --persona-score-samples 3
 
@@ -85,20 +86,52 @@ agora run \
   --num-turns 2
 
 # Enable surveys via sub-turn events
-agora run --config data/example.json \
+agora run --config data/config_example.json \
   --subturn-event-order public_utterance private_survey
 
 # Optional retention toggles for survey streams
-agora run --config data/example.json \
+agora run --config data/config_example.json \
   --keep-private-survey \
   --subturn-event-order public_utterance private_survey
 
 # Resume from an existing snapshot directory
-agora run --config data/example.json --load-snapshot --load-dir outputs/promotion_committee_max_divergence_no_incentive
+agora run --config data/config_example.json --load-snapshot --load-dir outputs/promotion_committee_max_divergence_no_incentive
 
 # Indexed output mode: run folder is a short unique ID and index row is appended
-agora run --config data/example.json --indexed-output
+agora run --config data/config_example.json --indexed-output
 ```
+
+### Sweep Workflows
+
+Use `agora sweep` to generate and run parameter sweeps. `agora sweep run` owns the terminal and renders the live dashboard until the batch completes.
+
+```bash
+# Expand the master config into manifest/status plus cases/<case_id>/config.json
+agora sweep generate --config data/sweep_example.jsonc
+
+# Run all cases that are not already marked succeeded.
+# This command renders the live in-place dashboard in the current TTY.
+agora sweep run --root outputs/sweeps/example
+
+# Re-run failed or interrupted cases only
+agora sweep run --root outputs/sweeps/example --mode failed
+```
+
+Sweep directory layout:
+- `master_config.jsonc` stores the original commented sweep input
+- `manifest.json` stores the immutable case list and 12-character case IDs
+- `status.json` stores mutable per-case state for resume and live monitoring
+- `summary.json` stores the latest run summary
+- `cases/<case_id>/config.json` stores the strict JSON config for that case
+- `cases/<case_id>/run.log` stores the latest combined stdout/stderr for that case
+
+Sweep config rules:
+- `base` uses the normal single-run config fields
+- `sweep` maps fields to candidate-value lists
+- multiple sweep axes expand as a Cartesian product
+- list-valued run fields use a list of candidate full values (for example `subturn_event_order` as a list of lists)
+- `output_dir`, `outputs_root`, `run_name`, `indexed_output`, and `index_csv` are generator-managed and not allowed in the master file
+- generated leaf configs include a fixed absolute `output_dir`, so each run writes into its own `cases/<case_id>` directory
 
 Output behavior:
 - default mode writes to a readable folder name under `outputs/` (for example `outputs/promotion_committee_max_divergence_no_incentive`)

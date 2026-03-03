@@ -98,6 +98,7 @@ class ExperimentConfig:
     save_snapshot: bool = False
     reuse_load_dir_for_outputs: bool = False
 
+    output_dir: Optional[Path] = None
     outputs_root: Path = DEFAULT_OUTPUTS_ROOT
     run_name: Optional[str] = None
     indexed_output: bool = False
@@ -387,6 +388,7 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         data[field_name] = _coerce_path(data.get(field_name), fallback=fallback)
     data["index_csv"] = _coerce_optional_path(data.get("index_csv"))
     data["load_dir"] = _coerce_optional_path(data.get("load_dir"))
+    data["output_dir"] = _coerce_optional_path(data.get("output_dir"))
     coerced_event_order = _coerce_event_order(data.get("subturn_event_order"))
     if coerced_event_order is not None:
         data["subturn_event_order"] = coerced_event_order
@@ -459,6 +461,14 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("reuse_load_dir_for_outputs requires num_turns=0")
     if cfg.reuse_load_dir_for_outputs and cfg.indexed_output:
         raise ValueError("reuse_load_dir_for_outputs cannot be combined with indexed_output")
+    if cfg.output_dir is not None and cfg.indexed_output:
+        raise ValueError("output_dir cannot be combined with indexed_output")
+    if cfg.output_dir is not None and cfg.run_name is not None:
+        raise ValueError("output_dir cannot be combined with run_name")
+    if cfg.output_dir is not None and cfg.index_csv is not None:
+        raise ValueError("output_dir cannot be combined with index_csv")
+    if cfg.output_dir is not None and cfg.reuse_load_dir_for_outputs:
+        raise ValueError("output_dir cannot be combined with reuse_load_dir_for_outputs")
     if not cfg.subturn_event_order:
         raise ValueError("subturn_event_order must not be empty")
     unknown_events = [
@@ -496,6 +506,9 @@ def _merge_config(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> Expe
 
 def _should_write_outputs(cfg: ExperimentConfig) -> bool:
     """Return True when this run should persist artifacts to disk."""
+
+    if cfg.output_dir is not None:
+        return True
 
     return any(
         [
@@ -544,7 +557,10 @@ def run_persona_experiment(
     run_dir: Optional[Path] = None
     run_id: Optional[str] = None
     if write_outputs:
-        if cfg.reuse_load_dir_for_outputs:
+        if cfg.output_dir is not None:
+            run_dir = cfg.output_dir
+            run_dir.mkdir(parents=True, exist_ok=True)
+        elif cfg.reuse_load_dir_for_outputs:
             run_dir = cfg.load_dir
             assert run_dir is not None  # validated by build_experiment_config
             run_dir.mkdir(parents=True, exist_ok=True)

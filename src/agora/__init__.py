@@ -11,5 +11,6 @@ __all__ = [
     "persistence",
     "plotting",
     "semantic_similarity_analyzer",
+    "sweep",
     "workflows",
 ]
