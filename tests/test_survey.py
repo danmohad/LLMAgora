@@ -51,3 +51,50 @@ def test_merge_survey_question_configs_assigns_groups():
 def test_normalize_survey_questions_rejects_unknown_group():
     with pytest.raises(ValueError, match="Unknown survey group"):
         survey.normalize_survey_questions({"invalid": ["q"]}, default_group="default")
+
+
+def test_normalize_survey_questions_accepts_none():
+    assert survey.normalize_survey_questions(None, default_group="default") == []
+
+
+def test_normalize_survey_questions_rejects_unknown_default_group():
+    with pytest.raises(ValueError, match="Unknown survey group"):
+        survey.normalize_survey_questions([], default_group="invalid")
+
+
+def test_normalize_survey_questions_rejects_non_list_group_entries():
+    with pytest.raises(ValueError, match="must contain a list"):
+        survey.normalize_survey_questions({"default": "q1"}, default_group="default")
+
+
+def test_normalize_survey_questions_rejects_invalid_top_level_type():
+    with pytest.raises(ValueError, match="list or dict"):
+        survey.normalize_survey_questions("q1", default_group="default")
+
+
+def test_normalize_survey_questions_rejects_invalid_entry_group():
+    with pytest.raises(ValueError, match="Unknown survey group"):
+        survey.normalize_survey_questions(
+            [{"text": "q1", "group": "invalid"}],
+            default_group="default",
+        )
+
+
+def test_normalize_survey_questions_rejects_missing_entry_text():
+    with pytest.raises(ValueError, match="non-empty text"):
+        survey.normalize_survey_questions(
+            [{"group": "default"}],
+            default_group="default",
+        )
+
+
+def test_normalize_survey_questions_rejects_invalid_entry_type():
+    with pytest.raises(ValueError, match="strings or dicts"):
+        survey.normalize_survey_questions([1], default_group="default")
+
+
+def test_normalize_survey_questions_accepts_dict_entry_with_explicit_group():
+    assert survey.normalize_survey_questions(
+        [{"text": "q1", "group": "sentiment"}],
+        default_group="default",
+    ) == [{"text": "q1", "group": "sentiment"}]
