@@ -22,6 +22,11 @@ from .experiment import (
     load_experiment_config,
     run_persona_experiment,
 )
+from .sweep import (
+    RUN_SELECTION_MODES,
+    generate_sweep,
+    run_sweep,
+)
 from .workflows import print_agent_histories
 
 
@@ -95,12 +100,27 @@ def _add_bool(parser: argparse.ArgumentParser, name: str, help_text: str) -> Non
     )
 
 
+def _sweep_generate(args: argparse.Namespace) -> None:
+    generate_sweep(args.config, force=args.force)
+
+
+def _sweep_run(args: argparse.Namespace) -> None:
+    exit_code = run_sweep(
+        args.root,
+        max_parallel_jobs=args.max_parallel_jobs,
+        mode=args.mode,
+        case_ids=args.cases,
+        stop_on_error=args.stop_on_error,
+    )
+    if exit_code:
+        raise SystemExit(exit_code)
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run LLM Agora experiments.")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_cmd = subparsers.add_parser("run", help="Run one experiment from config and/or CLI flags.")
-    run_cmd.add_argument("--config", type=Path, help="Path to JSON config file (for example: data/example.json)")
+    run_cmd.add_argument("--config", type=Path, help="Path to JSON config file (for example: data/config_example.json)")
     run_cmd.add_argument("--scenario-id", help="Scenario ID from debate catalog")
     run_cmd.add_argument("--incentive-direction", choices=["positive", "negative", "none"])
     run_cmd.add_argument("--incentive-type", choices=["historical", "future"])
@@ -196,6 +216,65 @@ def build_parser() -> argparse.ArgumentParser:
     _add_bool(run_cmd, "print-histories", "Print agent-visible histories after the run")
 
     run_cmd.set_defaults(func=_run)
+
+    sweep_cmd = subparsers.add_parser(
+        "sweep",
+        help="Generate and run parameter sweeps.",
+    )
+    sweep_subparsers = sweep_cmd.add_subparsers(dest="sweep_command", required=True)
+
+    sweep_generate_cmd = sweep_subparsers.add_parser(
+        "generate",
+        help="Expand a master sweep config into per-case run directories.",
+    )
+    sweep_generate_cmd.add_argument(
+        "--config",
+        type=Path,
+        required=True,
+        help="Path to JSONC master sweep config.",
+    )
+    _add_bool(
+        sweep_generate_cmd,
+        "force",
+        "Replace an existing sweep root before generation.",
+    )
+    sweep_generate_cmd.set_defaults(func=_sweep_generate)
+
+    sweep_run_cmd = sweep_subparsers.add_parser(
+        "run",
+        help="Execute generated sweep cases and render the live dashboard in this terminal.",
+    )
+    sweep_run_cmd.add_argument(
+        "--root",
+        type=Path,
+        required=True,
+        help="Generated sweep root containing manifest.json.",
+    )
+    sweep_run_cmd.add_argument(
+        "--max-parallel-jobs",
+        type=int,
+        default=None,
+        help="Override manifest parallelism for this invocation.",
+    )
+    sweep_run_cmd.add_argument(
+        "--mode",
+        choices=list(RUN_SELECTION_MODES),
+        default="resume",
+        help="Case selection mode.",
+    )
+    sweep_run_cmd.add_argument(
+        "--cases",
+        nargs="+",
+        default=None,
+        help="Optional explicit case IDs to run.",
+    )
+    _add_bool(
+        sweep_run_cmd,
+        "stop-on-error",
+        "Stop scheduling new cases after the first failure.",
+    )
+    sweep_run_cmd.set_defaults(func=_sweep_run)
+
     return parser
 
 

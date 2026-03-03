@@ -1,0 +1,101 @@
+{
+  // Root directory that will hold manifest/status plus one leaf folder per case.
+  "sweep_root": "outputs/sweeps/example",
+
+  // Batch runner defaults.
+  "max_parallel_jobs": 2,
+  "stop_on_error": false,
+  "notes": "Example parameter sweep",
+
+  "base": {
+    // Scenario selection. See data/scenarios.json for available IDs.
+    "scenario_id": "promotion_committee_max_divergence",
+    "incentive_direction": null, // positive | negative | null
+    "incentive_type": "historical", // historical | future
+    "prompt_set": "default",
+
+    // Models. See data/models.json for current provider/model options.
+    "alpha_model": "openai/gpt-5.2",
+    "beta_model": "anthropic/claude-sonnet-4.6",
+
+    // Debate length and event ordering.
+    "num_turns": 1,
+    "subturn_event_order": [
+      "public_utterance",
+      "private_utterance",
+      "public_survey",
+      "private_survey"
+    ],
+    "verbose": false,
+
+    // Private reflection retention.
+    "keep_private_reflection": false,
+
+    // Pre/post interviews run by default.
+    // These flags only control whether those notes are retained in local memory.
+    "keep_pre_interview": false,
+    "keep_post_interview": false,
+
+    // Surveys.
+    "keep_public_survey": false,
+    "keep_private_survey": false,
+
+    // Semantic similarity analysis.
+    // Options: self_consistency, cross_agent_public_alignment, cross_agent_private_alignment
+    "semantic_analysis_metrics": [],
+    "semantic_similarity_method": "cosine", // cosine | nli
+    "semantic_similarity_model": null, // defaults by method
+    "semantic_similarity_device": null, // null | cpu | mps
+
+    // Persona adherence analysis.
+    // Options: public_per_turn, private_per_turn, public_cumulative,
+    //          private_cumulative, full_debate_public, full_debate_private
+    "persona_analysis_metrics": [],
+    "persona_scoring_model": "anthropic/claude-sonnet-4",
+    "persona_scoring_verbose": false,
+    "persona_score_samples": 1,
+
+    // Plotting.
+    "save_plots": false,
+    "show_plots": false, // requires save_plots=true
+
+    // Snapshot handling.
+    "load_snapshot": false,
+    "load_dir": null, // required when load_snapshot=true
+    "save_snapshot": false,
+
+    // Input files.
+    "catalog_path": "data/scenarios.json",
+    "prompts_path": "data/prompts.json"
+
+    // Per-case output fields are intentionally omitted here.
+    // The generator injects a fixed output_dir for each case.
+  },
+
+  "sweep": {
+    // Sweep any scalar field by listing multiple values.
+    "incentive_type": ["historical", "future"]
+
+    // List-valued run fields use a list of candidate full values:
+    // "subturn_event_order": [
+    //   ["public_utterance"],
+    //   ["public_utterance", "private_utterance"]
+    // ],
+    // "semantic_analysis_metrics": [
+    //   [],
+    //   ["self_consistency"]
+    // ],
+    // "persona_analysis_metrics": [
+    //   [],
+    //   ["public_per_turn", "full_debate_public"]
+    // ],
+    // "alpha_model": [
+    //   "openai/gpt-5.2",
+    //   "google/gemini-3-flash-preview"
+    // ],
+    // "beta_model": [
+    //   "anthropic/claude-sonnet-4.6",
+    //   "qwen/qwen3.5-397b-a17b"
+    // ]
+  }
+}

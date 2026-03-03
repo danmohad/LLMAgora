@@ -63,10 +63,23 @@ def test_build_parser_registers_run_subcommand():
         ["run", "--scenario-id", "s1", "--persona-analysis-metrics"]
     )
     assert args_persona_clear.persona_analysis_metrics == []
+    args_sweep_generate = parser.parse_args(
+        ["sweep", "generate", "--config", "data/sweep_example.jsonc"]
+    )
+    assert args_sweep_generate.func is cli._sweep_generate
+    args_sweep_run = parser.parse_args(
+        ["sweep", "run", "--root", "outputs/sweeps/example", "--mode", "failed"]
+    )
+    assert args_sweep_run.func is cli._sweep_run
+    assert args_sweep_run.mode == "failed"
     with pytest.raises(SystemExit):
         parser.parse_args(["run", "--scenario-id", "s1", "--enable-pre-interview"])
     with pytest.raises(SystemExit):
         parser.parse_args(["run", "--scenario-id", "s1", "--skip-first-agent-first-reflection"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["sweep", "status", "--root", "outputs/sweeps/example"])
+    with pytest.raises(SystemExit):
+        parser.parse_args(["sweep", "template", "--output", "data/template.jsonc"])
 
 
 def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
@@ -330,3 +343,55 @@ def test_main_dispatches(monkeypatch):
 
     assert calls["dotenv"] is True
     assert calls["called"] is True
+
+
+def test_sweep_generate_dispatches(monkeypatch, tmp_path):
+    captured = {}
+
+    monkeypatch.setattr(
+        cli,
+        "generate_sweep",
+        lambda config, force=False: captured.update({"config": config, "force": force}),
+    )
+
+    cli._sweep_generate(SimpleNamespace(config=tmp_path / "master.jsonc", force=True))
+
+    assert captured["config"] == tmp_path / "master.jsonc"
+    assert captured["force"] is True
+
+
+def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
+    captured = {}
+
+    def fake_run(root, *, max_parallel_jobs, mode, case_ids, stop_on_error):
+        captured.update(
+            {
+                "root": root,
+                "max_parallel_jobs": max_parallel_jobs,
+                "mode": mode,
+                "case_ids": case_ids,
+                "stop_on_error": stop_on_error,
+            }
+        )
+        return 2
+
+    monkeypatch.setattr(cli, "run_sweep", fake_run)
+
+    with pytest.raises(SystemExit) as exc:
+        cli._sweep_run(
+            SimpleNamespace(
+                root=tmp_path / "sweep",
+                max_parallel_jobs=3,
+                mode="resume",
+                cases=["abc123def456"],
+                stop_on_error=True,
+            )
+        )
+
+    assert exc.value.code == 2
+    assert captured["root"] == tmp_path / "sweep"
+    assert captured["max_parallel_jobs"] == 3
+    assert captured["mode"] == "resume"
+    assert captured["case_ids"] == ["abc123def456"]
+    assert captured["stop_on_error"] is True
+

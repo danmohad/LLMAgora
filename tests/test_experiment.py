@@ -181,6 +181,13 @@ def test_build_experiment_config_and_helpers(tmp_path):
         }
     )
     assert cfg_paths_obj.index_csv == tmp_path / "already-path-2" / "index.csv"
+    cfg_output_dir = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "output_dir": str(tmp_path / "leaf-run"),
+        }
+    )
+    assert cfg_output_dir.output_dir == tmp_path / "leaf-run"
     cfg_zero_turn_snapshot = build_experiment_config(
         {
             "scenario_id": "s1",
@@ -226,6 +233,41 @@ def test_build_experiment_config_and_helpers(tmp_path):
                 "load_dir": tmp_path / "already-path-6",
                 "reuse_load_dir_for_outputs": True,
                 "indexed_output": True,
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "output_dir": tmp_path / "leaf-run-2",
+                "indexed_output": True,
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "output_dir": tmp_path / "leaf-run-3",
+                "run_name": "named",
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "output_dir": tmp_path / "leaf-run-4",
+                "index_csv": tmp_path / "index.csv",
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "output_dir": tmp_path / "leaf-run-5",
+                "num_turns": 0,
+                "load_snapshot": True,
+                "load_dir": tmp_path / "already-path-7",
+                "reuse_load_dir_for_outputs": True,
             }
         )
     with pytest.raises(ValueError):
@@ -452,6 +494,12 @@ def test_defaults_constants():
         is False
     )
     assert _should_write_outputs(ExperimentConfig(scenario_id="s1", indexed_output=True)) is True
+    assert (
+        _should_write_outputs(
+            ExperimentConfig(scenario_id="s1", output_dir=Path("outputs/fixed"))
+        )
+        is True
+    )
     assert _resolve_index_csv(ExperimentConfig(scenario_id="s1")) == Path("outputs/index.csv")
     assert _resolve_index_csv(
         ExperimentConfig(scenario_id="s1", index_csv=Path("custom/index.csv"))
@@ -679,6 +727,34 @@ def test_run_persona_experiment_writes_expected_files_when_outputs_enabled(tmp_p
     assert not (result.run_dir / "scenarios.json").exists()
     assert not (result.run_dir / "prompts.json").exists()
     assert not (result.run_dir / "run_metadata.json").exists()
+
+
+def test_run_persona_experiment_uses_fixed_output_dir(tmp_path, monkeypatch):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    output_dir = tmp_path / "cases" / "abc123def456"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    def fake_run_debate_session(*args, **kwargs):
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    cfg = ExperimentConfig(
+        scenario_id="s1",
+        output_dir=output_dir,
+        outputs_root=tmp_path / "unused",
+        catalog_path=catalog_path,
+        prompts_path=prompts_path,
+    )
+
+    result = run_persona_experiment(cfg)
+
+    assert result.run_dir == output_dir
+    assert (output_dir / "config.json").exists()
+    assert not (tmp_path / "unused").exists()
 
 
 def test_run_persona_experiment_derives_skip_first_from_event_order(tmp_path, monkeypatch):
