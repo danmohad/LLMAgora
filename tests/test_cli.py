@@ -64,6 +64,8 @@ def test_build_parser_registers_run_subcommand():
     )
     assert args_persona_clear.persona_analysis_metrics == []
     with pytest.raises(SystemExit):
+        parser.parse_args(["run", "--scenario-id", "s1", "--enable-pre-interview"])
+    with pytest.raises(SystemExit):
         parser.parse_args(["run", "--scenario-id", "s1", "--skip-first-agent-first-reflection"])
 
 
@@ -102,9 +104,7 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         subturn_event_order=None,
         verbose=None,
         keep_private_reflection=None,
-        enable_pre_interview=None,
         keep_pre_interview=None,
-        enable_post_interview=None,
         keep_post_interview=None,
         keep_public_survey=None,
         keep_private_survey=None,
@@ -175,9 +175,7 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         subturn_event_order=["public_utterance"],
         verbose=False,
         keep_private_reflection=False,
-        enable_pre_interview=False,
         keep_pre_interview=False,
-        enable_post_interview=False,
         keep_post_interview=False,
         keep_public_survey=False,
         keep_private_survey=False,
@@ -234,9 +232,7 @@ def test_run_with_config_can_clear_incentive_direction(tmp_path, monkeypatch):
         subturn_event_order=None,
         verbose=None,
         keep_private_reflection=None,
-        enable_pre_interview=None,
         keep_pre_interview=None,
-        enable_post_interview=None,
         keep_post_interview=None,
         keep_public_survey=None,
         keep_private_survey=None,
@@ -288,9 +284,7 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
         subturn_event_order=["public_utterance"],
         verbose=False,
         keep_private_reflection=False,
-        enable_pre_interview=False,
         keep_pre_interview=False,
-        enable_post_interview=False,
         keep_post_interview=False,
         keep_public_survey=False,
         keep_private_survey=False,

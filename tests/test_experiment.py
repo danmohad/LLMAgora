@@ -559,8 +559,6 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         catalog_path=catalog_path,
         prompts_path=prompts_path,
         run_name="my_run",
-        enable_pre_interview=False,
-        enable_post_interview=False,
         semantic_analysis_metrics=[],
         persona_analysis_metrics=[],
         save_plots=False,
@@ -573,9 +571,11 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
 
     for agent_cfg in captured["agent_configs"]:
         assert agent_cfg["private_response"]["instruction"] is None
-        assert agent_cfg["pre_interview"]["instruction"] is None
-        assert agent_cfg["post_interview"]["instruction"] is None
+        assert agent_cfg["pre_interview"]["instruction"] == "pre"
+        assert agent_cfg["post_interview"]["instruction"] == "post"
         assert agent_cfg["survey"]["survey_questions"] == []
+    assert captured["build_kwargs"]["pre_interview_keep"] is False
+    assert captured["build_kwargs"]["post_interview_keep"] is False
 
     assert captured["session_args"]["save_snapshot"] is False
     assert captured["session_args"]["snapshot_path"] is None
@@ -1166,9 +1166,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
             "private_survey",
         ],
         keep_private_reflection=True,
-        enable_pre_interview=True,
         keep_pre_interview=True,
-        enable_post_interview=True,
         keep_post_interview=True,
         keep_public_survey=True,
         semantic_analysis_metrics=[

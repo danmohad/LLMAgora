@@ -40,9 +40,7 @@ def _run(args: argparse.Namespace) -> None:
         "subturn_event_order": args.subturn_event_order,
         "verbose": args.verbose,
         "keep_private_reflection": args.keep_private_reflection,
-        "enable_pre_interview": args.enable_pre_interview,
         "keep_pre_interview": args.keep_pre_interview,
-        "enable_post_interview": args.enable_post_interview,
         "keep_post_interview": args.keep_post_interview,
         "keep_public_survey": args.keep_public_survey,
         "keep_private_survey": args.keep_private_survey,
@@ -124,10 +122,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     _add_bool(run_cmd, "keep-private-reflection", "Keep private reflections in local history")
 
-    _add_bool(run_cmd, "enable-pre-interview", "Enable pre-interview stage")
     _add_bool(run_cmd, "keep-pre-interview", "Keep pre-interview notes in local history")
 
-    _add_bool(run_cmd, "enable-post-interview", "Enable post-interview stage")
     _add_bool(run_cmd, "keep-post-interview", "Keep post-interview notes in local history")
 
     _add_bool(run_cmd, "keep-public-survey", "Reserved survey retention flag (does not modify public_speech)")

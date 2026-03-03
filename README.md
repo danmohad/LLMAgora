@@ -1,7 +1,7 @@
 # LLM Agora
 
 A minimal arena where LLM-backed agents interact by taking public turns (optionally preceded by private reflections, succeeded by public and private surveys) until each reaches a configurable quota.
-Pre- and post-interviews can be optionally included. Agent personas, topics of the interaction, and scenario incentive modules are configurable. An analysis and plotting suite is also included.
+Pre- and post-interviews run by default; `keep_pre_interview` and `keep_post_interview` only control whether agents retain those notes in local memory. Agent personas, topics of the interaction, and scenario incentive modules are configurable. An analysis and plotting suite is also included.
 
 
 ## Requirements
@@ -51,7 +51,7 @@ Both are intentionally thin and call the high-level workflow in `agora.experimen
 Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command.
 
 Canonical config lives at `data/example.json` and matches the notebook and CLI arguments exactly.
-Optional features are disabled by default (`false` flags and empty analysis metric lists).
+Optional retention and analysis features are disabled by default (`false` flags and empty analysis metric lists).
 
 ```bash
 # Run with config

@@ -74,10 +74,8 @@ class ExperimentConfig:
 
     keep_private_reflection: bool = False
 
-    enable_pre_interview: bool = False
     keep_pre_interview: bool = False
 
-    enable_post_interview: bool = False
     keep_post_interview: bool = False
 
     keep_public_survey: bool = False
@@ -607,10 +605,6 @@ def run_persona_experiment(
     for agent_cfg in agent_configs:
         if not cfg.enable_private_reflection:
             agent_cfg["private_response"] = {"instruction": None, "keep": False}
-        if not cfg.enable_pre_interview:
-            agent_cfg["pre_interview"] = {"instruction": None, "keep": False}
-        if not cfg.enable_post_interview:
-            agent_cfg["post_interview"] = {"instruction": None, "keep": False}
         if not cfg.enable_public_survey and not cfg.enable_private_survey:
             agent_cfg["survey"] = {
                 "survey_questions": [],
