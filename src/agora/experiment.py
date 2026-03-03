@@ -34,6 +34,7 @@ from .plotting import (
     plot_survey_distance,
     plot_survey_responses,
 )
+from .survey import merge_survey_question_configs, survey_question_texts
 from .workflows import (
     build_scenario_agent_configs,
     load_debate_construction,
@@ -622,13 +623,14 @@ def run_persona_experiment(
         else f"{cfg.incentive_direction}:{cfg.incentive_type}"
     )
 
+    survey_question_specs = []
     survey_questions = []
     if cfg.enable_public_survey or cfg.enable_private_survey:
-        default_questions = list(prompt_payload.get("survey_questions", []))
-        scenario_questions = list(
-            scenario.get("survey", {}).get("shared_public_private", [])
+        survey_question_specs = merge_survey_question_configs(
+            prompt_payload.get("survey_questions", []),
+            scenario.get("survey", {}).get("shared_public_private", []),
         )
-        survey_questions = default_questions + scenario_questions
+        survey_questions = survey_question_texts(survey_question_specs)
         if not survey_questions:
             raise ValueError(
                 "Survey is enabled but no survey questions are configured in prompts/scenario data."
@@ -817,7 +819,7 @@ def run_persona_experiment(
                 plot_survey_responses(
                     responses=public_survey_responses,
                     agents=agents,
-                    survey_questions=survey_questions,
+                    survey_questions=survey_question_specs,
                     title=f"Public {survey_title}",
                     output_path=run_dir / "public_survey.png",
                 )
@@ -825,7 +827,7 @@ def run_persona_experiment(
                 plot_survey_responses(
                     responses=private_survey_responses,
                     agents=agents,
-                    survey_questions=survey_questions,
+                    survey_questions=survey_question_specs,
                     title=f"Private {survey_title}",
                     output_path=run_dir / "private_survey.png",
                 )
@@ -834,7 +836,7 @@ def run_persona_experiment(
                     public_responses=public_survey_responses,
                     private_responses=private_survey_responses,
                     agents=agents,
-                    survey_questions=survey_questions,
+                    survey_questions=survey_question_specs,
                     title=f"Public vs Private {survey_title}",
                     output_path=run_dir / "diff_survey.png",
                 )
