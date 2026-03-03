@@ -2,18 +2,24 @@
 
 import math
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from agora.agent import Agent
+from agora.survey import (
+    SURVEY_GROUP_DEFAULT,
+    SURVEY_GROUP_DIRECT,
+    SURVEY_GROUP_SENTIMENT,
+    normalize_survey_questions,
+)
 
 
 def plot_survey_responses(
     responses: dict,
     agents: list[Agent],
-    survey_questions: list[str],
+    survey_questions: list[str] | list[dict[str, str]] | dict[str, list[str]],
     title: str,
     output_path: Path,
 ):
@@ -37,7 +43,12 @@ def plot_survey_responses(
     if not questions:
         return
 
-    n = len(questions)
+    question_specs = _normalize_plot_question_specs(survey_questions)
+    panels = _build_question_panels(question_specs, questions)
+    if not panels:
+        return
+
+    n = len(panels)
     ncols = min(5, n)
     nrows = math.ceil(n / ncols)
 
@@ -59,16 +70,16 @@ def plot_survey_responses(
         }
     )
 
-    for ax, q in zip(axes, questions):
+    for ax, panel in zip(axes, panels):
         for agent_id in agent_ids:
             agent_data = responses[agent_id]
 
             sorted_rounds = sorted(int(turn_num) for turn_num in agent_data.keys())
 
-            y = [
-                agent_data.get(r, agent_data.get(str(r), {})).get(q, None)
-                for r in sorted_rounds
-            ]
+            y = []
+            for round_num in sorted_rounds:
+                round_data = agent_data.get(round_num, agent_data.get(str(round_num), {}))
+                y.append(_survey_panel_value(round_data, panel["questions"]))
 
             ax.plot(
                 sorted_rounds,
@@ -82,10 +93,7 @@ def plot_survey_responses(
         ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
         if all_rounds:
             ax.set_xticks(all_rounds)
-        max_length = 20
-        my_str = survey_questions[int(q[1:]) - 1]
-        truncated_str = my_str[:max_length] + "..." if len(my_str) > 20 else my_str
-        ax.set_title(truncated_str)
+        ax.set_title(_truncate_label(panel["label"]))
         ax.grid(True)
 
     # Hide unused subplots
@@ -106,7 +114,7 @@ def plot_survey_distance(
     public_responses: dict,
     private_responses: dict,
     agents: list[Agent],
-    survey_questions: list[str],
+    survey_questions: list[str] | list[dict[str, str]] | dict[str, list[str]],
     title: str,
     output_path: Path,
     y_limits_base: tuple[float, float] | None = None,
@@ -123,19 +131,38 @@ def plot_survey_distance(
     if not agent_ids:
         return
 
-    num_base_questions = min(5, len(survey_questions))
+    question_specs = _normalize_plot_question_specs(survey_questions)
+    group_by_question = {
+        f"Q{index}": spec["group"] for index, spec in enumerate(question_specs, start=1)
+    }
+    labels_by_question = {
+        f"Q{index}": spec["text"] for index, spec in enumerate(question_specs, start=1)
+    }
+    individual_questions = [
+        q_key
+        for q_key, group in group_by_question.items()
+        if group in {SURVEY_GROUP_DEFAULT, SURVEY_GROUP_DIRECT}
+    ]
+    sentiment_questions = [
+        q_key for q_key, group in group_by_question.items() if group == SURVEY_GROUP_SENTIMENT
+    ]
+    if not individual_questions and not sentiment_questions:
+        return
+
     if y_limits_base is None:
         y_limits_base = (-4, 4)
     if y_limits_avg is None:
         y_limits_avg = (0, 4)
-    base_questions_distances = {
+    individual_distances = {
         agent_id: {
-            question + 1: {"rounds": [], "distance": []}
-            for question in range(num_base_questions)
+            question: {"rounds": [], "distance": []}
+            for question in individual_questions
         }
         for agent_id in agent_ids
     }
-    distances = {agent_id: {"rounds": [], "distance": []} for agent_id in agent_ids}
+    sentiment_distances = {
+        agent_id: {"rounds": [], "distance": []} for agent_id in agent_ids
+    }
 
     for agent_id in agent_ids:
         public_agent_data = public_responses.get(agent_id, {})
@@ -161,27 +188,27 @@ def plot_survey_distance(
             sum_diff = 0
             count = 0
             for question in all_questions:
-                q_num = int(question.removeprefix("Q"))
-
                 public_score = public_round_data.get(question)
                 private_score = private_round_data.get(question)
-                
+
                 if public_score is None or private_score is None:
                     continue
                 response_diff = public_score - private_score
-                
-                if q_num <= num_base_questions:
-                    base_questions_distances[agent_id][q_num]["rounds"].append(my_round)
-                    base_questions_distances[agent_id][q_num]["distance"].append(response_diff)
-                else:
+
+                if question in individual_questions:
+                    individual_distances[agent_id][question]["rounds"].append(my_round)
+                    individual_distances[agent_id][question]["distance"].append(
+                        response_diff
+                    )
+                elif question in sentiment_questions:
                     sum_diff += abs(response_diff)
                     count += 1
 
             if count > 0:
-                distances[agent_id]["rounds"].append(my_round)
-                distances[agent_id]["distance"].append(sum_diff/count)
+                sentiment_distances[agent_id]["rounds"].append(my_round)
+                sentiment_distances[agent_id]["distance"].append(sum_diff / count)
 
-    n = num_base_questions + 1
+    n = len(individual_questions) + (1 if sentiment_questions else 0)
     ncols = min(6, n)
     nrows = math.ceil(n / ncols)
 
@@ -198,10 +225,10 @@ def plot_survey_distance(
 
     axes = axes.flatten() if n > 1 else [axes]
 
-    for ax, q_num in zip(axes, range(num_base_questions)):
+    for ax, q_key in zip(axes, individual_questions):
         question_rounds: set[int] = set()
         for agent_id in agent_ids:
-            agent_plot_data = base_questions_distances[agent_id][q_num + 1]
+            agent_plot_data = individual_distances[agent_id][q_key]
             if agent_plot_data["rounds"]:
                 ax.plot(
                     agent_plot_data["rounds"],
@@ -216,36 +243,33 @@ def plot_survey_distance(
         ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
         if question_rounds:
             ax.set_xticks(sorted(question_rounds))
-        max_length = 20
-        my_str = survey_questions[q_num]
-        truncated_str = my_str[:max_length] + "..." if len(my_str) > max_length else my_str
-        ax.set_title(truncated_str)
+        ax.set_title(_truncate_label(labels_by_question.get(q_key, q_key)))
         ax.grid(True)
         if y_limits_base is not None:
             ax.set_ylim(*y_limits_base)
-    
-    # Plot average distance for other questions
-    ax = axes[num_base_questions]
-    avg_rounds: set[int] = set()
-    for agent_id in agent_ids:
-        agent_plot_data = distances[agent_id]
-        if agent_plot_data["rounds"]:
-            ax.plot(
-                agent_plot_data["rounds"],
-                agent_plot_data["distance"],
-                marker="o",
-                label=agents_dict[agent_id],
-            )
-            avg_rounds.update(agent_plot_data["rounds"])
-    ax.axhline(0, color='grey', linewidth=0.8)
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-    ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
-    if avg_rounds:
-        ax.set_xticks(sorted(avg_rounds))
-    ax.set_title("Avg. Other Qs Dist.")
-    ax.grid(True)
-    if y_limits_avg is not None:
-        ax.set_ylim(*y_limits_avg)
+
+    if sentiment_questions:
+        ax = axes[len(individual_questions)]
+        avg_rounds: set[int] = set()
+        for agent_id in agent_ids:
+            agent_plot_data = sentiment_distances[agent_id]
+            if agent_plot_data["rounds"]:
+                ax.plot(
+                    agent_plot_data["rounds"],
+                    agent_plot_data["distance"],
+                    marker="o",
+                    label=agents_dict[agent_id],
+                )
+                avg_rounds.update(agent_plot_data["rounds"])
+        ax.axhline(0, color="grey", linewidth=0.8)
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+        if avg_rounds:
+            ax.set_xticks(sorted(avg_rounds))
+        ax.set_title("Avg. Sentiment Dist.")
+        ax.grid(True)
+        if y_limits_avg is not None:
+            ax.set_ylim(*y_limits_avg)
 
     fig.suptitle(title)
     fig.supxlabel("Turn Number")
@@ -256,6 +280,55 @@ def plot_survey_distance(
     fig.tight_layout(rect=[0, 0.03, 1, 0.9])
     fig.savefig(output_path, dpi=150, bbox_inches="tight")
     plt.close(fig)
+
+
+def _normalize_plot_question_specs(
+    survey_questions: list[str] | list[dict[str, str]] | dict[str, list[str]],
+) -> list[dict[str, str]]:
+    return normalize_survey_questions(
+        survey_questions, default_group=SURVEY_GROUP_DEFAULT
+    )
+
+
+def _build_question_panels(
+    question_specs: list[dict[str, str]],
+    available_questions: Iterable[str],
+) -> list[dict[str, Any]]:
+    available = set(available_questions)
+    panels: list[dict[str, Any]] = []
+    sentiment_keys: list[str] = []
+
+    for index, spec in enumerate(question_specs, start=1):
+        q_key = f"Q{index}"
+        if q_key not in available:
+            continue
+        if spec["group"] == SURVEY_GROUP_SENTIMENT:
+            sentiment_keys.append(q_key)
+            continue
+        panels.append({"label": spec["text"], "questions": [q_key]})
+
+    if sentiment_keys:
+        panels.append({"label": "Avg. Sentiment", "questions": sentiment_keys})
+
+    known_questions = {f"Q{index}" for index in range(1, len(question_specs) + 1)}
+    for q_key in sorted(available - known_questions):
+        panels.append({"label": q_key, "questions": [q_key]})
+
+    return panels
+
+
+def _survey_panel_value(round_data: dict[str, Any], questions: list[str]) -> float | None:
+    values = [round_data.get(question) for question in questions]
+    present_values = [value for value in values if value is not None]
+    if not present_values:
+        return None
+    if len(questions) == 1:
+        return present_values[0]
+    return sum(present_values) / len(present_values)
+
+
+def _truncate_label(label: str, max_length: int = 20) -> str:
+    return label[:max_length] + "..." if len(label) > max_length else label
 
 
 def plot_persona_adherence(
@@ -435,4 +508,3 @@ def plot_persona_adherence(
         plt.close(fig)
 
     return fig
-

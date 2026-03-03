@@ -10,13 +10,15 @@
     "post_interview_instruction": "In one sentence, summarize how it went.",
     "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
     "survey_private_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
-    "survey_questions": [
-      "I agree with the other participant.",
-      "I am confident in the position I've taken in this discussion.",
-      "I respect the other participant.",
-      "I am interested in what the other participant has to say.",
-      "There is tension between myself and the other participant."
-    ]
+    "survey_questions": {
+      "default": [
+        "I agree with the other participant.",
+        "I am confident in the position I've taken in this discussion.",
+        "I respect the other participant.",
+        "I am interested in what the other participant has to say.",
+        "There is tension between myself and the other participant."
+      ]
+    }
   },
   "custom": {}
 }

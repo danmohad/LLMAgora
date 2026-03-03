@@ -68,7 +68,7 @@ def _catalog_payload():
                     "prompt": "Q prompt",
                 },
                 "survey": {
-                    "shared_public_private": ["scenario survey"],
+                    "shared_public_private": {"direct": ["scenario survey"]},
                 },
                 "sides": {
                     "Persona One": {
@@ -132,7 +132,7 @@ def _prompt_payload():
             "post_interview_instruction": "post",
             "survey_public_prompt": "pub survey",
             "survey_private_prompt": "priv survey",
-            "survey_questions": ["default survey"],
+            "survey_questions": {"default": ["default survey"]},
         }
     }
     return payload
