@@ -97,7 +97,7 @@ def plot_survey_responses(
         ax.grid(True)
 
     # Hide unused subplots
-    for ax in axes[len(questions) :]:
+    for ax in axes[n:]:
         ax.set_visible(False)
 
     fig.suptitle(title)
@@ -270,6 +270,9 @@ def plot_survey_distance(
         ax.grid(True)
         if y_limits_avg is not None:
             ax.set_ylim(*y_limits_avg)
+
+    for ax in axes[n:]:
+        ax.set_visible(False)
 
     fig.suptitle(title)
     fig.supxlabel("Turn Number")

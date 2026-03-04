@@ -89,6 +89,41 @@ def test_plot_survey_responses_hides_unused_subplots(tmp_path, monkeypatch):
     assert axes_list[6].get_visible() is False
 
 
+def test_plot_survey_responses_hides_unused_grouped_subplots(tmp_path, monkeypatch):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    responses = {
+        "a": {
+            0: {f"Q{i}": i for i in range(1, 12)},
+            1: {f"Q{i}": i + 1 for i in range(1, 12)},
+        }
+    }
+    questions = {
+        "default": [f"Question {i}" for i in range(1, 7)],
+        "sentiment": [f"Sentiment {i}" for i in range(7, 12)],
+    }
+
+    real_subplots = plt.subplots
+    captured: dict[str, object] = {}
+
+    def capturing_subplots(*args, **kwargs):
+        fig, axes = real_subplots(*args, **kwargs)
+        captured["axes"] = axes
+        return fig, axes
+
+    monkeypatch.setattr(plt, "subplots", capturing_subplots)
+    monkeypatch.setattr(plt, "close", lambda *_args, **_kwargs: None)
+
+    plot_survey_responses(responses, agents, questions, "Survey", output_path)
+
+    axes = captured["axes"]
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    assert output_path.exists()
+    assert axes_list[6].get_visible() is True
+    assert all(ax.get_visible() is False for ax in axes_list[7:])
+
+
 def test_plot_survey_distance_no_agents(tmp_path):
     matplotlib.use("Agg", force=True)
     output_path = tmp_path / "plot.png"
@@ -193,6 +228,52 @@ def test_plot_survey_distance_with_extra_questions(tmp_path):
     )
     assert output_path.exists()
     assert output_path.stat().st_size > 0
+
+
+def test_plot_survey_distance_hides_unused_grouped_subplots(tmp_path, monkeypatch):
+    matplotlib.use("Agg", force=True)
+    output_path = tmp_path / "plot.png"
+    agents = [SimpleNamespace(id="a", name="Alpha")]
+    public_responses = {
+        "a": {
+            0: {f"Q{i}": i for i in range(1, 13)},
+        }
+    }
+    private_responses = {
+        "a": {
+            0: {f"Q{i}": i - 1 for i in range(1, 13)},
+        }
+    }
+    questions = {
+        "default": [f"Question {i}" for i in range(1, 8)],
+        "sentiment": [f"Sentiment {i}" for i in range(8, 13)],
+    }
+
+    real_subplots = plt.subplots
+    captured: dict[str, object] = {}
+
+    def capturing_subplots(*args, **kwargs):
+        fig, axes = real_subplots(*args, **kwargs)
+        captured["axes"] = axes
+        return fig, axes
+
+    monkeypatch.setattr(plt, "subplots", capturing_subplots)
+    monkeypatch.setattr(plt, "close", lambda *_args, **_kwargs: None)
+
+    plot_survey_distance(
+        public_responses,
+        private_responses,
+        agents,
+        questions,
+        "Distance",
+        output_path,
+    )
+
+    axes = captured["axes"]
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    assert output_path.exists()
+    assert axes_list[7].get_visible() is True
+    assert all(ax.get_visible() is False for ax in axes_list[8:])
 
 
 def test_plot_survey_distance_sets_distinct_y_limits(tmp_path, monkeypatch):
