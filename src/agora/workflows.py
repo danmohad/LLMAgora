@@ -337,8 +337,7 @@ def build_scenario_agent_configs(
     *,
     scenario_id: str,
     catalog: dict,
-    alpha_model: str,
-    beta_model: str,
+    model: str,
     incentive_direction: Optional[str] = None,
     incentive_type: str = "historical",
     base_prompt: Optional[str] = None,
@@ -461,7 +460,7 @@ def build_scenario_agent_configs(
     return [
         {
             "name": "Alpha",
-            "model": alpha_model,
+            "model": model,
             "self_role": alpha_self_role,
             "perceived_nonself_roles": [{"name": "Beta", "role": alpha_perceives_beta}],
             "response_instruction": public_instruction,
@@ -491,7 +490,7 @@ def build_scenario_agent_configs(
         },
         {
             "name": "Beta",
-            "model": beta_model,
+            "model": model,
             "self_role": beta_self_role,
             "perceived_nonself_roles": [
                 {"name": "Alpha", "role": beta_perceives_alpha}

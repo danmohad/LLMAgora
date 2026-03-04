@@ -288,13 +288,13 @@ def test_persona_builder_uses_catalogues():
     configs = build_scenario_agent_configs(
         scenario_id="promotion_committee_max_divergence",
         catalog=catalog,
-        alpha_model="alpha-model",
-        beta_model="beta-model",
+        model="shared-model",
         incentive_direction="positive",
         incentive_type="historical",
     )
 
-    assert configs[0]["model"] == "alpha-model"
+    assert configs[0]["model"] == "shared-model"
+    assert configs[1]["model"] == "shared-model"
     assert "Persona" in configs[0]["self_role"] or "persona" in configs[0]["self_role"].lower()
     assert "Additional scenario context" in configs[0]["self_role"]
 
@@ -302,8 +302,7 @@ def test_persona_builder_uses_catalogues():
         build_scenario_agent_configs(
             scenario_id="missing",
             catalog=catalog,
-            alpha_model="alpha-model",
-            beta_model="beta-model",
+            model="shared-model",
         )
 
 
@@ -313,8 +312,7 @@ def test_persona_builder_honors_keep_flags():
     configs = build_scenario_agent_configs(
         scenario_id="promotion_committee_max_divergence",
         catalog=catalog,
-        alpha_model="alpha-model",
-        beta_model="beta-model",
+        model="shared-model",
         private_response_keep=False,
         pre_interview_keep=True,
         post_interview_keep=True,

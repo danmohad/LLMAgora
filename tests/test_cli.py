@@ -33,8 +33,9 @@ def _result(run_dir: Optional[Path], run_id=None):
 
 def test_build_parser_registers_run_subcommand():
     parser = cli.build_parser()
-    args = parser.parse_args(["run", "--scenario-id", "s1"])
+    args = parser.parse_args(["run", "--scenario-id", "s1", "--model", "shared"])
     assert args.func is cli._run
+    assert args.model == "shared"
     args_incentive = parser.parse_args(
         ["run", "--scenario-id", "s1", "--incentive-direction", "none"]
     )
@@ -115,8 +116,7 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         incentive_direction=None,
         incentive_type=None,
         prompt_set=None,
-        alpha_model=None,
-        beta_model=None,
+        model="shared-model",
         num_turns=None,
         subturn_event_order=None,
         verbose=None,
@@ -152,6 +152,7 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
     assert captured["config_path"] == args.config
     assert captured["base"] == asdict(cfg_from_file)
     assert captured["overrides"]["scenario_id"] == "override-scenario"
+    assert captured["overrides"]["model"] == "shared-model"
     assert captured["overrides"]["semantic_analysis_metrics"] == []
     assert captured["overrides"]["semantic_similarity_method"] == "nli"
     assert captured["overrides"]["semantic_similarity_model"] == "dleemiller/finecat-nli-l"
@@ -186,8 +187,7 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         incentive_direction="positive",
         incentive_type="future",
         prompt_set="default",
-        alpha_model="a",
-        beta_model="b",
+        model="shared-model",
         num_turns=2,
         subturn_event_order=["public_utterance"],
         verbose=False,
@@ -221,6 +221,7 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
     cli._run(args)
 
     assert captured["payload"]["scenario_id"] == "from-flags"
+    assert captured["payload"]["model"] == "shared-model"
     assert captured["called"] is True
 
 
@@ -243,8 +244,7 @@ def test_run_with_config_can_clear_incentive_direction(tmp_path, monkeypatch):
         incentive_direction="none",
         incentive_type=None,
         prompt_set=None,
-        alpha_model=None,
-        beta_model=None,
+        model=None,
         num_turns=None,
         subturn_event_order=None,
         verbose=None,
@@ -295,8 +295,7 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
         incentive_direction="none",
         incentive_type="historical",
         prompt_set="default",
-        alpha_model="a",
-        beta_model="b",
+        model="shared-model",
         num_turns=2,
         subturn_event_order=["public_utterance"],
         verbose=False,

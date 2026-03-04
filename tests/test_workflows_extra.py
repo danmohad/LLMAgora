@@ -294,13 +294,14 @@ def test_build_scenario_agent_configs_applies_incentive_and_persona_fields():
     configs = build_scenario_agent_configs(
         scenario_id="s1",
         catalog=_catalog_for_builder(),
-        alpha_model="alpha",
-        beta_model="beta",
+        model="shared-model",
         incentive_direction="positive",
         incentive_type="historical",
         prompt_set="custom",
         prompt_catalog=_prompt_catalog_for_builder(),
     )
+    assert configs[0]["model"] == "shared-model"
+    assert configs[1]["model"] == "shared-model"
     assert configs[0]["self_role"].startswith("A:Q:A persona")
     assert "|INC:A pos hist|" in configs[0]["self_role"]
     assert "|INC:B pos hist|" in configs[1]["self_role"]
@@ -312,8 +313,7 @@ def test_build_scenario_agent_configs_accepts_optional_private_instruction_and_n
     configs = build_scenario_agent_configs(
         scenario_id="s1",
         catalog=_catalog_for_builder(),
-        alpha_model="alpha",
-        beta_model="beta",
+        model="shared-model",
         prompt_set="custom",
         prompt_catalog=_prompt_catalog_for_builder(private_instruction=None),
         survey_questions=["q1"],
@@ -330,8 +330,7 @@ def test_build_scenario_agent_configs_rejects_unknown_scenario():
         build_scenario_agent_configs(
             scenario_id="missing",
             catalog=_catalog_for_builder(),
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             prompt_set=DEFAULT_PROMPT_SET,
         )
 
@@ -344,8 +343,7 @@ def test_build_scenario_agent_configs_requires_question_and_two_sides():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=bad_catalog_no_question,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
         )
@@ -359,8 +357,7 @@ def test_build_scenario_agent_configs_requires_question_and_two_sides():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=bad_catalog_no_prompt,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
         )
@@ -378,8 +375,7 @@ def test_build_scenario_agent_configs_requires_question_and_two_sides():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=bad_catalog_one_side,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
         )
@@ -390,8 +386,7 @@ def test_build_scenario_agent_configs_rejects_invalid_incentive_selector():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=_catalog_for_builder(),
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="bad",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
@@ -400,8 +395,7 @@ def test_build_scenario_agent_configs_rejects_invalid_incentive_selector():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=_catalog_for_builder(),
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="positive",
             incentive_type="bad",
             prompt_set="custom",
@@ -416,8 +410,7 @@ def test_build_scenario_agent_configs_requires_incentive_module_parts():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=catalog_missing_modules,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="positive",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
@@ -429,8 +422,7 @@ def test_build_scenario_agent_configs_requires_incentive_module_parts():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=catalog_missing_direction,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="positive",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
@@ -442,8 +434,7 @@ def test_build_scenario_agent_configs_requires_incentive_module_parts():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=catalog_missing_type,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="positive",
             incentive_type="future",
             prompt_set="custom",
@@ -456,8 +447,7 @@ def test_build_scenario_agent_configs_requires_incentive_module_parts():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=catalog_missing_views,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="positive",
             incentive_type="historical",
             prompt_set="custom",
@@ -470,8 +460,7 @@ def test_build_scenario_agent_configs_requires_incentive_module_parts():
         build_scenario_agent_configs(
             scenario_id="s1",
             catalog=catalog_missing_side_view,
-            alpha_model="alpha",
-            beta_model="beta",
+            model="shared-model",
             incentive_direction="positive",
             incentive_type="historical",
             prompt_set="custom",

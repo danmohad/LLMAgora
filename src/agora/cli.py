@@ -39,8 +39,7 @@ def _run(args: argparse.Namespace) -> None:
         "scenario_id": args.scenario_id,
         "incentive_type": args.incentive_type,
         "prompt_set": args.prompt_set,
-        "alpha_model": args.alpha_model,
-        "beta_model": args.beta_model,
+        "model": args.model,
         "num_turns": args.num_turns,
         "subturn_event_order": args.subturn_event_order,
         "verbose": args.verbose,
@@ -125,8 +124,7 @@ def build_parser() -> argparse.ArgumentParser:
     run_cmd.add_argument("--incentive-direction", choices=["positive", "negative", "none"])
     run_cmd.add_argument("--incentive-type", choices=["historical", "future"])
     run_cmd.add_argument("--prompt-set")
-    run_cmd.add_argument("--alpha-model")
-    run_cmd.add_argument("--beta-model")
+    run_cmd.add_argument("--model")
     run_cmd.add_argument("--num-turns", type=int)
     run_cmd.add_argument(
         "--subturn-event-order",
