@@ -12,9 +12,21 @@ class QueueLLM:
         self._responses = list(responses)
         self.calls = []
 
-    def complete(self, *, messages, model, survey_questions=None):
+    def complete(
+        self,
+        *,
+        messages,
+        model,
+        survey_questions=None,
+        survey_question_groups=None,
+    ):
         self.calls.append(
-            {"messages": list(messages), "model": model, "survey_questions": survey_questions}
+            {
+                "messages": list(messages),
+                "model": model,
+                "survey_questions": survey_questions,
+                "survey_question_groups": survey_question_groups,
+            }
         )
         return self._responses.pop(0)
 
@@ -69,18 +81,21 @@ def test_agent_survey_requires_prompt_private():
 
 
 def test_agent_generate_survey_passes_questions():
-    llm_client = QueueLLM([json.dumps({"Q1": "Neutral"})])
+    llm_client = QueueLLM([json.dumps({"Q1": "Yes"})])
     agent = Agent(
         name="Solo",
         model="demo",
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_public_prompt="Base\n",
+        survey_question_groups={"Q1": "direct"},
+        survey_public_prompt="Base\n{scale}\n",
     )
     agent.generate_public_survey_response(["q1"])
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
-    assert "Q1." in llm_client.calls[0]["messages"][-1]["content"]
+    assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "direct"}
+    assert "Use the following binary scale:" in llm_client.calls[0]["messages"][-1]["content"]
+    assert "Q1. [Yes/No] q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 def test_agent_generate_survey_passes_questions_private():
     llm_client = QueueLLM([json.dumps({"Q1": "Neutral"})])
@@ -90,11 +105,14 @@ def test_agent_generate_survey_passes_questions_private():
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_private_prompt="Base\n",
+        survey_question_groups={"Q1": "sentiment"},
+        survey_private_prompt="Base\n{scale}\n",
     )
     agent.generate_private_survey_response(["q1"])
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
-    assert "Q1." in llm_client.calls[0]["messages"][-1]["content"]
+    assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "sentiment"}
+    assert "Strongly disagree" in llm_client.calls[0]["messages"][-1]["content"]
+    assert "Q1. [Likert] q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 
 def test_agent_survey_generation_rejects_disabled_modes():

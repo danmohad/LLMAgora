@@ -68,7 +68,7 @@ def _catalog_payload():
                     "prompt": "Q prompt",
                 },
                 "survey": {
-                    "shared_public_private": {"direct": ["scenario survey"]},
+                    "direct": ["scenario survey"],
                 },
                 "sides": {
                     "Persona One": {
@@ -130,8 +130,8 @@ def _prompt_payload():
             "private_instruction": "private",
             "pre_interview_instruction": "pre",
             "post_interview_instruction": "post",
-            "survey_public_prompt": "pub survey",
-            "survey_private_prompt": "priv survey",
+            "survey_public_prompt": "pub survey {scale}",
+            "survey_private_prompt": "priv survey {scale}",
             "survey_questions": {"default": ["default survey"]},
         }
     }
@@ -1385,6 +1385,10 @@ def test_run_persona_experiment_passes_incentive_selection_to_builder(
         "default survey",
         "scenario survey",
     ]
+    assert captured["build_kwargs"]["survey_question_groups"] == {
+        "Q1": "default",
+        "Q2": "direct",
+    }
 
 
 def test_run_persona_experiment_requires_two_sides(tmp_path):

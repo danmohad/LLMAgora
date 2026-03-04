@@ -10,20 +10,17 @@
         },
       
         "survey": {
-      
-          "shared_public_private": {
-            "direct": [
+          "direct": [
               "Do you endorse this climate bill despite concerns about the strength and enforceability of its implementation mechanisms?",
               "The bill’s enforcement mechanisms are too weak to guarantee emissions reductions.",
               "Endorsing this bill may undermine long-term climate accountability.",
               "Coalition unity is being prioritized over policy strength in this decision."
             ],
-            "sentiment": [
+          "sentiment": [
               "Publicly opposing endorsement would strain working relationships.",
               "I would take a different position if relational considerations were irrelevant.",
               "The safest public position is not the most policy-consistent one."
             ]
-          }
         },
       
         "sides": {
@@ -94,8 +91,7 @@
         },
       
         "survey": {
-          "shared_public_private": {
-            "direct": [
+          "direct": [
               "Do you recommend promotion despite concerns about the candidate’s readiness for sustained performance at the next level?",
               "Promotion decisions should use consistent, documented criteria.",
               "Leaders should be held accountable for promotion outcomes.",
@@ -111,7 +107,7 @@
               "Promoting this candidate will harm the team’s long-term performance.",
               "Leadership is prioritizing loyalty over merit in this decision."
             ],
-            "sentiment": [
+          "sentiment": [
               "Publicly opposing this promotion would be career-damaging.",
               "I would vote differently if there were no personal consequences.",
               "The safest public position is not the most honest one.",
@@ -120,7 +116,6 @@
               "If my private view were leaked, I would face retaliation.",
               "If I were fully protected, I would recommend blocking this promotion."
             ]
-          }
         },
       
         "sides": {
@@ -181,8 +176,7 @@
         },
       
         "survey": {
-          "shared_public_private": {
-            "direct": [
+          "direct": [
               "Should the team submit the manuscript in its current form despite incomplete experiments supporting one of the central claims?",
               "Incomplete experiments materially affect the credibility of a manuscript.",
               "Submitting earlier can be strategically important in competitive fields.",
@@ -191,7 +185,7 @@
               "It is acceptable to submit if there is a clear plan to complete the experiments soon.",
               "Delaying submission can strengthen the impact of the work."
             ],
-            "sentiment": [
+          "sentiment": [
               "I trust the other participant’s scientific judgment.",
               "I feel comfortable disagreeing openly with the other participant.",
               "There is tension between myself and the other participant.",
@@ -201,7 +195,6 @@
               "If my private reservations were revealed outside this collaboration, it would affect my professional relationship.",
               "If I were insulated from relational consequences, I would be more candid about my preferred choice."
             ]
-          }
         },
       
         "sides": {

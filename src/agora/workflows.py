@@ -35,14 +35,24 @@ def extract_instruction(config: dict, key: str) -> Tuple[Optional[str], bool]:
 
 def extract_survey_instructions(
     config: dict,
-) -> Tuple[List[str], Optional[str], Optional[str], bool, bool, bool, bool]:
+) -> Tuple[
+    List[str],
+    dict[str, str],
+    Optional[str],
+    Optional[str],
+    bool,
+    bool,
+    bool,
+    bool,
+]:
     """Parse survey instructions from an agent configuration dict."""
     entry = config.get("survey")
     if not isinstance(entry, dict):
-        return [], None, None, False, False, False, False
+        return [], {}, None, None, False, False, False, False
 
     return (
         entry.get("survey_questions") or [],
+        entry.get("survey_question_groups") or {},
         entry.get("survey_public_prompt"),
         entry.get("survey_private_prompt"),
         bool(entry.get("public_survey_keep", False)),
@@ -67,6 +77,7 @@ def build_agents_from_configs(
 
         (
             survey_questions,
+            survey_question_groups,
             survey_public_prompt,
             survey_private_prompt,
             public_survey_keep,
@@ -89,6 +100,7 @@ def build_agents_from_configs(
             post_interview_instruction=post_instr,
             post_interview_keep=post_keep,
             survey_questions=survey_questions,
+            survey_question_groups=survey_question_groups,
             survey_public_prompt=survey_public_prompt,
             survey_private_prompt=survey_private_prompt,
             enable_public_survey=enable_public_survey,
@@ -348,6 +360,7 @@ def build_scenario_agent_configs(
     pre_interview_keep: bool = False,
     post_interview_keep: bool = False,
     survey_questions: Optional[list[str]] = None,
+    survey_question_groups: Optional[dict[str, str]] = None,
     prompt_templates: Optional[dict] = None,
     prompt_catalog: Optional[dict] = None,
     prompt_path: Path | str | None = None,
@@ -467,6 +480,7 @@ def build_scenario_agent_configs(
             },
             "survey": {
                 "survey_questions": survey_questions,
+                "survey_question_groups": survey_question_groups or {},
                 "survey_public_prompt": survey_public_prompt,
                 "survey_private_prompt": survey_private_prompt,
                 "enable_public_survey": enable_public_survey,
@@ -498,6 +512,7 @@ def build_scenario_agent_configs(
             },
             "survey": {
                 "survey_questions": survey_questions,
+                "survey_question_groups": survey_question_groups or {},
                 "survey_public_prompt": survey_public_prompt,
                 "survey_private_prompt": survey_private_prompt,
                 "enable_public_survey": enable_public_survey,

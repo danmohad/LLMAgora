@@ -8,8 +8,8 @@
     "private_instruction": "Write your off-the-record notes about the other participant's position. These notes are confidential and will not be shared with the other participant\n- Keep it to 1-2 sentences.",
     "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
     "post_interview_instruction": "In one sentence, summarize how it went.",
-    "survey_public_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
-    "survey_private_prompt": "Respond to the following questions.\n\nUse the following Likert scale:\n- Strongly disagree\n- Disagree\n- Neutral\n- Agree\n- Strongly agree\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
+    "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
+    "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
     "survey_questions": {
       "default": [
         "I agree with the other participant.",

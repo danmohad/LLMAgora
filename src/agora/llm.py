@@ -2,11 +2,15 @@
 
 import json
 import os
-from typing import Any, Dict, List, Optional, Protocol, Sequence, TypedDict
+from typing import Any, Dict, List, Mapping, Optional, Protocol, Sequence, TypedDict
 
 import httpx
 
-from .survey import build_likert_survey_schema
+from .survey import (
+    SURVEY_GROUP_DEFAULT,
+    build_likert_survey_schema,
+    build_survey_response_schema,
+)
 
 
 class ChatMessage(TypedDict):
@@ -25,6 +29,7 @@ class LLMClient(Protocol):
         messages: Sequence[ChatMessage],
         model: str,
         survey_questions: Sequence[str] = None,
+        survey_question_groups: Mapping[str, str] | None = None,
     ) -> str:
         """Return the chat completion text for the provided conversation."""
 
@@ -60,13 +65,23 @@ class OpenRouterClient:
         messages: Sequence[ChatMessage],
         model: str,
         survey_questions: Sequence[str] = None,
+        survey_question_groups: Mapping[str, str] | None = None,
     ) -> str:
         """Submit a chat completion request and return the LLM's reply. If 'survey_questions' are supplied, then a structured response is requested."""
 
         if survey_questions is not None:
-            survey_schema = build_likert_survey_schema(
-                num_questions=len(survey_questions)
-            )
+            if survey_question_groups:
+                full_question_groups = {
+                    f"Q{i}": survey_question_groups.get(
+                        f"Q{i}", SURVEY_GROUP_DEFAULT
+                    )
+                    for i in range(1, len(survey_questions) + 1)
+                }
+                survey_schema = build_survey_response_schema(full_question_groups)
+            else:
+                survey_schema = build_likert_survey_schema(
+                    num_questions=len(survey_questions)
+                )
             payload: Dict[str, Any] = {
                 "model": model,
                 "messages": list(messages),

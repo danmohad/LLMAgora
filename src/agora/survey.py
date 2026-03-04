@@ -17,6 +17,16 @@ LIKERT_TO_SCORE = {
     "Strongly agree": 2,
 }
 
+BINARY_VALUES = [
+    "No",
+    "Yes",
+]
+
+BINARY_TO_SCORE = {
+    "No": -1,
+    "Yes": 1,
+}
+
 SURVEY_GROUP_DEFAULT = "default"
 SURVEY_GROUP_DIRECT = "direct"
 SURVEY_GROUP_SENTIMENT = "sentiment"
@@ -88,6 +98,45 @@ def survey_question_groups(question_specs: list[dict[str, str]]) -> dict[str, st
     }
 
 
+def survey_group_scale_label(group: str) -> str:
+    """Return a short human-readable label for the response scale."""
+
+    if group == SURVEY_GROUP_DIRECT:
+        return "Yes/No"
+    return "Likert"
+
+
+def build_survey_scale_prompt(question_groups: dict[str, str]) -> str:
+    """Render survey scale instructions for the configured question groups."""
+
+    if not question_groups:
+        return _single_scale_prompt(LIKERT_VALUES, scale_name="Likert")
+
+    likert_questions = [
+        q_key
+        for q_key, group in _sorted_question_groups(question_groups)
+        if group != SURVEY_GROUP_DIRECT
+    ]
+    binary_questions = [
+        q_key
+        for q_key, group in _sorted_question_groups(question_groups)
+        if group == SURVEY_GROUP_DIRECT
+    ]
+
+    if not binary_questions:
+        return _single_scale_prompt(LIKERT_VALUES, scale_name="Likert")
+    if not likert_questions:
+        return _single_scale_prompt(BINARY_VALUES, scale_name="binary")
+
+    return "\n".join(
+        [
+            "Use the following response scales:",
+            f"- {_format_question_refs(likert_questions)}: {_format_scale_values(LIKERT_VALUES)}",
+            f"- {_format_question_refs(binary_questions)}: {_format_scale_values(BINARY_VALUES)}",
+        ]
+    )
+
+
 def _normalize_survey_question_entry(
     entry: Any,
     *,
@@ -110,16 +159,25 @@ def build_likert_survey_schema(num_questions: int):
     """
     Build a strict JSON Schema for a Likert survey with Q1..Q{num_q}.
     """
+    question_groups = {
+        f"Q{i}": SURVEY_GROUP_DEFAULT for i in range(1, num_questions + 1)
+    }
+    return build_survey_response_schema(question_groups)
+
+
+def build_survey_response_schema(question_groups: dict[str, str]):
+    """Build a strict JSON Schema for a mixed-scale survey."""
+
     properties = {
-        f"Q{i}": {
+        q_key: {
             "type": "string",
-            "enum": LIKERT_VALUES,
+            "enum": _response_values_for_group(group),
         }
-        for i in range(1, num_questions + 1)
+        for q_key, group in _sorted_question_groups(question_groups)
     }
 
     return {
-        "name": f"likert_survey_{num_questions}_questions",
+        "name": f"survey_{len(properties)}_questions",
         "strict": True,
         "schema": {
             "type": "object",
@@ -130,9 +188,12 @@ def build_likert_survey_schema(num_questions: int):
     }
 
 
-def parse_survey_response_str(response_str: str) -> dict[str, int]:
+def parse_survey_response_str(
+    response_str: str,
+    question_groups: dict[str, str] | None = None,
+) -> dict[str, int]:
     """
-    Parse and validate a Likert survey response provided as a JSON string.
+    Parse and validate a survey response provided as a JSON string.
     """
 
     # --- Deserialize JSON ---
@@ -141,6 +202,81 @@ def parse_survey_response_str(response_str: str) -> dict[str, int]:
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid JSON returned by model: {response_str}") from e
 
-    numeric_scores = {q: LIKERT_TO_SCORE[a] for q, a in survey_answers.items()}
+    numeric_scores = {
+        q: _answer_to_score(
+            answer,
+            group=question_groups.get(q, SURVEY_GROUP_DEFAULT)
+            if question_groups
+            else SURVEY_GROUP_DEFAULT,
+        )
+        for q, answer in survey_answers.items()
+    }
 
     return numeric_scores
+
+
+def _response_values_for_group(group: str) -> list[str]:
+    if group == SURVEY_GROUP_DIRECT:
+        return BINARY_VALUES
+    if group in {SURVEY_GROUP_DEFAULT, SURVEY_GROUP_SENTIMENT}:
+        return LIKERT_VALUES
+    raise ValueError(f"Unknown survey group: {group}")
+
+
+def _answer_to_score(answer: str, *, group: str) -> int:
+    if group == SURVEY_GROUP_DIRECT:
+        return BINARY_TO_SCORE[answer]
+    if group in {SURVEY_GROUP_DEFAULT, SURVEY_GROUP_SENTIMENT}:
+        return LIKERT_TO_SCORE[answer]
+    raise ValueError(f"Unknown survey group: {group}")
+
+
+def _sorted_question_groups(question_groups: dict[str, str]) -> list[tuple[str, str]]:
+    return sorted(
+        question_groups.items(),
+        key=lambda item: _question_sort_key(item[0]),
+    )
+
+
+def _question_sort_key(question_key: str) -> int:
+    return int(question_key.removeprefix("Q"))
+
+
+def _single_scale_prompt(values: list[str], *, scale_name: str) -> str:
+    return "\n".join(
+        [
+            f"Use the following {scale_name} scale:",
+            *[f"- {value}" for value in values],
+        ]
+    )
+
+
+def _format_scale_values(values: list[str]) -> str:
+    return " / ".join(values)
+
+
+def _format_question_refs(question_keys: list[str]) -> str:
+    if not question_keys:
+        return ""
+
+    question_numbers = [_question_sort_key(question_key) for question_key in question_keys]
+    ranges: list[str] = []
+    range_start = question_numbers[0]
+    range_end = question_numbers[0]
+
+    for question_number in question_numbers[1:]:
+        if question_number == range_end + 1:
+            range_end = question_number
+            continue
+        ranges.append(_format_question_ref_range(range_start, range_end))
+        range_start = question_number
+        range_end = question_number
+
+    ranges.append(_format_question_ref_range(range_start, range_end))
+    return ", ".join(ranges)
+
+
+def _format_question_ref_range(start: int, end: int) -> str:
+    if start == end:
+        return f"Q{start}"
+    return f"Q{start}-Q{end}"
