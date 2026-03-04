@@ -12,11 +12,13 @@
     "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
     "survey_questions": {
       "default": [
-        "I agree with the other participant.",
-        "I am confident in the position I've taken in this discussion.",
+        "I agree with the overall position of the other participant.",
+        "I am confident in the position I have taken.",
         "I respect the other participant.",
-        "I am interested in what the other participant has to say.",
-        "There is tension between myself and the other participant."
+        "The other participant raised points worth considering.",
+        "There is tension between me and the other participant",
+        "The other participant is engaging in this discussion in good faith.",
+        "The other participant's arguments affected my thinking."
       ]
     }
   },
