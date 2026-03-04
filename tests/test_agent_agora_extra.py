@@ -115,6 +115,31 @@ def test_agent_generate_survey_passes_questions_private():
     assert "Q1. [Likert] q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 
+def test_agent_generate_survey_expands_partial_question_groups():
+    llm_client = QueueLLM([json.dumps({"Q1": "Neutral", "Q2": "Yes"})])
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=llm_client,
+        response_instruction="respond",
+        survey_questions=["q1", "q2"],
+        survey_question_groups={"Q2": "direct"},
+        survey_public_prompt="Base\n{scale}\n",
+    )
+
+    agent.generate_public_survey_response(["q1", "q2"])
+
+    assert llm_client.calls[0]["survey_question_groups"] == {
+        "Q1": "default",
+        "Q2": "direct",
+    }
+    prompt = llm_client.calls[0]["messages"][-1]["content"]
+    assert "- Q1: Strongly disagree / Disagree / Neutral / Agree / Strongly agree" in prompt
+    assert "- Q2: No / Yes" in prompt
+    assert "Q1. [Likert] q1" in prompt
+    assert "Q2. [Yes/No] q2" in prompt
+
+
 def test_agent_survey_generation_rejects_disabled_modes():
     agent = Agent(
         name="Solo",

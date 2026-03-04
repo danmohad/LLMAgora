@@ -228,12 +228,15 @@ class Agent:
         """Ask the LLM client for a public survey response with JSON structured format."""
         if not self._enable_public_survey:
             raise RuntimeError("Public survey requested but disabled for this agent")
+        resolved_question_groups = self._resolved_survey_question_groups(
+            survey_questions
+        )
         survey_prompt = self.survey_public_prompt.replace(
             "{scale}",
-            build_survey_scale_prompt(self._survey_question_groups),
+            build_survey_scale_prompt(resolved_question_groups),
         )
         for i, q in enumerate(survey_questions, start=1):
-            group = self._survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
             survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
         messages = self._build_messages(final_instruction=survey_prompt)
@@ -241,7 +244,7 @@ class Agent:
             messages=messages,
             model=self.model,
             survey_questions=survey_questions,
-            survey_question_groups=self._survey_question_groups,
+            survey_question_groups=resolved_question_groups,
         )
         cleaned = self._strip_speaker_prefix(response.strip())
         return self._normalize_apostrophes(cleaned)
@@ -250,12 +253,15 @@ class Agent:
         """Ask the LLM client for a private survey response with JSON structured format."""
         if not self._enable_private_survey:
             raise RuntimeError("Private survey requested but disabled for this agent")
+        resolved_question_groups = self._resolved_survey_question_groups(
+            survey_questions
+        )
         survey_prompt = self.survey_private_prompt.replace(
             "{scale}",
-            build_survey_scale_prompt(self._survey_question_groups),
+            build_survey_scale_prompt(resolved_question_groups),
         )
         for i, q in enumerate(survey_questions, start=1):
-            group = self._survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
             survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
         messages = self._build_messages(final_instruction=survey_prompt)
@@ -263,7 +269,7 @@ class Agent:
             messages=messages,
             model=self.model,
             survey_questions=survey_questions,
-            survey_question_groups=self._survey_question_groups,
+            survey_question_groups=resolved_question_groups,
         )
         cleaned = self._strip_speaker_prefix(response.strip())
         return self._normalize_apostrophes(cleaned)
@@ -376,6 +382,21 @@ class Agent:
             return text
         normalized = text.replace("\\u2019", "'").replace("\\u2018", "'")
         return normalized.replace("\u2019", "'").replace("\u2018", "'")
+
+    def _resolved_survey_question_groups(
+        self,
+        survey_questions: Sequence[str],
+    ) -> dict[str, str]:
+        """Fill missing survey question groups with the default Likert group."""
+
+        if not self._survey_question_groups:
+            return {}
+        return {
+            f"Q{i}": self._survey_question_groups.get(
+                f"Q{i}", SURVEY_GROUP_DEFAULT
+            )
+            for i in range(1, len(survey_questions) + 1)
+        }
 
 
 def build_system_prompt(config: Dict[str, Any], *, total_agents: int) -> str:
