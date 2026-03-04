@@ -146,12 +146,14 @@ def test_build_experiment_config_and_helpers(tmp_path):
     cfg = build_experiment_config(
         {
             "scenario_id": "s1",
+            "model": "shared-model",
             "outputs_root": str(tmp_path / "outputs"),
             "catalog_path": str(tmp_path / "catalog.json"),
             "prompts_path": str(tmp_path / "prompts.json"),
         }
     )
     assert cfg.scenario_id == "s1"
+    assert cfg.model == "shared-model"
     assert cfg.outputs_root == tmp_path / "outputs"
     assert cfg.index_csv is None
     assert cfg.load_dir is None
@@ -603,6 +605,7 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
 
     cfg = ExperimentConfig(
         scenario_id="s1",
+        model="shared-model",
         outputs_root=tmp_path / "outputs",
         catalog_path=catalog_path,
         prompts_path=prompts_path,
@@ -622,6 +625,7 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         assert agent_cfg["pre_interview"]["instruction"] == "pre"
         assert agent_cfg["post_interview"]["instruction"] == "post"
         assert agent_cfg["survey"]["survey_questions"] == []
+    assert captured["build_kwargs"]["model"] == "shared-model"
     assert captured["build_kwargs"]["pre_interview_keep"] is False
     assert captured["build_kwargs"]["post_interview_keep"] is False
 

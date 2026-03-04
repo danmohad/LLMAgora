@@ -3,8 +3,7 @@
   "incentive_direction": null,
   "incentive_type": "historical",
   "prompt_set": "default",
-  "alpha_model": "openai/gpt-4o-mini",
-  "beta_model": "anthropic/claude-sonnet-4.5",
+  "model": "openai/gpt-4o-mini",
   "num_turns": 2,
   "subturn_event_order": [
     "public_utterance"

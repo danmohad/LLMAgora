@@ -69,8 +69,7 @@ class ExperimentConfig:
     incentive_direction: Optional[str] = None
     incentive_type: str = "historical"
     prompt_set: str = "default"
-    alpha_model: str = "openai/gpt-4o-mini"
-    beta_model: str = "anthropic/claude-sonnet-4.5"
+    model: str = "openai/gpt-4o-mini"
     num_turns: int = 2
     subturn_event_order: list[str] = field(
         default_factory=lambda: ["public_utterance"]
@@ -611,8 +610,7 @@ def run_persona_experiment(
     agent_configs = build_scenario_agent_configs(
         scenario_id=cfg.scenario_id,
         catalog=catalog,
-        alpha_model=cfg.alpha_model,
-        beta_model=cfg.beta_model,
+        model=cfg.model,
         incentive_direction=cfg.incentive_direction,
         incentive_type=cfg.incentive_type,
         prompt_set=cfg.prompt_set,
