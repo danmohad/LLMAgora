@@ -6,6 +6,11 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient
 from .memory import MemoryTurn
+from .survey import (
+    SURVEY_GROUP_DEFAULT,
+    build_survey_scale_prompt,
+    survey_group_scale_label,
+)
 
 if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
     from .agora import Agora
@@ -23,6 +28,7 @@ class Agent:
         system_prompt: str = "",
         response_instruction: str,
         survey_questions: Optional[list[str]] = None,
+        survey_question_groups: Optional[dict[str, str]] = None,
         survey_public_prompt: Optional[str] = None,
         survey_private_prompt: Optional[str] = None,
         enable_public_survey: bool = True,
@@ -68,6 +74,7 @@ class Agent:
         self._response_instruction = response_instruction
         self._opening_instruction = opening_instruction
         self._survey_questions = survey_questions
+        self._survey_question_groups = survey_question_groups or {}
         self._survey_public_prompt = survey_public_prompt or ""
         self._survey_private_prompt = survey_private_prompt or ""
         self._enable_public_survey = enable_public_survey
@@ -182,6 +189,10 @@ class Agent:
     def survey_questions(self) -> Optional[list[str]]:
         return self._survey_questions
 
+    @property
+    def survey_question_groups(self) -> dict[str, str]:
+        return self._survey_question_groups
+
     def generate_public_speech(self, *, opening: bool = False) -> str:
         """Ask the LLM client for this agent's next public response."""
 
@@ -217,13 +228,20 @@ class Agent:
         """Ask the LLM client for a public survey response with JSON structured format."""
         if not self._enable_public_survey:
             raise RuntimeError("Public survey requested but disabled for this agent")
-        survey_prompt = self.survey_public_prompt
+        survey_prompt = self.survey_public_prompt.replace(
+            "{scale}",
+            build_survey_scale_prompt(self._survey_question_groups),
+        )
         for i, q in enumerate(survey_questions, start=1):
-            survey_prompt += f"Q{i}. {q}\n"
+            group = self._survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
         messages = self._build_messages(final_instruction=survey_prompt)
         response = self._llm.complete(
-            messages=messages, model=self.model, survey_questions=survey_questions
+            messages=messages,
+            model=self.model,
+            survey_questions=survey_questions,
+            survey_question_groups=self._survey_question_groups,
         )
         cleaned = self._strip_speaker_prefix(response.strip())
         return self._normalize_apostrophes(cleaned)
@@ -232,13 +250,20 @@ class Agent:
         """Ask the LLM client for a private survey response with JSON structured format."""
         if not self._enable_private_survey:
             raise RuntimeError("Private survey requested but disabled for this agent")
-        survey_prompt = self.survey_private_prompt
+        survey_prompt = self.survey_private_prompt.replace(
+            "{scale}",
+            build_survey_scale_prompt(self._survey_question_groups),
+        )
         for i, q in enumerate(survey_questions, start=1):
-            survey_prompt += f"Q{i}. {q}\n"
+            group = self._survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
         messages = self._build_messages(final_instruction=survey_prompt)
         response = self._llm.complete(
-            messages=messages, model=self.model, survey_questions=survey_questions
+            messages=messages,
+            model=self.model,
+            survey_questions=survey_questions,
+            survey_question_groups=self._survey_question_groups,
         )
         cleaned = self._strip_speaker_prefix(response.strip())
         return self._normalize_apostrophes(cleaned)
@@ -270,6 +295,7 @@ class Agent:
             "post_interview_instruction": self._post_instruction,
             "post_interview_keep": self._post_keep,
             "survey_questions": self._survey_questions,
+            "survey_question_groups": self._survey_question_groups,
             "survey_public_prompt": self._survey_public_prompt,
             "survey_private_prompt": self._survey_private_prompt,
             "enable_public_survey": self._enable_public_survey,
@@ -298,6 +324,7 @@ class Agent:
             post_interview_instruction=config.get("post_interview_instruction"),
             post_interview_keep=bool(config.get("post_interview_keep", True)),
             survey_questions=config.get("survey_questions"),
+            survey_question_groups=config.get("survey_question_groups"),
             survey_public_prompt=config.get("survey_public_prompt"),
             survey_private_prompt=config.get("survey_private_prompt"),
             enable_public_survey=bool(config.get("enable_public_survey", True)),

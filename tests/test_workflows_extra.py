@@ -22,7 +22,14 @@ class QueueLLM:
     def __init__(self, responses):
         self._responses = list(responses)
 
-    def complete(self, *, messages, model, survey_questions=None):
+    def complete(
+        self,
+        *,
+        messages,
+        model,
+        survey_questions=None,
+        survey_question_groups=None,
+    ):
         return self._responses.pop(0)
 
 
@@ -34,6 +41,7 @@ def test_extract_instruction_rejects_invalid_type():
 def test_extract_survey_instructions_handles_missing_and_present():
     (
         questions,
+        question_groups,
         public_prompt,
         private_prompt,
         keep,
@@ -42,6 +50,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         enable_private,
     ) = extract_survey_instructions({})
     assert questions == []
+    assert question_groups == {}
     assert public_prompt is None
     assert private_prompt is None
     assert keep is False
@@ -51,6 +60,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
 
     (
         questions,
+        question_groups,
         public_prompt,
         private_prompt,
         keep,
@@ -61,6 +71,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         {
             "survey": {
                 "survey_questions": ["q1", "q2"],
+                "survey_question_groups": {"Q1": "default", "Q2": "direct"},
                 "survey_public_prompt": "public",
                 "survey_private_prompt": "private",
                 "public_survey_keep": True,
@@ -71,6 +82,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         }
     )
     assert questions == ["q1", "q2"]
+    assert question_groups == {"Q1": "default", "Q2": "direct"}
     assert public_prompt == "public"
     assert private_prompt == "private"
     assert keep is True
@@ -305,10 +317,12 @@ def test_build_scenario_agent_configs_accepts_optional_private_instruction_and_n
         prompt_set="custom",
         prompt_catalog=_prompt_catalog_for_builder(private_instruction=None),
         survey_questions=["q1"],
+        survey_question_groups={"Q1": "direct"},
     )
     assert "|INC:" not in configs[0]["self_role"]
     assert configs[0]["private_response"]["instruction"] is None
     assert configs[0]["survey"]["survey_questions"] == ["q1"]
+    assert configs[0]["survey"]["survey_question_groups"] == {"Q1": "direct"}
 
 
 def test_build_scenario_agent_configs_rejects_unknown_scenario():

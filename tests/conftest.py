@@ -18,6 +18,7 @@ class StubLLM:
         messages: Sequence[ChatMessage],
         model: str,
         survey_questions: Sequence[str] = None,
+        survey_question_groups: dict[str, str] | None = None,
     ) -> str:
         """Return the next canned response, recording the prompt for inspection."""
 

@@ -34,7 +34,11 @@ from .plotting import (
     plot_survey_distance,
     plot_survey_responses,
 )
-from .survey import merge_survey_question_configs, survey_question_texts
+from .survey import (
+    merge_survey_question_configs,
+    survey_question_groups,
+    survey_question_texts,
+)
 from .workflows import (
     build_scenario_agent_configs,
     load_debate_construction,
@@ -589,12 +593,15 @@ def run_persona_experiment(
     )
 
     survey_question_specs = []
+    survey_question_group_map = {}
     survey_questions = []
     if cfg.enable_public_survey or cfg.enable_private_survey:
+        scenario_survey = scenario.get("survey") or {}
         survey_question_specs = merge_survey_question_configs(
             prompt_payload.get("survey_questions", []),
-            scenario.get("survey", {}).get("shared_public_private", []),
+            scenario_survey,
         )
+        survey_question_group_map = survey_question_groups(survey_question_specs)
         survey_questions = survey_question_texts(survey_question_specs)
         if not survey_questions:
             raise ValueError(
@@ -618,6 +625,7 @@ def run_persona_experiment(
         enable_public_survey=cfg.enable_public_survey,
         enable_private_survey=cfg.enable_private_survey,
         survey_questions=survey_questions,
+        survey_question_groups=survey_question_group_map,
     )
 
     for agent_cfg in agent_configs:

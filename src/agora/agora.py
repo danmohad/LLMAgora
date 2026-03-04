@@ -260,7 +260,10 @@ class Agora:
                         response = agent.generate_public_survey_response(
                             agent.survey_questions
                         )
-                        parsed = parse_survey_response_str(response)
+                        parsed = parse_survey_response_str(
+                            response,
+                            agent.survey_question_groups,
+                        )
                         subturn["public_survey"] = parsed
                         survey_turn = MemoryTurn(
                             turn_id=self._next_event_id(),
@@ -290,7 +293,10 @@ class Agora:
                         response_private = agent.generate_private_survey_response(
                             agent.survey_questions
                         )
-                        parsed_private = parse_survey_response_str(response_private)
+                        parsed_private = parse_survey_response_str(
+                            response_private,
+                            agent.survey_question_groups,
+                        )
                         subturn["private_survey"] = parsed_private
                         survey_turn = MemoryTurn(
                             turn_id=self._next_event_id(),
