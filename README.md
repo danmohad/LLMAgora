@@ -129,6 +129,7 @@ Sweep config rules:
 - `base` uses the normal single-run config fields
 - `sweep` maps fields to candidate-value lists
 - multiple sweep axes expand as a Cartesian product
+- `number_of_repeats` controls how many separate generated runs are created for each Cartesian case (default `1`)
 - list-valued run fields use a list of candidate full values (for example `subturn_event_order` as a list of lists)
 - `output_dir`, `outputs_root`, `run_name`, `indexed_output`, and `index_csv` are generator-managed and not allowed in the master file
 - generated leaf configs include a fixed absolute `output_dir`, so each run writes into its own `cases/<case_id>` directory

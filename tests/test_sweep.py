@@ -79,6 +79,7 @@ def test_normalize_master_config_rejects_invalid_shapes(tmp_path):
             "sweep": None,
         }
     )
+    assert normalized["number_of_repeats"] == 1
     assert normalized["sweep"] == {}
     assert sweep._expand_cases(normalized)[0]["label"] == "base"
 
@@ -101,6 +102,14 @@ def test_normalize_master_config_rejects_invalid_shapes(tmp_path):
     with pytest.raises(ValueError):
         sweep._normalize_master_config(
             {"sweep_root": str(tmp_path / "x"), "base": {}, "stop_on_error": "yes"}
+        )
+    with pytest.raises(ValueError):
+        sweep._normalize_master_config(
+            {"sweep_root": str(tmp_path / "x"), "base": {}, "number_of_repeats": 0}
+        )
+    with pytest.raises(ValueError):
+        sweep._normalize_master_config(
+            {"sweep_root": str(tmp_path / "x"), "base": {}, "number_of_repeats": "2"}
         )
     with pytest.raises(ValueError):
         sweep._normalize_master_config(
@@ -151,6 +160,7 @@ def test_load_sweep_config_and_expand_cases(tmp_path):
         "{\n"
         "  // config with comments\n"
         f'  "sweep_root": "{sweep_root}",\n'
+        '  "number_of_repeats": 2,\n'
         '  "base": {"scenario_id": "s1"},\n'
         '  "sweep": {\n'
         '    "subturn_event_order": [\n'
@@ -167,10 +177,15 @@ def test_load_sweep_config_and_expand_cases(tmp_path):
     cases = sweep._expand_cases(master)
 
     assert "// config with comments" in raw_text
-    assert len(cases) == 4
-    assert cases[0]["label"]
+    assert len(cases) == 8
+    assert cases[0]["label"].endswith("(repeat 1/2)")
     assert len(cases[0]["case_id"]) == 12
     assert cases[0]["case_id"].isalnum()
+    assert cases[0]["repeat_number"] == 1
+    assert cases[0]["repeat_count"] == 2
+    assert cases[1]["repeat_number"] == 2
+    assert cases[0]["case_id"] != cases[1]["case_id"]
+    assert cases[0]["config_fingerprint"] == cases[1]["config_fingerprint"]
     assert Path(cases[0]["config_payload"]["output_dir"]).is_absolute()
 
 
@@ -201,16 +216,19 @@ def test_expand_cases_rejects_duplicates_and_hash_collisions(tmp_path, monkeypat
 
 def test_generate_sweep_writes_tree_and_force_replaces(tmp_path):
     master_path = tmp_path / "master.jsonc"
-    payload = _master_payload(tmp_path)
+    payload = _master_payload(tmp_path, number_of_repeats=3)
     _write_master(master_path, payload)
 
     manifest = sweep.generate_sweep(master_path)
     root = Path(manifest["sweep_root"])
     status = json.loads((root / "status.json").read_text(encoding="utf-8"))
-    assert manifest["total_cases"] == 2
-    assert status["aggregate_counts"]["pending"] == 2
+    assert manifest["number_of_repeats"] == 3
+    assert manifest["total_cases"] == 6
+    assert status["aggregate_counts"]["pending"] == 6
 
     first_case = manifest["cases"][0]["case_id"]
+    assert manifest["cases"][0]["repeat_number"] == 1
+    assert manifest["cases"][0]["repeat_count"] == 3
     assert (root / "cases" / first_case / "config.json").exists()
     (root / "junk.txt").write_text("remove me", encoding="utf-8")
 

@@ -36,7 +36,15 @@ TERMINAL_CASE_STATUSES: tuple[str, ...] = (
 )
 RUN_SELECTION_MODES: tuple[str, ...] = ("resume", "all", "failed", "pending")
 MASTER_ALLOWED_KEYS = frozenset(
-    {"sweep_root", "max_parallel_jobs", "stop_on_error", "base", "sweep", "notes"}
+    {
+        "sweep_root",
+        "max_parallel_jobs",
+        "stop_on_error",
+        "number_of_repeats",
+        "base",
+        "sweep",
+        "notes",
+    }
 )
 MASTER_FORBIDDEN_FIELDS = frozenset(
     {"output_dir", "outputs_root", "run_name", "indexed_output", "index_csv"}
@@ -191,6 +199,10 @@ def _normalize_master_config(payload: Mapping[str, Any]) -> dict[str, Any]:
     if not isinstance(stop_on_error, bool):
         raise ValueError("stop_on_error must be a boolean")
 
+    number_of_repeats = payload.get("number_of_repeats", 1)
+    if not isinstance(number_of_repeats, int) or number_of_repeats <= 0:
+        raise ValueError("number_of_repeats must be a positive integer")
+
     valid_fields = _experiment_field_names()
     for section_name, section_payload in (("base", base), ("sweep", sweep)):
         unknown_fields = set(section_payload) - valid_fields
@@ -224,6 +236,7 @@ def _normalize_master_config(payload: Mapping[str, Any]) -> dict[str, Any]:
         "sweep_root": Path(str(payload["sweep_root"])),
         "max_parallel_jobs": max_parallel_jobs,
         "stop_on_error": stop_on_error,
+        "number_of_repeats": number_of_repeats,
         "notes": notes,
         "base": dict(base),
         "sweep": normalized_sweep,
@@ -237,19 +250,37 @@ def load_sweep_config(path: Path | str) -> tuple[dict[str, Any], str]:
     return _normalize_master_config(payload), raw_text
 
 
-def _case_label(sweep_values: Mapping[str, Any]) -> str:
+def _case_label(
+    sweep_values: Mapping[str, Any], *, repeat_number: int = 1, repeat_count: int = 1
+) -> str:
     if not sweep_values:
-        return "base"
-    parts = [
-        f"{field_name}={json.dumps(_json_ready(value), sort_keys=True)}"
-        for field_name, value in sorted(sweep_values.items())
-    ]
-    return ", ".join(parts)
+        label = "base"
+    else:
+        parts = [
+            f"{field_name}={json.dumps(_json_ready(value), sort_keys=True)}"
+            for field_name, value in sorted(sweep_values.items())
+        ]
+        label = ", ".join(parts)
+    if repeat_count > 1:
+        return f"{label} (repeat {repeat_number}/{repeat_count})"
+    return label
+
+
+def _case_identity(
+    config_fingerprint: str, *, repeat_number: int, repeat_count: int
+) -> tuple[str, str]:
+    if repeat_count == 1:
+        return config_fingerprint[:12], config_fingerprint
+    case_fingerprint = hashlib.sha256(
+        f"{config_fingerprint}:{repeat_number}:{repeat_count}".encode("utf-8")
+    ).hexdigest()
+    return case_fingerprint[:12], case_fingerprint
 
 
 def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
     base = dict(master["base"])
     sweep = dict(master["sweep"])
+    repeat_count = master["number_of_repeats"]
     sweep_fields = list(sweep)
     value_sets = [sweep[field_name] for field_name in sweep_fields]
     combinations = itertools.product(*value_sets) if sweep_fields else [()]
@@ -272,26 +303,37 @@ def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
         seen_fingerprints.add(canonical_config)
 
         config_fingerprint = hashlib.sha256(canonical_config.encode("utf-8")).hexdigest()
-        case_id = config_fingerprint[:12]
-        prior_fingerprint = seen_case_ids.get(case_id)
-        if prior_fingerprint is not None and prior_fingerprint != config_fingerprint:
-            raise ValueError(f"Hash collision detected for case_id {case_id}")
-        seen_case_ids[case_id] = config_fingerprint
+        for repeat_number in range(1, repeat_count + 1):
+            case_id, case_fingerprint = _case_identity(
+                config_fingerprint,
+                repeat_number=repeat_number,
+                repeat_count=repeat_count,
+            )
+            prior_fingerprint = seen_case_ids.get(case_id)
+            if prior_fingerprint is not None and prior_fingerprint != case_fingerprint:
+                raise ValueError(f"Hash collision detected for case_id {case_id}")
+            seen_case_ids[case_id] = case_fingerprint
 
-        case_dir = (sweep_root / "cases" / case_id).resolve()
-        validated = build_experiment_config({**merged, "output_dir": str(case_dir)})
+            case_dir = (sweep_root / "cases" / case_id).resolve()
+            validated = build_experiment_config({**merged, "output_dir": str(case_dir)})
 
-        cases.append(
-            {
-                "case_id": case_id,
-                "case_dir": Path("cases") / case_id,
-                "config_path": Path("cases") / case_id / "config.json",
-                "label": _case_label(sweep_values),
-                "sweep_values": sweep_values,
-                "config_fingerprint": config_fingerprint,
-                "config_payload": _json_ready(asdict(validated)),
-            }
-        )
+            cases.append(
+                {
+                    "case_id": case_id,
+                    "case_dir": Path("cases") / case_id,
+                    "config_path": Path("cases") / case_id / "config.json",
+                    "label": _case_label(
+                        sweep_values,
+                        repeat_number=repeat_number,
+                        repeat_count=repeat_count,
+                    ),
+                    "repeat_number": repeat_number,
+                    "repeat_count": repeat_count,
+                    "sweep_values": sweep_values,
+                    "config_fingerprint": config_fingerprint,
+                    "config_payload": _json_ready(asdict(validated)),
+                }
+            )
 
     return cases
 
@@ -305,6 +347,7 @@ def _manifest_from_master(master: Mapping[str, Any], cases: Sequence[Mapping[str
             "max_parallel_jobs": master["max_parallel_jobs"],
             "stop_on_error": master["stop_on_error"],
         },
+        "number_of_repeats": master["number_of_repeats"],
         "notes": master["notes"],
         "total_cases": len(cases),
         "cases": [
@@ -313,6 +356,8 @@ def _manifest_from_master(master: Mapping[str, Any], cases: Sequence[Mapping[str
                 "case_dir": str(case["case_dir"]),
                 "config_path": str(case["config_path"]),
                 "label": case["label"],
+                "repeat_number": case["repeat_number"],
+                "repeat_count": case["repeat_count"],
                 "sweep_values": _json_ready(case["sweep_values"]),
                 "config_fingerprint": case["config_fingerprint"],
             }
