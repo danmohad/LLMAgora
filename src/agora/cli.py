@@ -25,6 +25,7 @@ from .experiment import (
 from .sweep import (
     RUN_SELECTION_MODES,
     generate_sweep,
+    load_sweep_config,
     run_sweep,
 )
 from .workflows import print_agent_histories
@@ -103,9 +104,27 @@ def _sweep_generate(args: argparse.Namespace) -> None:
     generate_sweep(args.config, force=args.force)
 
 
+def _infer_sweep_root_from_single_jsonc(search_root: Path | None = None) -> Path:
+    root = Path.cwd() if search_root is None else search_root
+    jsonc_paths = sorted(
+        path
+        for path in root.rglob("*.jsonc")
+        if path.is_file() and path.name != "master_config.jsonc"
+    )
+    if len(jsonc_paths) != 1:
+        raise ValueError(
+            "--root must be specified when there is not exactly one .jsonc sweep config in the current working tree"
+        )
+    master, _ = load_sweep_config(jsonc_paths[0])
+    return Path(master["sweep_root"])
+
+
 def _sweep_run(args: argparse.Namespace) -> None:
+    root = args.root
+    if root is None:
+        root = _infer_sweep_root_from_single_jsonc()
     exit_code = run_sweep(
-        args.root,
+        root,
         max_parallel_jobs=args.max_parallel_jobs,
         mode=args.mode,
         case_ids=args.cases,
@@ -113,6 +132,7 @@ def _sweep_run(args: argparse.Namespace) -> None:
     )
     if exit_code:
         raise SystemExit(exit_code)
+
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Run LLM Agora experiments.")
@@ -245,8 +265,11 @@ def build_parser() -> argparse.ArgumentParser:
     sweep_run_cmd.add_argument(
         "--root",
         type=Path,
-        required=True,
-        help="Generated sweep root containing manifest.json.",
+        default=None,
+        help=(
+            "Generated sweep root containing manifest.json. "
+            "When omitted, inferred from the only .jsonc sweep config in the current working tree."
+        ),
     )
     sweep_run_cmd.add_argument(
         "--max-parallel-jobs",

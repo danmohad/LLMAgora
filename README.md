@@ -111,11 +111,15 @@ agora sweep generate --config data/sweep_example.jsonc
 
 # Run all cases that are not already marked succeeded.
 # This command renders the live in-place dashboard in the current TTY.
-agora sweep run --root outputs/sweeps/example
+agora sweep run
 
 # Re-run failed or interrupted cases only
 agora sweep run --root outputs/sweeps/example --mode failed
 ```
+
+When `--root` is omitted, `agora sweep run` infers it from the only non-generated
+`.jsonc` sweep config in the current working tree; if there is not exactly one,
+pass `--root` explicitly.
 
 Sweep directory layout:
 - `master_config.jsonc` stores the original commented sweep input

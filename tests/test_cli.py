@@ -1,4 +1,5 @@
 from dataclasses import asdict
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Optional
@@ -73,6 +74,9 @@ def test_build_parser_registers_run_subcommand():
     )
     assert args_sweep_run.func is cli._sweep_run
     assert args_sweep_run.mode == "failed"
+    args_sweep_run_default = parser.parse_args(["sweep", "run"])
+    assert args_sweep_run_default.func is cli._sweep_run
+    assert args_sweep_run_default.root is None
     args_sweep_run_disable_stop = parser.parse_args(
         ["sweep", "run", "--root", "outputs/sweeps/example", "--no-stop-on-error"]
     )
@@ -397,3 +401,94 @@ def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
     assert captured["mode"] == "resume"
     assert captured["case_ids"] == ["abc123def456"]
     assert captured["stop_on_error"] is True
+
+
+def test_sweep_run_infers_root_from_single_jsonc(monkeypatch, tmp_path):
+    captured = {}
+
+    source_config = tmp_path / "data" / "master.jsonc"
+    source_config.parent.mkdir(parents=True, exist_ok=True)
+    inferred_root = tmp_path / "outputs" / "sweeps" / "demo"
+    source_config.write_text(
+        json.dumps(
+            {
+                "sweep_root": str(inferred_root),
+                "base": {"scenario_id": "s1"},
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    generated_copy = inferred_root / "master_config.jsonc"
+    generated_copy.parent.mkdir(parents=True, exist_ok=True)
+    generated_copy.write_text("{}", encoding="utf-8")
+
+    def fake_run(root, *, max_parallel_jobs, mode, case_ids, stop_on_error):
+        captured.update(
+            {
+                "root": root,
+                "max_parallel_jobs": max_parallel_jobs,
+                "mode": mode,
+                "case_ids": case_ids,
+                "stop_on_error": stop_on_error,
+            }
+        )
+        return 0
+
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(cli, "run_sweep", fake_run)
+
+    cli._sweep_run(
+        SimpleNamespace(
+            root=None,
+            max_parallel_jobs=4,
+            mode="failed",
+            cases=["abc123def456"],
+            stop_on_error=False,
+        )
+    )
+
+    assert captured["root"] == inferred_root
+    assert captured["max_parallel_jobs"] == 4
+    assert captured["mode"] == "failed"
+    assert captured["case_ids"] == ["abc123def456"]
+    assert captured["stop_on_error"] is False
+
+
+def test_sweep_run_requires_root_when_no_jsonc_exists(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="--root must be specified"):
+        cli._sweep_run(
+            SimpleNamespace(
+                root=None,
+                max_parallel_jobs=None,
+                mode="resume",
+                cases=None,
+                stop_on_error=None,
+            )
+        )
+
+
+def test_sweep_run_requires_root_when_multiple_jsonc_exist(monkeypatch, tmp_path):
+    (tmp_path / "a.jsonc").write_text(
+        json.dumps({"sweep_root": str(tmp_path / "a"), "base": {"scenario_id": "s1"}}),
+        encoding="utf-8",
+    )
+    (tmp_path / "b.jsonc").write_text(
+        json.dumps({"sweep_root": str(tmp_path / "b"), "base": {"scenario_id": "s1"}}),
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
+    with pytest.raises(ValueError, match="--root must be specified"):
+        cli._sweep_run(
+            SimpleNamespace(
+                root=None,
+                max_parallel_jobs=None,
+                mode="resume",
+                cases=None,
+                stop_on_error=None,
+            )
+        )
