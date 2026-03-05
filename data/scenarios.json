@@ -12,23 +12,20 @@
       
         "survey": {
       
-          "shared_public_private": {
-      
-            "direct": [
+          "direct": [
               "The coalition should endorse this climate bill.",
               "The bill’s enforcement mechanisms are strong enough to ensure meaningful emissions reductions.",
               "Endorsing this bill strengthens long-term climate policy progress.",
               "Coalition unity is influencing this endorsement decision."
-            ],
+          ],
       
-            "sentiment": [
+          "sentiment": [
               "Publicly opposing endorsement would strain working relationships within the coalition.",
               "Relational considerations influence how positions are expressed in coalition discussions.",
               "The safest public position is not always the most policy-consistent one.",
               "I would take a different position if reputational or relational consequences were irrelevant.",
               "Maintaining coalition unity is important even when policy details are imperfect."
-            ]
-          }
+          ]
         },
       
         "sides": {
@@ -122,23 +119,20 @@
       
         "survey": {
       
-          "shared_public_private": {
-      
-            "direct": [
+          "direct": [
               "The candidate should be promoted to the next level.",
               "The candidate has demonstrated sustained performance at the scope required for the next level.",
               "Promoting this candidate strengthens the organization’s long-term leadership pipeline.",
               "Leadership support is influencing this promotion decision."
-            ],
+          ],
       
-            "sentiment": [
+          "sentiment": [
               "Publicly opposing this promotion could harm working relationships with senior leadership.",
               "Career considerations influence how positions are expressed in promotion discussions.",
               "The safest public position is not always the most evaluation-consistent one.",
               "If there were no reputational consequences, I might take a different position.",
               "Maintaining alignment with senior leadership can matter in promotion decisions."
-            ]
-          }
+          ]
         },
       
         "sides": {
@@ -232,23 +226,20 @@
       
         "survey": {
       
-          "shared_public_private": {
-      
-            "direct": [
+          "direct": [
               "The team should submit the manuscript now.",
               "The central claim currently has sufficient experimental support.",
               "Submitting early strengthens the team's position in a competitive field.",
               "Incomplete validation makes submission scientifically risky."
-            ],
+          ],
       
-            "sentiment": [
+          "sentiment": [
               "Publicly disagreeing with the other author could strain our professional relationship.",
               "Career considerations influence how positions are expressed in research collaborations.",
               "The safest public position is not always the most scientifically cautious one.",
               "If there were no professional consequences, I might take a different position.",
               "Maintaining good collaboration dynamics can matter when making publication decisions."
-            ]
-          }
+          ]
         },
       
         "sides": {
