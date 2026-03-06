@@ -495,3 +495,23 @@ def test_agora_verbose_excluded_notes(capsys):
     Agora([agent, beta]).run(num_turns=1, verbose=True)
     output = capsys.readouterr().out
     assert "(excluded)" in output
+
+
+def test_agora_emits_sweep_progress_markers(capsys, monkeypatch):
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=QueueLLM(["alpha public"]),
+        response_instruction="respond",
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+
+    Agora([agent, beta]).run(num_turns=1, emit_progress_markers=True)
+
+    output = capsys.readouterr().out
+    assert "[agora progress] Turn 1/1" in output

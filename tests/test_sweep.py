@@ -63,6 +63,51 @@ def test_jsonc_helpers_parse_comments_and_strings():
         sweep._load_jsonc_object("[]")
 
 
+def test_log_helpers_cover_missing_empty_and_fallback_cases(tmp_path):
+    missing = tmp_path / "missing.log"
+    assert sweep._read_log_delta(missing, offset=0) == (0, [])
+
+    empty = tmp_path / "empty.log"
+    empty.write_text("", encoding="utf-8")
+    assert sweep._read_log_delta(empty, offset=0) == (0, [])
+
+    assert (
+        sweep._error_summary_from_log_lines(
+            [
+                "Traceback (most recent call last):",
+                'File "/tmp/example.py", line 1, in <module>',
+                "During handling of the above exception, another exception occurred:",
+            ],
+            fallback="Process exited with code 1",
+        )
+        == "Process exited with code 1"
+    )
+
+
+def test_turn_progress_helpers_read_tail_and_defaults(tmp_path):
+    root = tmp_path / "sweep"
+    case_dir = root / "cases" / "aaa111aaa111"
+    case_dir.mkdir(parents=True)
+    config_path = case_dir / "config.json"
+    config_path.write_text(json.dumps({"scenario_id": "s1", "num_turns": 3}), encoding="utf-8")
+    log_path = case_dir / "run.log"
+
+    assert sweep._read_text_tail(log_path) == ""
+    case = {
+        "case_id": "aaa111aaa111",
+        "case_dir": "cases/aaa111aaa111",
+        "config_path": "cases/aaa111aaa111/config.json",
+    }
+    assert sweep._case_turn_progress(root, case) == "Turn 0/3"
+
+    log_path.write_text(
+        "noise\n[agora progress] Turn 1/3\nmore\n[agora progress] Turn 2/3\n",
+        encoding="utf-8",
+    )
+    assert sweep._case_turn_progress(root, case) == "Turn 2/3"
+    assert sweep._read_text_tail(log_path, max_bytes=16).endswith("Turn 2/3\n")
+
+
 def test_load_json_object_rejects_non_object(tmp_path):
     path = tmp_path / "bad.json"
     path.write_text("[]", encoding="utf-8")
@@ -464,6 +509,20 @@ def test_status_helpers_and_selection(tmp_path):
 def test_render_dashboard_layout(tmp_path):
     root = tmp_path / "sweep"
     root.mkdir()
+    (root / "cases" / "aaa111aaa111").mkdir(parents=True)
+    (root / "cases" / "bbb222bbb222").mkdir(parents=True)
+    (root / "cases" / "aaa111aaa111" / "config.json").write_text(
+        json.dumps({"scenario_id": "s1", "num_turns": 2}),
+        encoding="utf-8",
+    )
+    (root / "cases" / "bbb222bbb222" / "config.json").write_text(
+        json.dumps({"scenario_id": "s1", "num_turns": 2}),
+        encoding="utf-8",
+    )
+    (root / "cases" / "bbb222bbb222" / "run.log").write_text(
+        "[agora progress] Turn 1/2\n",
+        encoding="utf-8",
+    )
     manifest = {
         "total_cases": 2,
         "runner_defaults": {"max_parallel_jobs": 1, "stop_on_error": False},
@@ -525,6 +584,7 @@ def test_render_dashboard_layout(tmp_path):
     assert "Progress:" in dashboard
     assert "Running:" in dashboard
     assert "bbb222bbb222" in dashboard
+    assert "Turn 1/2" in dashboard
 
     idle_status = {
         "aggregate_counts": {
@@ -650,7 +710,7 @@ def test_run_case_subprocess_marks_interrupted_result(tmp_path, monkeypatch):
     )
 
     class SuccessPopen:
-        def __init__(self, cmd, stdout, stderr):
+        def __init__(self, cmd, stdout, stderr, **kwargs):
             self.returncode = 0
 
         def wait(self, timeout=None):
@@ -679,6 +739,154 @@ def test_run_case_subprocess_marks_interrupted_result(tmp_path, monkeypatch):
     updated = json.loads((root / "status.json").read_text(encoding="utf-8"))
     assert result["status"] == "interrupted"
     assert updated["cases"]["aaa111aaa111"]["last_error_summary"] == "Interrupted by user"
+
+
+def test_run_case_subprocess_uses_traceback_tail_for_failure_summary(tmp_path, monkeypatch):
+    root = tmp_path / "sweep"
+    root.mkdir()
+    manifest = {
+        "schema_version": 1,
+        "generated_at": "now",
+        "sweep_root": str(root),
+        "runner_defaults": {"max_parallel_jobs": 1, "stop_on_error": False},
+        "notes": None,
+        "total_cases": 1,
+        "cases": [
+            {
+                "case_id": "aaa111aaa111",
+                "case_dir": "cases/aaa111aaa111",
+                "config_path": "cases/aaa111aaa111/config.json",
+                "label": "base",
+                "sweep_values": {},
+                "config_fingerprint": "f" * 64,
+            }
+        ],
+    }
+    status = sweep._initial_status(manifest)
+    (root / "cases" / "aaa111aaa111").mkdir(parents=True)
+    (root / "cases" / "aaa111aaa111" / "config.json").write_text("{}", encoding="utf-8")
+    store = sweep._StatusStore(root, status)
+    store.start_session(
+        mode="resume",
+        worker_count=1,
+        stop_on_error=False,
+        selected_case_ids=["aaa111aaa111"],
+    )
+
+    class FailedPopen:
+        def __init__(self, cmd, stdout, stderr, **kwargs):
+            self.returncode = 1
+            stdout.write(
+                "Traceback (most recent call last):\n"
+                '  File "/tmp/example.py", line 1, in <module>\n'
+                "ValueError: boom\n"
+            )
+
+        def poll(self):
+            return self.returncode
+
+        def wait(self, timeout=None):
+            return self.returncode
+
+        def terminate(self):
+            self.returncode = -15
+
+        def kill(self):
+            self.returncode = -9
+
+    monkeypatch.setattr(sweep.subprocess, "Popen", FailedPopen)
+    result = sweep._run_case_subprocess(
+        root,
+        manifest["cases"][0],
+        store=store,
+        process_lock=threading.Lock(),
+        active_processes={},
+        interrupted_case_ids=set(),
+    )
+    store.finish_session()
+
+    updated = json.loads((root / "status.json").read_text(encoding="utf-8"))
+    assert result["status"] == "failed"
+    assert updated["cases"]["aaa111aaa111"]["last_error_summary"] == "ValueError: boom"
+
+
+def test_run_case_subprocess_terminates_hung_traceback_process(tmp_path, monkeypatch):
+    root = tmp_path / "sweep"
+    root.mkdir()
+    manifest = {
+        "schema_version": 1,
+        "generated_at": "now",
+        "sweep_root": str(root),
+        "runner_defaults": {"max_parallel_jobs": 1, "stop_on_error": False},
+        "notes": None,
+        "total_cases": 1,
+        "cases": [
+            {
+                "case_id": "aaa111aaa111",
+                "case_dir": "cases/aaa111aaa111",
+                "config_path": "cases/aaa111aaa111/config.json",
+                "label": "base",
+                "sweep_values": {},
+                "config_fingerprint": "f" * 64,
+            }
+        ],
+    }
+    status = sweep._initial_status(manifest)
+    (root / "cases" / "aaa111aaa111").mkdir(parents=True)
+    (root / "cases" / "aaa111aaa111" / "config.json").write_text("{}", encoding="utf-8")
+    store = sweep._StatusStore(root, status)
+    store.start_session(
+        mode="resume",
+        worker_count=1,
+        stop_on_error=False,
+        selected_case_ids=["aaa111aaa111"],
+    )
+
+    class HangingTracebackPopen:
+        def __init__(self, cmd, stdout, stderr, **kwargs):
+            self.returncode = None
+            self.terminated = False
+            stdout.write(
+                "Traceback (most recent call last):\n"
+                '  File "/tmp/example.py", line 1, in <module>\n'
+                "RuntimeError: stuck failure\n"
+            )
+
+        def poll(self):
+            return self.returncode
+
+        def wait(self, timeout=None):
+            if self.returncode is None:
+                raise sweep.subprocess.TimeoutExpired(cmd="x", timeout=timeout)
+            return self.returncode
+
+        def terminate(self):
+            self.terminated = True
+            self.returncode = -15
+
+        def kill(self):
+            self.returncode = -9
+
+    monkeypatch.setattr(sweep.subprocess, "Popen", HangingTracebackPopen)
+    monkeypatch.setattr(sweep, "_TRACEBACK_EXIT_GRACE_SECONDS", 0.0)
+    monkeypatch.setattr(sweep, "_PROCESS_POLL_INTERVAL_SECONDS", 0.0)
+
+    result = sweep._run_case_subprocess(
+        root,
+        manifest["cases"][0],
+        store=store,
+        process_lock=threading.Lock(),
+        active_processes={},
+        interrupted_case_ids=set(),
+    )
+    store.finish_session()
+
+    updated = json.loads((root / "status.json").read_text(encoding="utf-8"))
+    assert result["status"] == "failed"
+    assert updated["cases"]["aaa111aaa111"]["last_error_summary"] == "RuntimeError: stuck failure"
+    assert "did not exit; terminating" in (
+        root / "cases" / "aaa111aaa111" / "run.log"
+    ).read_text(encoding="utf-8")
 
 
 def test_terminate_active_processes_kills_stuck_children():
@@ -746,6 +954,94 @@ def test_terminate_active_processes_ignores_finished_children():
     assert process.wait_called is False
 
 
+def test_terminate_process_handles_process_group_edge_cases(monkeypatch):
+    class LookupOnTerminateProcess:
+        pid = 123
+
+        def poll(self):
+            return None
+
+        def terminate(self):
+            raise AssertionError("terminate should not be called when using killpg")
+
+        def wait(self, timeout=None):
+            raise AssertionError("wait should not be called")
+
+        def kill(self):
+            raise AssertionError("kill should not be called")
+
+    def missing_on_term(pid, sig):
+        assert pid == 123
+        assert sig == sweep.signal.SIGTERM
+        raise ProcessLookupError()
+
+    monkeypatch.setattr(sweep.os, "killpg", missing_on_term)
+    assert sweep._terminate_process(LookupOnTerminateProcess()) is None
+
+    class LookupOnKillProcess:
+        pid = 456
+
+        def poll(self):
+            return None
+
+        def terminate(self):
+            raise AssertionError("terminate should not be called when using killpg")
+
+        def wait(self, timeout=None):
+            raise AssertionError("wait should not be called")
+
+        def kill(self):
+            raise AssertionError("kill should not be called")
+
+    calls = []
+
+    def missing_on_kill(pid, sig):
+        calls.append(sig)
+        assert pid == 456
+        if sig == sweep.signal.SIGTERM:
+            return None
+        raise ProcessLookupError()
+
+    monkeypatch.setattr(sweep.os, "killpg", missing_on_kill)
+    assert sweep._terminate_process(LookupOnKillProcess(), grace_seconds=0.0) is None
+    assert calls == [sweep.signal.SIGTERM, sweep.signal.SIGKILL]
+
+
+def test_terminate_process_kills_process_group_after_timeout(monkeypatch):
+    class HangingGroupProcess:
+        pid = 789
+
+        def __init__(self):
+            self.returncode = None
+
+        def poll(self):
+            return self.returncode
+
+        def terminate(self):
+            raise AssertionError("terminate should not be called when using killpg")
+
+        def wait(self, timeout=None):
+            if self.returncode is None:
+                raise sweep.subprocess.TimeoutExpired(cmd="x", timeout=timeout)
+            return self.returncode
+
+        def kill(self):
+            raise AssertionError("kill should not be called when using killpg")
+
+    process = HangingGroupProcess()
+    calls = []
+
+    def killpg(pid, sig):
+        calls.append(sig)
+        assert pid == 789
+        if sig == sweep.signal.SIGKILL:
+            process.returncode = -9
+
+    monkeypatch.setattr(sweep.os, "killpg", killpg)
+    assert sweep._terminate_process(process, grace_seconds=0.0) == -9
+    assert calls == [sweep.signal.SIGTERM, sweep.signal.SIGKILL]
+
+
 def test_run_sweep_resume_and_stop_on_error(tmp_path, monkeypatch):
     master_path = tmp_path / "master.jsonc"
     payload = _master_payload(
@@ -766,7 +1062,7 @@ def test_run_sweep_resume_and_stop_on_error(tmp_path, monkeypatch):
     }
 
     class ImmediatePopen:
-        def __init__(self, cmd, stdout, stderr):
+        def __init__(self, cmd, stdout, stderr, **kwargs):
             self.case_id = Path(cmd[-1]).parent.name
             launched.append(self.case_id)
             self.returncode = outcomes[self.case_id]
@@ -840,7 +1136,7 @@ def test_run_sweep_stop_on_error_does_not_schedule_after_mixed_done_batch(
     }
 
     class ImmediatePopen:
-        def __init__(self, cmd, stdout, stderr):
+        def __init__(self, cmd, stdout, stderr, **kwargs):
             self.case_id = Path(cmd[-1]).parent.name
             launched.append(self.case_id)
             self.returncode = outcomes[self.case_id]
@@ -904,7 +1200,7 @@ def test_run_sweep_respects_explicit_no_stop_on_error_override(tmp_path, monkeyp
     }
 
     class ImmediatePopen:
-        def __init__(self, cmd, stdout, stderr):
+        def __init__(self, cmd, stdout, stderr, **kwargs):
             self.case_id = Path(cmd[-1]).parent.name
             launched.append(self.case_id)
             self.returncode = outcomes[self.case_id]
@@ -944,7 +1240,7 @@ def test_run_sweep_modes_noop_and_invalid_mode(tmp_path, monkeypatch):
     root = Path(manifest["sweep_root"])
 
     class SuccessPopen:
-        def __init__(self, cmd, stdout, stderr):
+        def __init__(self, cmd, stdout, stderr, **kwargs):
             self.returncode = 0
             stdout.write("ok\n")
 
@@ -1046,3 +1342,74 @@ def test_run_sweep_handles_keyboard_interrupt(tmp_path, monkeypatch):
     assert status["cases"][case_id]["last_status"] == "interrupted"
     assert captured["max_workers"] == 1
     assert captured["shutdown_wait"] is True
+
+
+def test_run_case_subprocess_polls_until_success(tmp_path, monkeypatch):
+    root = tmp_path / "sweep"
+    root.mkdir()
+    manifest = {
+        "schema_version": 1,
+        "generated_at": "now",
+        "sweep_root": str(root),
+        "runner_defaults": {"max_parallel_jobs": 1, "stop_on_error": False},
+        "notes": None,
+        "total_cases": 1,
+        "cases": [
+            {
+                "case_id": "aaa111aaa111",
+                "case_dir": "cases/aaa111aaa111",
+                "config_path": "cases/aaa111aaa111/config.json",
+                "label": "base",
+                "sweep_values": {},
+                "config_fingerprint": "f" * 64,
+            }
+        ],
+    }
+    status = sweep._initial_status(manifest)
+    (root / "cases" / "aaa111aaa111").mkdir(parents=True)
+    (root / "cases" / "aaa111aaa111" / "config.json").write_text("{}", encoding="utf-8")
+    store = sweep._StatusStore(root, status)
+    store.start_session(
+        mode="resume",
+        worker_count=1,
+        stop_on_error=False,
+        selected_case_ids=["aaa111aaa111"],
+    )
+
+    class DelayedSuccessPopen:
+        def __init__(self, cmd, stdout, stderr, **kwargs):
+            self.poll_count = 0
+            self.returncode = 0
+            stdout.write("ok\n")
+
+        def poll(self):
+            self.poll_count += 1
+            if self.poll_count == 1:
+                return None
+            return self.returncode
+
+        def wait(self, timeout=None):
+            return self.returncode
+
+        def terminate(self):
+            self.returncode = -15
+
+        def kill(self):
+            self.returncode = -9
+
+    sleep_calls = []
+    monkeypatch.setattr(sweep.subprocess, "Popen", DelayedSuccessPopen)
+    monkeypatch.setattr(sweep.time, "sleep", lambda seconds: sleep_calls.append(seconds))
+
+    result = sweep._run_case_subprocess(
+        root,
+        manifest["cases"][0],
+        store=store,
+        process_lock=threading.Lock(),
+        active_processes={},
+        interrupted_case_ids=set(),
+    )
+    store.finish_session()
+
+    assert result["status"] == "succeeded"
+    assert sleep_calls == [sweep._PROCESS_POLL_INTERVAL_SECONDS]

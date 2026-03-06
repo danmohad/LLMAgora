@@ -78,7 +78,10 @@ def _run(args: argparse.Namespace) -> None:
         )
 
     cfg = _merge_config(base, overrides) if base else build_experiment_config(overrides)
-    result = run_persona_experiment(cfg)
+    result = run_persona_experiment(
+        cfg,
+        emit_progress_markers=args.emit_progress_markers,
+    )
 
     if result.run_dir is not None:
         print(f"Run directory: {result.run_dir}")
@@ -157,6 +160,12 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     _add_bool(run_cmd, "verbose", "Print turn-by-turn output")
+    run_cmd.add_argument(
+        "--emit-progress-markers",
+        action="store_true",
+        default=False,
+        help=argparse.SUPPRESS,
+    )
 
     _add_bool(run_cmd, "keep-private-reflection", "Keep private reflections in local history")
 

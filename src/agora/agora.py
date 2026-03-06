@@ -16,6 +16,7 @@ ALLOWED_SUBTURN_EVENTS = (
     "public_survey",
     "private_survey",
 )
+SWEEP_PROGRESS_PREFIX = "[agora progress]"
 
 
 class Agora:
@@ -149,6 +150,7 @@ class Agora:
         num_turns: int,
         verbose: bool = False,
         skip_first_agent_first_reflection: bool = False,
+        emit_progress_markers: bool = False,
     ) -> List[MemoryTurn]:
         """Run periodic macro-turns; each turn contains Alpha then Beta sub-turns."""
 
@@ -157,6 +159,7 @@ class Agora:
 
         first_reflection_skipped = False
         starting_turn_num = len(self._turns)
+        final_turn_total = starting_turn_num + num_turns
         self._clear_post_interviews_for_continuation()
 
         # Turn 0 special case: optional pre-interviews, once per conversation.
@@ -189,6 +192,11 @@ class Agora:
 
         for offset in range(1, num_turns + 1):
             turn_num = starting_turn_num + offset
+            if emit_progress_markers:
+                print(
+                    f"{SWEEP_PROGRESS_PREFIX} Turn {turn_num}/{final_turn_total}",
+                    flush=True,
+                )
             turn_entry = {
                 "turn_num": turn_num,
                 "Alpha": self._blank_subturn(self._agents[0]),

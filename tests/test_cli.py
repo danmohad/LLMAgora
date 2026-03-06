@@ -77,6 +77,10 @@ def test_build_parser_registers_run_subcommand():
     args_sweep_run_default = parser.parse_args(["sweep", "run"])
     assert args_sweep_run_default.func is cli._sweep_run
     assert args_sweep_run_default.root is None
+    args_emit_progress = parser.parse_args(
+        ["run", "--scenario-id", "s1", "--emit-progress-markers"]
+    )
+    assert args_emit_progress.emit_progress_markers is True
     args_sweep_run_disable_stop = parser.parse_args(
         ["sweep", "run", "--root", "outputs/sweeps/example", "--no-stop-on-error"]
     )
@@ -104,8 +108,9 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         captured["overrides"] = overrides
         return ExperimentConfig(scenario_id="override-scenario", indexed_output=True)
 
-    def fake_run_persona_experiment(config):
+    def fake_run_persona_experiment(config, *, emit_progress_markers=False):
         captured["final_cfg"] = config
+        captured["emit_progress_markers"] = emit_progress_markers
         captured["called"] = True
         return _result(tmp_path / "outputs" / "abc123", run_id="abc123")
 
@@ -148,6 +153,7 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
         index_csv=None,
         catalog_path=None,
         prompts_path=None,
+        emit_progress_markers=True,
         print_histories=True,
     )
 
@@ -162,6 +168,7 @@ def test_run_uses_config_and_cli_overrides(tmp_path, monkeypatch, capsys):
     assert captured["overrides"]["semantic_similarity_model"] == "dleemiller/finecat-nli-l"
     assert captured["overrides"]["semantic_similarity_device"] == "cpu"
     assert captured["overrides"]["persona_analysis_metrics"] == []
+    assert captured["emit_progress_markers"] is True
     assert captured["called"] is True
     assert captured["printed"] is True
 
@@ -177,8 +184,9 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         captured["payload"] = payload
         return ExperimentConfig(scenario_id="from-flags")
 
-    def fake_run_persona_experiment(config):
+    def fake_run_persona_experiment(config, *, emit_progress_markers=False):
         captured["cfg"] = config
+        captured["emit_progress_markers"] = emit_progress_markers
         captured["called"] = True
         return _result(tmp_path / "outputs" / "named")
 
@@ -219,6 +227,7 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
         index_csv=tmp_path / "outputs" / "index.csv",
         catalog_path=tmp_path / "catalog.json",
         prompts_path=tmp_path / "prompts.json",
+        emit_progress_markers=False,
         print_histories=False,
     )
 
@@ -226,6 +235,7 @@ def test_run_without_config_calls_build_config(tmp_path, monkeypatch):
 
     assert captured["payload"]["scenario_id"] == "from-flags"
     assert captured["payload"]["model"] == "shared-model"
+    assert captured["emit_progress_markers"] is False
     assert captured["called"] is True
 
 
@@ -235,8 +245,9 @@ def test_run_with_config_can_clear_incentive_direction(tmp_path, monkeypatch):
     def fake_load(_path):
         return ExperimentConfig(scenario_id="from-file", incentive_direction="positive")
 
-    def fake_run_persona_experiment(config):
+    def fake_run_persona_experiment(config, *, emit_progress_markers=False):
         captured["cfg"] = config
+        captured["emit_progress_markers"] = emit_progress_markers
         return _result(None)
 
     monkeypatch.setattr(cli, "load_experiment_config", fake_load)
@@ -276,18 +287,21 @@ def test_run_with_config_can_clear_incentive_direction(tmp_path, monkeypatch):
         index_csv=None,
         catalog_path=None,
         prompts_path=None,
+        emit_progress_markers=False,
         print_histories=False,
     )
 
     cli._run(args)
     assert captured["cfg"].incentive_direction is None
+    assert captured["emit_progress_markers"] is False
 
 
 def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys):
     def fake_build(_payload):
         return ExperimentConfig(scenario_id="from-flags")
 
-    def fake_run_persona_experiment(_config):
+    def fake_run_persona_experiment(_config, *, emit_progress_markers=False):
+        assert emit_progress_markers is False
         return _result(None)
 
     monkeypatch.setattr(cli, "build_experiment_config", fake_build)
@@ -327,6 +341,7 @@ def test_run_without_outputs_prints_none_directory(tmp_path, monkeypatch, capsys
         index_csv=tmp_path / "outputs" / "index.csv",
         catalog_path=tmp_path / "catalog.json",
         prompts_path=tmp_path / "prompts.json",
+        emit_progress_markers=False,
         print_histories=False,
     )
 

@@ -5,17 +5,23 @@ from __future__ import annotations
 import hashlib
 import itertools
 import json
+import os
+import signal
 import shutil
 import subprocess
 import sys
 import time
+from collections import deque
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import fields
 from datetime import UTC, datetime
+from functools import lru_cache
 from pathlib import Path
+import re
 from threading import Lock
 from typing import IO, Any, Mapping, Sequence
 
+from .agora import SWEEP_PROGRESS_PREFIX
 from .experiment import (
     EXPERIMENT_PATH_FIELDS,
     ExperimentConfig,
@@ -40,6 +46,10 @@ TERMINAL_CASE_STATUSES: tuple[str, ...] = (
     "interrupted",
 )
 RUN_SELECTION_MODES: tuple[str, ...] = ("resume", "all", "failed", "pending")
+_TRACEBACK_PREFIX = "Traceback (most recent call last):"
+_TRACEBACK_EXIT_GRACE_SECONDS = 5.0
+_PROCESS_POLL_INTERVAL_SECONDS = 0.25
+_PROGRESS_RE = re.compile(rf"^{re.escape(SWEEP_PROGRESS_PREFIX)} Turn (\d+)/(\d+)$")
 MASTER_ALLOWED_KEYS = frozenset(
     {
         "sweep_root",
@@ -156,6 +166,85 @@ def _load_json_object(path: Path) -> dict[str, Any]:
     if not isinstance(payload, dict):
         raise ValueError(f"{path.name} must be a JSON object")
     return payload
+
+
+def _read_log_delta(
+    path: Path,
+    *,
+    offset: int,
+) -> tuple[int, list[str]]:
+    if not path.exists():
+        return offset, []
+    with path.open("r", encoding="utf-8", errors="replace") as handle:
+        handle.seek(offset)
+        chunk = handle.read()
+        new_offset = handle.tell()
+    if not chunk:
+        return new_offset, []
+    return new_offset, chunk.splitlines()
+
+
+def _error_summary_from_log_lines(
+    lines: Sequence[str],
+    *,
+    fallback: str,
+) -> str:
+    ignored_prefixes = (
+        "Traceback ",
+        'File "',
+        "[agora sweep]",
+    )
+    ignored_lines = {
+        "The above exception was the direct cause of the following exception:",
+        "During handling of the above exception, another exception occurred:",
+    }
+    for line in reversed([item.strip() for item in lines if item.strip()]):
+        if line in ignored_lines:
+            continue
+        if line.startswith(ignored_prefixes):
+            continue
+        return line
+    return fallback
+
+
+def _read_text_tail(path: Path, *, max_bytes: int = 8192) -> str:
+    if not path.exists():
+        return ""
+    size = path.stat().st_size
+    with path.open("rb") as handle:
+        if size > max_bytes:
+            handle.seek(-max_bytes, os.SEEK_END)
+        chunk = handle.read()
+    return chunk.decode("utf-8", errors="replace")
+
+
+@lru_cache(maxsize=None)
+def _case_total_turns(config_path: str) -> int:
+    payload = _load_json_object(Path(config_path))
+    return int(build_experiment_config(payload).num_turns)
+
+
+def _case_turn_progress(
+    root: Path | str,
+    case: Mapping[str, Any],
+) -> str:
+    root_path = Path(root)
+    config_path = case.get("config_path")
+    if config_path is None:
+        config_path = Path(case["case_dir"]) / "config.json"
+    total_turns = _case_total_turns(str(root_path / config_path))
+    log_text = _read_text_tail(root_path / case["case_dir"] / "run.log")
+
+    last_match: tuple[str, str] | None = None
+    for line in log_text.splitlines():
+        match = _PROGRESS_RE.match(line.strip())
+        if match is not None:
+            last_match = match.groups()
+
+    if last_match is not None:
+        current_turn, total_from_log = last_match
+        return f"Turn {current_turn}/{total_from_log}"
+    return f"Turn 0/{total_turns}"
 
 
 def _write_text_atomic(path: Path, text: str) -> None:
@@ -546,6 +635,48 @@ def _truncate(text: str, width: int) -> str:
     return text[: width - 3] + "..."
 
 
+def _terminate_process(
+    process: subprocess.Popen[Any],
+    *,
+    grace_seconds: float = 2.0,
+) -> int | None:
+    return_code = process.poll()
+    if return_code is not None:
+        return return_code
+
+    process_id = getattr(process, "pid", None)
+    use_process_group = process_id is not None and hasattr(os, "killpg")
+
+    try:
+        if use_process_group:
+            os.killpg(process_id, signal.SIGTERM)
+        else:
+            process.terminate()
+    except ProcessLookupError:
+        return process.poll()
+
+    deadline = time.time() + grace_seconds
+    while process.poll() is None:
+        remaining = max(0.0, deadline - time.time())
+        if remaining == 0.0:
+            break
+        try:
+            return process.wait(timeout=remaining)
+        except subprocess.TimeoutExpired:
+            break
+
+    if process.poll() is None:
+        try:
+            if use_process_group:
+                os.killpg(process_id, signal.SIGKILL)
+            else:
+                process.kill()
+        except ProcessLookupError:
+            return process.poll()
+
+    return process.wait()
+
+
 def _progress_bar(completed: int, total: int, width: int) -> str:
     width = max(10, width)
     if total <= 0:
@@ -632,6 +763,7 @@ def render_status_dashboard(
                 case_id,
                 str(record.get("attempt_count", 0)),
                 _render_duration(elapsed),
+                _case_turn_progress(root, case_lookup.get(case_id, {})),
                 case_lookup.get(case_id, {}).get("label", "unknown"),
             )
         )
@@ -679,8 +811,11 @@ def render_status_dashboard(
     lines.append("")
     lines.append("Running:")
     if active_rows:
-        for case_id, attempt, elapsed, label in active_rows[:active_slots]:
-            row = f"  {case_id} | attempt {attempt} | {elapsed} | {label}"
+        for case_id, attempt, elapsed, turn_progress, label in active_rows[:active_slots]:
+            row = (
+                f"  {case_id} | attempt {attempt} | {elapsed} | "
+                f"{turn_progress} | {label}"
+            )
             lines.append(_truncate(row, width))
     else:
         lines.append("  <none>")
@@ -905,18 +1040,59 @@ def _run_case_subprocess(
             process = subprocess.Popen(
                 [
                     sys.executable,
+                    "-u",
                     "-m",
                     "agora.cli",
                     "run",
+                    "--emit-progress-markers",
                     "--config",
                     str(config_path),
                 ],
                 stdout=handle,
                 stderr=subprocess.STDOUT,
+                start_new_session=True,
             )
             with process_lock:
                 active_processes[case_id] = process
-            return_code = process.wait()
+            log_offset = 0
+            log_lines: deque[str] = deque(maxlen=50)
+            traceback_started_at: float | None = None
+            terminated_after_traceback = False
+
+            while True:
+                handle.flush()
+                log_offset, new_lines = _read_log_delta(log_path, offset=log_offset)
+                if new_lines:
+                    log_lines.extend(new_lines)
+                    if (
+                        traceback_started_at is None
+                        and any(line.startswith(_TRACEBACK_PREFIX) for line in new_lines)
+                    ):
+                        traceback_started_at = time.monotonic()
+
+                return_code = process.poll()
+                if return_code is not None:
+                    break
+
+                if (
+                    traceback_started_at is not None
+                    and time.monotonic() - traceback_started_at
+                    >= _TRACEBACK_EXIT_GRACE_SECONDS
+                ):
+                    handle.write(
+                        "\n[agora sweep] Traceback detected but process did not exit; terminating.\n"
+                    )
+                    handle.flush()
+                    return_code = _terminate_process(process)
+                    terminated_after_traceback = True
+                    break
+
+                time.sleep(_PROCESS_POLL_INTERVAL_SECONDS)
+
+            handle.flush()
+            log_offset, new_lines = _read_log_delta(log_path, offset=log_offset)
+            if new_lines:
+                log_lines.extend(new_lines)
     except Exception as exc:
         store.mark_case_finished(
             case_id,
@@ -937,7 +1113,12 @@ def _run_case_subprocess(
         error_summary = None
     else:
         final_status = "failed"
-        error_summary = f"Process exited with code {return_code}"
+        fallback = (
+            "Process hung after traceback and was terminated"
+            if terminated_after_traceback
+            else f"Process exited with code {return_code}"
+        )
+        error_summary = _error_summary_from_log_lines(log_lines, fallback=fallback)
 
     store.mark_case_finished(
         case_id,
@@ -959,19 +1140,7 @@ def _terminate_active_processes(
         interrupted_case_ids.update(case_id for case_id, _ in processes)
 
     for _, process in processes:
-        if process.poll() is None:
-            process.terminate()
-
-    deadline = time.time() + 2.0
-    for _, process in processes:
-        if process.poll() is not None:
-            continue
-        remaining = max(0.0, deadline - time.time())
-        try:
-            process.wait(timeout=remaining)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            process.wait()
+        _terminate_process(process)
 
 
 def _build_summary(

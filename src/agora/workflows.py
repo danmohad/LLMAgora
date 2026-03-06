@@ -119,6 +119,7 @@ def run_debate_session(
     event_order: Optional[Sequence[str]] = None,
     verbose: bool = False,
     skip_first_agent_first_reflection: bool = False,
+    emit_progress_markers: bool = False,
     snapshot_path: Optional[Path | str] = None,
     load_snapshot_flag: bool = False,
     save_snapshot_flag: bool = False,
@@ -160,6 +161,7 @@ def run_debate_session(
                 num_turns=num_turns,
                 verbose=verbose,
                 skip_first_agent_first_reflection=skip_first_agent_first_reflection,
+                emit_progress_markers=emit_progress_markers,
             )
 
         if save_snapshot_flag and snapshot_file:

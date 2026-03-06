@@ -588,6 +588,8 @@ def _survey_responses_by_agent(
 
 def run_persona_experiment(
     config: ExperimentConfig | Mapping[str, Any],
+    *,
+    emit_progress_markers: bool = False,
 ) -> ExperimentResult:
     """Run one scenario-based experiment and persist all artifacts in one folder."""
 
@@ -703,6 +705,7 @@ def run_persona_experiment(
         event_order=cfg.subturn_event_order,
         verbose=cfg.verbose,
         skip_first_agent_first_reflection=_derive_skip_first_reflection(cfg.subturn_event_order),
+        emit_progress_markers=emit_progress_markers,
         snapshot_path=snapshot_path,
         load_snapshot_flag=cfg.load_snapshot,
         save_snapshot_flag=cfg.save_snapshot,
