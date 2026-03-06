@@ -324,6 +324,13 @@ def test_build_experiment_config_and_helpers(tmp_path):
     assert cfg_similarity_opts.semantic_similarity_method == "nli"
     assert cfg_similarity_opts.semantic_similarity_model == "dleemiller/finecat-nli-l"
     assert cfg_similarity_opts.semantic_similarity_device == "mps"
+    cfg_similarity_null = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "semantic_similarity_method": None,
+        }
+    )
+    assert cfg_similarity_null.semantic_similarity_method is None
     with pytest.raises(ValueError):
         build_experiment_config(
             {
@@ -428,6 +435,65 @@ def test_build_experiment_config_and_helpers(tmp_path):
     indexed_path, indexed_id = _resolve_run_dir(cfg_indexed)
     assert indexed_id is not None
     assert indexed_path.name == indexed_id
+
+
+def test_load_experiment_config_resolves_relative_paths_from_config_dir(tmp_path):
+    config_dir = tmp_path / "configs"
+    config_dir.mkdir()
+    config_path = config_dir / "run.json"
+    config_path.write_text(
+        json.dumps(
+            {
+                "scenario_id": "s1",
+                "outputs_root": "../outputs",
+                "index_csv": "../reports/index.csv",
+                "load_snapshot": True,
+                "load_dir": "../snapshots/run-1",
+                "catalog_path": "../data/catalog.json",
+                "prompts_path": "../data/prompts.json",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    cfg = load_experiment_config(config_path)
+
+    assert cfg.outputs_root == tmp_path / "outputs"
+    assert cfg.index_csv == tmp_path / "reports" / "index.csv"
+    assert cfg.load_dir == tmp_path / "snapshots" / "run-1"
+    assert cfg.catalog_path == tmp_path / "data" / "catalog.json"
+    assert cfg.prompts_path == tmp_path / "data" / "prompts.json"
+
+    output_config_path = config_dir / "run_with_output_dir.json"
+    output_config_path.write_text(
+        json.dumps(
+            {
+                "scenario_id": "s1",
+                "output_dir": "../cases/case-1",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    output_cfg = load_experiment_config(output_config_path)
+
+    assert output_cfg.output_dir == tmp_path / "cases" / "case-1"
+
+
+def test_resolve_experiment_payload_paths_keeps_absolute_and_none_values(tmp_path):
+    base_dir = tmp_path / "configs"
+    absolute_prompts = (tmp_path / "shared" / "prompts.json").resolve()
+
+    resolved = experiment.resolve_experiment_payload_paths(
+        {
+            "prompts_path": absolute_prompts,
+            "index_csv": None,
+        },
+        base_dir=base_dir,
+    )
+
+    assert resolved["prompts_path"] == absolute_prompts
+    assert resolved["index_csv"] is None
 
     # Force indexed collision path to cover retry loop.
     class FakeUUID:
@@ -843,6 +909,48 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
         "persona_adherence",
     }
     assert eval_payload["semantic_similarity"]["self_consistency"] is not None
+
+
+def test_run_persona_experiment_defaults_semantic_method_when_config_explicitly_null(
+    tmp_path, monkeypatch
+):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+    captured = {}
+
+    def fake_run_debate_session(*args, **kwargs):
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    class FakeAnalyzer:
+        def __init__(self, _turns, **kwargs):
+            captured["method"] = kwargs["method"]
+
+        def compute_self_consistency_scores(self):
+            return {"Alpha": {"turns": [0], "scores": [0.5]}}
+
+        def compute_cross_agent_alignment_scores(self, _a, _b):
+            return {"turns": [0], "scores": [0.3]}
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+    monkeypatch.setattr(experiment, "SemanticSimilarityAnalyzer", FakeAnalyzer)
+
+    result = run_persona_experiment(
+        {
+            "scenario_id": "s1",
+            "outputs_root": tmp_path / "outputs",
+            "catalog_path": catalog_path,
+            "prompts_path": prompts_path,
+            "run_name": "null_semantic_method",
+            "save_snapshot": True,
+            "semantic_analysis_metrics": ["self_consistency"],
+            "semantic_similarity_method": None,
+        }
+    )
+
+    assert result.eval_data["semantic_similarity"]["self_consistency"] is not None
+    assert captured["method"] == experiment.SEMANTIC_SIMILARITY_METHOD_COSINE
 
 
 def test_run_persona_experiment_reuses_load_dir_for_outputs(tmp_path, monkeypatch):

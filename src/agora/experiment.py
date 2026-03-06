@@ -50,6 +50,17 @@ DEFAULT_CATALOG_PATH = Path("data/scenarios.json")
 DEFAULT_PROMPTS_PATH = Path("data/prompts.json")
 DEFAULT_OUTPUTS_ROOT = Path("outputs")
 DEFAULT_INDEX_CSV = DEFAULT_OUTPUTS_ROOT / "index.csv"
+EXPERIMENT_PATH_FIELDS = frozenset(
+    {
+        "outputs_root",
+        "index_csv",
+        "load_dir",
+        "output_dir",
+        "catalog_path",
+        "prompts_path",
+    }
+)
+_PRESERVE_EXPLICIT_NONE_FIELDS = frozenset({"semantic_similarity_method"})
 
 SEMANTIC_METRIC_SELF_CONSISTENCY = "self_consistency"
 SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT = "cross_agent_public_alignment"
@@ -86,7 +97,7 @@ class ExperimentConfig:
     keep_private_survey: bool = False
 
     semantic_analysis_metrics: list[str] = field(default_factory=list)
-    semantic_similarity_method: str = SEMANTIC_SIMILARITY_METHOD_COSINE
+    semantic_similarity_method: Optional[str] = SEMANTIC_SIMILARITY_METHOD_COSINE
     semantic_similarity_model: Optional[str] = None
     semantic_similarity_device: Optional[str] = None
     persona_analysis_metrics: list[str] = field(default_factory=list)
@@ -151,6 +162,25 @@ def _coerce_optional_path(value: Any) -> Optional[Path]:
     if isinstance(value, Path):
         return value
     return Path(str(value))
+
+
+def _resolve_relative_path(path: Path, *, base_dir: Path) -> Path:
+    if path.is_absolute():
+        return path.resolve()
+    return (base_dir / path).resolve()
+
+
+def resolve_experiment_payload_paths(
+    payload: Mapping[str, Any], *, base_dir: Path
+) -> dict[str, Any]:
+    resolved = dict(payload)
+    for field_name in EXPERIMENT_PATH_FIELDS & resolved.keys():
+        value = resolved[field_name]
+        if value is None:
+            continue
+        path_value = value if isinstance(value, Path) else Path(str(value))
+        resolved[field_name] = _resolve_relative_path(path_value, base_dir=base_dir)
+    return resolved
 
 
 def _coerce_event_order(value: Any) -> Optional[list[str]]:
@@ -380,7 +410,11 @@ def _ensure_required(config: dict[str, Any], required: str) -> Any:
 def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
     """Create a validated ``ExperimentConfig`` from dictionary data."""
 
-    data = {key: value for key, value in dict(payload).items() if value is not None}
+    data = {
+        key: value
+        for key, value in dict(payload).items()
+        if value is not None or key in _PRESERVE_EXPLICIT_NONE_FIELDS
+    }
     data["scenario_id"] = _ensure_required(data, "scenario_id")
 
     path_fields: tuple[tuple[str, Path], ...] = (
@@ -426,7 +460,10 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("incentive_type must be 'historical' or 'future'")
     if cfg.show_plots and not cfg.save_plots:
         raise ValueError("show_plots requires save_plots=True")
-    if cfg.semantic_similarity_method not in SEMANTIC_SIMILARITY_METHODS:
+    if (
+        cfg.semantic_similarity_method is not None
+        and cfg.semantic_similarity_method not in SEMANTIC_SIMILARITY_METHODS
+    ):
         raise ValueError(
             "semantic_similarity_method must be one of "
             f"{list(SEMANTIC_SIMILARITY_METHODS)}"
@@ -493,10 +530,14 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
 def load_experiment_config(path: Path | str) -> ExperimentConfig:
     """Load an experiment config JSON file."""
 
-    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    config_path = Path(path)
+    payload = json.loads(config_path.read_text(encoding="utf-8"))
     if not isinstance(payload, dict):
         raise ValueError("Experiment config must be a JSON object")
-    return build_experiment_config(payload)
+    resolved_payload = resolve_experiment_payload_paths(
+        payload, base_dir=config_path.resolve().parent
+    )
+    return build_experiment_config(resolved_payload)
 
 
 def _merge_config(base: Mapping[str, Any], overrides: Mapping[str, Any]) -> ExperimentConfig:
@@ -680,7 +721,8 @@ def run_persona_experiment(
     if selected_semantic_metrics:
         semantic_analyzer = SemanticSimilarityAnalyzer(
             structured_history,
-            method=cfg.semantic_similarity_method,
+            method=cfg.semantic_similarity_method
+            or SEMANTIC_SIMILARITY_METHOD_COSINE,
             model_name=cfg.semantic_similarity_model,
             device=cfg.semantic_similarity_device,
         )

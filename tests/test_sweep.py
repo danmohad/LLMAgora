@@ -189,6 +189,74 @@ def test_load_sweep_config_and_expand_cases(tmp_path):
     assert Path(cases[0]["config_payload"]["output_dir"]).is_absolute()
 
 
+def test_load_sweep_config_resolves_relative_path_fields(tmp_path):
+    config_dir = tmp_path / "configs"
+    config_dir.mkdir()
+    master_path = config_dir / "master.jsonc"
+    master_path.write_text(
+        (
+            "{\n"
+            '  "sweep_root": "../sweeps/demo",\n'
+            '  "base": {\n'
+            '    "scenario_id": "s1",\n'
+            '    "catalog_path": "../data/catalog.json"\n'
+            "  },\n"
+            '  "sweep": {\n'
+            '    "prompts_path": ["../data/prompts-a.json", "../data/prompts-b.json"]\n'
+            "  }\n"
+            "}\n"
+        ),
+        encoding="utf-8",
+    )
+
+    master, _ = sweep.load_sweep_config(master_path)
+
+    assert master["sweep_root"] == tmp_path / "sweeps" / "demo"
+    assert master["base"]["catalog_path"] == tmp_path / "data" / "catalog.json"
+    assert master["sweep"]["prompts_path"] == [
+        tmp_path / "data" / "prompts-a.json",
+        tmp_path / "data" / "prompts-b.json",
+    ]
+
+
+def test_generate_sweep_preserves_explicit_nulls_and_avoids_unspecified_defaults(tmp_path):
+    config_dir = tmp_path / "configs"
+    config_dir.mkdir()
+    master_path = config_dir / "master.jsonc"
+    master_path.write_text(
+        (
+            "{\n"
+            '  "sweep_root": "../sweeps/demo",\n'
+            '  "base": {\n'
+            '    "scenario_id": "s1",\n'
+            '    "catalog_path": "../data/catalog.json",\n'
+            '    "prompts_path": "../data/prompts.json",\n'
+            '    "semantic_similarity_method": null\n'
+            "  },\n"
+            '  "sweep": {\n'
+            '    "incentive_type": ["historical"]\n'
+            "  }\n"
+            "}\n"
+        ),
+        encoding="utf-8",
+    )
+
+    manifest = sweep.generate_sweep(master_path)
+    root = Path(manifest["sweep_root"])
+    case_id = manifest["cases"][0]["case_id"]
+    config_payload = json.loads(
+        (root / "cases" / case_id / "config.json").read_text(encoding="utf-8")
+    )
+
+    assert config_payload["catalog_path"] == str(tmp_path / "data" / "catalog.json")
+    assert config_payload["prompts_path"] == str(tmp_path / "data" / "prompts.json")
+    assert config_payload["semantic_similarity_method"] is None
+    assert config_payload["incentive_type"] == "historical"
+    assert Path(config_payload["output_dir"]).is_absolute()
+    assert "semantic_similarity_model" not in config_payload
+    assert "subturn_event_order" not in config_payload
+
+
 def test_expand_cases_rejects_duplicates_and_hash_collisions(tmp_path, monkeypatch):
     master = sweep._normalize_master_config(
         {

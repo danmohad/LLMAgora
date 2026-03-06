@@ -10,13 +10,18 @@ import subprocess
 import sys
 import time
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
-from dataclasses import asdict, fields
+from dataclasses import fields
 from datetime import UTC, datetime
 from pathlib import Path
 from threading import Lock
 from typing import IO, Any, Mapping, Sequence
 
-from .experiment import ExperimentConfig, build_experiment_config
+from .experiment import (
+    EXPERIMENT_PATH_FIELDS,
+    ExperimentConfig,
+    build_experiment_config,
+    resolve_experiment_payload_paths,
+)
 
 SWEEP_SCHEMA_VERSION = 1
 CASE_STATUSES: tuple[str, ...] = (
@@ -243,10 +248,52 @@ def _normalize_master_config(payload: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+def _resolve_sweep_master_paths(
+    payload: Mapping[str, Any], *, base_dir: Path
+) -> dict[str, Any]:
+    resolved = dict(payload)
+
+    sweep_root = resolved.get("sweep_root")
+    if sweep_root is not None:
+        sweep_root_path = (
+            sweep_root if isinstance(sweep_root, Path) else Path(str(sweep_root))
+        )
+        if not sweep_root_path.is_absolute():
+            resolved["sweep_root"] = (base_dir / sweep_root_path).resolve()
+        else:
+            resolved["sweep_root"] = sweep_root_path.resolve()
+
+    base_payload = resolved.get("base")
+    if isinstance(base_payload, Mapping):
+        resolved["base"] = resolve_experiment_payload_paths(
+            base_payload, base_dir=base_dir
+        )
+
+    sweep_payload = resolved.get("sweep")
+    if isinstance(sweep_payload, Mapping):
+        resolved_sweep: dict[str, Any] = {}
+        for field_name, values in sweep_payload.items():
+            if field_name not in EXPERIMENT_PATH_FIELDS or not isinstance(values, list):
+                resolved_sweep[field_name] = values
+                continue
+            resolved_sweep[field_name] = [
+                resolve_experiment_payload_paths(
+                    {field_name: value}, base_dir=base_dir
+                )[field_name]
+                for value in values
+            ]
+        resolved["sweep"] = resolved_sweep
+
+    return resolved
+
+
 def load_sweep_config(path: Path | str) -> tuple[dict[str, Any], str]:
     config_path = Path(path)
     raw_text = config_path.read_text(encoding="utf-8")
-    payload = _load_jsonc_object(raw_text)
+    payload = _resolve_sweep_master_paths(
+        _load_jsonc_object(raw_text),
+        base_dir=config_path.resolve().parent,
+    )
     return _normalize_master_config(payload), raw_text
 
 
@@ -315,7 +362,8 @@ def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
             seen_case_ids[case_id] = case_fingerprint
 
             case_dir = (sweep_root / "cases" / case_id).resolve()
-            validated = build_experiment_config({**merged, "output_dir": str(case_dir)})
+            config_payload = {**merged, "output_dir": case_dir}
+            build_experiment_config(config_payload)
 
             cases.append(
                 {
@@ -331,7 +379,7 @@ def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
                     "repeat_count": repeat_count,
                     "sweep_values": sweep_values,
                     "config_fingerprint": config_fingerprint,
-                    "config_payload": _json_ready(asdict(validated)),
+                    "config_payload": _json_ready(config_payload),
                 }
             )
 
