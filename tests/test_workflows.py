@@ -24,8 +24,22 @@ class CloseableStub:
         self.calls = []
         self.closed = False
 
-    def complete(self, *, messages, model):
-        self.calls.append({"messages": list(messages), "model": model})
+    def complete(
+        self,
+        *,
+        messages,
+        model,
+        survey_questions=None,
+        survey_question_groups=None,
+    ):
+        self.calls.append(
+            {
+                "messages": list(messages),
+                "model": model,
+                "survey_questions": survey_questions,
+                "survey_question_groups": survey_question_groups,
+            }
+        )
         return self._responses.pop(0)
 
     def close(self):

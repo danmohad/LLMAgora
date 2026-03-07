@@ -33,14 +33,16 @@ class SemanticSimilarityAnalyzer:
         model_name: Optional[str] = None,
         device: Optional[str] = None,
     ):
-        # Accept raw memory turns, canonical Agora structured history,
-        # or already-normalized debate data keyed by speaker.
+        # Accept canonical Agora structured history or already-normalized debate data.
         if isinstance(memory_turns, dict) and "turns" in memory_turns:
             self.debate_data = get_structured_debate_history(memory_turns)
         elif isinstance(memory_turns, dict):
             self.debate_data = memory_turns
         else:
-            self.debate_data = get_structured_debate_history(memory_turns)
+            raise ValueError(
+                "SemanticSimilarityAnalyzer requires canonical structured history "
+                "or normalized debate data"
+            )
 
         if method not in SEMANTIC_SIMILARITY_METHODS:
             raise ValueError(

@@ -34,6 +34,38 @@ class LLMClient(Protocol):
         """Return the chat completion text for the provided conversation."""
 
 
+def build_completion_payload(
+    *,
+    messages: Sequence[ChatMessage],
+    model: str,
+    survey_questions: Sequence[str] = None,
+    survey_question_groups: Mapping[str, str] | None = None,
+) -> Dict[str, Any]:
+    """Build the exact chat-completions payload sent to the provider."""
+
+    payload: Dict[str, Any] = {
+        "model": model,
+        "messages": list(messages),
+    }
+    if survey_questions is None:
+        return payload
+
+    if survey_question_groups:
+        full_question_groups = {
+            f"Q{i}": survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            for i in range(1, len(survey_questions) + 1)
+        }
+        survey_schema = build_survey_response_schema(full_question_groups)
+    else:
+        survey_schema = build_likert_survey_schema(num_questions=len(survey_questions))
+
+    payload["response_format"] = {
+        "type": "json_schema",
+        "json_schema": survey_schema,
+    }
+    return payload
+
+
 class OpenRouterClient:
     """Thin wrapper around the OpenRouter chat completion endpoint."""
 
@@ -69,32 +101,12 @@ class OpenRouterClient:
     ) -> str:
         """Submit a chat completion request and return the LLM's reply. If 'survey_questions' are supplied, then a structured response is requested."""
 
-        if survey_questions is not None:
-            if survey_question_groups:
-                full_question_groups = {
-                    f"Q{i}": survey_question_groups.get(
-                        f"Q{i}", SURVEY_GROUP_DEFAULT
-                    )
-                    for i in range(1, len(survey_questions) + 1)
-                }
-                survey_schema = build_survey_response_schema(full_question_groups)
-            else:
-                survey_schema = build_likert_survey_schema(
-                    num_questions=len(survey_questions)
-                )
-            payload: Dict[str, Any] = {
-                "model": model,
-                "messages": list(messages),
-                "response_format": {
-                    "type": "json_schema",
-                    "json_schema": survey_schema,
-                },
-            }
-        else:
-            payload: Dict[str, Any] = {
-                "model": model,
-                "messages": list(messages),
-            }
+        payload = build_completion_payload(
+            messages=messages,
+            model=model,
+            survey_questions=survey_questions,
+            survey_question_groups=survey_question_groups,
+        )
         response = self._client.post(
             "/chat/completions",
             headers={
@@ -138,5 +150,9 @@ class OpenRouterClient:
 
         self._client.close()
 
-
-__all__ = ["ChatMessage", "LLMClient", "OpenRouterClient"]
+__all__ = [
+    "ChatMessage",
+    "LLMClient",
+    "OpenRouterClient",
+    "build_completion_payload",
+]

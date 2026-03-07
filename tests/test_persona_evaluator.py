@@ -1,7 +1,6 @@
 import matplotlib
 import pytest
 
-from agora.memory import MemoryTurn
 from agora.debate_history import get_structured_debate_history
 from agora.persona_adherence_evaluator import (
     AgentPersonaEvaluation,
@@ -31,6 +30,45 @@ class StubClient:
 
 def _personas():
     return {"personas": {"p1": {"actual_persona": "Test persona"}}}
+
+
+def _structured_history(
+    turn_rows: list[tuple[str | None, str | None, str | None, str | None]],
+    *,
+    alpha_pre: str | None = None,
+    beta_pre: str | None = None,
+    alpha_post: str | None = None,
+    beta_post: str | None = None,
+):
+    return {
+        "pre_interviews": {
+            "Alpha": {"response": alpha_pre},
+            "Beta": {"response": beta_pre},
+        },
+        "turns": [
+            {
+                "turn_num": turn_num,
+                "Alpha": {
+                    "public_utterance": alpha_public,
+                    "private_utterance": alpha_private,
+                },
+                "Beta": {
+                    "public_utterance": beta_public,
+                    "private_utterance": beta_private,
+                },
+            }
+            for turn_num, (
+                alpha_public,
+                alpha_private,
+                beta_public,
+                beta_private,
+            ) in enumerate(turn_rows, start=1)
+        ],
+        "post_interviews": {
+            "Alpha": {"response": alpha_post},
+            "Beta": {"response": beta_post},
+        },
+    }
 
 
 def test_sample_persona_scores_handles_empty():
@@ -84,16 +122,20 @@ def test_create_prompt_requires_known_persona():
 
 def test_evaluate_debate_from_history_requires_two_agents():
     evaluator = PersonaEvaluator(StubClient(), _personas())
-    # Create memory turns with only one agent
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="test",
-            metadata={"speaker_name": "Alpha"},
-        ),
-    ]
+    turns = {
+        "Alpha": {
+            "debate_turns": [
+                {
+                    "turn_num": 1,
+                    "public_speech": "test",
+                    "private_reflection": "",
+                    "public_stance": "",
+                }
+            ],
+            "pre_interview": None,
+            "post_interview": None,
+        }
+    }
     with pytest.raises(ValueError, match="Expected exactly 2 agents"):
         evaluator.evaluate_debate_from_history(turns, "p1", "p1")
 
@@ -108,37 +150,7 @@ def test_evaluate_debate_scores_and_cumulative(monkeypatch):
 
     monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
 
-    # Create proper memory turns
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="A",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="A0",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=3,
-            speaker_id="b",
-            role="assistant",
-            public_speech="B",
-            metadata={"speaker_name": "Beta"},
-        ),
-        MemoryTurn(
-            turn_id=4,
-            speaker_id="b",
-            role="reflection",
-            private_reflection="B0",
-            metadata={"speaker_name": "Beta"},
-        ),
-    ]
+    turns = _structured_history([("A", "A0", "B", "B0")])
 
     result = evaluator.evaluate_debate_from_history(turns, "p1", "p1", n_samples=1)
     
@@ -158,36 +170,7 @@ def test_evaluate_debate_verbose_output(capsys, monkeypatch):
 
     monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
 
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="A",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="A0",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=3,
-            speaker_id="b",
-            role="assistant",
-            public_speech="B",
-            metadata={"speaker_name": "Beta"},
-        ),
-        MemoryTurn(
-            turn_id=4,
-            speaker_id="b",
-            role="reflection",
-            private_reflection="B0",
-            metadata={"speaker_name": "Beta"},
-        ),
-    ]
+    turns = _structured_history([("A", "A0", "B", "B0")])
 
     evaluator.evaluate_debate_from_history(turns, "p1", "p1", verbose=True, n_samples=1)
     output = capsys.readouterr().out
@@ -209,22 +192,7 @@ def test_evaluate_single_agent_empty_turns():
 
 def test_evaluate_debate_rejects_unknown_metric():
     evaluator = PersonaEvaluator(StubClient(), _personas())
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="A",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="b",
-            role="assistant",
-            public_speech="B",
-            metadata={"speaker_name": "Beta"},
-        ),
-    ]
+    turns = _structured_history([("A", None, "B", None)])
     with pytest.raises(ValueError, match="Unknown persona analysis metrics"):
         evaluator.evaluate_debate_from_history(
             turns,
@@ -243,36 +211,7 @@ def test_full_debate_metrics_can_run_without_cumulative(monkeypatch):
         return [4] * n_samples
 
     monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="A",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="A0",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=3,
-            speaker_id="b",
-            role="assistant",
-            public_speech="B",
-            metadata={"speaker_name": "Beta"},
-        ),
-        MemoryTurn(
-            turn_id=4,
-            speaker_id="b",
-            role="reflection",
-            private_reflection="B0",
-            metadata={"speaker_name": "Beta"},
-        ),
-    ]
+    turns = _structured_history([("A", "A0", "B", "B0")])
 
     result = evaluator.evaluate_debate_from_history(
         turns,
@@ -336,43 +275,11 @@ def test_evaluation_to_dict_roundtrip():
 
 
 def test_get_structured_debate_history_captures_turns():
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="pre_interview",
-            private_reflection="pre",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="reflect-first",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=3,
-            speaker_id="a",
-            role="assistant",
-            public_speech="public",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=4,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="reflect-after",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=5,
-            speaker_id="a",
-            role="post_interview",
-            private_reflection="post",
-            metadata={"speaker_name": "Alpha"},
-        ),
-    ]
+    turns = _structured_history(
+        [("public", "reflect-after", None, None)],
+        alpha_pre="pre",
+        alpha_post="post",
+    )
 
     structured = get_structured_debate_history(turns)
     alpha = structured["Alpha"]
@@ -384,58 +291,17 @@ def test_get_structured_debate_history_captures_turns():
 
 
 def test_get_structured_debate_history_multiple_turns():
-    turns = [
-        # Alpha turn 1
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="alpha-pub-1",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="alpha-priv-1",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        # Beta turn 1
-        MemoryTurn(
-            turn_id=3,
-            speaker_id="b",
-            role="assistant",
-            public_speech="beta-pub-1",
-            metadata={"speaker_name": "Beta"},
-        ),
-        MemoryTurn(
-            turn_id=4,
-            speaker_id="b",
-            role="reflection",
-            private_reflection="beta-priv-1",
-            metadata={"speaker_name": "Beta"},
-        ),
-        # Alpha turn 2
-        MemoryTurn(
-            turn_id=5,
-            speaker_id="a",
-            role="assistant",
-            public_speech="alpha-pub-2",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=6,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="alpha-priv-2",
-            metadata={"speaker_name": "Alpha"},
-        ),
-    ]
+    turns = _structured_history(
+        [
+            ("alpha-pub-1", "alpha-priv-1", "beta-pub-1", "beta-priv-1"),
+            ("alpha-pub-2", "alpha-priv-2", "beta-pub-2", "beta-priv-2"),
+        ]
+    )
 
     structured = get_structured_debate_history(turns)
     
     assert len(structured["Alpha"]["debate_turns"]) == 2
-    assert len(structured["Beta"]["debate_turns"]) == 1
+    assert len(structured["Beta"]["debate_turns"]) == 2
     
     assert structured["Alpha"]["debate_turns"][0]["public_speech"] == "alpha-pub-1"
     assert structured["Alpha"]["debate_turns"][0]["private_reflection"] == "alpha-priv-1"
@@ -444,6 +310,8 @@ def test_get_structured_debate_history_multiple_turns():
     
     assert structured["Beta"]["debate_turns"][0]["public_speech"] == "beta-pub-1"
     assert structured["Beta"]["debate_turns"][0]["private_reflection"] == "beta-priv-1"
+    assert structured["Beta"]["debate_turns"][1]["public_speech"] == "beta-pub-2"
+    assert structured["Beta"]["debate_turns"][1]["private_reflection"] == "beta-priv-2"
 
 
 def test_get_structured_debate_history_from_canonical_turn_structure():
@@ -478,36 +346,9 @@ def test_get_structured_debate_history_from_canonical_turn_structure():
     assert structured["Alpha"]["debate_turns"][0]["private_reflection"] == "alpha priv"
 
 
-def test_get_structured_debate_history_prefers_metadata_turn_mapping():
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="alpha-priv",
-            metadata={
-                "speaker_name": "Alpha",
-                "turn_num": 2,
-                "event_type": "private_utterance",
-            },
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="assistant",
-            public_speech="alpha-pub",
-            metadata={
-                "speaker_name": "Alpha",
-                "turn_num": 2,
-                "event_type": "public_utterance",
-            },
-        ),
-    ]
-
-    structured = get_structured_debate_history(turns)
-    assert structured["Alpha"]["debate_turns"][0]["turn_num"] == 2
-    assert structured["Alpha"]["debate_turns"][0]["public_speech"] == "alpha-pub"
-    assert structured["Alpha"]["debate_turns"][0]["private_reflection"] == "alpha-priv"
+def test_get_structured_debate_history_rejects_noncanonical_input():
+    with pytest.raises(ValueError, match="canonical structured history format"):
+        get_structured_debate_history([])
 
 
 def test_personas_with_nested_structure():
@@ -535,42 +376,19 @@ def test_n_samples_propagates_through_evaluation(monkeypatch):
 
     monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
     
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="A",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="a",
-            role="reflection",
-            private_reflection="A0",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=3,
-            speaker_id="b",
-            role="assistant",
-            public_speech="B",
-            metadata={"speaker_name": "Beta"},
-        ),
-        MemoryTurn(
-            turn_id=4,
-            speaker_id="b",
-            role="reflection",
-            private_reflection="B0",
-            metadata={"speaker_name": "Beta"},
-        ),
-    ]
+    turns = _structured_history([("A", "A0", "B", "B0")])
     
     evaluator.evaluate_debate_from_history(turns, "p1", "p1", n_samples=7)
     
     # All calls should have n_samples=7
     assert all(n == 7 for n in n_samples_used)
     assert len(n_samples_used) == 8  # 2 agents × 4 score types
+
+
+def test_evaluate_debate_rejects_raw_turn_list():
+    evaluator = PersonaEvaluator(StubClient(), _personas())
+    with pytest.raises(ValueError, match="canonical structured history"):
+        evaluator.evaluate_debate_from_history([], "p1", "p1")
 
 
 def test_full_debate_scores_match_last_cumulative():

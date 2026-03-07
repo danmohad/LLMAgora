@@ -1,10 +1,11 @@
 """Agent definitions for the Agora arena."""
 
+import json
 import re
 import uuid
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
-from .llm import ChatMessage, LLMClient
+from .llm import ChatMessage, LLMClient, build_completion_payload
 from .memory import MemoryTurn
 from .survey import (
     SURVEY_GROUP_DEFAULT,
@@ -89,6 +90,7 @@ class Agent:
         self._post_keep = post_interview_keep
         self._llm = llm_client
         self._memory: List[MemoryTurn] = []
+        self._pending_completion_receipts: List[Dict[str, Any]] = []
         self._agora: Optional["Agora"] = None
 
     def attach_agora(self, agora: "Agora") -> None:
@@ -199,10 +201,7 @@ class Agent:
         instruction = self._response_instruction
         if opening and self._opening_instruction:
             instruction = self._opening_instruction
-        messages = self._build_messages(final_instruction=instruction)
-        response = self._llm.complete(messages=messages, model=self.model)
-        cleaned = self._strip_speaker_prefix(response.strip())
-        return self._normalize_apostrophes(cleaned)
+        return self._complete_and_record(final_instruction=instruction)
 
     def generate_private_reflection(self) -> str:
         """Ask the LLM client for the agent's private reflection."""
@@ -211,18 +210,12 @@ class Agent:
             raise RuntimeError(
                 "Private reflection requested for agent without instructions"
             )
-        messages = self._build_messages(final_instruction=self._private_instruction)
-        response = self._llm.complete(messages=messages, model=self.model)
-        cleaned = self._strip_speaker_prefix(response.strip())
-        return self._normalize_apostrophes(cleaned)
+        return self._complete_and_record(final_instruction=self._private_instruction)
 
     def generate_interview_response(self, instruction: str) -> str:
         """Ask the LLM client for an interview response (pre/post)."""
 
-        messages = self._build_messages(final_instruction=instruction)
-        response = self._llm.complete(messages=messages, model=self.model)
-        cleaned = self._strip_speaker_prefix(response.strip())
-        return self._normalize_apostrophes(cleaned)
+        return self._complete_and_record(final_instruction=instruction)
 
     def generate_public_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a public survey response with JSON structured format."""
@@ -239,15 +232,11 @@ class Agent:
             group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
             survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
-        messages = self._build_messages(final_instruction=survey_prompt)
-        response = self._llm.complete(
-            messages=messages,
-            model=self.model,
+        return self._complete_and_record(
+            final_instruction=survey_prompt,
             survey_questions=survey_questions,
             survey_question_groups=resolved_question_groups,
         )
-        cleaned = self._strip_speaker_prefix(response.strip())
-        return self._normalize_apostrophes(cleaned)
 
     def generate_private_survey_response(self, survey_questions: list[str]) -> str:
         """Ask the LLM client for a private survey response with JSON structured format."""
@@ -264,15 +253,11 @@ class Agent:
             group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
             survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
-        messages = self._build_messages(final_instruction=survey_prompt)
-        response = self._llm.complete(
-            messages=messages,
-            model=self.model,
+        return self._complete_and_record(
+            final_instruction=survey_prompt,
             survey_questions=survey_questions,
             survey_question_groups=resolved_question_groups,
         )
-        cleaned = self._strip_speaker_prefix(response.strip())
-        return self._normalize_apostrophes(cleaned)
 
     def observe_turn(self, turn: MemoryTurn) -> None:
         """Append a public turn to the agent's personal memory."""
@@ -283,6 +268,13 @@ class Agent:
         """Clear the agent's memory (useful before loading history)."""
 
         self._memory.clear()
+
+    def drain_completion_receipts(self) -> list[dict[str, Any]]:
+        """Return and clear completion receipts recorded since the last drain."""
+
+        receipts = self._pending_completion_receipts
+        self._pending_completion_receipts = []
+        return receipts
 
     def export_configuration(self) -> Dict[str, Any]:
         """Return a JSON-serializable representation of the agent's prompts."""
@@ -354,6 +346,35 @@ class Agent:
 
         messages.append({"role": "user", "content": final_instruction})
         return messages
+
+    def _complete_and_record(
+        self,
+        *,
+        final_instruction: str,
+        survey_questions: Sequence[str] | None = None,
+        survey_question_groups: dict[str, str] | None = None,
+    ) -> str:
+        messages = self._build_messages(final_instruction=final_instruction)
+        request_payload = build_completion_payload(
+            messages=messages,
+            model=self.model,
+            survey_questions=survey_questions,
+            survey_question_groups=survey_question_groups,
+        )
+        response = self._llm.complete(
+            messages=messages,
+            model=self.model,
+            survey_questions=survey_questions,
+            survey_question_groups=survey_question_groups,
+        )
+        self._pending_completion_receipts.append(
+            {
+                "request": json.loads(json.dumps(request_payload)),
+                "response": response,
+            }
+        )
+        cleaned = self._strip_speaker_prefix(response.strip())
+        return self._normalize_apostrophes(cleaned)
 
     def _strip_speaker_prefix(self, text: str) -> str:
         """

@@ -40,6 +40,7 @@ class Agora:
         self._event_log: List[MemoryTurn] = []
         self._event_counter = 0
         self._turns: List[dict] = []
+        self._llm_receipts: List[dict] = []
         self._pre_interviews = self._empty_interview_stage(stage="pre")
         self._post_interviews = self._empty_interview_stage(stage="post")
         self._event_order = self._resolve_event_order(event_order)
@@ -137,12 +138,43 @@ class Agora:
 
         self._post_interviews = self._empty_interview_stage(stage="post")
         self._event_log = [turn for turn in self._event_log if turn.role != "post_interview"]
+        self._llm_receipts = [
+            receipt
+            for receipt in self._llm_receipts
+            if receipt.get("event_type") != "post_interview"
+        ]
 
         for agent in self._agents:
             agent.reset_memory()
         for agent in self._agents:
             for turn in self.history_for_agent(agent.id):
                 agent.observe_turn(turn)
+
+    def _append_completion_receipt(
+        self,
+        agent: Agent,
+        *,
+        turn_num: int,
+        subturn: str,
+        event_type: str,
+    ) -> None:
+        receipts = agent.drain_completion_receipts()
+        if len(receipts) != 1:
+            raise RuntimeError(
+                "Expected exactly one completion receipt per generation call, "
+                f"got {len(receipts)} for {agent.name} {event_type}"
+            )
+        receipt = dict(receipts[0])
+        receipt.update(
+            {
+                "speaker_id": agent.id,
+                "speaker_name": agent.name,
+                "turn_num": turn_num,
+                "subturn": subturn,
+                "event_type": event_type,
+            }
+        )
+        self._llm_receipts.append(json.loads(json.dumps(receipt)))
 
     def run(
         self,
@@ -169,6 +201,12 @@ class Agora:
                 if not agent.pre_interview_instruction:
                     continue
                 response = agent.generate_interview_response(agent.pre_interview_instruction)
+                self._append_completion_receipt(
+                    agent,
+                    turn_num=0,
+                    subturn=slot,
+                    event_type="pre_interview",
+                )
                 self._pre_interviews[slot]["response"] = response
                 self._pre_interviews[slot]["keep"] = agent.pre_interview_keep
                 pre_turn = MemoryTurn(
@@ -211,6 +249,12 @@ class Agora:
                 for event_name in self._event_order:
                     if event_name == "public_utterance":
                         speech = agent.generate_public_speech(opening=opening)
+                        self._append_completion_receipt(
+                            agent,
+                            turn_num=turn_num,
+                            subturn=slot,
+                            event_type="public_utterance",
+                        )
                         subturn["public_utterance"] = speech
                         public_turn = MemoryTurn(
                             turn_id=self._next_event_id(),
@@ -240,6 +284,12 @@ class Agora:
                             first_reflection_skipped = True
                             continue
                         reflection = agent.generate_private_reflection()
+                        self._append_completion_receipt(
+                            agent,
+                            turn_num=turn_num,
+                            subturn=slot,
+                            event_type="private_utterance",
+                        )
                         subturn["private_utterance"] = reflection
                         reflection_turn = MemoryTurn(
                             turn_id=self._next_event_id(),
@@ -267,6 +317,12 @@ class Agora:
                             continue
                         response = agent.generate_public_survey_response(
                             agent.survey_questions
+                        )
+                        self._append_completion_receipt(
+                            agent,
+                            turn_num=turn_num,
+                            subturn=slot,
+                            event_type="public_survey",
                         )
                         parsed = parse_survey_response_str(
                             response,
@@ -300,6 +356,12 @@ class Agora:
                             continue
                         response_private = agent.generate_private_survey_response(
                             agent.survey_questions
+                        )
+                        self._append_completion_receipt(
+                            agent,
+                            turn_num=turn_num,
+                            subturn=slot,
+                            event_type="private_survey",
                         )
                         parsed_private = parse_survey_response_str(
                             response_private,
@@ -337,6 +399,12 @@ class Agora:
             if not agent.post_interview_instruction:
                 continue
             response = agent.generate_interview_response(agent.post_interview_instruction)
+            self._append_completion_receipt(
+                agent,
+                turn_num=final_turn_num,
+                subturn=slot,
+                event_type="post_interview",
+            )
             self._post_interviews[slot] = {
                 "speaker_id": agent.id,
                 "speaker_name": agent.name,
@@ -372,6 +440,7 @@ class Agora:
         """Return canonical turn-structured history for outputs and analytics."""
         return {
             "event_order": list(self._event_order),
+            "llm_receipts": json.loads(json.dumps(self._llm_receipts)),
             "pre_interviews": json.loads(json.dumps(self._pre_interviews)),
             "turns": json.loads(json.dumps(self._turns)),
             "post_interviews": json.loads(json.dumps(self._post_interviews)),
@@ -385,6 +454,7 @@ class Agora:
         self,
         *,
         event_order: Sequence[str],
+        llm_receipts: Sequence[dict] | None = None,
         pre_interviews: dict,
         turns: Sequence[dict],
         post_interviews: dict,
@@ -392,6 +462,7 @@ class Agora:
         """Load canonical structured history and rebuild event-log memory."""
 
         self._event_order = self._resolve_event_order(event_order)
+        self._llm_receipts = json.loads(json.dumps(list(llm_receipts or [])))
         self._pre_interviews = json.loads(json.dumps(pre_interviews))
         self._turns = json.loads(json.dumps(list(turns)))
         self._post_interviews = json.loads(json.dumps(post_interviews))

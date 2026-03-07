@@ -225,16 +225,24 @@ Respond with ONLY a single number from 1 to 5, nothing else."""
 
     def evaluate_debate_from_history(
         self,
-        memory_turns: list,
+        memory_turns: dict[str, Any],
         alpha_persona_id: str,
         beta_persona_id: str,
         verbose: bool = False,
         n_samples: int = 1,
         metrics: Sequence[str] | None = None,
     ) -> DebatePersonaEvaluation:
-        """Evaluate selected persona metrics for both agents from debate history."""
+        """Evaluate selected persona metrics from structured or normalized debate data."""
         selected_metrics = _normalize_persona_metrics(metrics)
-        debate_data = get_structured_debate_history(memory_turns)
+        if isinstance(memory_turns, dict) and "turns" in memory_turns:
+            debate_data = get_structured_debate_history(memory_turns)
+        elif isinstance(memory_turns, dict):
+            debate_data = memory_turns
+        else:
+            raise ValueError(
+                "Persona evaluation requires canonical structured history "
+                "or normalized debate data"
+            )
         agent_names = list(debate_data.keys())
         if len(agent_names) != 2:
             raise ValueError(
