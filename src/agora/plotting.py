@@ -1,6 +1,7 @@
 """Plot helpers used by experiment output generation."""
 
 import math
+import textwrap
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -332,6 +333,17 @@ def _survey_panel_value(round_data: dict[str, Any], questions: list[str]) -> flo
 
 def _truncate_label(label: str, max_length: int = 20) -> str:
     return label[:max_length] + "..." if len(label) > max_length else label
+
+
+def _wrap_label(label: str, width: int = 28, max_lines: int = 2) -> str:
+    """Wrap *label* to at most *max_lines* lines of *width* characters each."""
+    lines = textwrap.wrap(label, width)
+    if len(lines) <= max_lines:
+        return "\n".join(lines)
+    truncated = lines[max_lines - 1]
+    if len(truncated) > width - 3:
+        truncated = truncated[: width - 3] + "..."
+    return "\n".join(lines[: max_lines - 1] + [truncated])
 
 
 def plot_persona_adherence(
@@ -861,3 +873,156 @@ def plot_group_emotions(
     plt.tight_layout()
     if show:
         plt.show()
+
+
+def plot_group_survey(
+    aggregated_survey: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    survey_questions: list[str] | list[dict[str, str]] | dict[str, list[str]] | None = None,
+    show: bool = True,
+) -> None:
+    """Plot survey responses aggregated across repeats with error bars.
+
+    Produces up to three figures: public responses, private responses, and
+    the public − private difference (mirroring :func:`plot_survey_distance`
+    but for aggregated data).  Each figure has one subplot per question panel.
+
+    Parameters
+    ----------
+    aggregated_survey:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_survey`.
+        Structure::
+
+            {
+                "public":  {"Alpha": {q_key: {"turns": [...], "mean": [...], "se": [...]}}, ...},
+                "private": {"Alpha": {q_key: ...}, ...},
+                "diff":    {"Alpha": {q_key: ...}, ...},  # public − private
+            }
+
+    alpha_name, beta_name:
+        Display names for the two agents (``"Alpha"`` and ``"Beta"`` slots).
+    survey_questions:
+        Optional question specs for panel labels and group structure.
+        Accepts the same format as :func:`plot_survey_responses`.
+        When *None*, each question key (Q1, Q2, …) becomes its own panel.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    _COLORS = {"Alpha": "tab:blue", "Beta": "tab:orange"}
+    _MARKERS = {"Alpha": "o", "Beta": "s"}
+    _FALLBACK_COLORS = ["tab:green", "tab:red"]
+    _FALLBACK_MARKERS = ["^", "D"]
+
+    _SLOT_DISPLAY = {"Alpha": alpha_name, "Beta": beta_name}
+
+    def _display(slot: str, i: int) -> str:
+        if slot in _SLOT_DISPLAY:
+            return _SLOT_DISPLAY[slot]
+        return slot
+
+    def _color(slot: str, i: int) -> str:
+        return _COLORS.get(slot, _FALLBACK_COLORS[i % len(_FALLBACK_COLORS)])
+
+    def _marker(slot: str, i: int) -> str:
+        return _MARKERS.get(slot, _FALLBACK_MARKERS[i % len(_FALLBACK_MARKERS)])
+
+    def _plot_figure(title: str, by_slot: dict, ylabel: str) -> None:
+        if not by_slot:
+            return
+
+        all_q_keys = sorted({q for slot_data in by_slot.values() for q in slot_data})
+        if not all_q_keys:
+            return
+
+        if survey_questions is not None:
+            question_specs = _normalize_plot_question_specs(survey_questions)
+            panels = _build_question_panels(question_specs, all_q_keys)
+        else:
+            panels = [{"label": q_key, "questions": [q_key]} for q_key in all_q_keys]
+
+        if not panels:
+            return
+
+        n = len(panels)
+        ncols = min(5, n)
+        nrows = math.ceil(n / ncols)
+
+        fig, axes = plt.subplots(
+            nrows, ncols,
+            figsize=(3 * ncols, 3 * nrows),
+            sharex=True, sharey=True,
+        )
+        axes = axes.flatten() if n > 1 else [axes]
+
+        slot_ids = list(by_slot.keys())
+
+        for ax, panel in zip(axes, panels):
+            for i, slot in enumerate(slot_ids):
+                slot_data = by_slot[slot]
+                panel_q_keys = [q for q in panel["questions"] if q in slot_data]
+                if not panel_q_keys:
+                    continue
+
+                all_turns = sorted({t for q in panel_q_keys for t in slot_data[q]["turns"]})
+                means: list[float] = []
+                ses: list[float] = []
+                for t in all_turns:
+                    q_vals = [
+                        slot_data[q]["mean"][slot_data[q]["turns"].index(t)]
+                        for q in panel_q_keys if t in slot_data[q]["turns"]
+                    ]
+                    q_ses = [
+                        slot_data[q]["se"][slot_data[q]["turns"].index(t)]
+                        for q in panel_q_keys if t in slot_data[q]["turns"]
+                    ]
+                    means.append(sum(q_vals) / len(q_vals) if q_vals else 0.0)
+                    n_q = len(q_ses)
+                    ses.append(
+                        math.sqrt(sum(s**2 for s in q_ses)) / n_q if n_q else 0.0
+                    )
+
+                ax.errorbar(
+                    all_turns, means, yerr=ses,
+                    marker=_marker(slot, i),
+                    color=_color(slot, i),
+                    label=_display(slot, i),
+                    linewidth=2,
+                    capsize=4,
+                    alpha=0.85,
+                )
+
+            ax.axhline(0, color="grey", linewidth=0.5, linestyle="--")
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+            ax.set_title(_wrap_label(panel["label"]), fontsize=8)
+            ax.grid(True, alpha=0.3)
+
+        for ax in axes[n:]:
+            ax.set_visible(False)
+
+        handles, labels = axes[0].get_legend_handles_labels()
+        if handles:
+            fig.legend(handles, labels, loc="upper center", ncol=len(slot_ids))
+        fig.suptitle(title)
+        fig.supxlabel("Turn Number")
+        fig.supylabel(ylabel)
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+    _plot_figure(
+        "Aggregated Public Survey Responses  (mean \u00b1 SE across repeats)",
+        aggregated_survey.get("public", {}),
+        "Response score (mean \u00b1 SE)",
+    )
+    _plot_figure(
+        "Aggregated Private Survey Responses  (mean \u00b1 SE across repeats)",
+        aggregated_survey.get("private", {}),
+        "Response score (mean \u00b1 SE)",
+    )
+    _plot_figure(
+        "Aggregated Public \u2212 Private Survey Distance  (mean \u00b1 SE across repeats)",
+        aggregated_survey.get("diff", {}),
+        "Public \u2212 Private (mean \u00b1 SE)",
+    )

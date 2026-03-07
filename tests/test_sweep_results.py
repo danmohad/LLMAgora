@@ -709,3 +709,133 @@ def test_plot_group_emotions_no_data(capsys):
     assert "No emotion data" in capsys.readouterr().out
 
 
+# ---------------------------------------------------------------------------
+# GroupAnalysisResult — aggregate_survey
+# ---------------------------------------------------------------------------
+
+def _make_survey_turns(turn_num: int, pub_scores: dict, priv_scores: dict) -> list[dict]:
+    """Build a structured-history turn (Alpha/Beta slot format) with survey data."""
+    return [{
+        "turn_num": turn_num,
+        "Alpha": {"speaker_id": "uuid-a", "public_survey": pub_scores, "private_survey": priv_scores},
+        "Beta": {"speaker_id": "uuid-b", "public_survey": pub_scores},
+    }]
+
+
+def _fake_result_with_survey(turns: list) -> object:
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": turns}
+    return MagicMock(agora=agora_mock)
+
+
+def test_group_result_aggregate_survey_basic():
+    turns1 = _make_survey_turns(1, {"Q1": 1, "Q2": -1}, {"Q1": 2})
+    turns2 = _make_survey_turns(1, {"Q1": 3, "Q2": 1}, {"Q1": 0})
+    r1 = _fake_result_with_survey(turns1)
+    r2 = _fake_result_with_survey(turns2)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+    agg = gr.aggregate_survey()
+
+    assert "public" in agg
+    assert "private" in agg
+    assert "diff" in agg
+
+    # Slot names, not speaker UUIDs
+    assert "Alpha" in agg["public"]
+    assert "Beta" in agg["public"]
+    assert len(agg["public"]) == 2
+
+    pub_a = agg["public"]["Alpha"]
+    assert pub_a["Q1"]["turns"] == [1]
+    assert pub_a["Q1"]["mean"] == pytest.approx([2.0])  # mean(1, 3)
+    assert pub_a["Q1"]["se"] == pytest.approx([1.0 / 2**0.5])  # std(1,3)/sqrt(2)
+    assert pub_a["Q2"]["mean"] == pytest.approx([0.0])  # mean(-1, 1)
+
+    priv_a = agg["private"]["Alpha"]
+    assert priv_a["Q1"]["mean"] == pytest.approx([1.0])  # mean(2, 0)
+
+    # diff = pub - priv for Alpha/Q1: mean(1-2, 3-0) = mean(-1, 3) = 1.0
+    diff_a = agg["diff"]["Alpha"]
+    assert diff_a["Q1"]["mean"] == pytest.approx([1.0])
+
+
+def test_group_result_aggregate_survey_empty():
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": []}
+    r = MagicMock(agora=agora_mock)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    assert gr.aggregate_survey() == {}
+
+
+def test_group_result_aggregate_survey_caching():
+    turns = _make_survey_turns(1, {"Q1": 1}, {})
+    r = _fake_result_with_survey(turns)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    agg = gr.aggregate_survey()
+    # Cache is used when no survey_questions provided
+    assert gr.aggregate_survey() is agg
+    # Passing survey_questions bypasses cache (always fresh)
+    agg_qs = gr.aggregate_survey(survey_questions=["Q1 text"])
+    assert agg_qs is not agg
+
+
+def test_group_result_aggregate_survey_sentiment_abs():
+    # Q1 is direct (pub 1, priv 3): signed diff = 1-3 = -2
+    # Q2 is sentiment (pub 1, priv 3): abs diff = |1-3| = 2
+    turns = _make_survey_turns(1, {"Q1": 1, "Q2": 1}, {"Q1": 3, "Q2": 3})
+    r = _fake_result_with_survey(turns)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    q_specs = {"direct": ["Direct question"], "sentiment": ["Sentiment question"]}
+    agg = gr.aggregate_survey(survey_questions=q_specs)
+
+    diff_a = agg["diff"]["Alpha"]
+    assert diff_a["Q1"]["mean"] == pytest.approx([-2.0])  # signed
+    assert diff_a["Q2"]["mean"] == pytest.approx([2.0])   # absolute
+
+
+def test_group_result_survey_question_specs_property():
+    # Returns empty list when no results have specs
+    turns = _make_survey_turns(1, {"Q1": 1}, {})
+    r = _fake_result_with_survey(turns)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    assert gr.survey_question_specs == []
+
+    # Returns specs from the first result that has them
+    r_with_specs = _fake_result_with_survey(turns)
+    specs = [{"text": "A question", "group": "direct"}]
+    r_with_specs.survey_question_specs = specs
+    gr2 = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r, r_with_specs])
+    assert gr2.survey_question_specs is specs
+
+
+def test_group_result_plot_survey_uses_stored_specs():
+    """plot_survey() auto-uses survey_question_specs without explicit arg."""
+    turns = _make_survey_turns(1, {"Q1": 1, "Q2": -1}, {"Q1": 2})
+    r = _fake_result_with_survey(turns)
+    r.survey_question_specs = [
+        {"text": "Direct question", "group": "direct"},
+        {"text": "Sentiment question", "group": "sentiment"},
+    ]
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    with patch("agora.plotting.plt.show"):
+        gr.plot_survey()  # should not raise; uses specs automatically
+
+
+def test_group_result_plot_survey_smoke():
+    turns = _make_survey_turns(1, {"Q1": 1, "Q2": -1}, {"Q1": 2})
+    r1 = _fake_result_with_survey(turns)
+    r2 = _fake_result_with_survey(turns)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+    with patch("agora.plotting.plt.show"):
+        gr.plot_survey()
+
+
+def test_group_result_plot_survey_no_data(capsys):
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": []}
+    r = MagicMock(agora=agora_mock)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    gr.plot_survey()
+    assert "No survey data" in capsys.readouterr().out
+
+

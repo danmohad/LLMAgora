@@ -339,3 +339,122 @@ def test_build_question_panels_adds_unknown_question_panel():
 
 def test_survey_panel_value_returns_none_when_no_values_present():
     assert plotting._survey_panel_value({"Q1": None}, ["Q1"]) is None
+
+
+# ---------------------------------------------------------------------------
+# plot_group_survey
+# ---------------------------------------------------------------------------
+
+def test_wrap_label_short_fits_one_line():
+    from agora.plotting import _wrap_label
+    assert _wrap_label("Short") == "Short"
+
+
+def test_wrap_label_long_wraps_to_two_lines():
+    from agora.plotting import _wrap_label
+    result = _wrap_label("This is a fairly long question label", width=20, max_lines=2)
+    assert "\n" in result
+    assert result.count("\n") == 1
+
+
+def test_wrap_label_very_long_truncates_second_line():
+    from agora.plotting import _wrap_label
+    long = "word " * 30
+    result = _wrap_label(long, width=20, max_lines=2)
+    assert result.count("\n") == 1
+    assert result.endswith("...")
+
+
+def test_plot_group_survey_public_and_private_smoke():
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    agg = {
+        "public": {
+            "Alpha": {"Q1": {"turns": [1, 2], "mean": [1.0, -1.0], "se": [0.1, 0.2]}},
+            "Beta": {"Q1": {"turns": [1, 2], "mean": [0.0, 0.5], "se": [0.05, 0.1]}},
+        },
+        "private": {
+            "Alpha": {"Q1": {"turns": [1, 2], "mean": [2.0, 0.0], "se": [0.3, 0.1]}},
+        },
+        "diff": {
+            "Alpha": {"Q1": {"turns": [1, 2], "mean": [-1.0, -1.0], "se": [0.2, 0.15]}},
+        },
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg, "Alpha Agent", "Beta Agent")
+
+
+def test_plot_group_survey_empty_does_not_crash():
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey({})
+        plot_group_survey({"public": {}, "private": {}})
+
+
+def test_plot_group_survey_with_questions():
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    agg = {
+        "public": {
+            "Alpha": {
+                "Q1": {"turns": [1], "mean": [1.0], "se": [0.1]},
+                "Q2": {"turns": [1], "mean": [-1.0], "se": [0.2]},
+            },
+        },
+        "diff": {
+            "Alpha": {
+                "Q1": {"turns": [1], "mean": [0.5], "se": [0.1]},
+            },
+        },
+    }
+    questions = {"default": ["Question one", "Question two"]}
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg, survey_questions=questions)
+
+
+def test_plot_group_survey_hides_unused_subplots(monkeypatch):
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    # 6 questions → 5-column layout → one unused subplot
+    agg = {
+        "public": {
+            "Alpha": {
+                f"Q{i}": {"turns": [1], "mean": [float(i)], "se": [0.1]}
+                for i in range(1, 7)
+            },
+        },
+    }
+    real_subplots = plt.subplots
+    captured: dict = {}
+
+    def capturing_subplots(*args, **kwargs):
+        fig, axes = real_subplots(*args, **kwargs)
+        captured["axes"] = axes
+        return fig, axes
+
+    monkeypatch.setattr(plt, "subplots", capturing_subplots)
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg)
+
+    axes = captured["axes"]
+    axes_list = axes.flatten() if hasattr(axes, "flatten") else [axes]
+    assert axes_list[6].get_visible() is False
+
+
+def test_plot_group_survey_panels_empty_does_not_crash(monkeypatch):
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    monkeypatch.setattr(plotting, "_build_question_panels", lambda *_a, **_kw: [])
+    agg = {
+        "public": {
+            "Alpha": {"Q1": {"turns": [1], "mean": [1.0], "se": [0.0]}},
+        },
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg, survey_questions=["A question"])

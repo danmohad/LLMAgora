@@ -206,6 +206,7 @@ class GroupAnalysisResult:
     _persona_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _nli_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _emotion_caches: dict = field(default_factory=dict, repr=False, compare=False, init=False)
+    _survey_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
 
     # ------------------------------------------------------------------ metadata
 
@@ -223,6 +224,20 @@ class GroupAnalysisResult:
         return (
             (agents[0].name, agents[1].name) if len(agents) >= 2 else (agents[0].name, "")
         )
+
+    @property
+    def survey_question_specs(self) -> list:
+        """Merged survey question specs from the first repeat that has them.
+
+        Each spec is a ``{"text": ..., "group": ...}`` dict as produced by
+        :func:`~agora.survey.merge_survey_question_configs`.  Returns an empty
+        list when no repeat stored question specs (e.g. survey was disabled).
+        """
+        for res in self.results:
+            specs = getattr(res, "survey_question_specs", [])
+            if specs:
+                return specs
+        return []
 
     # ------------------------------------------------------------------ aggregation
 
@@ -282,6 +297,138 @@ class GroupAnalysisResult:
                     per_role.setdefault(role, []).append(pers[role])
         result = {role: _agg_persona_role(rl) for role, rl in per_role.items()}
         self._persona_cache = result
+        return result
+
+    def aggregate_survey(self, survey_questions=None) -> dict:
+        """Aggregate survey responses across repeats (mean ± SE per turn per question).
+
+        Returns a dict with keys ``"public"``, ``"private"``, and ``"diff"``
+        (only those for which data exists).  Each maps **slot names** (``"Alpha"`` /
+        ``"Beta"``) to per-question aggregated series::
+
+            {
+                "public":  {"Alpha": {q_key: {"turns": [...], "mean": [...], "se": [...]}}, ...},
+                "private": {"Alpha": {q_key: ...}, ...},
+                "diff":    {"Alpha": {q_key: ...}, ...},
+            }
+
+        For questions in the ``"sentiment"`` group, the diff is computed as
+        ``abs(public − private)`` so that the aggregated mean reflects the
+        average *magnitude* of the gap (matching :func:`~agora.plotting.plot_survey_distance`).
+        Direct/default questions keep the signed difference.
+
+        Parameters
+        ----------
+        survey_questions:
+            Optional question specs (same format accepted by
+            :func:`~agora.plotting.plot_survey_responses`).  When supplied,
+            sentiment questions are identified and their diffs are
+            absolute-valued before aggregation.  When *None* every diff is
+            signed and results are cached on the instance.
+
+        Returns an empty dict if no survey responses are found.
+        """
+        if survey_questions is None and self._survey_cache is not None:
+            return self._survey_cache
+
+        from .survey import SURVEY_GROUP_DEFAULT, SURVEY_GROUP_SENTIMENT, normalize_survey_questions
+
+        sentiment_q_keys: set[str] = set()
+        if survey_questions is not None:
+            specs = normalize_survey_questions(survey_questions, default_group=SURVEY_GROUP_DEFAULT)
+            for i, spec in enumerate(specs, start=1):
+                if spec["group"] == SURVEY_GROUP_SENTIMENT:
+                    sentiment_q_keys.add(f"Q{i}")
+
+        def _parse_slot(turns: list, event_key: str) -> dict:
+            """Returns {slot: {turn_num: {q_key: score}}}, keyed by slot name."""
+            result: dict[str, dict[int, dict[str, float]]] = {}
+            for turn in turns:
+                turn_num = int(turn.get("turn_num", 0))
+                for slot in ("Alpha", "Beta"):
+                    subturn = turn.get(slot, {})
+                    scores = subturn.get(event_key)
+                    if scores is None:
+                        continue
+                    result.setdefault(slot, {})[turn_num] = scores
+            return result
+
+        def _accumulate(by_slot: dict, slot_data: dict) -> None:
+            for slot, slot_turns in slot_data.items():
+                for turn_num, questions in slot_turns.items():
+                    for q_key, score in questions.items():
+                        (
+                            by_slot
+                            .setdefault(slot, {})
+                            .setdefault(int(turn_num), {})
+                            .setdefault(q_key, [])
+                            .append(float(score))
+                        )
+
+        def _agg_by_question(by_slot: dict) -> dict:
+            out: dict[str, dict] = {}
+            for slot, turn_map in by_slot.items():
+                all_q_keys = sorted({qk for qd in turn_map.values() for qk in qd})
+                out[slot] = {}
+                for q_key in all_q_keys:
+                    turns = sorted(t for t in turn_map if q_key in turn_map[t])
+                    out[slot][q_key] = {
+                        "turns": turns,
+                        "mean": [float(np.mean(turn_map[t][q_key])) for t in turns],
+                        "se": [
+                            float(
+                                np.std(turn_map[t][q_key])
+                                / np.sqrt(max(len(turn_map[t][q_key]), 1))
+                            )
+                            for t in turns
+                        ],
+                    }
+            return out
+
+        pub_by_slot: dict[str, dict[int, dict[str, list[float]]]] = {}
+        priv_by_slot: dict[str, dict[int, dict[str, list[float]]]] = {}
+        diff_by_slot: dict[str, dict[int, dict[str, list[float]]]] = {}
+
+        for res in self.results:
+            history = res.agora.structured_history()
+            turns = history.get("turns", [])
+            pub = _parse_slot(turns, "public_survey")
+            priv = _parse_slot(turns, "private_survey")
+
+            _accumulate(pub_by_slot, pub)
+            _accumulate(priv_by_slot, priv)
+
+            # diff: (public − private) per slot/turn/question where both present.
+            # For sentiment questions, abs() is applied before aggregation.
+            for slot in set(pub.keys()) | set(priv.keys()):
+                pub_slot = pub.get(slot, {})
+                priv_slot = priv.get(slot, {})
+                for turn_num in set(pub_slot.keys()) & set(priv_slot.keys()):
+                    pub_q = pub_slot[turn_num]
+                    priv_q = priv_slot[turn_num]
+                    for q_key in set(pub_q.keys()) & set(priv_q.keys()):
+                        raw_diff = float(pub_q[q_key]) - float(priv_q[q_key])
+                        score = abs(raw_diff) if q_key in sentiment_q_keys else raw_diff
+                        (
+                            diff_by_slot
+                            .setdefault(slot, {})
+                            .setdefault(int(turn_num), {})
+                            .setdefault(q_key, [])
+                            .append(score)
+                        )
+
+        result: dict[str, Any] = {}
+        pub_agg = _agg_by_question(pub_by_slot)
+        if pub_agg:
+            result["public"] = pub_agg
+        priv_agg = _agg_by_question(priv_by_slot)
+        if priv_agg:
+            result["private"] = priv_agg
+        diff_agg = _agg_by_question(diff_by_slot)
+        if diff_agg:
+            result["diff"] = diff_agg
+        if survey_questions is None:
+            self._survey_cache = result
         return result
 
     # ------------------------------------------------------------------ on-demand analyses
@@ -559,6 +706,30 @@ class GroupAnalysisResult:
             else "Private Reflections"
         )
         plot_group_emotions(data, label, alpha_name, beta_name, emotion_style=style)
+
+    def plot_survey(
+        self,
+        survey_questions=None,
+    ) -> None:
+        """Plot aggregated survey responses with error bars across repeats.
+
+        Parameters
+        ----------
+        survey_questions:
+            Optional question specs used to label panels and group sentiment questions.
+            Accepts the same format as :func:`~agora.plotting.plot_survey_responses`.
+            When *None*, the specs stored on the result object are used automatically
+            (populated from the experiment run), falling back to bare Q-key labels.
+        """
+        from .plotting import plot_group_survey
+
+        effective_questions = survey_questions if survey_questions is not None else self.survey_question_specs
+        agg = self.aggregate_survey(survey_questions=effective_questions or None)
+        if not agg:
+            print("No survey data to plot.")
+            return
+        alpha_name, beta_name = self.agent_names
+        plot_group_survey(agg, alpha_name, beta_name, survey_questions=effective_questions or None)
 
 
 # ---------------------------------------------------------------------------

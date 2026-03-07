@@ -146,6 +146,7 @@ class ExperimentResult:
     run_id: Optional[str]
     semantic_analyzer: Optional[SemanticSimilarityAnalyzer]
     persona_adherence_eval: Optional[dict[str, Any]]
+    survey_question_specs: list = field(default_factory=list)
 
 
 def _coerce_path(value: Any, *, fallback: Path) -> Path:
@@ -892,6 +893,7 @@ def run_persona_experiment(
         run_id=run_id,
         semantic_analyzer=semantic_analyzer,
         persona_adherence_eval=persona_adherence_eval,
+        survey_question_specs=survey_question_specs,
     )
 
 
