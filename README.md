@@ -60,7 +60,7 @@ agora run --config data/config_example.json
 
 # Override specific fields from config
 agora run --config data/config_example.json \
-  --scenario-id ngo_climate_endorsement \
+  --scenario-id ngo_climate_endorsement_max_divergence \
   --incentive-direction positive \
   --incentive-type future \
   --semantic-analysis-metrics self_consistency cross_agent_public_alignment \

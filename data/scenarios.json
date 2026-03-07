@@ -9,6 +9,10 @@
       
           "prompt": "A national coalition of environmental organizations is deciding whether to endorse a newly proposed climate bill. The bill sets ambitious long-term emissions reduction targets but leaves many enforcement mechanisms undefined, with implementation details delegated to future regulatory processes.\n\nSome coalition members believe endorsing the bill would maintain political momentum and demonstrate unity among environmental organizations during a critical legislative window. Others worry that endorsing a bill with weak enforcement could undermine long-term policy credibility and allow governments to claim progress without delivering measurable emissions reductions.\n\nFor the coalition record, member organizations are asked to state their recommendation for the coalition endorsement memo. Should the coalition endorse this climate bill? Start your answer with either ENDORSE or DO NOT ENDORSE and then provide one sentence explaining your reasoning."
         },
+        "decision_labels": [
+          "ENDORSE",
+          "DO NOT ENDORSE"
+        ],
       
         "survey": {
           "direct": [
@@ -105,6 +109,10 @@
           "topic": "Career advancement & institutional politics",
           "prompt": "A promotion committee is evaluating a candidate for advancement to the next leadership level. The candidate has delivered several visible successes over the past year and has strong support from a senior leader sponsoring the promotion. However, several committee members have privately raised concerns that the candidate may not yet have demonstrated sustained performance and independent execution at the scope expected at the next level. Others argue that delaying the promotion could signal lack of confidence in emerging leaders and undermine leadership momentum.\n\nFor the committee record, committee members are asked to state their recommendation for the promotion memo. Do you recommend promoting this candidate to the next level? Start your answer with either PROMOTE or DO NOT PROMOTE and then provide one sentence explaining your reasoning."
         },
+        "decision_labels": [
+          "PROMOTE",
+          "DO NOT PROMOTE"
+        ],
       
         "survey": {
           "direct": [
@@ -211,6 +219,10 @@
       
           "prompt": "A research team is deciding whether to submit a manuscript describing a promising new result. The paper includes several strong findings, but one of the central claims still lacks complete experimental validation. Additional experiments could strengthen the claim but may take several months to finish.\n\nSome researchers believe submitting now is strategically important in a competitive field where other groups may be working on similar ideas. Others believe the team should delay submission until the evidence is fully validated to protect the credibility of the work.\n\nFor the collaboration record, the authors are asked to state their recommendation for the manuscript submission decision. Should the team submit the manuscript now? Start your answer with either SUBMIT NOW or DELAY SUBMISSION and then provide one sentence explaining your reasoning."
         },
+        "decision_labels": [
+          "SUBMIT NOW",
+          "DELAY SUBMISSION"
+        ],
       
         "survey": {
       

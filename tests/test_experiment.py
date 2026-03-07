@@ -67,6 +67,7 @@ def _catalog_payload():
                     "topic": "A topic",
                     "prompt": "Q prompt",
                 },
+                "decision_labels": ["YES", "NO"],
                 "survey": {
                     "direct": ["scenario survey"],
                 },
@@ -125,6 +126,7 @@ def _prompt_payload():
             "base_prompt": "base",
             "perceived_prompt": "perceived",
             "incentive_prompt": " incentive={incentive}",
+            "decision_format": "format {decision_label_1} / {decision_label_2}",
             "public_instruction": "public",
             "opening_instruction": "opening",
             "private_instruction": "private",
