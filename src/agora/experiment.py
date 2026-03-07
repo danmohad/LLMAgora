@@ -60,7 +60,7 @@ EXPERIMENT_PATH_FIELDS = frozenset(
         "prompts_path",
     }
 )
-_PRESERVE_EXPLICIT_NONE_FIELDS = frozenset({"semantic_similarity_method"})
+_PRESERVE_EXPLICIT_NONE_FIELDS = frozenset()
 
 SEMANTIC_METRIC_SELF_CONSISTENCY = "self_consistency"
 SEMANTIC_METRIC_CROSS_AGENT_PUBLIC_ALIGNMENT = "cross_agent_public_alignment"
@@ -97,13 +97,13 @@ class ExperimentConfig:
     keep_private_survey: bool = False
 
     semantic_analysis_metrics: list[str] = field(default_factory=list)
-    semantic_similarity_method: Optional[str] = SEMANTIC_SIMILARITY_METHOD_COSINE
+    semantic_similarity_method: Optional[str] = None
     semantic_similarity_model: Optional[str] = None
     semantic_similarity_device: Optional[str] = None
     persona_analysis_metrics: list[str] = field(default_factory=list)
-    persona_scoring_model: str = "anthropic/claude-sonnet-4"
+    persona_scoring_model: Optional[str] = None
     persona_scoring_verbose: bool = False
-    persona_score_samples: int = 1
+    persona_score_samples: Optional[int] = None
 
     save_plots: bool = False
     show_plots: bool = False
@@ -450,8 +450,17 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         raise ValueError("num_turns must be non-negative")
     if cfg.num_turns == 0 and not cfg.load_snapshot:
         raise ValueError("num_turns can be zero only when load_snapshot is enabled")
-    if cfg.persona_score_samples <= 0:
+    if cfg.persona_score_samples is not None and cfg.persona_score_samples <= 0:
         raise ValueError("persona_score_samples must be positive")
+    if cfg.semantic_analysis_metrics:
+        if cfg.semantic_similarity_method is None:
+            raise ValueError(
+                "semantic_similarity_method is required when semantic_analysis_metrics is enabled"
+            )
+        if cfg.semantic_similarity_model in {None, ""}:
+            raise ValueError(
+                "semantic_similarity_model is required when semantic_analysis_metrics is enabled"
+            )
     if cfg.incentive_direction not in {None, "positive", "negative"}:
         raise ValueError(
             "incentive_direction must be one of: positive, negative, or None"
@@ -488,6 +497,14 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
         allowed=PERSONA_ANALYSIS_METRICS,
         field_name="persona_analysis_metrics",
     )
+    if cfg.persona_analysis_metrics and cfg.persona_scoring_model in {None, ""}:
+        raise ValueError(
+            "persona_scoring_model is required when persona_analysis_metrics is enabled"
+        )
+    if cfg.persona_analysis_metrics and cfg.persona_score_samples is None:
+        raise ValueError(
+            "persona_score_samples is required when persona_analysis_metrics is enabled"
+        )
     if cfg.persona_scoring_verbose and not cfg.persona_analysis_metrics:
         raise ValueError(
             "persona_scoring_verbose requires at least one persona_analysis_metrics value"
@@ -722,10 +739,11 @@ def run_persona_experiment(
     cross_agent_private_alignment = None
 
     if selected_semantic_metrics:
+        assert cfg.semantic_similarity_method is not None
+        assert cfg.semantic_similarity_model is not None
         semantic_analyzer = SemanticSimilarityAnalyzer(
             structured_history,
-            method=cfg.semantic_similarity_method
-            or SEMANTIC_SIMILARITY_METHOD_COSINE,
+            method=cfg.semantic_similarity_method,
             model_name=cfg.semantic_similarity_model,
             device=cfg.semantic_similarity_device,
         )
@@ -754,6 +772,8 @@ def run_persona_experiment(
 
     persona_adherence_eval = None
     if cfg.persona_analysis_metrics:
+        assert cfg.persona_scoring_model is not None
+        assert cfg.persona_score_samples is not None
         eval_client = OpenRouterClient()
         try:
             evaluator = PersonaEvaluator(

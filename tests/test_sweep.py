@@ -206,7 +206,7 @@ def test_load_sweep_config_and_expand_cases(tmp_path):
         "  // config with comments\n"
         f'  "sweep_root": "{sweep_root}",\n'
         '  "number_of_repeats": 2,\n'
-        '  "base": {"scenario_id": "s1"},\n'
+        '  "base": {"scenario_id": "s1", "semantic_similarity_method": "cosine", "semantic_similarity_model": "all-mpnet-base-v2"},\n'
         '  "sweep": {\n'
         '    "subturn_event_order": [\n'
         '      ["public_utterance"],\n'

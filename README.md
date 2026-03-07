@@ -52,6 +52,7 @@ Install the package in editable mode (`uv pip install -e .`) to expose the `agor
 
 Canonical config lives at `data/config_example.json` and matches the notebook and CLI arguments exactly.
 Optional retention and analysis features are disabled by default (`false` flags and empty analysis metric lists).
+Analysis backends must be configured explicitly when their metric lists are non-empty; otherwise config validation fails.
 Sweep generation uses the commented master template at `data/sweep_example.jsonc`.
 
 ```bash
@@ -64,6 +65,8 @@ agora run --config data/config_example.json \
   --incentive-direction positive \
   --incentive-type future \
   --semantic-analysis-metrics self_consistency cross_agent_public_alignment \
+  --semantic-similarity-method cosine \
+  --semantic-similarity-model all-mpnet-base-v2 \
   --save-plots
 
 # Use NLI for semantic scoring (instead of cosine embeddings)
@@ -76,6 +79,7 @@ agora run --config data/config_example.json \
 # Run persona adherence analysis for selected metric slices only
 agora run --config data/config_example.json \
   --persona-analysis-metrics public_per_turn full_debate_public \
+  --persona-scoring-model anthropic/claude-sonnet-4 \
   --persona-score-samples 3
 
 # Run with no config file (all args via CLI)

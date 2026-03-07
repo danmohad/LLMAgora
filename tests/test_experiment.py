@@ -297,12 +297,56 @@ def test_build_experiment_config_and_helpers(tmp_path):
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "persona_analysis_metrics": ["bad_metric"]})
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "semantic_analysis_metrics": ["self_consistency", "self_consistency"]})
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "semantic_analysis_metrics": [
+                    "self_consistency",
+                    "self_consistency",
+                ],
+                "semantic_similarity_method": "cosine",
+                "semantic_similarity_model": "all-mpnet-base-v2",
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "semantic_analysis_metrics": ["self_consistency"],
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "semantic_analysis_metrics": ["self_consistency"],
+                "semantic_similarity_method": "cosine",
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "persona_analysis_metrics": ["public_per_turn"],
+            }
+        )
+    with pytest.raises(ValueError):
+        build_experiment_config(
+            {
+                "scenario_id": "s1",
+                "persona_analysis_metrics": ["public_per_turn"],
+                "persona_scoring_model": "eval-model",
+            }
+        )
     cfg_metric_strings = build_experiment_config(
         {
             "scenario_id": "s1",
             "semantic_analysis_metrics": "self_consistency,cross_agent_public_alignment",
+            "semantic_similarity_method": "cosine",
+            "semantic_similarity_model": "all-mpnet-base-v2",
             "persona_analysis_metrics": "public_per_turn,full_debate_public",
+            "persona_scoring_model": "anthropic/claude-sonnet-4",
+            "persona_score_samples": 1,
         }
     )
     assert cfg_metric_strings.semantic_analysis_metrics == [
@@ -331,6 +375,15 @@ def test_build_experiment_config_and_helpers(tmp_path):
         }
     )
     assert cfg_similarity_null.semantic_similarity_method is None
+    cfg_persona_nulls = build_experiment_config(
+        {
+            "scenario_id": "s1",
+            "persona_scoring_model": None,
+            "persona_score_samples": None,
+        }
+    )
+    assert cfg_persona_nulls.persona_scoring_model is None
+    assert cfg_persona_nulls.persona_score_samples is None
     with pytest.raises(ValueError):
         build_experiment_config(
             {
@@ -807,6 +860,37 @@ def test_run_persona_experiment_writes_expected_files_when_outputs_enabled(tmp_p
     assert not (result.run_dir / "run_metadata.json").exists()
 
 
+def test_run_persona_experiment_writes_explicit_null_persona_settings_to_config(
+    tmp_path, monkeypatch
+):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
+
+    def fake_run_debate_session(*args, **kwargs):
+        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+
+    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
+
+    result = run_persona_experiment(
+        {
+            "scenario_id": "s1",
+            "outputs_root": tmp_path / "outputs",
+            "catalog_path": catalog_path,
+            "prompts_path": prompts_path,
+            "run_name": "null_persona_config",
+            "save_snapshot": True,
+            "persona_scoring_model": None,
+            "persona_score_samples": None,
+        }
+    )
+
+    saved_config = json.loads((result.run_dir / "config.json").read_text(encoding="utf-8"))
+    assert saved_config["persona_scoring_model"] is None
+    assert saved_config["persona_score_samples"] is None
+
+
 def test_run_persona_experiment_uses_fixed_output_dir(tmp_path, monkeypatch):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
@@ -936,6 +1020,8 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
             "cross_agent_public_alignment",
             "cross_agent_private_alignment",
         ],
+        semantic_similarity_method="cosine",
+        semantic_similarity_model="all-mpnet-base-v2",
     )
     result = run_persona_experiment(cfg)
     assert result.run_dir is not None
@@ -948,46 +1034,54 @@ def test_run_persona_experiment_writes_eval_data_only_when_enabled(tmp_path, mon
     assert eval_payload["semantic_similarity"]["self_consistency"] is not None
 
 
-def test_run_persona_experiment_defaults_semantic_method_when_config_explicitly_null(
-    tmp_path, monkeypatch
+def test_run_persona_experiment_rejects_enabled_semantic_analysis_without_explicit_backend(
+    tmp_path,
 ):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     _write_json(catalog_path, _catalog_payload())
     _write_json(prompts_path, _prompt_payload())
-    captured = {}
 
-    def fake_run_debate_session(*args, **kwargs):
-        return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
+    with pytest.raises(
+        ValueError,
+        match="semantic_similarity_method is required",
+    ):
+        run_persona_experiment(
+            {
+                "scenario_id": "s1",
+                "outputs_root": tmp_path / "outputs",
+                "catalog_path": catalog_path,
+                "prompts_path": prompts_path,
+                "semantic_analysis_metrics": ["self_consistency"],
+                "semantic_similarity_method": None,
+                "semantic_similarity_model": None,
+            }
+        )
 
-    class FakeAnalyzer:
-        def __init__(self, _turns, **kwargs):
-            captured["method"] = kwargs["method"]
 
-        def compute_self_consistency_scores(self):
-            return {"Alpha": {"turns": [0], "scores": [0.5]}}
+def test_run_persona_experiment_rejects_enabled_persona_analysis_without_explicit_settings(
+    tmp_path,
+):
+    catalog_path = tmp_path / "catalog.json"
+    prompts_path = tmp_path / "prompts.json"
+    _write_json(catalog_path, _catalog_payload())
+    _write_json(prompts_path, _prompt_payload())
 
-        def compute_cross_agent_alignment_scores(self, _a, _b):
-            return {"turns": [0], "scores": [0.3]}
-
-    monkeypatch.setattr(experiment, "run_debate_session", fake_run_debate_session)
-    monkeypatch.setattr(experiment, "SemanticSimilarityAnalyzer", FakeAnalyzer)
-
-    result = run_persona_experiment(
-        {
-            "scenario_id": "s1",
-            "outputs_root": tmp_path / "outputs",
-            "catalog_path": catalog_path,
-            "prompts_path": prompts_path,
-            "run_name": "null_semantic_method",
-            "save_snapshot": True,
-            "semantic_analysis_metrics": ["self_consistency"],
-            "semantic_similarity_method": None,
-        }
-    )
-
-    assert result.eval_data["semantic_similarity"]["self_consistency"] is not None
-    assert captured["method"] == experiment.SEMANTIC_SIMILARITY_METHOD_COSINE
+    with pytest.raises(
+        ValueError,
+        match="persona_scoring_model is required",
+    ):
+        run_persona_experiment(
+            {
+                "scenario_id": "s1",
+                "outputs_root": tmp_path / "outputs",
+                "catalog_path": catalog_path,
+                "prompts_path": prompts_path,
+                "persona_analysis_metrics": ["public_per_turn"],
+                "persona_scoring_model": None,
+                "persona_score_samples": None,
+            }
+        )
 
 
 def test_run_persona_experiment_reuses_load_dir_for_outputs(tmp_path, monkeypatch):
@@ -1025,6 +1119,8 @@ def test_run_persona_experiment_reuses_load_dir_for_outputs(tmp_path, monkeypatc
         load_dir=load_dir,
         reuse_load_dir_for_outputs=True,
         semantic_analysis_metrics=["self_consistency"],
+        semantic_similarity_method="cosine",
+        semantic_similarity_model="all-mpnet-base-v2",
     )
 
     result = run_persona_experiment(cfg)
@@ -1401,6 +1497,8 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
             "cross_agent_public_alignment",
             "cross_agent_private_alignment",
         ],
+        semantic_similarity_method="cosine",
+        semantic_similarity_model="all-mpnet-base-v2",
         persona_analysis_metrics=[
             "public_per_turn",
             "private_per_turn",
@@ -1430,7 +1528,7 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     assert calls["run_session"]["verbose"] is True
     assert calls["run_session"]["skip_first"] is False
     assert calls["semantic_init"]["method"] == "cosine"
-    assert calls["semantic_init"]["model_name"] is None
+    assert calls["semantic_init"]["model_name"] == "all-mpnet-base-v2"
     assert calls["semantic_init"]["device"] is None
     assert calls["persona"]["samples"] == 3
     assert calls["client_closed"] is True
@@ -1615,6 +1713,8 @@ def test_run_persona_experiment_falls_back_to_question_label_default(tmp_path, m
         prompts_path=prompts_path,
         save_plots=True,
         semantic_analysis_metrics=["self_consistency"],
+        semantic_similarity_method="cosine",
+        semantic_similarity_model="all-mpnet-base-v2",
     )
 
     result = run_persona_experiment(cfg)
