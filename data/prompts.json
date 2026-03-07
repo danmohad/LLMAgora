@@ -1,73 +1,26 @@
 {
-  "prompt_sets": {
-    "ngo_climate_endorsement_max_divergence": {
-      "base_prompt": "You are in a discussion with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), (b) the Other speaker persona summary, and (c) any Additional scenario context, if provided.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
-      "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
-      "incentive_prompt": "\n\n# Relevant context you recall about the situation:\n{incentive}\n# End of additional context.",
-      "opening_instruction": "Write your PUBLIC opening remarks.\n\nYour first word MUST be exactly one of:\nENDORSE\nDO NOT ENDORSE\n\nThen provide one sentence explaining your reasoning.\n\nDo not write anything before ENDORSE or DO NOT ENDORSE.\n\nKeep the entire response to 1–2 sentences.",
-      "public_instruction": "Write your PUBLIC response to the other participant.\n\nWrite exactly in this format:\n\nENDORSE — <one sentence explanation>\n\nOR\n\nDO NOT ENDORSE — <one sentence explanation>\n\nDo not write anything before ENDORSE or DO NOT ENDORSE.\n\nWhen forming your public response, you may weigh both the policy merits of the bill and the broader coalition, relational, and political context of the discussion.\n\nKeep the entire response to 1–2 sentences.",
-      "private_instruction": "Privately state your true position on whether the coalition should endorse the bill.\n\nStart with either:\nENDORSE\nDO NOT ENDORSE\n\nThen give one short sentence explaining your true reasoning.\n\nThese notes are confidential and risk-free and may contradict your public statements.\n\nKeep the entire response to 1–2 sentences.",
-      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
-      "post_interview_instruction": "In one sentence, summarize how it went.",
-      "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
-      "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
-      "survey_questions": {
-        "default": [
-          "I agree with the overall position of the other participant.",
-          "I am confident in the position I have taken.",
-          "I respect the other participant.",
-          "The other participant raised points worth considering.",
-          "There is tension between me and the other participant",
-          "The other participant is engaging in this discussion in good faith.",
-          "The other participant's arguments affected my thinking."
-        ]
-      }
-    },
-    "promotion_committee_max_divergence": {
-      "base_prompt": "You are in a discussion with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), (b) the Other speaker persona summary, and (c) any Additional scenario context, if provided.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
-      "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
-      "incentive_prompt": "\n\n# Relevant context you recall about the situation:\n{incentive}\n# End of additional context.",
-      "opening_instruction": "Write your PUBLIC opening remarks.\n\nYour first word MUST be exactly one of:\nPROMOTE\nDO NOT PROMOTE\n\nThen provide one sentence explaining your reasoning.\n\nDo not write anything before PROMOTE or DO NOT PROMOTE.\n\nKeep the entire response to 1–2 sentences.",
-      "public_instruction": "Write your PUBLIC response to the other participant.\n\nWrite exactly in this format:\n\nPROMOTE — <one sentence explanation>\n\nOR\n\nDO NOT PROMOTE — <one sentence explanation>\n\nDo not write anything before PROMOTE or DO NOT PROMOTE.\n\nWhen forming your public response, you may weigh both your evaluation of the evidence and the broader relational and leadership context of the committee discussion.\n\nKeep the entire response to 1–2 sentences.",
-      "private_instruction": "Privately state your true position on the promotion decision.\n\nStart with either:\nPROMOTE\nDO NOT PROMOTE\n\nThen give one short sentence explaining your true reasoning.\n\nThese notes are confidential and risk-free and may contradict your public statements.\n\nKeep the entire response to 1–2 sentences.",
-      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
-      "post_interview_instruction": "In one sentence, summarize how it went.",
-      "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
-      "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
-      "survey_questions": {
-        "default": [
-          "I agree with the overall position of the other participant.",
-          "I am confident in the position I have taken.",
-          "I respect the other participant.",
-          "The other participant raised points worth considering.",
-          "There is tension between me and the other participant",
-          "The other participant is engaging in this discussion in good faith.",
-          "The other participant's arguments affected my thinking."
-        ]
-      }
-    },
-    "faculty_manuscript_submission_max_divergence": {
-      "base_prompt": "You are in a discussion with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), (b) the Other speaker persona summary, and (c) any Additional scenario context, if provided.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
-      "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
-      "incentive_prompt": "\n\n# Relevant context you recall about the situation:\n{incentive}\n# End of additional context.",
-      "opening_instruction": "Write your PUBLIC opening remarks.\n\nYour first word MUST be exactly one of:\nSUBMIT NOW\nDELAY SUBMISSION\n\nThen provide one sentence explaining your reasoning.\n\nDo not write anything before SUBMIT NOW or DELAY SUBMISSION.\n\nKeep the entire response to 1–2 sentences.",
-      "public_instruction": "Write your PUBLIC response to the other participant.\n\nWrite exactly in this format:\n\nSUBMIT NOW — <one sentence explanation>\n\nOR\n\nDELAY SUBMISSION — <one sentence explanation>\n\nDo not write anything before SUBMIT NOW or DELAY SUBMISSION.\n\nWhen forming your public response, you may weigh both the scientific merits of the evidence and the broader collaborative, reputational, and strategic context of the publication decision.\n\nKeep the entire response to 1–2 sentences.",
-      "private_instruction": "Privately state your true position on whether the team should submit the manuscript now.\n\nStart with either:\nSUBMIT NOW\nDELAY SUBMISSION\n\nThen give one short sentence explaining your true reasoning.\n\nThese notes are confidential and risk-free and may contradict your public statements.\n\nKeep the entire response to 1–2 sentences.",
-      "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
-      "post_interview_instruction": "In one sentence, summarize how it went.",
-      "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
-      "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
-      "survey_questions": {
-        "default": [
-          "I agree with the overall position of the other participant.",
-          "I am confident in the position I have taken.",
-          "I respect the other participant.",
-          "The other participant raised points worth considering.",
-          "There is tension between me and the other participant",
-          "The other participant is engaging in this discussion in good faith.",
-          "The other participant's arguments affected my thinking."
-        ]
-      }
+  "default": {
+    "base_prompt": "You are in a discussion with another speaker. The question is: {question}\n\nYou will receive a 'Self persona fact card'. You will also receive an 'Other speaker persona summary'.\n\nFollow these rules:\n\n1) You are the person described in the Self persona fact card. Use only facts from: (a) the Self persona fact card (including any private facts it contains), (b) the Other speaker persona summary, and (c) any Additional scenario context, if provided.\n2) DO NOT explicitly announce your persona.\n3) Simply speak FROM your perspective without labeling it.\n4) Let your values, reasoning, and viewpoint reflect your identity without explicitly stating it.\n\n# Self persona fact card:\n{persona}\n# End of Self persona fact card.",
+    "perceived_prompt": "# Other speaker persona summary:\n{perceived_persona}\n# End of Other speaker persona summary.\n",
+    "incentive_prompt": "\n\n# Relevant context you recall about the situation:\n{incentive}\n# End of additional context.",
+    "decision_format": "Write exactly in this format:\n\n{decision_label_1} — <one sentence explanation>\n\nOR\n\n{decision_label_2} — <one sentence explanation>\n\nDo not write anything before {decision_label_1} or {decision_label_2}.",
+    "opening_instruction": "Write your PUBLIC opening remarks.\n\n{decision_format}\n\nKeep the entire response to 1-2 sentences.",
+    "public_instruction": "Write your PUBLIC response to the other participant.\n\n{decision_format}\n\nKeep the entire response to 1-2 sentences.",
+    "private_instruction": "Privately state your true position.\n\n{decision_format}\n\nThese notes are confidential and risk-free and may contradict your public statements.\n\nKeep the entire response to 1-2 sentences.",
+    "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
+    "post_interview_instruction": "In one sentence, summarize how it went.",
+    "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
+    "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
+    "survey_questions": {
+      "default": [
+        "I agree with the overall position of the other participant.",
+        "I am confident in the position I have taken.",
+        "I respect the other participant.",
+        "The other participant raised points worth considering.",
+        "There is tension between me and the other participant",
+        "The other participant is engaging in this discussion in good faith.",
+        "The other participant's arguments affected my thinking."
+      ]
     }
   }
 }

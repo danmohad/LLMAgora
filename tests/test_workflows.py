@@ -310,7 +310,9 @@ def test_persona_builder_uses_catalogues():
     assert configs[0]["model"] == "shared-model"
     assert configs[1]["model"] == "shared-model"
     assert "Persona" in configs[0]["self_role"] or "persona" in configs[0]["self_role"].lower()
-    assert "Additional scenario context" in configs[0]["self_role"]
+    assert "strongly advocated for you" in configs[0]["self_role"]
+    assert "PROMOTE" in configs[0]["response_instruction"]
+    assert "When forming your public response" not in configs[0]["response_instruction"]
 
     with pytest.raises(KeyError):
         build_scenario_agent_configs(
@@ -343,6 +345,8 @@ def test_load_prompt_templates_reads_default_json():
 
     assert "{persona}" in prompts["base_prompt"]
     assert "{perceived_persona}" in prompts["perceived_prompt"]
+    assert "{decision_label_1}" in prompts["decision_format"]
+    assert "{decision_format}" in prompts["public_instruction"]
 
 
 def test_load_prompt_catalog_supports_external_path(tmp_path):

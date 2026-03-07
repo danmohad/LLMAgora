@@ -215,6 +215,7 @@ def test_load_prompt_templates_adds_opening_instruction_and_incentive_prompt():
             "custom": {
                 "base_prompt": "{persona}",
                 "perceived_prompt": "{perceived_persona}",
+                "decision_format": "fmt::{decision_label_1}/{decision_label_2}",
                 "public_instruction": "public",
                 "private_instruction": "private",
                 "pre_interview_instruction": "pre",
@@ -235,6 +236,7 @@ def _catalog_for_builder():
             {
                 "scenario_id": "s1",
                 "question": {"topic": "Topic", "prompt": "Q"},
+                "decision_labels": ["GO", "STOP"],
                 "sides": {
                     "Side A": {
                         "id": "a",
@@ -279,7 +281,8 @@ def _prompt_catalog_for_builder(private_instruction="priv"):
                 "base_prompt": "{speaker_id}:{question}:{persona}",
                 "perceived_prompt": "{perceived_persona}",
                 "incentive_prompt": "|INC:{incentive}|",
-                "public_instruction": "pub",
+                "decision_format": "FORMAT:{decision_label_1}|{decision_label_2}",
+                "public_instruction": "pub::{decision_format}",
                 "private_instruction": private_instruction,
                 "pre_interview_instruction": "pre",
                 "post_interview_instruction": "post",
@@ -306,7 +309,8 @@ def test_build_scenario_agent_configs_applies_incentive_and_persona_fields():
     assert "|INC:A pos hist|" in configs[0]["self_role"]
     assert "|INC:B pos hist|" in configs[1]["self_role"]
     assert configs[0]["perceived_nonself_roles"][0]["role"] == "B sees A"
-    assert configs[0]["opening_instruction"] == "pub"
+    assert configs[0]["opening_instruction"].startswith("pub::FORMAT:GO|STOP")
+    assert "FORMAT:GO|STOP" in configs[0]["response_instruction"]
 
 
 def test_build_scenario_agent_configs_accepts_optional_private_instruction_and_no_incentive():
@@ -398,6 +402,30 @@ def test_build_scenario_agent_configs_rejects_invalid_incentive_selector():
             model="shared-model",
             incentive_direction="positive",
             incentive_type="bad",
+            prompt_set="custom",
+            prompt_catalog=_prompt_catalog_for_builder(),
+        )
+
+
+def test_build_scenario_agent_configs_requires_valid_decision_labels():
+    catalog_missing_labels = _catalog_for_builder()
+    del catalog_missing_labels["scenarios"][0]["decision_labels"]
+    with pytest.raises(KeyError, match="exactly two decision_labels"):
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog=catalog_missing_labels,
+            model="shared-model",
+            prompt_set="custom",
+            prompt_catalog=_prompt_catalog_for_builder(),
+        )
+
+    catalog_blank_label = _catalog_for_builder()
+    catalog_blank_label["scenarios"][0]["decision_labels"] = ["GO", ""]
+    with pytest.raises(KeyError, match="non-empty strings"):
+        build_scenario_agent_configs(
+            scenario_id="s1",
+            catalog=catalog_blank_label,
+            model="shared-model",
             prompt_set="custom",
             prompt_catalog=_prompt_catalog_for_builder(),
         )
