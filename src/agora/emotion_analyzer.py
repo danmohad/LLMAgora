@@ -29,6 +29,7 @@ DEFAULT_EMOTION_MODEL = "cirimus/modernbert-base-emotions"
 #       }
 #     }
 #   }
+# Note: emotion probabilities are per-turn
 EmotionResult = dict[str, dict[str, Any]]
 
 
