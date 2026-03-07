@@ -631,6 +631,13 @@ def plot_group_semantic_similarity(
         ax.set_xlabel("Debate Turn")
         ax.set_ylabel("Cosine Similarity [−1–1]")
         ax.set_ylim(0, 1.05)
+        ax.legend()
+        ax.grid(alpha=0.4)
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+    cpa = aggregated.get("cross_agent_public_alignment")
     cpriva = aggregated.get("cross_agent_private_alignment")
     if cpa or cpriva:
         fig, ax = plt.subplots(figsize=(9, 4))
