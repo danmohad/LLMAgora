@@ -2,9 +2,19 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 import pytest
 
-from agora.sweep_results import ExperimentGroup, SweepCase, SweepManifest
+from agora.sweep_results import (
+    ExperimentGroup,
+    GroupAnalysisResult,
+    SweepCase,
+    SweepManifest,
+    _agg_nli_by_turn,
+    _agg_persona_per_turn,
+    _agg_persona_role,
+    _agg_turn_scores,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -332,8 +342,18 @@ def test_sweep_case_run_analysis_applies_postpro_overrides(tmp_path: Path):
 # run_analysis — ExperimentGroup
 # ---------------------------------------------------------------------------
 
-def test_experiment_group_run_analysis_runs_all_repeats(tmp_path: Path):
-    """ExperimentGroup.run_analysis delegates to each SweepCase and collects results."""
+def _fake_result(agent_names=("Alpha", "Beta"), sem=None, pers=None):
+    """Build a minimal mock ExperimentResult."""
+    agents = [MagicMock(name=n, id=n.lower()) for n in agent_names]
+    for agent, name in zip(agents, agent_names):
+        agent.name = name
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": []}
+    return MagicMock(agents=agents, eval_data={"semantic_similarity": sem or {}, "persona_adherence": pers}, agora=agora_mock)
+
+
+def test_experiment_group_run_analysis_returns_group_result(tmp_path: Path):
+    """ExperimentGroup.run_analysis returns a GroupAnalysisResult, not a list."""
     for cid in ("r1", "r2"):
         _write_case_config(tmp_path / "cases" / cid)
 
@@ -342,7 +362,6 @@ def test_experiment_group_run_analysis_runs_all_repeats(tmp_path: Path):
         for i, cid in enumerate(("r1", "r2"))
     ]
     group = ExperimentGroup(FP_A, {}, cases)
-
     call_count = 0
 
     def fake_run_persona_experiment(cfg):
@@ -351,8 +370,342 @@ def test_experiment_group_run_analysis_runs_all_repeats(tmp_path: Path):
         return MagicMock()
 
     with patch("agora.experiment.run_persona_experiment", fake_run_persona_experiment):
-        results = group.run_analysis(tmp_path)
+        group_result = group.run_analysis(tmp_path)
 
     assert call_count == 2
-    assert len(results) == 2
+    assert isinstance(group_result, GroupAnalysisResult)
+    assert group_result.n_repeats == 2
+    assert group_result.group is group
+
+
+# ---------------------------------------------------------------------------
+# Aggregation helpers
+# ---------------------------------------------------------------------------
+
+def test_agg_turn_scores_basic():
+    series = [
+        {"turns": [1, 2], "scores": [0.8, 0.6]},
+        {"turns": [1, 2], "scores": [0.6, 0.4]},
+    ]
+    result = _agg_turn_scores(series)
+    assert result["turns"] == [1, 2]
+    assert result["mean"] == pytest.approx([0.7, 0.5])
+    assert result["se"] == pytest.approx([0.1 / 2**0.5, 0.1 / 2**0.5])
+
+
+def test_agg_turn_scores_partial_turns():
+    """Turns that appear in only some repeats are still included."""
+    series = [
+        {"turns": [1, 2], "scores": [0.9, 0.7]},
+        {"turns": [1], "scores": [0.5]},
+    ]
+    result = _agg_turn_scores(series)
+    assert 1 in result["turns"]
+    assert result["mean"][result["turns"].index(1)] == pytest.approx(0.7)
+
+
+def test_agg_persona_per_turn_basic():
+    series = [
+        {"turns": [1, 2], "scores": {"mean": [3.0, 4.0], "std": [0.0, 0.0]}},
+        {"turns": [1, 2], "scores": {"mean": [5.0, 2.0], "std": [0.0, 0.0]}},
+    ]
+    result = _agg_persona_per_turn(series)
+    assert result["turns"] == [1, 2]
+    assert result["scores"]["mean"] == pytest.approx([4.0, 3.0])
+    assert result["scores"]["se"] == pytest.approx([1.0 / 2**0.5, 1.0 / 2**0.5])
+
+
+def test_agg_persona_role_aggregates_per_turn_and_scalar():
+    role_data = [
+        {
+            "public_per_turn_scores": {"turns": [1], "scores": {"mean": [3.0], "std": [0.0]}},
+            "private_per_turn_scores": {},
+            "public_cumulative_scores": {},
+            "private_cumulative_scores": {},
+            "full_debate_public_score": {"mean": 3.0, "std": 0.0},
+            "full_debate_private_score": None,
+            "computed_metrics": ["full_debate_public"],
+        },
+        {
+            "public_per_turn_scores": {"turns": [1], "scores": {"mean": [5.0], "std": [0.0]}},
+            "private_per_turn_scores": {},
+            "public_cumulative_scores": {},
+            "private_cumulative_scores": {},
+            "full_debate_public_score": {"mean": 5.0, "std": 0.0},
+            "full_debate_private_score": None,
+            "computed_metrics": ["full_debate_public"],
+        },
+    ]
+    result = _agg_persona_role(role_data)
+    assert result["public_per_turn_scores"]["scores"]["mean"] == pytest.approx([4.0])
+    assert result["full_debate_public_score"]["mean"] == pytest.approx(4.0)
+    assert result["full_debate_public_score"]["se"] == pytest.approx(1.0 / 2**0.5)
+    assert result["computed_metrics"] == ["full_debate_public"]
+
+
+def test_agg_nli_by_turn_basic():
+    # Two repeats, two turns, 3 classes
+    turn_dict = {
+        1: [[0.1, 0.3, 0.6], [0.2, 0.4, 0.4]],
+        2: [[0.3, 0.3, 0.4], [0.1, 0.5, 0.4]],
+    }
+    id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+    result = _agg_nli_by_turn(turn_dict, id2label)
+    assert result["turns"] == [1, 2]
+    assert result["label_names"] == ["contradiction", "neutral", "entailment"]
+    assert result["distributions"]["entailment"]["mean"][0] == pytest.approx(0.5)
+    assert result["distributions"]["contradiction"]["se"][0] == pytest.approx(0.05 / 2**0.5)
+
+
+# ---------------------------------------------------------------------------
+# GroupAnalysisResult — aggregate_semantic
+# ---------------------------------------------------------------------------
+
+def test_group_result_aggregate_semantic_basic():
+    r1 = _fake_result(sem={
+        "self_consistency": {"Alpha": {"turns": [1, 2], "scores": [0.8, 0.6]}},
+        "cross_agent_public_alignment": {"turns": [1, 2], "scores": [0.7, 0.5]},
+    })
+    r2 = _fake_result(sem={
+        "self_consistency": {"Alpha": {"turns": [1, 2], "scores": [0.6, 0.4]}},
+        "cross_agent_public_alignment": {"turns": [1, 2], "scores": [0.5, 0.3]},
+    })
+    group = ExperimentGroup(FP_A, {}, [])
+    gr = GroupAnalysisResult(group=group, results=[r1, r2])
+    agg = gr.aggregate_semantic()
+
+    sc_alpha = agg["self_consistency"]["Alpha"]
+    assert sc_alpha["turns"] == [1, 2]
+    assert sc_alpha["mean"] == pytest.approx([0.7, 0.5])
+
+    cpa = agg["cross_agent_public_alignment"]
+    assert cpa["mean"] == pytest.approx([0.6, 0.4])
+
+    # cached on second call
+    agg2 = gr.aggregate_semantic()
+    assert agg2 is agg
+
+
+def test_group_result_aggregate_semantic_empty():
+    r = _fake_result(sem={})
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    assert gr.aggregate_semantic() == {}
+
+
+# ---------------------------------------------------------------------------
+# GroupAnalysisResult — aggregate_persona
+# ---------------------------------------------------------------------------
+
+def _persona_data(pub_mean, pub_score_mean, n_turns=1):
+    turns = list(range(1, n_turns + 1))
+    return {
+        "alpha": {
+            "public_per_turn_scores": {"turns": turns, "scores": {"mean": [pub_mean] * n_turns, "std": [0.0] * n_turns}},
+            "private_per_turn_scores": {},
+            "public_cumulative_scores": {},
+            "private_cumulative_scores": {},
+            "full_debate_public_score": {"mean": pub_score_mean, "std": 0.0},
+            "full_debate_private_score": None,
+            "computed_metrics": ["full_debate_public"],
+        },
+        "beta": {
+            "public_per_turn_scores": {},
+            "private_per_turn_scores": {},
+            "public_cumulative_scores": {},
+            "private_cumulative_scores": {},
+            "full_debate_public_score": None,
+            "full_debate_private_score": None,
+            "computed_metrics": [],
+        },
+    }
+
+
+def test_group_result_aggregate_persona_basic():
+    r1 = _fake_result(pers=_persona_data(3.0, 3.0))
+    r2 = _fake_result(pers=_persona_data(5.0, 5.0))
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+    agg = gr.aggregate_persona()
+    assert agg["alpha"]["full_debate_public_score"]["mean"] == pytest.approx(4.0)
+    assert agg["alpha"]["public_per_turn_scores"]["scores"]["mean"] == pytest.approx([4.0])
+
+    # cached on second call
+    assert gr.aggregate_persona() is agg
+
+
+def test_group_result_aggregate_persona_no_data():
+    r = _fake_result(pers=None)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    assert gr.aggregate_persona() == {}
+
+
+# ---------------------------------------------------------------------------
+# GroupAnalysisResult — metadata
+# ---------------------------------------------------------------------------
+
+def test_group_result_agent_names():
+    a1 = MagicMock()
+    a1.name = "Eisenhower"
+    a2 = MagicMock()
+    a2.name = "Khrushchev"
+    result = MagicMock(agents=[a1, a2])
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[result])
+    assert gr.agent_names == ("Eisenhower", "Khrushchev")
+
+
+def test_group_result_agent_names_empty_results():
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[])
+    assert gr.agent_names == ("alpha", "beta")
+
+
+def test_group_result_agent_names_single_agent():
+    a1 = MagicMock()
+    a1.name = "Solo"
+    result = MagicMock(agents=[a1])
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[result])
+    assert gr.agent_names == ("Solo", "")
+
+
+def test_group_result_n_repeats():
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[MagicMock(), MagicMock()])
+    assert gr.n_repeats == 2
+
+
+# ---------------------------------------------------------------------------
+# GroupAnalysisResult — summary (smoke test via capsys)
+# ---------------------------------------------------------------------------
+
+def test_group_result_summary_smoke(capsys):
+    r1 = _fake_result(sem={
+        "self_consistency": {"Alpha": {"turns": [1], "scores": [0.8]}},
+    })
+    r2 = _fake_result(sem={
+        "self_consistency": {"Alpha": {"turns": [1], "scores": [0.6]}},
+    })
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+    gr.summary()
+    out = capsys.readouterr().out
+    assert "EXPERIMENT GROUP SUMMARY" in out
+    assert "Repeats" in out
+    assert "Self-Consistency" in out
+
+
+# ---------------------------------------------------------------------------
+# GroupAnalysisResult — plot_* smoke tests (mocked plt.show)
+# ---------------------------------------------------------------------------
+
+def test_group_result_plot_semantic_smoke():
+    r1 = _fake_result(sem={
+        "self_consistency": {"A": {"turns": [1, 2], "scores": [0.8, 0.7]}},
+        "cross_agent_public_alignment": {"turns": [1, 2], "scores": [0.6, 0.5]},
+    })
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r1])
+    with patch("agora.plotting.plt.show"):
+        gr.plot_semantic()
+
+
+def test_group_result_plot_semantic_empty(capsys):
+    r = _fake_result(sem={})
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    with patch("agora.plotting.plt.show"):
+        gr.plot_semantic()  # should not raise
+
+
+def test_group_result_plot_persona_smoke():
+    r1 = _fake_result(pers=_persona_data(3.0, 3.0))
+    r2 = _fake_result(pers=_persona_data(5.0, 5.0))
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+    with patch("agora.plotting.plt.show"):
+        gr.plot_persona()
+
+
+def test_group_result_plot_persona_no_data(capsys):
+    r = _fake_result(pers=None)
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    gr.plot_persona()
+    assert "No persona adherence data" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# build_emotion_style
+# ---------------------------------------------------------------------------
+
+def test_build_emotion_style_produces_consistent_map():
+    from agora.plotting import build_emotion_style
+
+    field_results = [
+        {"agent_a": {"turns": [1], "emotions": {"joy": {"mean": [0.5], "std": [0.1]}, "anger": {"mean": [0.3], "std": [0.05]}}}},
+        {"agent_a": {"turns": [1], "emotions": {"joy": {"mean": [0.4], "std": [0.1]}, "sadness": {"mean": [0.2], "std": [0.05]}}}},
+    ]
+    style = build_emotion_style(field_results)
+    assert set(style.keys()) == {"anger", "joy", "sadness"}
+    # Same label always maps to the same color+marker
+    assert style["joy"]["color"] == style["joy"]["color"]
+    assert "marker" in style["joy"]
+
+
+# ---------------------------------------------------------------------------
+# plot_group_nli / plot_group_emotions smoke tests
+# ---------------------------------------------------------------------------
+
+def test_plot_group_nli_smoke():
+    from agora.plotting import plot_group_nli
+
+    agg = {
+        "id2label": {0: "contradiction", 1: "neutral", 2: "entailment"},
+        "self_consistency": {
+            "AgentA": {
+                "turns": [1, 2],
+                "label_names": ["contradiction", "neutral", "entailment"],
+                "distributions": {
+                    "contradiction": {"mean": [0.1, 0.2], "se": [0.02, 0.03]},
+                    "neutral": {"mean": [0.3, 0.4], "se": [0.05, 0.04]},
+                    "entailment": {"mean": [0.6, 0.4], "se": [0.06, 0.05]},
+                },
+            }
+        },
+        "cross_agent_public": {
+            "turns": [1, 2],
+            "label_names": ["contradiction", "neutral", "entailment"],
+            "distributions": {
+                "contradiction": {"mean": [0.1, 0.1], "se": [0.01, 0.01]},
+                "neutral": {"mean": [0.3, 0.3], "se": [0.02, 0.02]},
+                "entailment": {"mean": [0.6, 0.6], "se": [0.03, 0.03]},
+            },
+        },
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_nli(agg, "Alpha", "Beta")
+
+
+def test_plot_group_emotions_smoke():
+    from agora.plotting import build_emotion_style, plot_group_emotions
+
+    agg = {
+        "AgentA": {
+            "turns": [1, 2],
+            "emotions": {
+                "joy": {"mean": [0.4, 0.5], "se": [0.05, 0.06]},
+                "anger": {"mean": [0.1, 0.2], "se": [0.02, 0.03]},
+            },
+        },
+        "AgentB": {
+            "turns": [1, 2],
+            "emotions": {
+                "joy": {"mean": [0.3, 0.4], "se": [0.04, 0.05]},
+                "anger": {"mean": [0.2, 0.1], "se": [0.03, 0.02]},
+            },
+        },
+    }
+    style = build_emotion_style([agg])
+    with patch("agora.plotting.plt.show"):
+        plot_group_emotions(agg, "Public Utterances", "A", "B", emotion_style=style)
+
+
+def test_plot_group_emotions_no_data(capsys):
+    from agora.plotting import plot_group_emotions
+
+    with patch("agora.plotting.plt.show"):
+        plot_group_emotions({}, "Public Utterances")
+    assert "No emotion data" in capsys.readouterr().out
+
 

@@ -3,7 +3,7 @@
 Uses a pretrained HuggingFace text-classification pipeline to score the
 probability of each emotion label for every agent turn.
 
-Default model: ``j-hartmann/emotion-english-distilroberta-base``
+Default model: ``cirimus/modernbert-base-emotions``
 Emotions: anger, disgust, fear, joy, neutral, sadness, surprise
 """
 
@@ -16,7 +16,7 @@ from .debate_history import get_structured_debate_history
 PUBLIC_NARRATIVE_FIELD = "public_speech"
 PRIVATE_NARRATIVE_FIELD = "private_reflection"
 
-DEFAULT_EMOTION_MODEL = "SamLowe/roberta-base-go_emotions"
+DEFAULT_EMOTION_MODEL = "cirimus/modernbert-base-emotions"
 
 # Shape returned by classify_turns / classify_field:
 #   {
@@ -44,7 +44,7 @@ class EmotionAnalyzer:
     model_name:
         HuggingFace model identifier for a text-classification model that
         returns per-label probabilities.  Defaults to
-        ``j-hartmann/emotion-english-distilroberta-base``.
+        ``cirimus/modernbert-base-emotions``.
     device:
         Optional device string passed to the HuggingFace pipeline
         (e.g. ``"cpu"``, ``"cuda"``).  ``None`` lets the library choose.
