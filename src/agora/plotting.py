@@ -346,7 +346,7 @@ def plot_persona_adherence(
     The plot tolerates partial metric selections. If a given series is missing
     or empty, that line is omitted.
     """
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    fig, axes = plt.subplots(1, 3, figsize=(22, 6))
     fig.suptitle("Persona Adherence Scores Over Time", fontsize=16)
 
     alpha_data = eval_dict["alpha"]
@@ -500,6 +500,42 @@ def plot_persona_adherence(
         ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
 
+    # Third panel: full-debate summary bar chart.
+    ax = axes[2]
+    bar_width = 0.6
+    full_debate_bars = [
+        ("alpha", "full_debate_public_score",  "",   f"{alpha_persona_name}\nPublic",  alpha_color),
+        ("alpha", "full_debate_private_score", "//",  f"{alpha_persona_name}\nPrivate", alpha_color),
+        ("beta",  "full_debate_public_score",  "",   f"{beta_persona_name}\nPublic",   beta_color),
+        ("beta",  "full_debate_private_score", "//",  f"{beta_persona_name}\nPrivate",  beta_color),
+    ]
+    has_full_debate = False
+    for i, (role, key, hatch, xlabel, color) in enumerate(full_debate_bars):
+        score = eval_dict.get(role, {}).get(key, {}) or {}
+        mean_val = score.get("mean")
+        se_val = score.get("se", 0.0) or 0.0
+        if mean_val is not None:
+            ax.bar(
+                i, mean_val, bar_width,
+                color=color, hatch=hatch, alpha=0.8,
+                yerr=se_val, capsize=4,
+                error_kw={"elinewidth": 1.5, "ecolor": "black"},
+            )
+            has_full_debate = True
+    ax.set_xticks(range(4))
+    ax.set_xticklabels(
+        [b[3] for b in full_debate_bars], fontsize=8
+    )
+    ax.set_ylabel("Score (1-5)")
+    ax.set_ylim(0.5, 5.5)
+    ax.set_title("Full-Debate Scores")
+    ax.grid(axis="y", alpha=0.3)
+    if not has_full_debate:
+        ax.text(
+            0.5, 0.5, "not computed",
+            ha="center", va="center", transform=ax.transAxes, color="grey",
+        )
+
     plt.tight_layout()
 
     if save_path:
@@ -593,15 +629,8 @@ def plot_group_semantic_similarity(
         _xticks(ax, [t for d in sc.values() for t in d["turns"]])
         ax.set_title("Self-Consistency  (private vs public — mean ± SE across repeats)")
         ax.set_xlabel("Debate Turn")
-        ax.set_ylabel("Cosine Similarity [0–1]")
+        ax.set_ylabel("Cosine Similarity [−1–1]")
         ax.set_ylim(0, 1.05)
-        ax.legend()
-        ax.grid(alpha=0.4)
-        plt.tight_layout()
-        if show:
-            plt.show()
-
-    cpa = aggregated.get("cross_agent_public_alignment")
     cpriva = aggregated.get("cross_agent_private_alignment")
     if cpa or cpriva:
         fig, ax = plt.subplots(figsize=(9, 4))
@@ -631,7 +660,7 @@ def plot_group_semantic_similarity(
         _xticks(ax, (cpa or cpriva)["turns"])
         ax.set_title("Cross-Agent Semantic Alignment  (mean ± SE across repeats)")
         ax.set_xlabel("Debate Turn")
-        ax.set_ylabel("Cosine Similarity [0–1]")
+        ax.set_ylabel("Cosine Similarity [−1–1]")
         ax.set_ylim(0, 1.05)
         ax.legend()
         ax.grid(alpha=0.4)
