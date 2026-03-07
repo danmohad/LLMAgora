@@ -773,14 +773,28 @@ def plot_group_nli(
             plt.show()
 
     cpa = aggregated_nli.get("cross_agent_public")
-    if cpa:
+    cpriva = aggregated_nli.get("cross_agent_private")
+    if cpa or cpriva:
         sc_keys = list(sc.keys()) if sc else []
         a0 = sc_keys[0] if sc_keys else alpha_name
         a1 = sc_keys[1] if len(sc_keys) > 1 else beta_name
-        fig, ax = plt.subplots(figsize=(max(6, len(cpa["turns"]) * 1.5), 5))
-        _draw_nli(ax, cpa, "")
+        panels = [(d, lbl) for d, lbl in [
+            (cpa, "Public utterances"),
+            (cpriva, "Private reflections"),
+        ] if d]
+        n_panels = len(panels)
+        n_turns = len(panels[0][0]["turns"])
+        fig, axes = plt.subplots(
+            1, n_panels,
+            figsize=(max(6, n_turns * 1.5) * n_panels, 5),
+            sharey=True,
+        )
+        if n_panels == 1:
+            axes = [axes]
+        for ax, (data, lbl) in zip(axes, panels):
+            _draw_nli(ax, data, lbl)
         fig.suptitle(
-            f"NLI Cross-Agent Public Alignment\n{a0} ↔ {a1}  (mean ± SE across repeats)",
+            f"NLI Cross-Agent Alignment\n{a0} \u2194 {a1}  (mean \u00b1 SE across repeats)",
             fontsize=12,
         )
         plt.tight_layout()

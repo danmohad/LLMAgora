@@ -625,6 +625,74 @@ def test_group_result_plot_persona_no_data(capsys):
     assert "No persona adherence data" in capsys.readouterr().out
 
 
+def _fake_result_with_nli_history(pub_a, priv_a, pub_b, priv_b, turn_num=1):
+    """Build a mock ExperimentResult whose agora yields structured history with two agents."""
+    turn = {
+        "turn_num": turn_num,
+        "public_utterance": pub_a,
+        "private_reflection": priv_a,
+    }
+    history = {
+        "AgentA": {"debate_turns": [{"turn_num": turn_num, "public_utterance": pub_a, "private_reflection": priv_a}]},
+        "AgentB": {"debate_turns": [{"turn_num": turn_num, "public_utterance": pub_b, "private_reflection": priv_b}]},
+    }
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": [turn]}
+    res = MagicMock(agora=agora_mock)
+    return res, history
+
+
+def test_group_result_plot_nli_smoke():
+    from agora.sweep_results import _agg_nli_by_turn
+
+    res, debate_data = _fake_result_with_nli_history(
+        "pub alpha", "priv alpha", "pub beta", "priv beta"
+    )
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res])
+
+    fake_dist = [0.1, 0.3, 0.6]
+    id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data
+    mock_analyzer._id2label = id2label
+    mock_analyzer.model = MagicMock()
+
+    with (
+        patch("agora.sweep_results.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
+        patch("agora.sweep_results._nli_bidirectional", return_value=fake_dist),
+        patch("agora.plotting.plt.show"),
+    ):
+        gr.plot_nli()
+
+    nli = gr._nli_cache
+    assert "cross_agent_public" in nli
+    assert "cross_agent_private" in nli
+
+
+def test_group_result_plot_nli_second_repeat_uses_existing_analyzer():
+    """Second repeat re-uses the analyzer (else branch) without reloading the model."""
+    res1, debate_data = _fake_result_with_nli_history("pa", "qa", "pb", "qb")
+    res2, _ = _fake_result_with_nli_history("pc", "qc", "pd", "qd")
+    # Make structured_history return a proper dict for the else branch
+    res2.agora.structured_history.return_value = {"turns": []}
+
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res1, res2])
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data
+    mock_analyzer._id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+    mock_analyzer.model = MagicMock()
+
+    with (
+        patch("agora.sweep_results.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
+        patch("agora.sweep_results._nli_bidirectional", return_value=[0.1, 0.3, 0.6]),
+        patch("agora.sweep_results.get_structured_debate_history", return_value=debate_data),
+        patch("agora.plotting.plt.show"),
+    ):
+        gr.plot_nli()  # should not raise
+
+
 # ---------------------------------------------------------------------------
 # build_emotion_style
 # ---------------------------------------------------------------------------
@@ -650,6 +718,15 @@ def test_build_emotion_style_produces_consistent_map():
 def test_plot_group_nli_smoke():
     from agora.plotting import plot_group_nli
 
+    _nli_dist = {
+        "turns": [1, 2],
+        "label_names": ["contradiction", "neutral", "entailment"],
+        "distributions": {
+            "contradiction": {"mean": [0.1, 0.2], "se": [0.02, 0.03]},
+            "neutral": {"mean": [0.3, 0.4], "se": [0.05, 0.04]},
+            "entailment": {"mean": [0.6, 0.4], "se": [0.06, 0.05]},
+        },
+    }
     agg = {
         "id2label": {0: "contradiction", 1: "neutral", 2: "entailment"},
         "self_consistency": {
@@ -663,18 +740,28 @@ def test_plot_group_nli_smoke():
                 },
             }
         },
-        "cross_agent_public": {
-            "turns": [1, 2],
-            "label_names": ["contradiction", "neutral", "entailment"],
-            "distributions": {
-                "contradiction": {"mean": [0.1, 0.1], "se": [0.01, 0.01]},
-                "neutral": {"mean": [0.3, 0.3], "se": [0.02, 0.02]},
-                "entailment": {"mean": [0.6, 0.6], "se": [0.03, 0.03]},
-            },
-        },
+        "cross_agent_public": _nli_dist,
+        "cross_agent_private": _nli_dist,
     }
     with patch("agora.plotting.plt.show"):
         plot_group_nli(agg, "Alpha", "Beta")
+
+
+def test_plot_group_nli_only_private():
+    from agora.plotting import plot_group_nli
+
+    _nli_dist = {
+        "turns": [1],
+        "label_names": ["contradiction", "neutral", "entailment"],
+        "distributions": {
+            "contradiction": {"mean": [0.2], "se": [0.02]},
+            "neutral": {"mean": [0.5], "se": [0.05]},
+            "entailment": {"mean": [0.3], "se": [0.03]},
+        },
+    }
+    agg = {"cross_agent_private": _nli_dist}
+    with patch("agora.plotting.plt.show"):
+        plot_group_nli(agg)  # should not raise
 
 
 def test_plot_group_emotions_smoke():

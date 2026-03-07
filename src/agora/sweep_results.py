@@ -459,6 +459,7 @@ class GroupAnalysisResult:
         id2label: dict | None = None
         sc_by_agent: dict[str, dict[int, list[list[float]]]] = {}
         cpa_by_turn: dict[int, list[list[float]]] = {}
+        cpriva_by_turn: dict[int, list[list[float]]] = {}
 
         for res in self.results:
             structured_history = res.agora.structured_history()
@@ -507,6 +508,11 @@ class GroupAnalysisResult:
                     if ta and tb:
                         dist = _nli_bidirectional(analyzer, ta, tb)
                         cpa_by_turn.setdefault(tn, []).append(dist)
+                    ta_priv = t0[tn].get(PRIVATE_NARRATIVE_FIELD, "")
+                    tb_priv = t1[tn].get(PRIVATE_NARRATIVE_FIELD, "")
+                    if ta_priv and tb_priv:
+                        dist = _nli_bidirectional(analyzer, ta_priv, tb_priv)
+                        cpriva_by_turn.setdefault(tn, []).append(dist)
 
         agg_id2label: dict = id2label if id2label is not None else {
             0: "contradiction", 1: "neutral", 2: "entailment"
@@ -518,6 +524,8 @@ class GroupAnalysisResult:
             }
         if cpa_by_turn:
             nli_result["cross_agent_public"] = _agg_nli_by_turn(cpa_by_turn, agg_id2label)
+        if cpriva_by_turn:
+            nli_result["cross_agent_private"] = _agg_nli_by_turn(cpriva_by_turn, agg_id2label)
         self._nli_cache = nli_result
         return nli_result
 
