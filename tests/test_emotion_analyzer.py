@@ -51,13 +51,13 @@ def _structured_history(n_turns=2):
             "turn_num": i,
             "Alpha": {
                 "speaker_id": "Alpha",
-                "public_speech": f"alpha public t{i}",
-                "private_reflection": f"alpha private t{i}",
+                "public_utterance": f"alpha public t{i}",
+                "private_utterance": f"alpha private t{i}",
             },
             "Beta": {
                 "speaker_id": "Beta",
-                "public_speech": f"beta public t{i}",
-                "private_reflection": f"beta private t{i}",
+                "public_utterance": f"beta public t{i}",
+                "private_utterance": f"beta private t{i}",
             },
         })
     return {"turns": turns, "pre_interviews": {}, "post_interviews": {}}

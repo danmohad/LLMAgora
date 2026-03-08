@@ -333,10 +333,14 @@ def test_sweep_case_run_analysis_applies_postpro_overrides(tmp_path: Path):
         sc.run_analysis(
             tmp_path,
             semantic_analysis_metrics=["self_consistency"],
+            semantic_similarity_method="cosine",
+            semantic_similarity_model="all-mpnet-base-v2",
             persona_analysis_metrics=[],
         )
 
     assert captured["cfg"].semantic_analysis_metrics == ["self_consistency"]
+    assert captured["cfg"].semantic_similarity_method == "cosine"
+    assert captured["cfg"].semantic_similarity_model == "all-mpnet-base-v2"
 
 
 # ---------------------------------------------------------------------------
