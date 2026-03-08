@@ -574,3 +574,59 @@ def test_plot_group_survey_slot_missing_panel_questions():
     }
     with patch("agora.plotting.plt.show"):
         plot_group_survey(agg)
+
+
+# ---------------------------------------------------------------------------
+# plot_group_response_decisions
+# ---------------------------------------------------------------------------
+
+def _decision_series(turns=(1, 2), mean=(0.6, 0.7), se=(0.1, 0.08)):
+    return {"turns": list(turns), "mean": list(mean), "se": list(se)}
+
+
+def test_plot_group_response_decisions_smoke():
+    """Full two-figure smoke test with public and private data for both agents."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions
+
+    agg = {
+        "decision_label": "ENDORSE",
+        "by_slot": {
+            "Alpha": {"public": _decision_series(), "private": _decision_series()},
+            "Beta":  {"public": _decision_series(), "private": _decision_series()},
+        },
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions(agg, "PolicyDirector", "CoalitionChair")
+
+
+def test_plot_group_response_decisions_empty_turns():
+    """A slot with no turns still renders without error (empty subplot path)."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions
+
+    agg = {
+        "decision_label": "YES",
+        "by_slot": {
+            "Alpha": {"public": {"turns": [], "mean": [], "se": []}},
+        },
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions(agg)
+
+
+def test_plot_group_response_decisions_missing_private_channel():
+    """Only public channel present — private bars are simply absent."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions
+
+    agg = {
+        "decision_label": "ENDORSE",
+        "by_slot": {
+            "Alpha": {"public": _decision_series()},
+            "Beta":  {"public": _decision_series()},
+        },
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions(agg)
+

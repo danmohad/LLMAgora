@@ -187,6 +187,19 @@ def _agg_nli_by_turn(
     return {"turns": turns, "label_names": label_names, "distributions": distributions}
 
 
+def _classify_decision(text: str, decision_labels: list[str]) -> int | None:
+    """Return index of the matching decision label at the start of *text*, or *None*.
+
+    Labels are checked longest-first so that a label like "DO NOT ENDORSE" is
+    not overshadowed by a shorter label "ENDORSE".
+    """
+    text_upper = text.strip().upper()
+    for idx, label in sorted(enumerate(decision_labels), key=lambda x: -len(x[1])):
+        if text_upper.startswith(label.upper()):
+            return idx
+    return None
+
+
 # ---------------------------------------------------------------------------
 # GroupAnalysisResult
 # ---------------------------------------------------------------------------
@@ -207,6 +220,7 @@ class GroupAnalysisResult:
     _nli_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _emotion_caches: dict = field(default_factory=dict, repr=False, compare=False, init=False)
     _survey_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
+    _decision_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
 
     # ------------------------------------------------------------------ metadata
 
@@ -429,6 +443,114 @@ class GroupAnalysisResult:
             result["diff"] = diff_agg
         if survey_questions is None:
             self._survey_cache = result
+        return result
+
+    def aggregate_response_decisions(
+        self,
+        scenario_id: str | None = None,
+        catalog_path: "Path | str | None" = None,
+    ) -> dict:
+        """Aggregate binary response decisions across repeats per turn.
+
+        Reads the ``decision_labels`` for the scenario from the catalog, then
+        for each repeat classifies each agent's public and private utterance at
+        every turn as one of the two labels.  Returns the fraction of repeats
+        in which the agent chose ``decision_labels[0]`` (the "primary" label),
+        with ±SE, for each (agent slot, channel, turn) combination.
+
+        Parameters
+        ----------
+        scenario_id:
+            The scenario identifier used to look up ``decision_labels`` in the
+            catalog.  When *None*, the value is taken from
+            ``self.group.sweep_values["scenario_id"]``.
+        catalog_path:
+            Path to the scenarios catalog JSON file.  Defaults to
+            :data:`~agora.experiment.DEFAULT_CATALOG_PATH`.
+
+        Returns
+        -------
+        dict with keys:
+
+        - ``"decision_label"``: the primary label being tracked (``decision_labels[0]``).
+        - ``"by_slot"``: ``{slot: {"public": series, "private": series}}`` where
+          each *series* is ``{"turns": [...], "mean": [...], "se": [...]}``.
+        """
+        if self._decision_cache is not None and scenario_id is None and catalog_path is None:
+            return self._decision_cache
+
+        import json as _json
+
+        from .experiment import DEFAULT_CATALOG_PATH
+
+        effective_scenario_id = scenario_id or self.group.sweep_values.get("scenario_id")
+        if not effective_scenario_id:
+            raise ValueError(
+                "Could not auto-detect scenario_id from sweep_values; pass scenario_id= explicitly."
+            )
+
+        effective_catalog = Path(catalog_path) if catalog_path is not None else DEFAULT_CATALOG_PATH
+        catalog = _json.loads(effective_catalog.read_text(encoding="utf-8"))
+        scenario = next(
+            (s for s in catalog.get("scenarios", []) if s.get("scenario_id") == effective_scenario_id),
+            None,
+        )
+        if scenario is None:
+            raise KeyError(f"Scenario '{effective_scenario_id}' not found in catalog")
+        decision_labels: list[str] = scenario.get("decision_labels", [])
+        if len(decision_labels) < 2:
+            raise ValueError(
+                f"Expected 2 decision_labels for '{effective_scenario_id}', got {decision_labels}"
+            )
+
+        primary_label = decision_labels[0]
+
+        # {slot: {channel: {turn_num: [0.0 or 1.0, ...]}}}
+        by_slot: dict[str, dict[str, dict[int, list[float]]]] = {}
+
+        for res in self.results:
+            history = res.agora.structured_history()
+            for turn in history.get("turns", []):
+                turn_num = int(turn.get("turn_num", 0))
+                for slot in ("Alpha", "Beta"):
+                    subturn = turn.get(slot, {})
+                    pub = subturn.get("public_utterance") or ""
+                    priv = subturn.get("private_utterance") or ""
+                    for channel, text in (("public", pub), ("private", priv)):
+                        if not text:
+                            continue
+                        idx = _classify_decision(text, decision_labels)
+                        if idx is None:
+                            continue
+                        (
+                            by_slot
+                            .setdefault(slot, {})
+                            .setdefault(channel, {})
+                            .setdefault(turn_num, [])
+                            .append(1.0 if idx == 0 else 0.0)
+                        )
+
+        def _agg_series(turn_dict: dict[int, list[float]]) -> dict:
+            turns = sorted(turn_dict)
+            agg: dict[str, Any] = {"turns": turns, "mean": [], "se": []}
+            for t in turns:
+                vals = turn_dict[t]
+                n = len(vals)
+                p = float(np.mean(vals))
+                agg["mean"].append(p)
+                agg["se"].append(float(np.sqrt(p * (1.0 - p) / max(n, 1))))
+            return agg
+
+        result: dict[str, Any] = {
+            "decision_label": primary_label,
+            "by_slot": {
+                slot: {channel: _agg_series(td) for channel, td in channels.items()}
+                for slot, channels in by_slot.items()
+            },
+        }
+
+        if scenario_id is None and catalog_path is None:
+            self._decision_cache = result
         return result
 
     # ------------------------------------------------------------------ on-demand analyses
@@ -738,6 +860,35 @@ class GroupAnalysisResult:
             return
         alpha_name, beta_name = self.agent_names
         plot_group_survey(agg, alpha_name, beta_name, survey_questions=effective_questions or None)
+
+    def plot_response_decisions(
+        self,
+        scenario_id: str | None = None,
+        catalog_path: "Path | str | None" = None,
+    ) -> None:
+        """Plot binary response decision fractions over turns, aggregated across repeats.
+
+        Produces two figures matching the NLI plot layout:
+
+        * **Figure 1** — public vs. private per agent (left = α, right = β).
+        * **Figure 2** — cross-agent comparison: public (left) and private (right).
+
+        Parameters
+        ----------
+        scenario_id:
+            Passed verbatim to :meth:`aggregate_response_decisions`.  Omit to
+            use the value from ``sweep_values``.
+        catalog_path:
+            Path to the scenarios catalog.  Omit to use the default.
+        """
+        from .plotting import plot_group_response_decisions
+
+        agg = self.aggregate_response_decisions(scenario_id=scenario_id, catalog_path=catalog_path)
+        if not agg.get("by_slot"):
+            print("No response decision data to plot.")
+            return
+        alpha_name, beta_name = self.agent_names
+        plot_group_response_decisions(agg, alpha_name, beta_name)
 
 
 # ---------------------------------------------------------------------------

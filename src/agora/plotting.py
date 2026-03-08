@@ -1040,3 +1040,123 @@ def plot_group_survey(
         aggregated_survey.get("diff", {}),
         "Public \u2212 Private (mean \u00b1 SE)",
     )
+
+
+def plot_group_response_decisions(
+    aggregated_decisions: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    show: bool = True,
+) -> None:
+    """Plot binary response decision fractions aggregated across repeats with error bars.
+
+    Produces two figures mirroring the NLI plot layout:
+
+    * **Figure 1** — per-agent public vs. private (left = α, right = β).
+    * **Figure 2** — cross-agent: public (left) and private (right).
+
+    Parameters
+    ----------
+    aggregated_decisions:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_response_decisions`.
+    alpha_name, beta_name:
+        Display names for the two agents.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    import numpy as np
+
+    decision_label = aggregated_decisions.get("decision_label", "Decision A")
+    by_slot = aggregated_decisions.get("by_slot", {})
+    y_label = f"P({decision_label})"
+
+    _PUB_COLOR = "#2196F3"    # blue  – public channel
+    _PRIV_COLOR = "#FF9800"   # amber – private channel
+    _ALPHA_COLOR = "#1b9e77"  # green – alpha agent
+    _BETA_COLOR = "#d95f02"   # orange-red – beta agent
+
+    def _draw(ax: Any, data_pairs: list[tuple[str, dict, str]], title: str) -> None:
+        """Draw one subplot.  *data_pairs* is [(bar_label, series_dict, color)]."""
+        all_turns = sorted({t for _, series, _ in data_pairs for t in series.get("turns", [])})
+        ax.set_title(title)
+        if not all_turns:
+            ax.set_ylabel(y_label)
+            ax.set_xlabel("Turn")
+            return
+        x = np.arange(len(all_turns))
+        turn_idx = {t: i for i, t in enumerate(all_turns)}
+        n_bars = len(data_pairs)
+        group_width = 0.7
+        bar_width = group_width / max(n_bars, 1)
+        offsets = [(i - (n_bars - 1) / 2.0) * bar_width for i in range(n_bars)]
+        for offset, (bar_label, series, color) in zip(offsets, data_pairs):
+            turns = series.get("turns", [])
+            means = series.get("mean", [])
+            ses = series.get("se", [])
+            xi = np.array([turn_idx[t] for t in turns if t in turn_idx])
+            yi = np.array([means[i] for i, t in enumerate(turns) if t in turn_idx])
+            ei = np.array([ses[i] for i, t in enumerate(turns) if t in turn_idx])
+            ax.bar(
+                x[xi] + offset, yi, bar_width * 0.9,
+                color=color, alpha=0.8, label=bar_label,
+                yerr=ei, capsize=3, error_kw={"elinewidth": 1.5, "ecolor": "black"},
+            )
+        ax.axhline(0.5, color="grey", linewidth=0.8, linestyle="--", alpha=0.5)
+        ax.set_xticks(x)
+        ax.set_xticklabels([f"T{t}" for t in all_turns])
+        ax.set_ylim(0, 1.05)
+        ax.set_ylabel(y_label)
+        ax.set_xlabel("Turn")
+        ax.legend(loc="upper right", fontsize=9)
+        ax.grid(axis="y", alpha=0.3)
+
+    # ---- Figure 1: per-agent public vs. private --------------------------------
+    agent_slots = [(alpha_name, "Alpha"), (beta_name, "Beta")]
+    fig1, axes1 = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    for ax, (display_name, slot) in zip(axes1, agent_slots):
+        slot_data = by_slot.get(slot, {})
+        pairs: list[tuple[str, dict, str]] = []
+        if slot_data.get("public"):
+            pairs.append(("Public", slot_data["public"], _PUB_COLOR))
+        if slot_data.get("private"):
+            pairs.append(("Private", slot_data["private"], _PRIV_COLOR))
+        _draw(ax, pairs, f"{display_name}\n(public vs. private)")
+    fig1.suptitle(
+        f"Response Decision: Public vs. Private  (mean \u00b1 SE across repeats)\n"
+        f"Decision tracked: {decision_label}",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()
+
+    # ---- Figure 2: cross-agent public (left) and private (right) ---------------
+    alpha_slot = by_slot.get("Alpha", {})
+    beta_slot = by_slot.get("Beta", {})
+    panels: list[tuple[str, list[tuple[str, dict, str]]]] = [
+        (
+            "Public Responses",
+            [
+                (alpha_name, alpha_slot.get("public", {}), _ALPHA_COLOR),
+                (beta_name, beta_slot.get("public", {}), _BETA_COLOR),
+            ],
+        ),
+        (
+            "Private Responses",
+            [
+                (alpha_name, alpha_slot.get("private", {}), _ALPHA_COLOR),
+                (beta_name, beta_slot.get("private", {}), _BETA_COLOR),
+            ],
+        ),
+    ]
+    fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    for ax, (panel_title, pairs) in zip(axes2, panels):
+        _draw(ax, pairs, panel_title)
+    fig2.suptitle(
+        f"Response Decision: Cross-Agent Comparison  ({alpha_name} \u2194 {beta_name})\n"
+        f"mean \u00b1 SE across repeats  \u2014  Decision tracked: {decision_label}",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()
