@@ -6,7 +6,12 @@ import uuid
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from .llm import ChatMessage, LLMClient, build_completion_payload
-from .memory import MemoryTurn
+from .memory import (
+    CURRENT_INSTRUCTION_LABEL,
+    MemoryTurn,
+    render_labeled_content,
+    strip_transcript_label_prefix,
+)
 from .survey import (
     SURVEY_GROUP_DEFAULT,
     build_survey_scale_prompt,
@@ -344,7 +349,15 @@ class Agent:
             if chat_message:
                 messages.append(chat_message)
 
-        messages.append({"role": "user", "content": final_instruction})
+        messages.append(
+            {
+                "role": "user",
+                "content": render_labeled_content(
+                    label=CURRENT_INSTRUCTION_LABEL,
+                    content=final_instruction,
+                ),
+            }
+        )
         return messages
 
     def _complete_and_record(
@@ -373,7 +386,8 @@ class Agent:
                 "response": response,
             }
         )
-        cleaned = self._strip_speaker_prefix(response.strip())
+        cleaned = strip_transcript_label_prefix(response.strip())
+        cleaned = self._strip_speaker_prefix(cleaned)
         return self._normalize_apostrophes(cleaned)
 
     def _strip_speaker_prefix(self, text: str) -> str:

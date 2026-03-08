@@ -255,7 +255,7 @@ def test_run_debate_session_resuming_replaces_old_post_interviews(tmp_path):
     assert len(post_turns) == 2
     assert {turn.metadata["turn_num"] for turn in post_turns} == {3}
     assert not any(
-        msg["content"] in {"alpha post1", "beta post1"}
+        msg["content"].endswith(("alpha post1", "beta post1"))
         for msg in clients[-1].calls[0]["messages"]
     )
 
@@ -378,6 +378,7 @@ def test_load_prompt_templates_reads_default_json():
     assert "{perceived_persona}" in prompts["perceived_prompt"]
     assert "{decision_label_1}" in prompts["decision_format"]
     assert "{decision_format}" in prompts["public_instruction"]
+    assert "[Current instruction]" in prompts["base_prompt"]
 
 
 def test_load_prompt_catalog_supports_external_path(tmp_path):
