@@ -705,7 +705,6 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         num_turns,
         event_order,
         verbose,
-        skip_first_agent_first_reflection,
         emit_progress_markers,
         snapshot_path,
         load_snapshot_flag,
@@ -715,7 +714,6 @@ def test_run_persona_experiment_collapses_optional_features(tmp_path, monkeypatc
         captured["session_args"] = {
             "turns": num_turns,
             "verbose": verbose,
-            "skip_first": skip_first_agent_first_reflection,
             "emit_progress_markers": emit_progress_markers,
             "snapshot_path": snapshot_path,
             "load_snapshot": load_snapshot_flag,
@@ -776,7 +774,6 @@ def test_run_persona_experiment_loads_snapshot_from_load_dir_without_output_dir(
         num_turns,
         event_order,
         verbose,
-        skip_first_agent_first_reflection,
         emit_progress_markers,
         snapshot_path,
         load_snapshot_flag,
@@ -826,7 +823,6 @@ def test_run_persona_experiment_writes_expected_files_when_outputs_enabled(tmp_p
         num_turns,
         event_order,
         verbose,
-        skip_first_agent_first_reflection,
         emit_progress_markers,
         snapshot_path,
         load_snapshot_flag,
@@ -834,7 +830,6 @@ def test_run_persona_experiment_writes_expected_files_when_outputs_enabled(tmp_p
     ):
         assert num_turns == 2
         assert verbose is False
-        assert skip_first_agent_first_reflection is False
         assert emit_progress_markers is False
         assert load_snapshot_flag is False
         assert save_snapshot_flag is True
@@ -921,7 +916,7 @@ def test_run_persona_experiment_uses_fixed_output_dir(tmp_path, monkeypatch):
     assert not (tmp_path / "unused").exists()
 
 
-def test_run_persona_experiment_derives_skip_first_from_event_order(tmp_path, monkeypatch):
+def test_run_persona_experiment_passes_private_first_event_order(tmp_path, monkeypatch):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     _write_json(catalog_path, _catalog_payload())
@@ -935,13 +930,11 @@ def test_run_persona_experiment_derives_skip_first_from_event_order(tmp_path, mo
         num_turns,
         event_order,
         verbose,
-        skip_first_agent_first_reflection,
         emit_progress_markers,
         snapshot_path,
         load_snapshot_flag,
         save_snapshot_flag,
     ):
-        captured["skip_first"] = skip_first_agent_first_reflection
         captured["event_order"] = list(event_order)
         captured["emit_progress_markers"] = emit_progress_markers
         return DummyAgora(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
@@ -958,7 +951,6 @@ def test_run_persona_experiment_derives_skip_first_from_event_order(tmp_path, mo
     run_persona_experiment(cfg)
 
     assert captured["event_order"] == ["private_utterance", "public_utterance"]
-    assert captured["skip_first"] is True
     assert captured["emit_progress_markers"] is False
 
 
@@ -1395,7 +1387,6 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         num_turns,
         event_order,
         verbose,
-        skip_first_agent_first_reflection,
         emit_progress_markers,
         snapshot_path,
         load_snapshot_flag,
@@ -1407,7 +1398,6 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
             "snapshot_path": snapshot_path,
             "turns": num_turns,
             "verbose": verbose,
-            "skip_first": skip_first_agent_first_reflection,
             "emit_progress_markers": emit_progress_markers,
         }
         return AgoraWithSurvey(), [DummyAgent("alpha", "Alpha"), DummyAgent("beta", "Beta")]
@@ -1528,7 +1518,6 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
     assert calls["run_session"]["load_snapshot"] is True
     assert calls["run_session"]["save_snapshot"] is True
     assert calls["run_session"]["verbose"] is True
-    assert calls["run_session"]["skip_first"] is False
     assert calls["semantic_init"]["method"] == "cosine"
     assert calls["semantic_init"]["model_name"] == "all-mpnet-base-v2"
     assert calls["semantic_init"]["device"] is None

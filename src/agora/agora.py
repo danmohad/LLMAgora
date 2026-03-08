@@ -181,7 +181,6 @@ class Agora:
         *,
         num_turns: int,
         verbose: bool = False,
-        skip_first_agent_first_reflection: bool = False,
         emit_progress_markers: bool = False,
     ) -> List[MemoryTurn]:
         """Run periodic macro-turns; each turn contains Alpha then Beta sub-turns."""
@@ -189,7 +188,6 @@ class Agora:
         if num_turns <= 0:
             raise ValueError("num_turns must be positive")
 
-        first_reflection_skipped = False
         starting_turn_num = len(self._turns)
         final_turn_total = starting_turn_num + num_turns
         self._clear_post_interviews_for_continuation()
@@ -274,14 +272,6 @@ class Agora:
 
                     elif event_name == "private_utterance":
                         if not agent.supports_private_reflection:
-                            continue
-                        if (
-                            skip_first_agent_first_reflection
-                            and slot == "Alpha"
-                            and turn_num == 1
-                            and not first_reflection_skipped
-                        ):
-                            first_reflection_skipped = True
                             continue
                         reflection = agent.generate_private_reflection()
                         self._append_completion_receipt(

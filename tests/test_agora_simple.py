@@ -457,10 +457,10 @@ def test_private_reflection_keep_flag(stub_llm_factory):
     assert all(t.role != "reflection" for t in agent.view_history())
 
 
-def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
-    """Skip flag should suppress the first reflection even if pre-interviews advance the counter."""
+def test_first_reflection_runs_on_turn_one_even_after_pre_interview(stub_llm_factory):
+    """Alpha's first private utterance should still run on turn one."""
 
-    llm = stub_llm_factory(["pre", "say"])
+    llm = stub_llm_factory(["pre", "think", "say"])
     agent = Agent(
         name="Alpha",
         model="demo",
@@ -477,9 +477,24 @@ def test_skip_first_reflection_even_after_pre_interview(stub_llm_factory):
         llm_client=stub_llm_factory(["beta says"]),
         response_instruction="say",
     )
-    history = Agora([agent, beta]).run(num_turns=1, skip_first_agent_first_reflection=True)
-    # Should see pre-interview + public turn only
-    assert [t.role for t in history] == ["pre_interview", "assistant", "assistant"]
+    history = Agora(
+        [agent, beta],
+        event_order=["private_utterance", "public_utterance"],
+    ).run(num_turns=1)
+    alpha_turn_one = [
+        turn
+        for turn in history
+        if turn.metadata.get("speaker_name") == "Alpha" and turn.metadata.get("turn_num") == 1
+    ]
+    assert [turn.role for turn in history] == [
+        "pre_interview",
+        "reflection",
+        "assistant",
+        "assistant",
+    ]
+    assert [turn.role for turn in alpha_turn_one] == ["reflection", "assistant"]
+    assert alpha_turn_one[0].private_reflection == "think"
+    assert alpha_turn_one[1].public_speech == "say"
 
 
 def test_agora_event_order_validation(stub_llm_factory):
