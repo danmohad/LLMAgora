@@ -64,7 +64,7 @@ def test_agora_rejects_invalid_turn_limit(stub_llm_factory):
 
 
 def test_agent_message_roles_follow_schema(stub_llm_factory):
-    """Ensure chat payloads mark self turns as assistant and others as user."""
+    """Ensure chat payloads use standard roles plus explicit transcript labels."""
 
     llm_a = stub_llm_factory(["Alpha turn 1", "Alpha turn 2"])
     llm_b = stub_llm_factory(["Beta turn 1", "Beta turn 2"])
@@ -88,14 +88,23 @@ def test_agent_message_roles_follow_schema(stub_llm_factory):
     alpha_messages = llm_a.calls[0]["messages"]
     assert alpha_messages[0]["role"] == "system"
     assert alpha_messages[-1]["role"] == "user"
+    assert alpha_messages[-1]["content"] == "[Current instruction]\nAlpha respond."
 
     # Beta's first call should include Alpha's speech tagged as user.
     beta_first = llm_b.calls[0]["messages"]
-    assert any(msg["role"] == "user" and msg["content"] == "Alpha turn 1" for msg in beta_first)
+    assert any(
+        msg["role"] == "user"
+        and msg["content"] == "[Other speaker | public statement]\nAlpha turn 1"
+        for msg in beta_first
+    )
 
     # Beta's second call should include its previous turn tagged as assistant.
     beta_second = llm_b.calls[1]["messages"]
-    assert any(msg["role"] == "assistant" and msg["content"] == "Beta turn 1" for msg in beta_second)
+    assert any(
+        msg["role"] == "assistant"
+        and msg["content"] == "[You | public statement]\nBeta turn 1"
+        for msg in beta_second
+    )
 
 
 def test_opening_instruction_used_for_first_public_turn(stub_llm_factory):
@@ -121,8 +130,52 @@ def test_opening_instruction_used_for_first_public_turn(stub_llm_factory):
 
     alpha_messages = llm_a.calls[0]["messages"]
     beta_messages = llm_b.calls[0]["messages"]
-    assert alpha_messages[-1]["content"] == "Alpha open."
-    assert beta_messages[-1]["content"] == "Beta respond."
+    assert alpha_messages[-1]["content"] == "[Current instruction]\nAlpha open."
+    assert beta_messages[-1]["content"] == "[Current instruction]\nBeta respond."
+
+
+def test_private_reflection_request_labels_history_and_instruction(stub_llm_factory):
+    alpha_llm = stub_llm_factory(
+        [
+            "DO NOT PROMOTE - opening",
+            "DO NOT PROMOTE - followup",
+        ]
+    )
+    beta_llm = stub_llm_factory(
+        [
+            "PROMOTE - opening",
+            "PROMOTE - private",
+            "PROMOTE - public 2",
+            "PROMOTE - private 2",
+        ]
+    )
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=alpha_llm,
+        response_instruction="Write your PUBLIC response.",
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=beta_llm,
+        response_instruction="Write your PUBLIC response.",
+        private_response_instruction="Privately state your true position.",
+    )
+
+    Agora([alpha, beta], event_order=["public_utterance", "private_utterance"]).run(
+        num_turns=2
+    )
+
+    beta_private_turn_two = beta_llm.calls[3]["messages"]
+    assert beta_private_turn_two == [
+        {"role": "user", "content": "[Other speaker | public statement]\nDO NOT PROMOTE - opening"},
+        {"role": "assistant", "content": "[You | public statement]\nPROMOTE - opening"},
+        {"role": "assistant", "content": "[You | private note]\nPROMOTE - private"},
+        {"role": "user", "content": "[Other speaker | public statement]\nDO NOT PROMOTE - followup"},
+        {"role": "assistant", "content": "[You | public statement]\nPROMOTE - public 2"},
+        {"role": "user", "content": "[Current instruction]\nPrivately state your true position."},
+    ]
 
 
 def test_agora_rejects_more_than_two_agents(stub_llm_factory):
@@ -376,7 +429,7 @@ def test_continuation_replaces_old_post_interviews(stub_llm_factory):
     assert len(post_turns) == 2
     assert {turn.metadata["turn_num"] for turn in post_turns} == {3}
     assert not any(
-        msg["content"] == "alpha post 1" for msg in alpha_llm.calls[2]["messages"]
+        msg["content"].endswith("alpha post 1") for msg in alpha_llm.calls[2]["messages"]
     )
 
 

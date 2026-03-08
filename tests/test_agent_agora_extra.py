@@ -178,6 +178,17 @@ def test_strip_speaker_prefix():
     assert agent._strip_speaker_prefix("Beta: Hi") == "Hi"
 
 
+def test_agent_strips_transcript_labels_from_responses():
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=QueueLLM(["[Current instruction]\nAlpha: Hi"]),
+        response_instruction="respond",
+    )
+
+    assert agent.generate_public_speech() == "Hi"
+
+
 def test_agent_normalizes_apostrophes_in_responses():
     responses = [
         "It\u2019s public.",
@@ -441,10 +452,22 @@ def test_agora_survey_calls_include_same_turn_context():
     public_survey_messages = alpha_llm.calls[2]["messages"]
     private_survey_messages = alpha_llm.calls[3]["messages"]
 
-    assert any(msg["content"] == "alpha public" for msg in public_survey_messages)
-    assert any(msg["content"] == "alpha public" for msg in private_survey_messages)
-    assert any(msg["content"] == "alpha private" for msg in public_survey_messages)
-    assert any(msg["content"] == "alpha private" for msg in private_survey_messages)
+    assert any(
+        msg["content"] == "[You | public statement]\nalpha public"
+        for msg in public_survey_messages
+    )
+    assert any(
+        msg["content"] == "[You | public statement]\nalpha public"
+        for msg in private_survey_messages
+    )
+    assert any(
+        msg["content"] == "[You | private note]\nalpha private"
+        for msg in public_survey_messages
+    )
+    assert any(
+        msg["content"] == "[You | private note]\nalpha private"
+        for msg in private_survey_messages
+    )
 
 
 def test_agora_structured_history_includes_exact_survey_receipt():
