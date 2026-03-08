@@ -117,6 +117,7 @@ def test_run_debate_session_handles_snapshots(tmp_path):
     resumed, resumed_agents = run_debate_session(
         agent_configs,
         num_turns=1,
+        event_order=["public_utterance"],
         snapshot_path=snapshot,
         load_snapshot_flag=True,
         client_factory=second_factory,
@@ -142,8 +143,35 @@ def test_run_debate_session_requires_snapshot_path_when_loading():
         run_debate_session(
             agent_configs,
             num_turns=0,
+            event_order=["public_utterance"],
             load_snapshot_flag=True,
             snapshot_path=None,
+            client_factory=factory,
+        )
+
+    assert clients[0].closed is True
+
+
+def test_run_debate_session_requires_event_order_when_loading(tmp_path):
+    agent_configs = [
+        {"name": "Alpha", "model": "demo", "self_role": "Alpha", "response_instruction": "Say"},
+        {"name": "Beta", "model": "demo", "self_role": "Beta", "response_instruction": "Say"},
+    ]
+    snapshot = tmp_path / "snap.json"
+    snapshot.write_text("{}", encoding="utf-8")
+    clients = []
+
+    def factory():
+        client = CloseableStub([])
+        clients.append(client)
+        return client
+
+    with pytest.raises(ValueError, match="event_order is required"):
+        run_debate_session(
+            agent_configs,
+            num_turns=0,
+            snapshot_path=snapshot,
+            load_snapshot_flag=True,
             client_factory=factory,
         )
 
@@ -167,6 +195,7 @@ def test_run_debate_session_errors_when_snapshot_file_missing(tmp_path):
         run_debate_session(
             agent_configs,
             num_turns=0,
+            event_order=["public_utterance"],
             load_snapshot_flag=True,
             snapshot_path=missing_snapshot,
             client_factory=factory,
@@ -216,6 +245,7 @@ def test_run_debate_session_resuming_replaces_old_post_interviews(tmp_path):
     resumed, _ = run_debate_session(
         agent_configs,
         num_turns=1,
+        event_order=["public_utterance"],
         snapshot_path=snapshot,
         load_snapshot_flag=True,
         client_factory=second_factory,
@@ -264,6 +294,7 @@ def test_run_debate_session_loads_snapshot_without_generating_new_turns(tmp_path
     resumed, resumed_agents = run_debate_session(
         agent_configs,
         num_turns=0,
+        event_order=["public_utterance"],
         snapshot_path=snapshot,
         load_snapshot_flag=True,
         client_factory=second_factory,

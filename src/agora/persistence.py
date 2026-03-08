@@ -1,4 +1,4 @@
-"""Utilities for saving and loading Agora state."""
+"""Utilities for saving and loading Agora snapshots."""
 
 from __future__ import annotations
 
@@ -13,8 +13,8 @@ from .llm import LLMClient
 
 
 @dataclass
-class AgentState:
-    """Persistable representation of an agent's prompts."""
+class AgentConfig:
+    """Persistable representation of an agent's configuration."""
 
     id: str
     name: str
@@ -38,7 +38,7 @@ class AgentState:
     private_survey_keep: bool = False
 
     @classmethod
-    def from_agent(cls, agent: Agent) -> "AgentState":
+    def from_agent(cls, agent: Agent) -> "AgentConfig":
         config = agent.export_configuration()
         return cls(
             id=config["id"] or agent.id,
@@ -88,7 +88,7 @@ class AgentState:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict) -> "AgentState":
+    def from_dict(cls, payload: dict) -> "AgentConfig":
         return cls(
             id=payload["id"],
             name=payload["name"],
@@ -117,8 +117,7 @@ class AgentState:
 class AgoraSnapshot:
     """Combination of agent definitions and canonical turn structure."""
 
-    agent_states: List[AgentState]
-    event_order: list[str]
+    agent_configs: List[AgentConfig]
     pre_interviews: dict
     turns: list[dict]
     post_interviews: dict
@@ -126,11 +125,10 @@ class AgoraSnapshot:
 
     @classmethod
     def from_agora(cls, agora: Agora) -> "AgoraSnapshot":
-        agent_states = [AgentState.from_agent(agent) for agent in agora.agents]
+        agent_configs = [AgentConfig.from_agent(agent) for agent in agora.agents]
         history = agora.structured_history()
         return cls(
-            agent_states=agent_states,
-            event_order=list(history.get("event_order", [])),
+            agent_configs=agent_configs,
             llm_receipts=list(history.get("llm_receipts", [])),
             pre_interviews=history.get("pre_interviews", {}),
             turns=list(history.get("turns", [])),
@@ -140,8 +138,7 @@ class AgoraSnapshot:
     def to_dict(self) -> dict:
         return {
             "llm_receipts": self.llm_receipts,
-            "event_order": self.event_order,
-            "agent_states": [agent.to_dict() for agent in self.agent_states],
+            "agent_configs": [agent.to_dict() for agent in self.agent_configs],
             "pre_interviews": self.pre_interviews,
             "turns": self.turns,
             "post_interviews": self.post_interviews,
@@ -149,12 +146,11 @@ class AgoraSnapshot:
 
     @classmethod
     def from_dict(cls, payload: dict) -> "AgoraSnapshot":
-        agent_states = [
-            AgentState.from_dict(item) for item in payload["agent_states"]
+        agent_configs = [
+            AgentConfig.from_dict(item) for item in payload["agent_configs"]
         ]
         return cls(
-            agent_states=agent_states,
-            event_order=list(payload.get("event_order", [])),
+            agent_configs=agent_configs,
             pre_interviews=payload.get("pre_interviews", {}),
             turns=list(payload.get("turns", [])),
             post_interviews=payload.get("post_interviews", {}),
@@ -171,16 +167,21 @@ class AgoraSnapshot:
         payload = json.loads(Path(path).read_text(encoding="utf-8"))
         return cls.from_dict(payload)
 
-    def instantiate(self, llm_factory: Callable[[AgentState], LLMClient]) -> Agora:
+    def instantiate(
+        self,
+        llm_factory: Callable[[AgentConfig], LLMClient],
+        *,
+        event_order: Sequence[str],
+    ) -> Agora:
         agents: List[Agent] = []
-        for agent_state in self.agent_states:
-            client = llm_factory(agent_state)
-            agent = Agent.from_configuration(agent_state.to_dict(), llm_client=client)
+        for agent_config in self.agent_configs:
+            client = llm_factory(agent_config)
+            agent = Agent.from_configuration(agent_config.to_dict(), llm_client=client)
             agents.append(agent)
 
-        agora = Agora(agents, event_order=self.event_order)
+        agora = Agora(agents, event_order=event_order)
         agora.load_structured_history(
-            event_order=self.event_order,
+            event_order=event_order,
             llm_receipts=self.llm_receipts,
             pre_interviews=self.pre_interviews,
             turns=self.turns,
@@ -194,14 +195,19 @@ def save_snapshot(path: Path | str, agora: Agora) -> None:
     AgoraSnapshot.from_agora(agora).save(path)
 
 
-def load_snapshot(path: Path | str, llm_factory: Callable[[AgentState], LLMClient]) -> Agora:
+def load_snapshot(
+    path: Path | str,
+    llm_factory: Callable[[AgentConfig], LLMClient],
+    *,
+    event_order: Sequence[str],
+) -> Agora:
     """Restore an Agora from disk, instantiating LLM clients via ``llm_factory``."""
     snapshot = AgoraSnapshot.load(path)
-    return snapshot.instantiate(llm_factory)
+    return snapshot.instantiate(llm_factory, event_order=event_order)
 
 
 __all__ = [
-    "AgentState",
+    "AgentConfig",
     "AgoraSnapshot",
     "load_snapshot",
     "save_snapshot",

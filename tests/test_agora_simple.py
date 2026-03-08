@@ -213,7 +213,11 @@ def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
     def factory(state):
         return stub_llm_factory([f"{state.name} restored"])
 
-    restored = load_snapshot(snapshot_path, factory)
+    restored = load_snapshot(
+        snapshot_path,
+        factory,
+        event_order=["public_utterance", "private_utterance"],
+    )
     assert [t.to_dict() for t in restored.history()] == [
         t.to_dict() for t in agora.history()
     ]
@@ -250,9 +254,11 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
     save_snapshot(snapshot_path, agora)
     payload = json.loads(snapshot_path.read_text())
 
-    assert "agent_states" in payload
+    assert "agent_configs" in payload
     assert "agents" not in payload
-    assert payload["agent_states"][0]["survey_question_groups"] == {"Q1": "direct"}
+    assert "agent_states" not in payload
+    assert "event_order" not in payload
+    assert payload["agent_configs"][0]["survey_question_groups"] == {"Q1": "direct"}
 
     survey_receipt = next(
         receipt
@@ -262,7 +268,11 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
     assert "{scale}" not in survey_receipt["request"]["messages"][-1]["content"]
     assert survey_receipt["response"] == '{"Q1": "Yes"}'
 
-    restored = load_snapshot(snapshot_path, lambda _state: stub_llm_factory(["unused"]))
+    restored = load_snapshot(
+        snapshot_path,
+        lambda _state: stub_llm_factory(["unused"]),
+        event_order=["public_utterance", "public_survey"],
+    )
     restored_agents = {agent.name: agent for agent in restored.agents}
     assert restored_agents["Alpha"].survey_question_groups == {"Q1": "direct"}
 

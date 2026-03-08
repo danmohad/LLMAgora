@@ -129,8 +129,9 @@ def run_debate_session(
     """Run an Agora session from configuration dictionaries.
 
     When ``load_snapshot_flag`` is True, ``snapshot_path`` must exist and the
-    Agora is restored from disk instead of constructing new agents. Snapshots
-    are saved back to the same path when ``save_snapshot_flag`` is True.
+    caller must provide ``event_order`` from config. The Agora is restored from
+    disk instead of constructing new agents. Snapshots are saved back to the
+    same path when ``save_snapshot_flag`` is True.
     """
 
     managed_client: Optional[LLMClient] = None
@@ -142,13 +143,20 @@ def run_debate_session(
         snapshot_file = Path(snapshot_path) if snapshot_path else None
         if load_snapshot_flag and snapshot_file is None:
             raise ValueError("snapshot_path is required when load_snapshot_flag is True")
+        if load_snapshot_flag and event_order is None:
+            raise ValueError("event_order is required when load_snapshot_flag is True")
         if load_snapshot_flag and snapshot_file is not None and not snapshot_file.exists():
             raise FileNotFoundError(f"Snapshot not found at {snapshot_file}")
 
         # Snapshot loading bypasses config-based agent construction.
         if load_snapshot_flag:
             assert snapshot_file is not None  # guarded by validation above
-            agora = load_snapshot(snapshot_file, lambda _state: llm_client)
+            assert event_order is not None  # guarded by validation above
+            agora = load_snapshot(
+                snapshot_file,
+                lambda _state: llm_client,
+                event_order=event_order,
+            )
             agents = list(agora.agents)
         else:
             agents = build_agents_from_configs(agent_configs, llm_client)
