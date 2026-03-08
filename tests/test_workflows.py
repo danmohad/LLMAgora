@@ -341,7 +341,11 @@ def test_persona_builder_uses_catalogues():
     assert configs[0]["model"] == "shared-model"
     assert configs[1]["model"] == "shared-model"
     assert "Persona" in configs[0]["self_role"] or "persona" in configs[0]["self_role"].lower()
-    assert "strongly advocated for you" in configs[0]["self_role"]
+    # Assert first agent's self_role includes the historical incentive text from the catalogue
+    scenario = next(s for s in catalog["scenarios"] if s["scenario_id"] == "promotion_committee_max_divergence")
+    first_side_name = next(iter(scenario["sides"]))
+    historical_view = scenario["incentive_modules"]["positive"]["historical"]["views"][first_side_name]
+    assert historical_view in configs[0]["self_role"]
     assert "PROMOTE" in configs[0]["response_instruction"]
     assert "When forming your public response" not in configs[0]["response_instruction"]
 
