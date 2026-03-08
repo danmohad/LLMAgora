@@ -1160,3 +1160,130 @@ def plot_group_response_decisions(
     plt.tight_layout()
     if show:
         plt.show()
+
+
+def plot_group_response_decisions_all_repeats(
+    per_repeat_decisions: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    show: bool = True,
+) -> None:
+    """Plot per-repeat binary response decisions as line plots over turns.
+
+    Each repeat is drawn as a separate line with a distinct marker shape so
+    individual trajectories are visible.  Colour encodes the logical series:
+
+    * **Figure 1 — per-agent**: public = blue, private = amber.
+    * **Figure 2 — cross-agent**: alpha = green, beta = orange-red.
+
+    Parameters
+    ----------
+    per_repeat_decisions:
+        Output of
+        :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_response_decisions_all_repeats`.
+    alpha_name, beta_name:
+        Display names for the two agents.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    _MARKERS = ["o", "s", "^", "D", "v", "P", "*", "X", "h", "8"]
+    _PUB_COLOR = "#2196F3"   # blue   – public channel
+    _PRIV_COLOR = "#FF9800"  # amber  – private channel
+    _ALPHA_COLOR = "#1b9e77" # green      – alpha agent
+    _BETA_COLOR = "#d95f02"  # orange-red – beta agent
+
+    decision_label = per_repeat_decisions.get("decision_label", "Decision A")
+    repeats = per_repeat_decisions.get("repeats", [])
+    y_label = f"Decision ({decision_label}=1)"
+
+    def _draw_lines(
+        ax: Any,
+        series_list: list,
+        title: str,
+    ) -> None:
+        """Draw one line per (repeat, series) combination onto *ax*."""
+        all_turns: list[int] = sorted(
+            {t for _, _, s, _ in series_list for t in s.get("turns", [])}
+        )
+        for lbl, color, series, marker in series_list:
+            turns = series.get("turns", [])
+            decisions = series.get("decisions", [])
+            if not turns:
+                continue
+            ax.plot(
+                turns,
+                decisions,
+                color=color,
+                marker=marker,
+                linewidth=1.5,
+                markersize=7,
+                alpha=0.8,
+                label=lbl,
+            )
+        ax.axhline(0.5, color="grey", linewidth=0.8, linestyle="--", alpha=0.5)
+        if all_turns:
+            ax.set_xticks(all_turns)
+            ax.set_xticklabels([f"T{t}" for t in all_turns])
+        ax.set_ylim(-0.15, 1.15)
+        ax.set_yticks([0, 1])
+        ax.set_yticklabels(["0", "1"])
+        ax.set_xlabel("Turn")
+        ax.set_ylabel(y_label)
+        ax.set_title(title)
+        if series_list:
+            ax.legend(loc="upper right", fontsize=7)
+        ax.grid(axis="y", alpha=0.3)
+
+    # ---- Figure 1: per-agent public vs. private ------------------------------
+    agent_slots = [(alpha_name, "Alpha"), (beta_name, "Beta")]
+    fig1, axes1 = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    for ax, (display_name, slot) in zip(axes1, agent_slots):
+        series_list: list = []
+        for r_idx, repeat_data in enumerate(repeats):
+            marker = _MARKERS[r_idx % len(_MARKERS)]
+            slot_data = repeat_data.get(slot, {})
+            if slot_data.get("public"):
+                series_list.append(
+                    (f"Public (rep {r_idx + 1})", _PUB_COLOR, slot_data["public"], marker)
+                )
+            if slot_data.get("private"):
+                series_list.append(
+                    (f"Private (rep {r_idx + 1})", _PRIV_COLOR, slot_data["private"], marker)
+                )
+        _draw_lines(ax, series_list, f"{display_name}\n(public vs. private)")
+    fig1.suptitle(
+        f"Response Decisions per Repeat \u2014 Public vs. Private\n"
+        f"Decision tracked: {decision_label}  (1\u202f=\u202fyes,\u20020\u202f=\u202fno)",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()
+
+    # ---- Figure 2: cross-agent public (left) and private (right) -------------
+    channels = [("public", "Public Responses"), ("private", "Private Responses")]
+    fig2, axes2 = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    for ax, (channel, panel_title) in zip(axes2, channels):
+        series_list2: list = []
+        for r_idx, repeat_data in enumerate(repeats):
+            marker = _MARKERS[r_idx % len(_MARKERS)]
+            alpha_data = repeat_data.get("Alpha", {}).get(channel, {})
+            beta_data = repeat_data.get("Beta", {}).get(channel, {})
+            if alpha_data:
+                series_list2.append(
+                    (f"{alpha_name} (rep {r_idx + 1})", _ALPHA_COLOR, alpha_data, marker)
+                )
+            if beta_data:
+                series_list2.append(
+                    (f"{beta_name} (rep {r_idx + 1})", _BETA_COLOR, beta_data, marker)
+                )
+        _draw_lines(ax, series_list2, panel_title)
+    fig2.suptitle(
+        f"Response Decisions per Repeat \u2014 Cross-Agent "
+        f"({alpha_name} \u2194 {beta_name})\n"
+        f"Decision tracked: {decision_label}  (1\u202f=\u202fyes,\u20020\u202f=\u202fno)",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()

@@ -630,3 +630,81 @@ def test_plot_group_response_decisions_missing_private_channel():
     with patch("agora.plotting.plt.show"):
         plot_group_response_decisions(agg)
 
+
+# ============================================================ plot_group_response_decisions_all_repeats
+
+
+def _per_repeat_series(turns=(1, 2), decisions=(1, 0)):
+    return {"turns": list(turns), "decisions": list(decisions)}
+
+
+def test_plot_group_response_decisions_all_repeats_smoke():
+    """Full two-figure smoke with public + private data for two repeats."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions_all_repeats
+
+    per_repeat = {
+        "decision_label": "ENDORSE",
+        "repeats": [
+            {
+                "Alpha": {"public": _per_repeat_series(), "private": _per_repeat_series((1, 2), (0, 1))},
+                "Beta":  {"public": _per_repeat_series(), "private": _per_repeat_series()},
+            },
+            {
+                "Alpha": {"public": _per_repeat_series((1,), (1,))},
+                "Beta":  {"public": _per_repeat_series((1,), (0,)), "private": _per_repeat_series()},
+            },
+        ],
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions_all_repeats(per_repeat, "PolicyDir", "CoalitionChair")
+
+
+def test_plot_group_response_decisions_all_repeats_empty_repeats():
+    """No repeats at all — figures still render without error."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions_all_repeats
+
+    per_repeat = {"decision_label": "YES", "repeats": []}
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions_all_repeats(per_repeat)
+
+
+def test_plot_group_response_decisions_all_repeats_missing_private():
+    """Only public channel data present for all repeats."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions_all_repeats
+
+    per_repeat = {
+        "decision_label": "ENDORSE",
+        "repeats": [
+            {
+                "Alpha": {"public": _per_repeat_series()},
+                "Beta":  {"public": _per_repeat_series()},
+            },
+        ],
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions_all_repeats(per_repeat)
+
+
+def test_plot_group_response_decisions_all_repeats_empty_series_in_repeat():
+    """A series entry with empty turns triggers the 'if not turns: continue' branch."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_response_decisions_all_repeats
+
+    per_repeat = {
+        "decision_label": "YES",
+        "repeats": [
+            {
+                "Alpha": {
+                    "public":  {"turns": [], "decisions": []},
+                    "private": _per_repeat_series(),
+                },
+                "Beta": {"public": _per_repeat_series()},
+            },
+        ],
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_response_decisions_all_repeats(per_repeat)
+

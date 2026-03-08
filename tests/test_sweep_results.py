@@ -1354,3 +1354,239 @@ def test_plot_response_decisions_empty_prints_message(capsys, tmp_path: Path):
     gr.plot_response_decisions(catalog_path=catalog)
     assert "No response decision data" in capsys.readouterr().out
 
+
+# ============================================================ aggregate_response_decisions_all_repeats
+
+
+def test_aggregate_response_decisions_all_repeats_basic(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["ENDORSE", "DO NOT ENDORSE"])
+
+    res = _fake_result_with_decisions(
+        "ENDORSE the bill", "DO NOT ENDORSE privately", "DO NOT ENDORSE", "ENDORSE"
+    )
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+
+    data = gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+
+    assert data["decision_label"] == "ENDORSE"
+    assert len(data["repeats"]) == 1
+    repeat = data["repeats"][0]
+    # public Alpha → ENDORSE (idx 0) → value 1
+    assert repeat["Alpha"]["public"]["turns"] == [1]
+    assert repeat["Alpha"]["public"]["decisions"] == [1]
+    # private Alpha → DO NOT ENDORSE (idx 1) → value 0
+    assert repeat["Alpha"]["private"]["decisions"] == [0]
+    # public Beta → DO NOT ENDORSE → value 0
+    assert repeat["Beta"]["public"]["decisions"] == [0]
+    # private Beta → ENDORSE → value 1
+    assert repeat["Beta"]["private"]["decisions"] == [1]
+
+
+def test_aggregate_response_decisions_all_repeats_multiple_repeats(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    res1 = _fake_result_with_decisions("YES", "NO", "YES", "YES")
+    res2 = _fake_result_with_decisions("NO", "YES", "NO", "NO")
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res1, res2],
+    )
+
+    data = gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+
+    assert len(data["repeats"]) == 2
+    assert data["repeats"][0]["Alpha"]["public"]["decisions"] == [1]
+    assert data["repeats"][1]["Alpha"]["public"]["decisions"] == [0]
+
+
+def test_aggregate_response_decisions_all_repeats_caches_result(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    res = _fake_result_with_decisions("YES", "NO", "YES", "NO")
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+
+    first = gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+    # explicit path → no automatic caching
+    assert gr._decision_per_repeat_cache is None
+    # manually set cache and confirm it is used
+    gr._decision_per_repeat_cache = first
+    second = gr.aggregate_response_decisions_all_repeats()
+    assert second is first
+
+
+def test_aggregate_response_decisions_all_repeats_sets_cache_on_default_path(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s_real", ["YES", "NO"])
+
+    res = _fake_result_with_decisions("YES", "NO", "NO", "YES")
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s_real"}, []),
+        results=[res],
+    )
+
+    with patch("agora.experiment.DEFAULT_CATALOG_PATH", catalog):
+        data = gr.aggregate_response_decisions_all_repeats()
+
+    assert gr._decision_per_repeat_cache is data
+
+
+def test_aggregate_response_decisions_all_repeats_explicit_params_bypass_cache(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["A", "B"])
+
+    res = _fake_result_with_decisions("A first", "B second", "A first", "A first")
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+    gr._decision_per_repeat_cache = {"decision_label": "stale", "repeats": []}
+
+    data = gr.aggregate_response_decisions_all_repeats(scenario_id="s1", catalog_path=catalog)
+    assert data["decision_label"] == "A"
+
+
+def test_aggregate_response_decisions_all_repeats_missing_scenario_id_raises():
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[])
+    with pytest.raises(ValueError, match="scenario_id"):
+        gr.aggregate_response_decisions_all_repeats()
+
+
+def test_aggregate_response_decisions_all_repeats_scenario_not_found_raises(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "other", ["X", "Y"])
+
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "missing"}, []), results=[]
+    )
+    with pytest.raises(KeyError, match="missing"):
+        gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+
+
+def test_aggregate_response_decisions_all_repeats_too_few_labels_raises(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    catalog.write_text(
+        json.dumps({"scenarios": [{"scenario_id": "s1", "decision_labels": ["ONLY"]}]}),
+        encoding="utf-8",
+    )
+
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []), results=[]
+    )
+    with pytest.raises(ValueError, match="Expected 2"):
+        gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+
+
+def test_aggregate_response_decisions_all_repeats_empty_turns(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": []}
+    res = MagicMock(agora=agora_mock)
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+
+    data = gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+    assert data["repeats"] == [{}]
+
+
+def test_aggregate_response_decisions_all_repeats_empty_utterance_skipped(tmp_path: Path):
+    """Empty public/private utterance strings are skipped (covers 'if not text: continue')."""
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {
+        "turns": [
+            {
+                "turn_num": 1,
+                "Alpha": {"public_utterance": "", "private_utterance": ""},
+                "Beta":  {"public_utterance": "", "private_utterance": ""},
+            }
+        ]
+    }
+    res = MagicMock(agora=agora_mock)
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+
+    data = gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+    # No utterances recorded — repeat entry should be empty
+    assert data["repeats"] == [{}]
+
+
+def test_aggregate_response_decisions_all_repeats_unmatched_text_skipped(tmp_path: Path):
+    """Text matching neither label returns None from _classify_decision (covers 'if idx is None')."""
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {
+        "turns": [
+            {
+                "turn_num": 1,
+                "Alpha": {
+                    "public_utterance": "NEITHER label appears here at all",
+                    "private_utterance": "NEITHER label",
+                },
+                "Beta": {
+                    "public_utterance": "NEITHER",
+                    "private_utterance": "NEITHER",
+                },
+            }
+        ]
+    }
+    res = MagicMock(agora=agora_mock)
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+
+    data = gr.aggregate_response_decisions_all_repeats(catalog_path=catalog)
+    # No matches recorded
+    assert data["repeats"] == [{}]
+
+
+# ============================================================ plot_response_decisions_all_repeats
+
+
+def test_plot_response_decisions_all_repeats_calls_plot(tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    res = _fake_result_with_decisions("YES", "NO", "NO", "YES")
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+    with patch("agora.plotting.plot_group_response_decisions_all_repeats") as mock_plot:
+        gr.plot_response_decisions_all_repeats(catalog_path=catalog)
+    mock_plot.assert_called_once()
+
+
+def test_plot_response_decisions_all_repeats_empty_prints_message(capsys, tmp_path: Path):
+    catalog = tmp_path / "catalog.json"
+    _write_decision_catalog(catalog, "s1", ["YES", "NO"])
+
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {"turns": []}
+    res = MagicMock(agora=agora_mock)
+    gr = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {"scenario_id": "s1"}, []),
+        results=[res],
+    )
+    gr.plot_response_decisions_all_repeats(catalog_path=catalog)
+    assert "No response decision data" in capsys.readouterr().out
+

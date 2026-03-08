@@ -221,6 +221,7 @@ class GroupAnalysisResult:
     _emotion_caches: dict = field(default_factory=dict, repr=False, compare=False, init=False)
     _survey_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _decision_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
+    _decision_per_repeat_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
 
     # ------------------------------------------------------------------ metadata
 
@@ -551,6 +552,101 @@ class GroupAnalysisResult:
 
         if scenario_id is None and catalog_path is None:
             self._decision_cache = result
+        return result
+
+    def aggregate_response_decisions_all_repeats(
+        self,
+        scenario_id: str | None = None,
+        catalog_path: "Path | str | None" = None,
+    ) -> dict:
+        """Per-repeat, per-turn binary decision values for each agent and channel.
+
+        Unlike :meth:`aggregate_response_decisions` which averages across repeats,
+        this preserves each repeat as an individual entry so that every repeat
+        can be plotted as a separate line.
+
+        Parameters
+        ----------
+        scenario_id, catalog_path:
+            Same semantics as :meth:`aggregate_response_decisions`.
+
+        Returns
+        -------
+        dict with keys:
+
+        - ``"decision_label"``: the primary label treated as 1.
+        - ``"repeats"``: list of per-repeat dicts, each
+          ``{slot: {channel: {"turns": [...], "decisions": [0|1, ...]}}}``,
+          one entry per repeat in the same order as ``self.results``.
+        """
+        if self._decision_per_repeat_cache is not None and scenario_id is None and catalog_path is None:
+            return self._decision_per_repeat_cache
+
+        import json as _json
+
+        from .experiment import DEFAULT_CATALOG_PATH
+
+        effective_scenario_id = scenario_id or self.group.sweep_values.get("scenario_id")
+        if not effective_scenario_id:
+            raise ValueError(
+                "Could not auto-detect scenario_id from sweep_values; pass scenario_id= explicitly."
+            )
+
+        effective_catalog = Path(catalog_path) if catalog_path is not None else DEFAULT_CATALOG_PATH
+        catalog = _json.loads(effective_catalog.read_text(encoding="utf-8"))
+        scenario = next(
+            (s for s in catalog.get("scenarios", []) if s.get("scenario_id") == effective_scenario_id),
+            None,
+        )
+        if scenario is None:
+            raise KeyError(f"Scenario '{effective_scenario_id}' not found in catalog")
+        decision_labels: list[str] = scenario.get("decision_labels", [])
+        if len(decision_labels) < 2:
+            raise ValueError(
+                f"Expected 2 decision_labels for '{effective_scenario_id}', got {decision_labels}"
+            )
+
+        primary_label = decision_labels[0]
+        repeats_data: list[dict] = []
+
+        for res in self.results:
+            history = res.agora.structured_history()
+            repeat_by_slot: dict[str, dict[str, dict[int, int]]] = {}
+            for turn in history.get("turns", []):
+                turn_num = int(turn.get("turn_num", 0))
+                for slot in ("Alpha", "Beta"):
+                    subturn = turn.get(slot, {})
+                    pub = subturn.get("public_utterance") or ""
+                    priv = subturn.get("private_utterance") or ""
+                    for channel, text in (("public", pub), ("private", priv)):
+                        if not text:
+                            continue
+                        idx = _classify_decision(text, decision_labels)
+                        if idx is None:
+                            continue
+                        (
+                            repeat_by_slot
+                            .setdefault(slot, {})
+                            .setdefault(channel, {})
+                        )[turn_num] = 1 if idx == 0 else 0
+
+            repeat_entry: dict[str, dict] = {}
+            for slot, channels in repeat_by_slot.items():
+                repeat_entry[slot] = {
+                    channel: {
+                        "turns": sorted(turn_map),
+                        "decisions": [turn_map[t] for t in sorted(turn_map)],
+                    }
+                    for channel, turn_map in channels.items()
+                }
+            repeats_data.append(repeat_entry)
+
+        result: dict[str, Any] = {
+            "decision_label": primary_label,
+            "repeats": repeats_data,
+        }
+        if scenario_id is None and catalog_path is None:
+            self._decision_per_repeat_cache = result
         return result
 
     # ------------------------------------------------------------------ on-demand analyses
@@ -889,6 +985,32 @@ class GroupAnalysisResult:
             return
         alpha_name, beta_name = self.agent_names
         plot_group_response_decisions(agg, alpha_name, beta_name)
+
+    def plot_response_decisions_all_repeats(
+        self,
+        scenario_id: str | None = None,
+        catalog_path: "Path | str | None" = None,
+    ) -> None:
+        """Plot per-repeat binary response decisions as line plots over turns.
+
+        Each repeat is rendered as a separate line with a distinct marker shape;
+        colour encodes public vs. private (Figure 1) or alpha vs. beta (Figure 2).
+
+        Parameters
+        ----------
+        scenario_id, catalog_path:
+            Passed verbatim to :meth:`aggregate_response_decisions_all_repeats`.
+        """
+        from .plotting import plot_group_response_decisions_all_repeats
+
+        data = self.aggregate_response_decisions_all_repeats(
+            scenario_id=scenario_id, catalog_path=catalog_path
+        )
+        if not any(data.get("repeats", [])):
+            print("No response decision data to plot.")
+            return
+        alpha_name, beta_name = self.agent_names
+        plot_group_response_decisions_all_repeats(data, alpha_name, beta_name)
 
 
 # ---------------------------------------------------------------------------
