@@ -404,7 +404,8 @@ class Agent:
         """
         Remove a leading speaker label (e.g., 'Alpha:') if present.
 
-        This prevents assistants from echoing speaker prefixes in their own replies.
+        This is defensive cleanup for model artifacts, including custom prompt sets
+        or unsolicited speaker labels invented by the model.
         """
 
         names = {self.name}
