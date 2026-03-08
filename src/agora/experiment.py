@@ -221,14 +221,6 @@ def _validate_metric_list(
         raise ValueError(f"{field_name} must not contain duplicates")
 
 
-def _derive_skip_first_reflection(event_order: Sequence[str]) -> bool:
-    """Skip first reflection only when private reflection runs before public speech."""
-
-    if "private_utterance" not in event_order:
-        return False
-    return event_order.index("private_utterance") < event_order.index("public_utterance")
-
-
 def _slug(value: str) -> str:
     slug = re.sub(r"[^A-Za-z0-9._-]+", "_", value.strip())
     return slug.strip("_") or "run"
@@ -722,7 +714,6 @@ def run_persona_experiment(
         num_turns=cfg.num_turns,
         event_order=cfg.subturn_event_order,
         verbose=cfg.verbose,
-        skip_first_agent_first_reflection=_derive_skip_first_reflection(cfg.subturn_event_order),
         emit_progress_markers=emit_progress_markers,
         snapshot_path=snapshot_path,
         load_snapshot_flag=cfg.load_snapshot,
