@@ -447,6 +447,77 @@ def test_agora_survey_calls_include_same_turn_context():
     assert any(msg["content"] == "alpha private" for msg in private_survey_messages)
 
 
+def test_agora_structured_history_includes_exact_survey_receipt():
+    alpha_llm = QueueLLM(
+        [
+            "alpha public",
+            json.dumps({"Q1": "Yes"}),
+        ]
+    )
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=alpha_llm,
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_question_groups={"Q1": "direct"},
+        survey_public_prompt="Base\n{scale}\n",
+        survey_private_prompt="Private\n",
+        enable_public_survey=True,
+        enable_private_survey=False,
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+
+    agora = Agora([alpha, beta], event_order=["public_utterance", "public_survey"])
+    agora.run(num_turns=1)
+
+    receipts = agora.structured_history()["llm_receipts"]
+    survey_receipt = next(
+        receipt for receipt in receipts if receipt["event_type"] == "public_survey"
+    )
+
+    prompt = survey_receipt["request"]["messages"][-1]["content"]
+    assert "{scale}" not in prompt
+    assert "Use the following binary scale:" in prompt
+    assert "- No" in prompt
+    assert "- Yes" in prompt
+    assert "Q1. [Yes/No] q1" in prompt
+    enum_values = survey_receipt["request"]["response_format"]["json_schema"][
+        "schema"
+    ]["properties"]["Q1"]["enum"]
+    assert enum_values == ["No", "Yes"]
+    assert survey_receipt["response"] == '{"Q1": "Yes"}'
+
+
+def test_agora_append_completion_receipt_requires_pending_receipt():
+    alpha = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=QueueLLM(["alpha public"]),
+        response_instruction="respond",
+    )
+    beta = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=QueueLLM(["beta public"]),
+        response_instruction="respond",
+    )
+    agora = Agora([alpha, beta])
+
+    with pytest.raises(RuntimeError, match="Expected exactly one completion receipt"):
+        agora._append_completion_receipt(
+            alpha,
+            turn_num=1,
+            subturn="Alpha",
+            event_type="public_utterance",
+        )
+
+
 def test_agora_pre_post_keep_true():
     responses = ["pre", "public", "post"]
     llm_client = QueueLLM(responses)

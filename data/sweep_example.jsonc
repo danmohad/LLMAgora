@@ -45,17 +45,17 @@
     // Semantic similarity analysis.
     // Options: self_consistency, cross_agent_public_alignment, cross_agent_private_alignment
     "semantic_analysis_metrics": [],
-    "semantic_similarity_method": "cosine", // cosine | nli
-    "semantic_similarity_model": null, // defaults by method
+    "semantic_similarity_method": null, // required when semantic_analysis_metrics is non-empty
+    "semantic_similarity_model": null, // required when semantic_analysis_metrics is non-empty
     "semantic_similarity_device": null, // null | cpu | mps
 
     // Persona adherence analysis.
     // Options: public_per_turn, private_per_turn, public_cumulative,
     //          private_cumulative, full_debate_public, full_debate_private
     "persona_analysis_metrics": [],
-    "persona_scoring_model": "anthropic/claude-sonnet-4",
+    "persona_scoring_model": null, // required when persona_analysis_metrics is non-empty
     "persona_scoring_verbose": false,
-    "persona_score_samples": 1,
+    "persona_score_samples": null, // required when persona_analysis_metrics is non-empty
 
     // Plotting.
     "save_plots": false,

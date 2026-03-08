@@ -269,6 +269,7 @@ def load_prompt_templates(
     required_keys = [
         "base_prompt",
         "perceived_prompt",
+        "decision_format",
         "public_instruction",
         "private_instruction",
         "pre_interview_instruction",
@@ -288,6 +289,33 @@ def load_prompt_templates(
         payload = dict(payload)
         payload["incentive_prompt"] = "\n\n# Incentive context:\n{incentive}"
     return payload
+
+
+def _decision_format_for_scenario(
+    *,
+    scenario_id: str,
+    scenario: dict,
+    template: str,
+) -> str:
+    labels = scenario.get("decision_labels")
+    if not isinstance(labels, list) or len(labels) != 2:
+        raise KeyError(
+            f"Scenario '{scenario_id}' must define exactly two decision_labels"
+        )
+
+    normalized_labels = []
+    for label in labels:
+        if not isinstance(label, str) or not label.strip():
+            raise KeyError(
+                f"Scenario '{scenario_id}' decision_labels must contain two non-empty strings"
+            )
+        normalized_labels.append(label.strip())
+
+    first_label, second_label = normalized_labels
+    return template.format(
+        decision_label_1=first_label,
+        decision_label_2=second_label,
+    )
 
 
 def _incentive_text_for_side(
@@ -381,6 +409,7 @@ def build_scenario_agent_configs(
     base_prompt = base_prompt or prompts["base_prompt"]
     perceived_prompt = perceived_prompt or prompts["perceived_prompt"]
     incentive_prompt = incentive_prompt or prompts["incentive_prompt"]
+    decision_format_template = prompts["decision_format"]
     public_instruction = public_instruction or prompts["public_instruction"]
     opening_instruction = opening_instruction or prompts["opening_instruction"]
     private_instruction = private_instruction or prompts["private_instruction"]
@@ -414,6 +443,22 @@ def build_scenario_agent_configs(
             f"Scenario '{scenario_id}' must define exactly two sides in scenario.sides"
         )
     side_items = list(sides.items())
+    decision_format = _decision_format_for_scenario(
+        scenario_id=scenario_id,
+        scenario=scenario,
+        template=decision_format_template,
+    )
+    public_instruction = public_instruction.replace(
+        "{decision_format}", decision_format
+    )
+    opening_instruction = opening_instruction.replace(
+        "{decision_format}", decision_format
+    )
+    if private_instruction is not None:
+        private_instruction = private_instruction.replace(
+            "{decision_format}", decision_format
+        )
+
     alpha_label, alpha_persona = side_items[0]
     beta_label, beta_persona = side_items[1]
 

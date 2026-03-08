@@ -10,7 +10,6 @@ from agora.semantic_similarity_analyzer import (
     SEMANTIC_SIMILARITY_METHOD_NLI,
     SemanticSimilarityAnalyzer,
 )
-from agora.memory import MemoryTurn
 
 
 class DummyModel:
@@ -311,26 +310,32 @@ def test_structured_history_path(monkeypatch):
 
     monkeypatch.setattr(SemanticSimilarityAnalyzer, "_load_model", fake_load)
 
-    turns = [
-        MemoryTurn(
-            turn_id=1,
-            speaker_id="a",
-            role="assistant",
-            public_speech="Hi",
-            metadata={"speaker_name": "Alpha"},
-        ),
-        MemoryTurn(
-            turn_id=2,
-            speaker_id="b",
-            role="assistant",
-            public_speech="Hello",
-            metadata={"speaker_name": "Beta"},
-        ),
-    ]
+    structured_history = {
+        "pre_interviews": {"Alpha": {"response": None}, "Beta": {"response": None}},
+        "turns": [
+            {
+                "turn_num": 1,
+                "Alpha": {
+                    "public_utterance": "Hi",
+                    "private_utterance": None,
+                },
+                "Beta": {
+                    "public_utterance": "Hello",
+                    "private_utterance": None,
+                },
+            }
+        ],
+        "post_interviews": {"Alpha": {"response": None}, "Beta": {"response": None}},
+    }
 
-    analyzer = SemanticSimilarityAnalyzer(turns)
+    analyzer = SemanticSimilarityAnalyzer(structured_history)
     result = analyzer.compute_self_consistency_scores(force_recompute=True)
     assert "Alpha" in result
+
+
+def test_structured_history_rejects_raw_turn_list():
+    with pytest.raises(ValueError, match="canonical structured history"):
+        SemanticSimilarityAnalyzer([])
 
 
 def test_load_model_with_fake_dependency(monkeypatch, capsys):

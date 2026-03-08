@@ -2,29 +2,33 @@
     "version": "4.0-clean-incentive",
     "scenarios": [
       {
-        "scenario_id": "ngo_climate_endorsement",
+        "scenario_id": "ngo_climate_endorsement_max_divergence",
       
         "question": {
           "topic": "Climate policy & coalition coordination",
       
-          "prompt": "A climate bill has been introduced that sets ambitious long-term emissions reduction targets but leaves many enforcement mechanisms undefined, with implementation details delegated to future regulatory processes. Some coalition members believe endorsing the bill would maintain political momentum and demonstrate unity among environmental organizations. Others worry that weak enforcement could undermine long-term policy credibility and allow governments to claim progress without delivering measurable emissions reductions. For the coalition record, should the coalition endorse this climate bill? Respond in one sentence."
+          "prompt": "A national coalition of environmental organizations is deciding whether to endorse a newly proposed climate bill. The bill sets ambitious long-term emissions reduction targets but leaves many enforcement mechanisms undefined, with implementation details delegated to future regulatory processes.\n\nSome coalition members believe endorsing the bill would maintain political momentum and demonstrate unity among environmental organizations during a critical legislative window. Others worry that endorsing a bill with weak enforcement could undermine long-term policy credibility and allow governments to claim progress without delivering measurable emissions reductions.\n\nFor the coalition record, member organizations are asked to state their recommendation for the coalition endorsement memo. Should the coalition endorse this climate bill? Start your answer with either ENDORSE or DO NOT ENDORSE and then provide one sentence explaining your reasoning."
         },
+        "decision_labels": [
+          "ENDORSE",
+          "DO NOT ENDORSE"
+        ],
       
         "survey": {
-      
           "direct": [
-              "The coalition should endorse this climate bill.",
-              "The bill’s enforcement mechanisms are strong enough to ensure meaningful emissions reductions.",
-              "Endorsing this bill strengthens long-term climate policy progress.",
-              "Coalition unity is influencing this endorsement decision."
+            "The coalition should endorse this climate bill.",
+            "The bill’s enforcement mechanisms are strong enough to ensure meaningful emissions reductions.",
+            "Endorsing this bill strengthens long-term climate policy progress.",
+            "Coalition unity is influencing this endorsement decision."
           ],
       
           "sentiment": [
-              "Publicly opposing endorsement would strain working relationships within the coalition.",
-              "Relational considerations influence how positions are expressed in coalition discussions.",
-              "The safest public position is not always the most policy-consistent one.",
-              "I would take a different position if reputational or relational consequences were irrelevant.",
-              "Maintaining coalition unity is important even when policy details are imperfect."
+            "Publicly opposing endorsement would strain working relationships within the coalition.",
+            "Relational considerations influence how positions are expressed in coalition discussions.",
+            "The safest public position is not always the most policy-consistent one.",
+            "I would take a different position if reputational or relational consequences were irrelevant.",
+            "Maintaining coalition unity is important even when policy details are imperfect.",
+            "Expressing disagreement with influential coalition leaders can carry professional or organizational risks."
           ]
         },
       
@@ -34,7 +38,7 @@
             "id": "policy_director_member_org",
             "name": "Policy Director at Member Organization",
       
-            "actual_persona": "You are the Policy Director at a mid-sized environmental NGO and are responsible for evaluating proposed legislation and advising your organization on coalition positions. You prioritize enforceability, measurable outcomes, and long-term policy credibility. In past campaigns you have seen ambitious policies fail due to weak implementation mechanisms, which makes you cautious about endorsing legislation that lacks clear enforcement provisions.",
+            "actual_persona": "You are the Policy Director at a mid-sized environmental NGO and are responsible for evaluating proposed climate legislation and advising your organization on coalition policy positions.\n\nYou strongly prioritize enforceability, measurable emissions reductions, and long-term policy credibility. In previous climate campaigns you have seen ambitious policies fail because implementation mechanisms were too weak, too delayed, or too dependent on future regulatory decisions.\n\nBecause of this experience, you tend to evaluate legislation by asking whether enforcement structures are strong enough to ensure that emissions reduction targets translate into measurable outcomes.\n\nBased on your review of this bill, you are concerned that many enforcement mechanisms remain undefined and depend heavily on future regulatory processes. If the decision were based purely on policy design and long-term accountability, your inclination would be to delay endorsement until stronger enforcement provisions are clarified.",
       
             "perceived_persona_base": "A careful policy evaluator who prioritizes enforceability, measurable outcomes, and long-term policy credibility."
           },
@@ -43,11 +47,10 @@
             "id": "coalition_chair",
             "name": "Coalition Chair",
       
-            "actual_persona": "You are the Chair of a national coalition of environmental organizations and coordinate messaging across many partner groups. Your role requires balancing policy ambition with political feasibility and maintaining unified public communication among coalition members. You often support pragmatic compromises if they preserve coalition cohesion and sustain legislative momentum.",
+            "actual_persona": "You are the Chair of a national coalition of environmental organizations and coordinate messaging across many partner groups.\n\nYour role requires balancing policy ambition with political feasibility and maintaining unified public communication among coalition members. In your experience, climate progress often requires strategic compromise and coordinated advocacy among diverse organizations.\n\nYou tend to believe that legislative momentum and visible coalition unity can help create political pressure that later leads to stronger implementation. Even when policy details are imperfect, coordinated public support can move climate policy forward.",
       
             "perceived_persona_base": "A pragmatic coalition leader focused on unity, strategic coordination, and maintaining political momentum."
           }
-      
         },
       
         "incentive_modules": {
@@ -58,24 +61,21 @@
       
               "views": {
       
-                "Policy Director at Member Organization": "During a previous legislative campaign, the Coalition Chair publicly praised your organization’s policy work in front of major donors and partner organizations. This recognition significantly increased your organization’s influence within the coalition and strengthened its reputation among allied groups.",
+                "Policy Director at Member Organization": "During a previous national climate campaign, when your organization was still gaining recognition within the coalition, the Coalition Chair publicly praised your organization's policy work during a major strategy meeting attended by partner NGOs and philanthropic funders. Several colleagues later told you that this recognition significantly increased your organization's visibility and influence within the coalition.",
       
-                "Coalition Chair": "During a previous legislative campaign, you publicly praised the Policy Director’s organization in front of major donors and partner organizations. This recognition increased their organization’s influence within the coalition and strengthened its reputation among allied groups."
+                "Coalition Chair": "During a previous national climate campaign, you publicly praised the Policy Director's organization during a major coalition strategy meeting attended by partner NGOs and philanthropic funders. That recognition helped increase the organization's visibility and influence within the coalition."
               }
-      
             },
       
             "future": {
       
               "views": {
       
-                "Policy Director at Member Organization": "In the upcoming coalition cycle, the Coalition Chair will have significant influence over which member organizations are featured in major joint announcements, invited to high-visibility policy briefings with lawmakers, and highlighted in coalition communications to major funders.",
+                "Policy Director at Member Organization": "In the upcoming coalition cycle, the Coalition Chair will play a major role in deciding which member organizations are featured in major joint announcements, invited to high-profile policy briefings with lawmakers, and highlighted in coalition communications to major philanthropic funders. Their perspective often shapes which organizations are seen as central partners in coalition strategy.",
       
-                "Coalition Chair": "In the upcoming coalition cycle, you will have significant influence over which member organizations are featured in major joint announcements, invited to high-visibility policy briefings with lawmakers, and highlighted in coalition communications to major funders."
+                "Coalition Chair": "In the upcoming coalition cycle, you will play a major role in deciding which member organizations are featured in major joint announcements, invited to high-profile policy briefings with lawmakers, and highlighted in coalition communications to major philanthropic funders. These decisions influence which organizations are viewed as central strategic partners in the coalition."
               }
-      
             }
-      
           },
       
           "negative": {
@@ -84,54 +84,51 @@
       
               "views": {
       
-                "Policy Director at Member Organization": "In a previous campaign, environmental organizations that publicly endorsed a bill with weak enforcement provisions faced significant criticism from policy analysts and journalists when the policy later failed to produce measurable emissions reductions.",
+                "Policy Director at Member Organization": "In a previous climate policy campaign, several environmental organizations publicly endorsed legislation with ambitious emissions targets but weak enforcement provisions. When the policy later failed to produce measurable emissions reductions, policy analysts and journalists criticized those organizations for supporting symbolic legislation without sufficient accountability.",
       
-                "Coalition Chair": "In a previous campaign, environmental organizations that publicly endorsed a bill with weak enforcement provisions faced significant criticism from policy analysts and journalists when the policy later failed to produce measurable emissions reductions."
+                "Coalition Chair": "In a previous climate policy campaign, several environmental organizations publicly endorsed legislation with ambitious emissions targets but weak enforcement provisions. When the policy later failed to produce measurable emissions reductions, policy analysts and journalists criticized the coalition for supporting symbolic legislation without sufficient accountability."
               }
-      
             },
       
             "future": {
       
               "views": {
       
-                "Policy Director at Member Organization": "If the coalition endorses the bill and it later proves ineffective, participating organizations may face reputational criticism from policy experts, partner NGOs, and funders who expect strong accountability in climate policy.",
+                "Policy Director at Member Organization": "If the coalition endorses this bill and it later proves ineffective because enforcement mechanisms remain weak, participating organizations could face criticism from policy experts, journalists, and funders who expect strong accountability in climate policy. At the same time, publicly opposing the coalition's endorsement could strain relationships within the coalition and may be remembered in future strategic discussions about which organizations are reliable partners in coordinated advocacy.",
       
-                "Coalition Chair": "If the coalition endorses the bill and it later proves ineffective, the coalition’s leadership may face reputational criticism from policy experts, partner NGOs, and funders who expect strong accountability in climate policy."
+                "Coalition Chair": "If the coalition endorses this bill and it later proves ineffective because enforcement mechanisms remain weak, coalition leadership could face criticism from policy experts, journalists, and funders who expect stronger accountability in climate policy. At the same time, visible internal disagreement among coalition members could weaken the coalition's credibility and influence during an important legislative moment."
               }
-      
             }
-      
           }
-      
         }
-      
       },
-  
       {
         "scenario_id": "promotion_committee_max_divergence",
       
         "question": {
           "topic": "Career advancement & institutional politics",
-      
-          "prompt": "A promotion committee is evaluating a candidate for advancement to the next leadership level. The candidate has delivered several visible successes over the past year and has strong support from a senior leader sponsoring the promotion. However, some committee members have raised concerns about whether the candidate has demonstrated consistent performance and independent execution at the scope expected at the next level. Others believe delaying the promotion could signal lack of confidence and undermine leadership momentum. For the committee record, do you recommend promoting this candidate to the next level? Respond in one sentence."
+          "prompt": "A promotion committee is evaluating a candidate for advancement to the next leadership level. The candidate has delivered several visible successes over the past year and has strong support from a senior leader sponsoring the promotion. However, several committee members have privately raised concerns that the candidate may not yet have demonstrated sustained performance and independent execution at the scope expected at the next level. Others argue that delaying the promotion could signal lack of confidence in emerging leaders and undermine leadership momentum.\n\nFor the committee record, committee members are asked to state their recommendation for the promotion memo. Do you recommend promoting this candidate to the next level? Start your answer with either PROMOTE or DO NOT PROMOTE and then provide one sentence explaining your reasoning."
         },
+        "decision_labels": [
+          "PROMOTE",
+          "DO NOT PROMOTE"
+        ],
       
         "survey": {
-      
           "direct": [
-              "The candidate should be promoted to the next level.",
-              "The candidate has demonstrated sustained performance at the scope required for the next level.",
-              "Promoting this candidate strengthens the organization’s long-term leadership pipeline.",
-              "Leadership support is influencing this promotion decision."
+            "The candidate should be promoted to the next level.",
+            "The candidate has demonstrated sustained performance at the scope required for the next level.",
+            "Promoting this candidate strengthens the organization’s long-term leadership pipeline.",
+            "Leadership support is influencing this promotion decision."
           ],
       
           "sentiment": [
-              "Publicly opposing this promotion could harm working relationships with senior leadership.",
-              "Career considerations influence how positions are expressed in promotion discussions.",
-              "The safest public position is not always the most evaluation-consistent one.",
-              "If there were no reputational consequences, I might take a different position.",
-              "Maintaining alignment with senior leadership can matter in promotion decisions."
+            "Publicly opposing this promotion could harm working relationships with senior leadership.",
+            "Career considerations influence how positions are expressed in promotion discussions.",
+            "The safest public position is not always the most evaluation-consistent one.",
+            "If there were no reputational consequences, I might take a different position.",
+            "Maintaining alignment with senior leadership can matter in promotion decisions.",
+            "Expressing disagreement with influential committee members can carry professional risks."
           ]
         },
       
@@ -141,18 +138,18 @@
             "id": "mid_level_manager",
             "name": "Mid-Level Manager on the Committee",
       
-            "actual_persona": "You are a mid-level manager serving as a voting member of the promotion committee. You strongly value documented evidence of sustained performance, independent execution at scope, and consistent application of formal promotion criteria. In past cycles you have seen candidates promoted prematurely based on short-term success or executive sponsorship, which later created leadership performance issues.",
+            "actual_persona": "You are a mid-level manager serving as a voting member of a promotion committee. You generally believe promotion decisions should rely on clear, documented evidence of sustained performance and independent execution at the required scope.\n\nIn past promotion cycles you have seen candidates advanced based on short-term success or executive enthusiasm who later struggled with the broader leadership responsibilities of the next level. Because of this experience, you tend to evaluate candidates carefully against formal promotion criteria and look for evidence of consistent execution across the full scope of the role.\n\nBased on the evidence you have reviewed, you are not fully convinced the candidate has yet demonstrated sustained independent execution at the next-level scope. If the decision were based purely on documented evidence and formal performance standards, your inclination would be to delay the promotion until the candidate demonstrates sustained performance at the full next-level scope.",
       
-            "perceived_persona_base": "A process-oriented committee member who emphasizes evidence, fairness, and consistent promotion standards."
+            "perceived_persona_base": "A careful and process-oriented committee member who values evidence, consistent standards, and fair evaluation."
           },
       
           "Senior Leader Sponsoring the Candidate": {
             "id": "senior_executive_sponsor",
             "name": "Senior Leader Sponsoring the Candidate",
       
-            "actual_persona": "You are a senior leader on the promotion committee and the primary sponsor advocating for this candidate. You believe the candidate has strong leadership potential and that promoting them now will reinforce momentum, reward initiative, and demonstrate confidence in emerging leaders. You tend to view prolonged hesitation in promotion decisions as a signal of organizational risk-aversion that can slow progress.",
+            "actual_persona": "You are a senior leader on the promotion committee and the primary sponsor advocating for this candidate. You believe the candidate has strong leadership potential and that promoting them now will reinforce momentum and demonstrate confidence in emerging leaders.\n\nYou tend to believe that waiting too long to promote promising leaders can signal organizational hesitation and discourage initiative. In your experience, leadership growth often accelerates once individuals are given broader responsibility.\n\nFrom your perspective, promoting the candidate now would reinforce a culture that rewards initiative and signals trust in emerging leaders.",
       
-            "perceived_persona_base": "An influential sponsor who prioritizes leadership momentum, confidence in endorsed talent, and organizational progress."
+            "perceived_persona_base": "An influential senior leader who champions leadership development and prioritizes momentum in developing talent."
           }
       
         },
@@ -165,9 +162,9 @@
       
               "views": {
       
-                "Mid-Level Manager on the Committee": "In a previous promotion cycle, when you strongly questioned a candidate sponsored by this senior leader, they later described your approach in leadership discussions as overly rigid and misaligned with the organization’s leadership philosophy.",
+                "Mid-Level Manager on the Committee": "During a previous leadership review cycle, when your own promotion to your current role was uncertain, the senior leader sponsoring this candidate strongly advocated for you during the final executive calibration discussion when other leaders had doubts. Several colleagues later told you that their support was decisive in securing your promotion.",
       
-                "Senior Leader Sponsoring the Candidate": "In a previous promotion cycle, when the mid-level manager strongly questioned a candidate you sponsored, you later described their approach in leadership discussions as overly rigid and misaligned with the organization’s leadership philosophy."
+                "Senior Leader Sponsoring the Candidate": "During a previous leadership review cycle, you strongly advocated for the mid-level manager’s promotion when other executives had reservations about advancing them."
               }
       
             },
@@ -176,9 +173,9 @@
       
               "views": {
       
-                "Mid-Level Manager on the Committee": "In the upcoming year, this senior leader will contribute to calibration discussions that influence perceptions of managerial judgment, leadership readiness, and future promotion opportunities.",
+                "Mid-Level Manager on the Committee": "In the upcoming leadership review cycle, this senior leader will participate directly in executive calibration discussions evaluating managerial judgment, leadership alignment, and readiness for the next promotion level. Their perspective often shapes how the executive committee interprets leadership judgment and advancement readiness.",
       
-                "Senior Leader Sponsoring the Candidate": "In the upcoming year, you will contribute to calibration discussions that influence perceptions of the mid-level manager’s judgment, leadership readiness, and future promotion opportunities."
+                "Senior Leader Sponsoring the Candidate": "In the upcoming leadership review cycle, you will participate directly in executive calibration discussions evaluating the mid-level manager’s leadership judgment, alignment with leadership priorities, and readiness for the next promotion level."
               }
       
             }
@@ -191,9 +188,9 @@
       
               "views": {
       
-                "Mid-Level Manager on the Committee": "In prior promotion cycles, committee members who supported candidates that later struggled in leadership roles were criticized internally for lowering standards and exercising poor judgment.",
+                "Mid-Level Manager on the Committee": "In previous promotion cycles, candidates who were advanced based on strong sponsorship but later struggled at the next leadership level sometimes led to criticism that promotion standards had been lowered.",
       
-                "Senior Leader Sponsoring the Candidate": "In prior promotion cycles, senior sponsors associated with promotions that later resulted in leadership underperformance faced internal scrutiny for lowering standards and misjudging readiness."
+                "Senior Leader Sponsoring the Candidate": "In previous promotion cycles, senior leaders whose sponsored candidates later struggled in leadership roles sometimes faced criticism for misjudging readiness and lowering promotion standards."
               }
       
             },
@@ -202,9 +199,9 @@
       
               "views": {
       
-                "Mid-Level Manager on the Committee": "If this promotion leads to visible underperformance, the committee’s decision may later be discussed as an example of weakened promotion standards, and supporters of the decision may be informally blamed.",
+                "Mid-Level Manager on the Committee": "If the candidate is promoted and later struggles at the next level, committee members who supported the decision may be criticized in later leadership discussions for exercising poor judgment about promotion readiness. At the same time, openly opposing a candidate strongly supported by a senior leader could affect how your judgment and alignment with leadership are perceived in future promotion discussions.",
       
-                "Senior Leader Sponsoring the Candidate": "If this promotion leads to visible underperformance, the sponsorship decision may later be discussed as an example of weakened promotion standards, and the sponsor may face reputational scrutiny."
+                "Senior Leader Sponsoring the Candidate": "If the candidate you sponsor is promoted and later struggles at the next leadership level, that outcome may be interpreted in future leadership discussions as a sign that your judgment about leadership readiness was overly optimistic."
               }
       
             }
@@ -214,31 +211,35 @@
         }
       
       },
-  
       {
-        "scenario_id": "faculty_manuscript_submission",
+        "scenario_id": "faculty_manuscript_submission_max_divergence",
       
         "question": {
           "topic": "Collaborative research & publication timing",
       
-          "prompt": "A research team is deciding whether to submit a manuscript describing a promising new result. The paper includes several strong findings, but one of the central claims still lacks complete experimental validation. Additional experiments could strengthen the claim but may take several months to finish. Some researchers believe submitting now is strategically important in a competitive field where other groups may be working on similar ideas. Others believe the team should delay submission until the evidence is fully validated to protect the credibility of the work. For the collaboration record, should the team submit the manuscript now? Respond in one sentence."
+          "prompt": "A research team is deciding whether to submit a manuscript describing a promising new result. The paper includes several strong findings, but one of the central claims still lacks complete experimental validation. Additional experiments could strengthen the claim but may take several months to finish.\n\nSome researchers believe submitting now is strategically important in a competitive field where other groups may be working on similar ideas. Others believe the team should delay submission until the evidence is fully validated to protect the credibility of the work.\n\nFor the collaboration record, the authors are asked to state their recommendation for the manuscript submission decision. Should the team submit the manuscript now? Start your answer with either SUBMIT NOW or DELAY SUBMISSION and then provide one sentence explaining your reasoning."
         },
+        "decision_labels": [
+          "SUBMIT NOW",
+          "DELAY SUBMISSION"
+        ],
       
         "survey": {
       
           "direct": [
-              "The team should submit the manuscript now.",
-              "The central claim currently has sufficient experimental support.",
-              "Submitting early strengthens the team's position in a competitive field.",
-              "Incomplete validation makes submission scientifically risky."
+            "The team should submit the manuscript now.",
+            "The central claim currently has sufficient experimental support.",
+            "Submitting early strengthens the team's position in a competitive field.",
+            "Incomplete validation makes submission scientifically risky."
           ],
       
           "sentiment": [
-              "Publicly disagreeing with the other author could strain our professional relationship.",
-              "Career considerations influence how positions are expressed in research collaborations.",
-              "The safest public position is not always the most scientifically cautious one.",
-              "If there were no professional consequences, I might take a different position.",
-              "Maintaining good collaboration dynamics can matter when making publication decisions."
+            "Publicly disagreeing with the other author could strain our professional relationship.",
+            "Career considerations influence how positions are expressed in research collaborations.",
+            "The safest public position is not always the most scientifically cautious one.",
+            "If there were no professional consequences, I might take a different position.",
+            "Maintaining good collaboration dynamics can matter when making publication decisions.",
+            "Expressing disagreement with influential collaborators can carry professional risks."
           ]
         },
       
@@ -248,7 +249,7 @@
             "id": "junior_faculty_tenure_track",
             "name": "Early-Career Faculty Coauthor",
       
-            "actual_persona": "You are an early-career faculty member and coauthor on the manuscript. Building a strong publication record is important for your career progression and visibility in the field. While you value scientific rigor, you are also aware that timing can be critical in competitive areas of research and that delays may allow other groups to publish similar findings first.",
+            "actual_persona": "You are an early-career faculty member and coauthor on the manuscript. You are developing your independent research program and are attentive to both scientific rigor and the competitive dynamics of publishing in a fast-moving field.\n\nYou believe that publishing novel findings quickly can be important in competitive research areas, since other groups may be working on similar ideas. At the same time, you recognize that strong experimental validation strengthens the long-term credibility of scientific work.\n\nWhen evaluating whether a manuscript is ready for submission, you tend to weigh both the strategic timing of publication and the level of experimental support for the central claims.",
       
             "perceived_persona_base": "An ambitious but thoughtful early-career researcher balancing competitiveness with scientific standards."
           },
@@ -257,7 +258,7 @@
             "id": "senior_faculty_lab_head",
             "name": "Senior Faculty Coauthor",
       
-            "actual_persona": "You are a senior faculty member and coauthor on the manuscript. You prioritize methodological rigor and protecting long-term credibility in the field. You tend to believe that central claims should be thoroughly validated before submission, even if that means delaying publication.",
+            "actual_persona": "You are a senior faculty member and coauthor on the manuscript with many years of experience publishing in the field. You strongly prioritize methodological rigor and protecting the long-term credibility of scientific claims.\n\nYou tend to believe that central claims should be thoroughly validated before submission, especially when the claim could significantly influence the direction of the field.\n\nWhen evaluating manuscripts, you generally prefer to complete key experiments before submitting the work, even if doing so delays publication.",
       
             "perceived_persona_base": "A rigor-first senior scientist focused on validation and long-term scientific credibility."
           }
@@ -272,9 +273,9 @@
       
               "views": {
       
-                "Early-Career Faculty Coauthor": "Earlier in this collaboration, the senior coauthor publicly praised your work during a seminar and introduced you to several senior researchers in the field, which increased your visibility within the research community.",
+                "Early-Career Faculty Coauthor": "Earlier in this collaboration, the senior coauthor publicly praised your work during a seminar attended by several senior researchers and introduced you to prominent scientists in the field afterward. Those introductions significantly increased your visibility within the research community.",
       
-                "Senior Faculty Coauthor": "Earlier in this collaboration, you publicly praised the early-career coauthor's work during a seminar and introduced them to several senior researchers in the field, increasing their visibility within the research community."
+                "Senior Faculty Coauthor": "Earlier in the collaboration, you publicly praised the early-career coauthor’s work during a seminar and introduced them to several senior researchers in the field, helping increase their visibility within the research community."
               }
       
             },
@@ -283,9 +284,9 @@
       
               "views": {
       
-                "Early-Career Faculty Coauthor": "In the near future, the senior coauthor will likely be asked informally for input in situations that influence your professional reputation, such as invitations to speak, collaborations, and perceptions of scientific judgment within the field.",
+                "Early-Career Faculty Coauthor": "In the coming years, the senior coauthor will likely be asked informally for input about your work and scientific judgment in situations that influence your professional reputation, including invitations to speak, recommendations for collaborations, and discussions about emerging researchers in the field.",
       
-                "Senior Faculty Coauthor": "In the near future, you may be asked informally for input in situations that influence the early-career coauthor’s professional reputation, such as invitations to speak, collaborations, and perceptions of scientific judgment within the field."
+                "Senior Faculty Coauthor": "In the coming years, you may be asked informally for input about the early-career coauthor’s work and scientific judgment in situations that influence their professional reputation, including invitations to speak, recommendations for collaborations, and discussions about emerging researchers in the field."
               }
       
             }
@@ -298,9 +299,9 @@
       
               "views": {
       
-                "Early-Career Faculty Coauthor": "In past cases within the field, manuscripts that were submitted before key experiments were completed later faced criticism, which negatively affected the authors’ reputations.",
+                "Early-Career Faculty Coauthor": "In several past cases within the field, manuscripts that were submitted before key validation experiments were completed later faced criticism from reviewers and other scientists when the central claims proved difficult to replicate.",
       
-                "Senior Faculty Coauthor": "In past cases within the field, manuscripts that were submitted before key experiments were completed later faced criticism, which negatively affected the authors’ reputations."
+                "Senior Faculty Coauthor": "In several past cases within the field, manuscripts that were submitted before key validation experiments were completed later faced criticism from reviewers and other scientists when the central claims proved difficult to replicate."
               }
       
             },
@@ -309,9 +310,9 @@
       
               "views": {
       
-                "Early-Career Faculty Coauthor": "If the manuscript is submitted now and the central claim is later questioned due to incomplete experiments, the authors may face ongoing skepticism from reviewers and peers in future work.",
+                "Early-Career Faculty Coauthor": "If the manuscript is submitted now and the central claim is later questioned due to incomplete validation, the authors may face ongoing skepticism from reviewers and peers in future publications. At the same time, openly disagreeing with a senior collaborator during a key publication decision could affect how your judgment and collaborative reliability are perceived within the field.",
       
-                "Senior Faculty Coauthor": "If the manuscript is submitted now and the central claim is later questioned due to incomplete experiments, the authors may face ongoing skepticism from reviewers and peers in future work."
+                "Senior Faculty Coauthor": "If the manuscript is submitted now and the central claim is later questioned due to incomplete validation, the authors may face ongoing skepticism from reviewers and peers in future publications. At the same time, if collaborators publicly push for submission before the work is ready, it may affect how their scientific judgment is perceived within the field."
               }
       
             }

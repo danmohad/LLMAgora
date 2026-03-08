@@ -1,3 +1,5 @@
+import json
+
 import pytest
 
 from agora.agora import Agora
@@ -220,6 +222,49 @@ def test_agora_snapshot_roundtrip(tmp_path, stub_llm_factory):
     assert any(
         turn.private_reflection for turn in restored_agents["Alpha"].view_history()
     )
+
+
+def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory):
+    agent_a = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=stub_llm_factory(["Alpha public", json.dumps({"Q1": "Yes"})]),
+        response_instruction="Alpha respond",
+        survey_questions=["q1"],
+        survey_question_groups={"Q1": "direct"},
+        survey_public_prompt="Survey\n{scale}\n",
+        survey_private_prompt="Private\n",
+        enable_public_survey=True,
+        enable_private_survey=False,
+    )
+    agent_b = Agent(
+        name="Beta",
+        model="demo",
+        llm_client=stub_llm_factory(["Beta public"]),
+        response_instruction="Beta respond",
+    )
+    agora = Agora([agent_a, agent_b], event_order=["public_utterance", "public_survey"])
+    agora.run(num_turns=1)
+
+    snapshot_path = tmp_path / "snapshot.json"
+    save_snapshot(snapshot_path, agora)
+    payload = json.loads(snapshot_path.read_text())
+
+    assert "agent_states" in payload
+    assert "agents" not in payload
+    assert payload["agent_states"][0]["survey_question_groups"] == {"Q1": "direct"}
+
+    survey_receipt = next(
+        receipt
+        for receipt in payload["llm_receipts"]
+        if receipt["event_type"] == "public_survey"
+    )
+    assert "{scale}" not in survey_receipt["request"]["messages"][-1]["content"]
+    assert survey_receipt["response"] == '{"Q1": "Yes"}'
+
+    restored = load_snapshot(snapshot_path, lambda _state: stub_llm_factory(["unused"]))
+    restored_agents = {agent.name: agent for agent in restored.agents}
+    assert restored_agents["Alpha"].survey_question_groups == {"Q1": "direct"}
 
 
 def test_build_system_prompt_falls_back_to_raw():
