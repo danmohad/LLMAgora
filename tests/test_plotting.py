@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -458,3 +459,118 @@ def test_plot_group_survey_panels_empty_does_not_crash(monkeypatch):
     }
     with patch("agora.plotting.plt.show"):
         plot_group_survey(agg, survey_questions=["A question"])
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage tests
+# ---------------------------------------------------------------------------
+
+def test_plot_group_semantic_similarity_cpriva_show_true(monkeypatch):
+    """Cross-agent private alignment triggers the second plt.show() call (line 668)."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_semantic_similarity
+
+    calls = []
+    monkeypatch.setattr(plt, "show", lambda: calls.append(1))
+    agg = {
+        "cross_agent_private_alignment": {"turns": [1], "mean": [0.6], "se": [0.05]},
+    }
+    plot_group_semantic_similarity(agg, show=True)
+    assert len(calls) == 1
+
+
+def test_plot_group_nli_unknown_label_fallback_color():
+    """A label not matching contradiction/neutral/entailment uses the grey fallback."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_nli
+
+    _nli_dist = {
+        "turns": [1],
+        "label_names": ["unusual_label"],
+        "distributions": {"unusual_label": {"mean": [0.5], "se": [0.1]}},
+    }
+    agg = {
+        "id2label": {0: "unusual_label"},
+        "self_consistency": {"AgentA": _nli_dist},
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_nli(agg)
+
+
+def test_plot_group_emotions_without_emotion_style():
+    """Call without pre-built emotion_style: builds it internally (line 837).
+    Agent with empty turns triggers 'no data' path (lines 857-858).
+    Single agent: second axis is hidden (line 885).
+    """
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_emotions
+
+    agg = {"AgentA": {"turns": [], "emotions": {}}}
+    with patch("agora.plotting.plt.show"):
+        plot_group_emotions(agg, "Public Utterances")  # no emotion_style
+
+
+def test_plot_group_emotions_skips_labels_not_in_agent():
+    """An emotion label present in the style but absent from the agent is skipped (line 862)."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import build_emotion_style, plot_group_emotions
+
+    agg = {
+        "AgentA": {
+            "turns": [1],
+            "emotions": {"joy": {"mean": [0.5], "se": [0.05]}},
+        }
+    }
+    # style contains "anger" which AgentA does not have → triggers the `continue`
+    style = build_emotion_style([{
+        "AgentA": {
+            "turns": [1],
+            "emotions": {
+                "joy": {"mean": [0.5], "se": [0.05]},
+                "anger": {"mean": [0.3], "se": [0.05]},
+            },
+        }
+    }])
+    with patch("agora.plotting.plt.show"):
+        plot_group_emotions(agg, "Public Utterances", emotion_style=style)
+
+
+def test_plot_group_survey_with_custom_slot_name():
+    """A slot name that is neither Alpha nor Beta falls through _display (line 936)."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    agg = {
+        "public": {
+            "CustomAgent": {"Q1": {"turns": [1], "mean": [1.0], "se": [0.1]}},
+        }
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg)
+
+
+def test_plot_group_survey_slot_with_no_q_keys():
+    """A by_slot where all slot_data dicts are empty → all_q_keys is empty → early return (line 950)."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    agg = {
+        "public": {"EmptySlot": {}},
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg)
+
+
+def test_plot_group_survey_slot_missing_panel_questions():
+    """A slot whose data lacks the panel's questions skips that slot (line 979 continue)."""
+    matplotlib.use("Agg", force=True)
+    from agora.plotting import plot_group_survey
+
+    agg = {
+        "public": {
+            "Alpha": {"Q1": {"turns": [1], "mean": [1.0], "se": [0.1]}},
+            "Beta": {},  # Beta has no Q1 → panel_q_keys is empty → continue
+        }
+    }
+    with patch("agora.plotting.plt.show"):
+        plot_group_survey(agg)

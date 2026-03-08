@@ -590,18 +590,21 @@ def test_full_debate_scores_match_last_cumulative():
 
 
 def _sample_eval_dict():
-    score = PersonaScore(turn_num=1, scores_raw=[4, 5, 4])
-    agent_eval = AgentPersonaEvaluation(persona_id="p1")
-    agent_eval.public_per_turn_scores.append(score)
-    agent_eval.private_per_turn_scores.append(score)
-    agent_eval.public_cumulative_scores.append(score)
-    agent_eval.private_cumulative_scores.append(score)
-    beta_eval = AgentPersonaEvaluation(persona_id="p2")
-    beta_eval.public_per_turn_scores.append(score)
-    beta_eval.private_per_turn_scores.append(score)
-    beta_eval.public_cumulative_scores.append(score)
-    beta_eval.private_cumulative_scores.append(score)
-    return DebatePersonaEvaluation(agent_eval, beta_eval).to_dict()
+    def _scores():
+        return {"turns": [1], "scores": {"mean": [4.333], "se": [0.333], "raw": [[4, 5, 4]]}}
+
+    agent_entry = {
+        "persona_id": "p1",
+        "computed_metrics": [],
+        "public_per_turn_scores": _scores(),
+        "private_per_turn_scores": _scores(),
+        "public_cumulative_scores": _scores(),
+        "private_cumulative_scores": _scores(),
+        "full_debate_public_score": {"mean": None, "std": None},
+        "full_debate_private_score": {"mean": None, "std": None},
+    }
+    beta_entry = {**agent_entry, "persona_id": "p2"}
+    return {"alpha": agent_entry, "beta": beta_entry}
 
 
 def test_plot_persona_adherence_saves_and_closes(tmp_path):

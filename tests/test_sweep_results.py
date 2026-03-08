@@ -14,6 +14,7 @@ from agora.sweep_results import (
     _agg_persona_per_turn,
     _agg_persona_role,
     _agg_turn_scores,
+    _nli_bidirectional,
 )
 
 
@@ -629,12 +630,12 @@ def _fake_result_with_nli_history(pub_a, priv_a, pub_b, priv_b, turn_num=1):
     """Build a mock ExperimentResult whose agora yields structured history with two agents."""
     turn = {
         "turn_num": turn_num,
-        "public_utterance": pub_a,
+        "public_speech": pub_a,
         "private_reflection": priv_a,
     }
     history = {
-        "AgentA": {"debate_turns": [{"turn_num": turn_num, "public_utterance": pub_a, "private_reflection": priv_a}]},
-        "AgentB": {"debate_turns": [{"turn_num": turn_num, "public_utterance": pub_b, "private_reflection": priv_b}]},
+        "AgentA": {"debate_turns": [{"turn_num": turn_num, "public_speech": pub_a, "private_reflection": priv_a}]},
+        "AgentB": {"debate_turns": [{"turn_num": turn_num, "public_speech": pub_b, "private_reflection": priv_b}]},
     }
     agora_mock = MagicMock()
     agora_mock.structured_history.return_value = {"turns": [turn]}
@@ -659,7 +660,7 @@ def test_group_result_plot_nli_smoke():
     mock_analyzer.model = MagicMock()
 
     with (
-        patch("agora.sweep_results.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
         patch("agora.sweep_results._nli_bidirectional", return_value=fake_dist),
         patch("agora.plotting.plt.show"),
     ):
@@ -685,9 +686,9 @@ def test_group_result_plot_nli_second_repeat_uses_existing_analyzer():
     mock_analyzer.model = MagicMock()
 
     with (
-        patch("agora.sweep_results.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
         patch("agora.sweep_results._nli_bidirectional", return_value=[0.1, 0.3, 0.6]),
-        patch("agora.sweep_results.get_structured_debate_history", return_value=debate_data),
+        patch("agora.debate_history.get_structured_debate_history", return_value=debate_data),
         patch("agora.plotting.plt.show"),
     ):
         gr.plot_nli()  # should not raise
@@ -812,7 +813,9 @@ def _make_survey_turns(turn_num: int, pub_scores: dict, priv_scores: dict) -> li
 def _fake_result_with_survey(turns: list) -> object:
     agora_mock = MagicMock()
     agora_mock.structured_history.return_value = {"turns": turns}
-    return MagicMock(agora=agora_mock)
+    result = MagicMock(agora=agora_mock)
+    result.survey_question_specs = []
+    return result
 
 
 def test_group_result_aggregate_survey_basic():
@@ -921,8 +924,206 @@ def test_group_result_plot_survey_no_data(capsys):
     agora_mock = MagicMock()
     agora_mock.structured_history.return_value = {"turns": []}
     r = MagicMock(agora=agora_mock)
+    r.survey_question_specs = []
     gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
     gr.plot_survey()
     assert "No survey data" in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------------------
+# Additional coverage tests
+# ---------------------------------------------------------------------------
+
+def test_nli_bidirectional_plain_list():
+    """_nli_bidirectional with a plain list (no tolist, no nesting)."""
+    mock_analyzer = MagicMock()
+    mock_analyzer.model.predict.return_value = [0.1, 0.3, 0.6]
+    result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
+    assert len(result) == 3
+    assert result == pytest.approx([0.1, 0.3, 0.6])
+
+
+def test_nli_bidirectional_nested_list():
+    """_nli_bidirectional with a nested list [[...]] (covers p[0] path)."""
+    mock_analyzer = MagicMock()
+    mock_analyzer.model.predict.return_value = [[0.2, 0.4, 0.4]]
+    result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
+    assert len(result) == 3
+
+
+def test_nli_bidirectional_tolist():
+    """_nli_bidirectional with an object that has a .tolist() method (numpy-like)."""
+    class FakeTensor:
+        def tolist(self):
+            return [0.3, 0.3, 0.4]
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.model.predict.return_value = FakeTensor()
+    result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
+    assert len(result) == 3
+
+
+def test_aggregate_semantic_includes_cross_agent_private():
+    """aggregate_semantic aggregates cross_agent_private_alignment when present."""
+    r1 = _fake_result(sem={
+        "cross_agent_private_alignment": {"turns": [1], "scores": [0.7]},
+    })
+    r2 = _fake_result(sem={
+        "cross_agent_private_alignment": {"turns": [1], "scores": [0.5]},
+    })
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+    agg = gr.aggregate_semantic()
+    assert "cross_agent_private_alignment" in agg
+    assert agg["cross_agent_private_alignment"]["mean"] == pytest.approx([0.6])
+
+
+def test_run_nli_analysis_cache_hit():
+    """Second call to run_nli_analysis returns the cached result."""
+    res, debate_data = _fake_result_with_nli_history("pub", "priv", "pub2", "priv2")
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res])
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data
+    mock_analyzer._id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+
+    with (
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
+        patch("agora.sweep_results._nli_bidirectional", return_value=[0.1, 0.3, 0.6]),
+        patch("agora.plotting.plt.show"),
+    ):
+        result1 = gr.run_nli_analysis()
+        result2 = gr.run_nli_analysis()  # cache hit
+
+    assert result2 is result1
+
+
+def test_run_nli_analysis_with_model_name():
+    """Passing model_name forwards it to SemanticSimilarityAnalyzer kwargs."""
+    res, debate_data = _fake_result_with_nli_history("pub", "priv", "pub2", "priv2")
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res])
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data
+    mock_analyzer._id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+    captured_kwargs = {}
+
+    def fake_ssa(history, **kwargs):
+        captured_kwargs.update(kwargs)
+        return mock_analyzer
+
+    with (
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", side_effect=fake_ssa),
+        patch("agora.sweep_results._nli_bidirectional", return_value=[0.1, 0.3, 0.6]),
+    ):
+        gr.run_nli_analysis(model_name="my-model")
+
+    assert captured_kwargs.get("model_name") == "my-model"
+
+
+def test_run_nli_analysis_second_repeat_non_dict_history():
+    """Second repeat whose structured_history isn't a dict with 'turns' uses it directly."""
+    res1, debate_data = _fake_result_with_nli_history("pub", "priv", "pub2", "priv2")
+    res2, _ = _fake_result_with_nli_history("pa", "qa", "pb", "qb")
+    # Make second result return raw debate_data (no "turns" key)
+    res2.agora.structured_history.return_value = debate_data
+
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res1, res2])
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data
+    mock_analyzer._id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+
+    with (
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", return_value=mock_analyzer),
+        patch("agora.sweep_results._nli_bidirectional", return_value=[0.1, 0.3, 0.6]),
+    ):
+        gr.run_nli_analysis()  # should not raise
+
+
+def test_run_emotion_analysis():
+    """run_emotion_analysis aggregates emotion data across repeats.
+
+    Three results:
+    - r1: history with 'turns' key → creates the EmotionAnalyzer
+    - r2: raw debate_data dict (no 'turns') → hits `ea.debate_data = structured_history` (else branch)
+    - r3: history with 'turns' key → hits `ea.debate_data = get_structured_debate_history(...)` (if branch)
+    """
+    history1 = {"turns": [{"turn_num": 1, "public_speech": "hello"}]}
+    # r2's history is raw debate_data (no 'turns' key) → triggers the else branch
+    history2 = {"AgentA": {"debate_turns": [], "pre_interview": None, "post_interview": None}}
+    # r3's history has 'turns' → triggers get_structured_debate_history on an existing analyzer
+    history3 = {"turns": [{"turn_num": 2, "public_speech": "again"}]}
+
+    r1 = MagicMock()
+    r1.agora.structured_history.return_value = history1
+    r2 = MagicMock()
+    r2.agora.structured_history.return_value = history2
+    r3 = MagicMock()
+    r3.agora.structured_history.return_value = history3
+
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2, r3])
+
+    mock_ea = MagicMock()
+    mock_ea.classify_field.return_value = {
+        "AgentA": {"turns": [1], "emotions": {"joy": [0.5], "anger": [0.2]}},
+    }
+
+    with patch("agora.emotion_analyzer.EmotionAnalyzer", return_value=mock_ea):
+        result = gr.run_emotion_analysis("public_speech")
+
+    assert "AgentA" in result
+    assert "joy" in result["AgentA"]["emotions"]
+    assert result["AgentA"]["turns"] == [1]
+
+    # Cached on second call
+    with patch("agora.emotion_analyzer.EmotionAnalyzer", return_value=mock_ea):
+        result2 = gr.run_emotion_analysis("public_speech")
+    assert result2 is result
+
+
+def test_group_result_summary_no_self_consistency(capsys):
+    """Summary with empty self_consistency prints 'not computed' message."""
+    r = _fake_result(sem={"cross_agent_public_alignment": {"turns": [1], "scores": [0.7]}})
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    gr.summary()
+    out = capsys.readouterr().out
+    assert "self_consistency: not computed" in out
+
+
+def test_group_result_summary_with_cross_alignment(capsys):
+    """Summary prints cross-agent alignment data when present."""
+    r = _fake_result(sem={"cross_agent_public_alignment": {"turns": [1], "scores": [0.7]}})
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    gr.summary()
+    out = capsys.readouterr().out
+    assert "Cross-Agent Public Alignment" in out
+    assert "mean=" in out
+
+
+def test_group_result_summary_with_persona_data(capsys):
+    """Summary prints persona adherence scores when available."""
+    r = _fake_result(pers=_persona_data(4.0, 4.0))
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    gr.summary()
+    out = capsys.readouterr().out
+    assert "PERSONA ADHERENCE" in out
+    assert "Full-debate public" in out
+
+
+def test_group_result_plot_emotions():
+    """plot_emotions calls run_emotion_analysis and forwards result to plot_group_emotions."""
+    r = _fake_result()
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+
+    mock_ea = MagicMock()
+    mock_ea.classify_field.return_value = {}
+
+    with (
+        patch("agora.emotion_analyzer.EmotionAnalyzer", return_value=mock_ea),
+        patch("agora.plotting.plot_group_emotions") as mock_plot,
+    ):
+        gr.plot_emotions("public_speech")
+
+    mock_plot.assert_called_once()
 
 

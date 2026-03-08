@@ -1333,19 +1333,19 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
         def to_dict(self):
             return {
                 "alpha": {
-                    "public_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "private_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "public_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "private_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
+                    "public_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
+                    "private_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
+                    "public_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
+                    "private_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
                     "full_debate_public_score": {"mean": 4, "std": 0},
                     "full_debate_private_score": {"mean": 4, "std": 0},
                     "persona_id": "p1",
                 },
                 "beta": {
-                    "public_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "private_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "public_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
-                    "private_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "std": [0], "raw": [[4]]}},
+                    "public_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
+                    "private_per_turn_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
+                    "public_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
+                    "private_cumulative_scores": {"turns": [1], "scores": {"mean": [4], "se": [0], "raw": [[4]]}},
                     "full_debate_public_score": {"mean": 4, "std": 0},
                     "full_debate_private_score": {"mean": 4, "std": 0},
                     "persona_id": "p2",

@@ -1,6 +1,7 @@
 """Tests for agora.emotion_analyzer.EmotionAnalyzer."""
 
 import builtins
+from unittest.mock import patch
 
 import pytest
 
@@ -311,3 +312,24 @@ def test_classify_field_skips_empty_text(monkeypatch):
 
     private_result = ea.classify_field(PRIVATE_NARRATIVE_FIELD)
     assert private_result["Alpha"]["turns"] == [1]
+
+
+def test_init_from_plain_dict_without_turns_key():
+    """EmotionAnalyzer accepts a pre-normalised debate_data dict (no 'turns' key)."""
+    data = _debate_data()  # returns {"Alpha": {...}, "Beta": {...}} with no "turns" key
+    ea = EmotionAnalyzer(data)
+    assert ea.debate_data is data
+
+
+def test_init_from_non_dict_memory_turns():
+    """EmotionAnalyzer calls get_structured_debate_history when memory_turns is not a dict."""
+    non_dict_turns = [{"turn_num": 1, "public_speech": "hello"}]
+    fake_data = {"Alpha": {}}
+
+    with patch(
+        "agora.emotion_analyzer.get_structured_debate_history", return_value=fake_data
+    ) as mock_gsdh:
+        ea = EmotionAnalyzer(non_dict_turns)
+
+    mock_gsdh.assert_called_once_with(non_dict_turns)
+    assert ea.debate_data is fake_data
