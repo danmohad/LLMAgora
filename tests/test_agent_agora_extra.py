@@ -189,6 +189,17 @@ def test_agent_strips_transcript_labels_from_responses():
     assert agent.generate_public_speech() == "Hi"
 
 
+def test_agent_strips_speaker_prefix_before_transcript_label():
+    agent = Agent(
+        name="Alpha",
+        model="demo",
+        llm_client=QueueLLM(["Alpha: [Current instruction]\nHi"]),
+        response_instruction="respond",
+    )
+
+    assert agent.generate_public_speech() == "Hi"
+
+
 def test_agent_normalizes_apostrophes_in_responses():
     responses = [
         "It\u2019s public.",

@@ -386,9 +386,19 @@ class Agent:
                 "response": response,
             }
         )
-        cleaned = strip_transcript_label_prefix(response.strip())
-        cleaned = self._strip_speaker_prefix(cleaned)
+        cleaned = self._strip_leading_response_artifacts(response.strip())
         return self._normalize_apostrophes(cleaned)
+
+    def _strip_leading_response_artifacts(self, text: str) -> str:
+        """Remove any echoed transcript labels or speaker prefixes from the start."""
+
+        cleaned = text
+        while True:
+            updated = strip_transcript_label_prefix(cleaned)
+            updated = self._strip_speaker_prefix(updated)
+            if updated == cleaned:
+                return cleaned
+            cleaned = updated
 
     def _strip_speaker_prefix(self, text: str) -> str:
         """
