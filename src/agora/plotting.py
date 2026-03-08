@@ -1,6 +1,7 @@
 """Plot helpers used by experiment output generation."""
 
 import math
+import textwrap
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -334,6 +335,17 @@ def _truncate_label(label: str, max_length: int = 20) -> str:
     return label[:max_length] + "..." if len(label) > max_length else label
 
 
+def _wrap_label(label: str, width: int = 28, max_lines: int = 2) -> str:
+    """Wrap *label* to at most *max_lines* lines of *width* characters each."""
+    lines = textwrap.wrap(label, width)
+    if len(lines) <= max_lines:
+        return "\n".join(lines)
+    truncated = lines[max_lines - 1]
+    if len(truncated) > width - 3:
+        truncated = truncated[: width - 3] + "..."
+    return "\n".join(lines[: max_lines - 1] + [truncated])
+
+
 def plot_persona_adherence(
     eval_dict: dict[str, Any],
     alpha_persona_name: str,
@@ -346,7 +358,7 @@ def plot_persona_adherence(
     The plot tolerates partial metric selections. If a given series is missing
     or empty, that line is omitted.
     """
-    fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+    fig, axes = plt.subplots(1, 3, figsize=(22, 6))
     fig.suptitle("Persona Adherence Scores Over Time", fontsize=16)
 
     alpha_data = eval_dict["alpha"]
@@ -373,13 +385,13 @@ def plot_persona_adherence(
     ) -> list[int]:
         turns = list(series.get("turns", []))
         means = list(series.get("scores", {}).get("mean", []))
-        stds = list(series.get("scores", {}).get("std", []))
+        ses = list(series.get("scores", {}).get("se", []))
         if not turns:
             return []
         ax.errorbar(
             turns,
             means,
-            yerr=stds,
+            yerr=ses,
             marker=marker,
             label=label,
             linewidth=2,
@@ -500,6 +512,42 @@ def plot_persona_adherence(
         ax.legend(fontsize=9)
     ax.grid(True, alpha=0.3)
 
+    # Third panel: full-debate summary bar chart.
+    ax = axes[2]
+    bar_width = 0.6
+    full_debate_bars = [
+        ("alpha", "full_debate_public_score",  "",   f"{alpha_persona_name}\nPublic",  alpha_color),
+        ("alpha", "full_debate_private_score", "//",  f"{alpha_persona_name}\nPrivate", alpha_color),
+        ("beta",  "full_debate_public_score",  "",   f"{beta_persona_name}\nPublic",   beta_color),
+        ("beta",  "full_debate_private_score", "//",  f"{beta_persona_name}\nPrivate",  beta_color),
+    ]
+    has_full_debate = False
+    for i, (role, key, hatch, xlabel, color) in enumerate(full_debate_bars):
+        score = eval_dict.get(role, {}).get(key, {}) or {}
+        mean_val = score.get("mean")
+        se_val = score.get("se", 0.0) or 0.0
+        if mean_val is not None:
+            ax.bar(
+                i, mean_val, bar_width,
+                color=color, hatch=hatch, alpha=0.8,
+                yerr=se_val, capsize=4,
+                error_kw={"elinewidth": 1.5, "ecolor": "black"},
+            )
+            has_full_debate = True
+    ax.set_xticks(range(4))
+    ax.set_xticklabels(
+        [b[3] for b in full_debate_bars], fontsize=8
+    )
+    ax.set_ylabel("Score (1-5)")
+    ax.set_ylim(0.5, 5.5)
+    ax.set_title("Full-Debate Scores")
+    ax.grid(axis="y", alpha=0.3)
+    if not has_full_debate:
+        ax.text(
+            0.5, 0.5, "not computed",
+            ha="center", va="center", transform=ax.transAxes, color="grey",
+        )
+
     plt.tight_layout()
 
     if save_path:
@@ -511,3 +559,731 @@ def plot_persona_adherence(
         plt.close(fig)
 
     return fig
+
+
+# ---------------------------------------------------------------------------
+# Group-level plot functions (aggregate across repeats)
+# ---------------------------------------------------------------------------
+
+def build_emotion_style(field_results_list: list[dict]) -> dict:
+    """Build a consistent colour+marker style map for emotion labels.
+
+    Parameters
+    ----------
+    field_results_list:
+        One or more dicts in the format returned by
+        :meth:`~agora.sweep_results.GroupAnalysisResult.run_emotion_analysis`.
+
+    Returns
+    -------
+    dict
+        ``{label: {"color": <rgba>, "marker": <str>}}`` ordered alphabetically.
+    """
+    import matplotlib.cm as cm
+
+    all_labels = sorted(
+        {
+            label
+            for field_result in field_results_list
+            for agent_data in field_result.values()
+            for label in agent_data.get("emotions", {}).keys()
+        }
+    )
+    markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", "8", "<", ">"]
+    palette = cm.get_cmap("tab10", max(len(all_labels), 1))
+    return {
+        label: {"color": palette(i % 10), "marker": markers[i % len(markers)]}
+        for i, label in enumerate(all_labels)
+    }
+
+
+def plot_group_semantic_similarity(
+    aggregated: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    show: bool = True,
+) -> None:
+    """Plot semantic similarity metrics aggregated across repeats with error bars.
+
+    Produces up to two figures: one for self-consistency and one for
+    cross-agent alignment (public and/or private).
+
+    Parameters
+    ----------
+    aggregated:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_semantic`.
+    alpha_name, beta_name:
+        Display names for the two agents (used in titles).
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+
+    def _xticks(ax: Any, turns: list) -> None:
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+        if turns:
+            ax.set_xticks(sorted({int(t) for t in turns}))
+
+    sc = aggregated.get("self_consistency")
+    if sc:
+        fig, ax = plt.subplots(figsize=(9, 4))
+        for i, (agent_id, data) in enumerate(sc.items()):
+            ax.errorbar(
+                data["turns"],
+                data["mean"],
+                yerr=data["se"],
+                marker="os"[i % 2],
+                capsize=4,
+                linewidth=2,
+                alpha=0.85,
+                label=agent_id,
+            )
+        _xticks(ax, [t for d in sc.values() for t in d["turns"]])
+        ax.set_title("Self-Consistency  (private vs public — mean ± SE across repeats)")
+        ax.set_xlabel("Debate Turn")
+        ax.set_ylabel("Cosine Similarity [−1–1]")
+        ax.set_ylim(0, 1.05)
+        ax.legend()
+        ax.grid(alpha=0.4)
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+    cpa = aggregated.get("cross_agent_public_alignment")
+    cpriva = aggregated.get("cross_agent_private_alignment")
+    if cpa or cpriva:
+        fig, ax = plt.subplots(figsize=(9, 4))
+        if cpa:
+            ax.errorbar(
+                cpa["turns"],
+                cpa["mean"],
+                yerr=cpa["se"],
+                marker="o",
+                capsize=4,
+                linewidth=2,
+                alpha=0.85,
+                label="Public alignment",
+            )
+        if cpriva:
+            ax.errorbar(
+                cpriva["turns"],
+                cpriva["mean"],
+                yerr=cpriva["se"],
+                marker="s",
+                capsize=4,
+                linewidth=2,
+                alpha=0.85,
+                linestyle="--",
+                label="Private alignment",
+            )
+        _xticks(ax, (cpa or cpriva)["turns"])
+        ax.set_title("Cross-Agent Semantic Alignment  (mean ± SE across repeats)")
+        ax.set_xlabel("Debate Turn")
+        ax.set_ylabel("Cosine Similarity [−1–1]")
+        ax.set_ylim(0, 1.05)
+        ax.legend()
+        ax.grid(alpha=0.4)
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+
+def plot_group_nli(
+    aggregated_nli: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    show: bool = True,
+) -> None:
+    """Plot NLI class distributions aggregated across repeats with ±1σ shaded bands.
+
+    Produces one figure for self-consistency (one subplot per agent) and, if
+    available, one figure for cross-agent public alignment.
+
+    Parameters
+    ----------
+    aggregated_nli:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.run_nli_analysis`.
+    alpha_name, beta_name:
+        Display names used in the cross-agent alignment title.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    import numpy as np
+
+    _NLI_COLORS = {
+        "contradiction": "#d62728",
+        "neutral": "#aec7e8",
+        "entailment": "#2ca02c",
+    }
+
+    def _color(label: str) -> str:
+        lw = label.lower()
+        for key, clr in _NLI_COLORS.items():
+            if key in lw:
+                return clr
+        return "#999999"
+
+    def _draw_nli(ax: Any, data: dict, title: str) -> None:
+        turns = data["turns"]
+        label_names = data["label_names"]
+        n_labels = len(label_names)
+        n_turns = len(turns)
+        x = np.arange(n_turns)
+        group_width = 0.75
+        bar_width = group_width / max(n_labels, 1)
+        offsets = [(i - (n_labels - 1) / 2.0) * bar_width for i in range(n_labels)]
+        for i, label_name in enumerate(label_names):
+            dist = data["distributions"][label_name]
+            means = np.array(dist["mean"])
+            ses = np.array(dist["se"])
+            clr = _color(label_name)
+            ax.bar(
+                x + offsets[i], means, bar_width * 0.9,
+                color=clr, alpha=0.8, label=label_name,
+                yerr=ses, capsize=3, error_kw={"elinewidth": 1.5, "ecolor": "black"},
+            )
+        ax.set_xticks(x)
+        ax.set_xticklabels([f"T{t}" for t in turns])
+        ax.set_ylim(0, 1.0)
+        ax.set_ylabel("Probability")
+        ax.set_xlabel("Turn")
+        ax.set_title(title)
+        ax.legend(loc="upper right", fontsize=9)
+        ax.grid(axis="y", alpha=0.3)
+
+    sc = aggregated_nli.get("self_consistency", {})
+    if sc:
+        agent_ids = list(sc.keys())
+        fig, axes = plt.subplots(
+            1, len(agent_ids), figsize=(7 * len(agent_ids), 5), sharey=True
+        )
+        if len(agent_ids) == 1:
+            axes = [axes]
+        for ax, agent_id in zip(axes, agent_ids):
+            _draw_nli(
+                ax,
+                sc[agent_id],
+                f"Self-Consistency NLI\n{agent_id}\n(private → public)",
+            )
+        fig.suptitle(
+            "NLI Self-Consistency: mean ± SE across repeats", fontsize=12
+        )
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+    cpa = aggregated_nli.get("cross_agent_public")
+    cpriva = aggregated_nli.get("cross_agent_private")
+    if cpa or cpriva:
+        sc_keys = list(sc.keys()) if sc else []
+        a0 = sc_keys[0] if sc_keys else alpha_name
+        a1 = sc_keys[1] if len(sc_keys) > 1 else beta_name
+        panels = [(d, lbl) for d, lbl in [
+            (cpa, "Public utterances"),
+            (cpriva, "Private reflections"),
+        ] if d]
+        n_panels = len(panels)
+        n_turns = len(panels[0][0]["turns"])
+        fig, axes = plt.subplots(
+            1, n_panels,
+            figsize=(max(6, n_turns * 1.5) * n_panels, 5),
+            sharey=True,
+        )
+        if n_panels == 1:
+            axes = [axes]
+        for ax, (data, lbl) in zip(axes, panels):
+            _draw_nli(ax, data, lbl)
+        fig.suptitle(
+            f"NLI Cross-Agent Alignment\n{a0} \u2194 {a1}  (mean \u00b1 SE across repeats)",
+            fontsize=12,
+        )
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+
+def plot_group_emotions(
+    aggregated_emotions: dict,
+    field_label: str,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    emotion_style: dict | None = None,
+    show: bool = True,
+) -> None:
+    """Plot emotion probabilities aggregated across repeats with ±1σ shaded bands.
+
+    Parameters
+    ----------
+    aggregated_emotions:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.run_emotion_analysis`.
+    field_label:
+        Title suffix, e.g. ``"Public Utterances"`` or ``"Private Reflections"``.
+    alpha_name, beta_name:
+        Display names for the first and second agent.
+    emotion_style:
+        Optional style dict from :func:`build_emotion_style`.  Built from
+        ``aggregated_emotions`` when *None*.
+    show:
+        Whether to call ``plt.show()``.
+    """
+    import numpy as np
+
+    agent_ids = list(aggregated_emotions.keys())
+    if not agent_ids:
+        print(f"No emotion data for {field_label}.")
+        return
+
+    if emotion_style is None:
+        emotion_style = build_emotion_style([aggregated_emotions])
+    all_labels = sorted(emotion_style.keys())
+
+    agent_display = {agent_ids[0]: alpha_name}
+    if len(agent_ids) > 1:
+        agent_display[agent_ids[1]] = beta_name
+
+    n_cols = max(len(agent_ids), 2)
+    fig, axes = plt.subplots(1, n_cols, figsize=(15, 5), sharey=True)
+    fig.suptitle(
+        f"Emotion Probabilities Over Turns — {field_label}\n(mean ± SE across repeats)",
+        fontsize=13,
+    )
+
+    def _draw(ax: Any, agent_id: str) -> None:
+        display = agent_display.get(agent_id, agent_id)
+        data = aggregated_emotions.get(agent_id, {})
+        turns = data.get("turns", [])
+        emotions = data.get("emotions", {})
+        if not turns or not emotions:
+            ax.set_title(f"{display}\n(no data)")
+            return
+        x = list(range(len(turns)))
+        for label in all_labels:
+            if label not in emotions:
+                continue
+            style = emotion_style[label]
+            means = np.array(emotions[label]["mean"])
+            ses = np.array(emotions[label]["se"])
+            ax.plot(
+                x, means,
+                marker=style["marker"], color=style["color"],
+                label=label, linewidth=2, markersize=5,
+            )
+            ax.fill_between(x, means - ses, means + ses, alpha=0.1, color=style["color"])
+        ax.set_xticks(x)
+        ax.set_xticklabels([f"T{t}" for t in turns])
+        ax.set_xlabel("Debate Turn")
+        ax.set_ylabel("Probability")
+        ax.set_ylim(0, 1.0)
+        ax.set_title(display)
+        ax.legend(loc="upper right", fontsize=9, ncol=1)
+        ax.grid(alpha=0.35)
+
+    for i, ax in enumerate(axes):
+        if i < len(agent_ids):
+            _draw(ax, agent_ids[i])
+        else:
+            ax.set_visible(False)
+
+    plt.tight_layout()
+    if show:
+        plt.show()
+
+
+def plot_group_survey(
+    aggregated_survey: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    survey_questions: list[str] | list[dict[str, str]] | dict[str, list[str]] | None = None,
+    show: bool = True,
+) -> None:
+    """Plot survey responses aggregated across repeats with error bars.
+
+    Produces up to three figures: public responses, private responses, and
+    the public − private difference (mirroring :func:`plot_survey_distance`
+    but for aggregated data).  Each figure has one subplot per question panel.
+
+    Parameters
+    ----------
+    aggregated_survey:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_survey`.
+        Structure::
+
+            {
+                "public":  {"Alpha": {q_key: {"turns": [...], "mean": [...], "se": [...]}}, ...},
+                "private": {"Alpha": {q_key: ...}, ...},
+                "diff":    {"Alpha": {q_key: ...}, ...},  # public − private
+            }
+
+    alpha_name, beta_name:
+        Display names for the two agents (``"Alpha"`` and ``"Beta"`` slots).
+    survey_questions:
+        Optional question specs for panel labels and group structure.
+        Accepts the same format as :func:`plot_survey_responses`.
+        When *None*, each question key (Q1, Q2, …) becomes its own panel.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    _COLORS = {"Alpha": "tab:blue", "Beta": "tab:orange"}
+    _MARKERS = {"Alpha": "o", "Beta": "s"}
+    _FALLBACK_COLORS = ["tab:green", "tab:red"]
+    _FALLBACK_MARKERS = ["^", "D"]
+
+    _SLOT_DISPLAY = {"Alpha": alpha_name, "Beta": beta_name}
+
+    def _display(slot: str, i: int) -> str:
+        if slot in _SLOT_DISPLAY:
+            return _SLOT_DISPLAY[slot]
+        return slot
+
+    def _color(slot: str, i: int) -> str:
+        return _COLORS.get(slot, _FALLBACK_COLORS[i % len(_FALLBACK_COLORS)])
+
+    def _marker(slot: str, i: int) -> str:
+        return _MARKERS.get(slot, _FALLBACK_MARKERS[i % len(_FALLBACK_MARKERS)])
+
+    def _plot_figure(title: str, by_slot: dict, ylabel: str) -> None:
+        if not by_slot:
+            return
+
+        all_q_keys = sorted({q for slot_data in by_slot.values() for q in slot_data})
+        if not all_q_keys:
+            return
+
+        if survey_questions is not None:
+            question_specs = _normalize_plot_question_specs(survey_questions)
+            panels = _build_question_panels(question_specs, all_q_keys)
+        else:
+            panels = [{"label": q_key, "questions": [q_key]} for q_key in all_q_keys]
+
+        if not panels:
+            return
+
+        n = len(panels)
+        ncols = min(5, n)
+        nrows = math.ceil(n / ncols)
+
+        fig, axes = plt.subplots(
+            nrows, ncols,
+            figsize=(3 * ncols, 3 * nrows),
+            sharex=True, sharey=True,
+        )
+        axes = axes.flatten() if n > 1 else [axes]
+
+        slot_ids = list(by_slot.keys())
+
+        for ax, panel in zip(axes, panels):
+            for i, slot in enumerate(slot_ids):
+                slot_data = by_slot[slot]
+                panel_q_keys = [q for q in panel["questions"] if q in slot_data]
+                if not panel_q_keys:
+                    continue
+
+                all_turns = sorted({t for q in panel_q_keys for t in slot_data[q]["turns"]})
+                means: list[float] = []
+                ses: list[float] = []
+                for t in all_turns:
+                    q_vals = [
+                        slot_data[q]["mean"][slot_data[q]["turns"].index(t)]
+                        for q in panel_q_keys if t in slot_data[q]["turns"]
+                    ]
+                    q_ses = [
+                        slot_data[q]["se"][slot_data[q]["turns"].index(t)]
+                        for q in panel_q_keys if t in slot_data[q]["turns"]
+                    ]
+                    means.append(sum(q_vals) / len(q_vals) if q_vals else 0.0)
+                    n_q = len(q_ses)
+                    ses.append(
+                        math.sqrt(sum(s**2 for s in q_ses)) / n_q if n_q else 0.0
+                    )
+
+                ax.errorbar(
+                    all_turns, means, yerr=ses,
+                    marker=_marker(slot, i),
+                    color=_color(slot, i),
+                    label=_display(slot, i),
+                    linewidth=2,
+                    capsize=4,
+                    alpha=0.85,
+                )
+
+            ax.axhline(0, color="grey", linewidth=0.5, linestyle="--")
+            ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+            ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
+            ax.set_title(_wrap_label(panel["label"]), fontsize=8)
+            ax.grid(True, alpha=0.3)
+
+        for ax in axes[n:]:
+            ax.set_visible(False)
+
+        handles, labels = axes[0].get_legend_handles_labels()
+        if handles:
+            fig.legend(handles, labels, loc="upper center", ncol=len(slot_ids))
+        fig.suptitle(title)
+        fig.supxlabel("Turn Number")
+        fig.supylabel(ylabel)
+        plt.tight_layout()
+        if show:
+            plt.show()
+
+    _plot_figure(
+        "Aggregated Public Survey Responses  (mean \u00b1 SE across repeats)",
+        aggregated_survey.get("public", {}),
+        "Response score (mean \u00b1 SE)",
+    )
+    _plot_figure(
+        "Aggregated Private Survey Responses  (mean \u00b1 SE across repeats)",
+        aggregated_survey.get("private", {}),
+        "Response score (mean \u00b1 SE)",
+    )
+    _plot_figure(
+        "Aggregated Public \u2212 Private Survey Distance  (mean \u00b1 SE across repeats)",
+        aggregated_survey.get("diff", {}),
+        "Public \u2212 Private (mean \u00b1 SE)",
+    )
+
+
+def plot_group_response_decisions(
+    aggregated_decisions: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    show: bool = True,
+) -> None:
+    """Plot binary response decision fractions aggregated across repeats with error bars.
+
+    Produces two figures mirroring the NLI plot layout:
+
+    * **Figure 1** — per-agent public vs. private (left = α, right = β).
+    * **Figure 2** — cross-agent: public (left) and private (right).
+
+    Parameters
+    ----------
+    aggregated_decisions:
+        Output of :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_response_decisions`.
+    alpha_name, beta_name:
+        Display names for the two agents.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    import numpy as np
+
+    decision_label = aggregated_decisions.get("decision_label", "Decision A")
+    by_slot = aggregated_decisions.get("by_slot", {})
+    y_label = f"P({decision_label})"
+
+    _PUB_COLOR = "#2196F3"    # blue  – public channel
+    _PRIV_COLOR = "#FF9800"   # amber – private channel
+    _ALPHA_COLOR = "#1b9e77"  # green – alpha agent
+    _BETA_COLOR = "#d95f02"   # orange-red – beta agent
+
+    def _draw(ax: Any, data_pairs: list[tuple[str, dict, str]], title: str) -> None:
+        """Draw one subplot.  *data_pairs* is [(bar_label, series_dict, color)]."""
+        all_turns = sorted({t for _, series, _ in data_pairs for t in series.get("turns", [])})
+        ax.set_title(title)
+        if not all_turns:
+            ax.set_ylabel(y_label)
+            ax.set_xlabel("Turn")
+            return
+        x = np.arange(len(all_turns))
+        turn_idx = {t: i for i, t in enumerate(all_turns)}
+        n_bars = len(data_pairs)
+        group_width = 0.7
+        bar_width = group_width / max(n_bars, 1)
+        offsets = [(i - (n_bars - 1) / 2.0) * bar_width for i in range(n_bars)]
+        for offset, (bar_label, series, color) in zip(offsets, data_pairs):
+            turns = series.get("turns", [])
+            means = series.get("mean", [])
+            ses = series.get("se", [])
+            xi = np.array([turn_idx[t] for t in turns if t in turn_idx])
+            yi = np.array([means[i] for i, t in enumerate(turns) if t in turn_idx])
+            ei = np.array([ses[i] for i, t in enumerate(turns) if t in turn_idx])
+            ax.bar(
+                x[xi] + offset, yi, bar_width * 0.9,
+                color=color, alpha=0.8, label=bar_label,
+                yerr=ei, capsize=3, error_kw={"elinewidth": 1.5, "ecolor": "black"},
+            )
+        ax.axhline(0.5, color="grey", linewidth=0.8, linestyle="--", alpha=0.5)
+        ax.set_xticks(x)
+        ax.set_xticklabels([f"T{t}" for t in all_turns])
+        ax.set_ylim(0, 1.05)
+        ax.set_ylabel(y_label)
+        ax.set_xlabel("Turn")
+        ax.legend(loc="upper right", fontsize=9)
+        ax.grid(axis="y", alpha=0.3)
+
+    # ---- Figure 1: per-agent public vs. private --------------------------------
+    agent_slots = [(alpha_name, "Alpha"), (beta_name, "Beta")]
+    fig1, axes1 = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    for ax, (display_name, slot) in zip(axes1, agent_slots):
+        slot_data = by_slot.get(slot, {})
+        pairs: list[tuple[str, dict, str]] = []
+        if slot_data.get("public"):
+            pairs.append(("Public", slot_data["public"], _PUB_COLOR))
+        if slot_data.get("private"):
+            pairs.append(("Private", slot_data["private"], _PRIV_COLOR))
+        _draw(ax, pairs, f"{display_name}\n(public vs. private)")
+    fig1.suptitle(
+        f"Response Decision: Public vs. Private  (mean \u00b1 SE across repeats)\n"
+        f"Decision tracked: {decision_label}",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()
+
+    # ---- Figure 2: cross-agent public (left) and private (right) ---------------
+    alpha_slot = by_slot.get("Alpha", {})
+    beta_slot = by_slot.get("Beta", {})
+    panels: list[tuple[str, list[tuple[str, dict, str]]]] = [
+        (
+            "Public Responses",
+            [
+                (alpha_name, alpha_slot.get("public", {}), _ALPHA_COLOR),
+                (beta_name, beta_slot.get("public", {}), _BETA_COLOR),
+            ],
+        ),
+        (
+            "Private Responses",
+            [
+                (alpha_name, alpha_slot.get("private", {}), _ALPHA_COLOR),
+                (beta_name, beta_slot.get("private", {}), _BETA_COLOR),
+            ],
+        ),
+    ]
+    fig2, axes2 = plt.subplots(1, 2, figsize=(12, 5), sharey=True)
+    for ax, (panel_title, pairs) in zip(axes2, panels):
+        _draw(ax, pairs, panel_title)
+    fig2.suptitle(
+        f"Response Decision: Cross-Agent Comparison  ({alpha_name} \u2194 {beta_name})\n"
+        f"mean \u00b1 SE across repeats  \u2014  Decision tracked: {decision_label}",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()
+
+
+def plot_group_response_decisions_all_repeats(
+    per_repeat_decisions: dict,
+    alpha_name: str = "Alpha",
+    beta_name: str = "Beta",
+    show: bool = True,
+) -> None:
+    """Plot per-repeat binary response decisions as line plots over turns.
+
+    Each repeat is drawn as a separate line with a distinct marker shape so
+    individual trajectories are visible.  Colour encodes the logical series:
+
+    * **Figure 1 — per-agent**: public = blue, private = amber.
+    * **Figure 2 — cross-agent**: alpha = green, beta = orange-red.
+
+    Parameters
+    ----------
+    per_repeat_decisions:
+        Output of
+        :meth:`~agora.sweep_results.GroupAnalysisResult.aggregate_response_decisions_all_repeats`.
+    alpha_name, beta_name:
+        Display names for the two agents.
+    show:
+        Whether to call ``plt.show()`` after each figure.
+    """
+    _MARKERS = ["o", "s", "^", "D", "v", "P", "*", "X", "h", "8"]
+    _PUB_COLOR = "#2196F3"   # blue   – public channel
+    _PRIV_COLOR = "#FF9800"  # amber  – private channel
+    _ALPHA_COLOR = "#1b9e77" # green      – alpha agent
+    _BETA_COLOR = "#d95f02"  # orange-red – beta agent
+
+    decision_label = per_repeat_decisions.get("decision_label", "Decision A")
+    repeats = per_repeat_decisions.get("repeats", [])
+    y_label = f"Decision ({decision_label}=1)"
+
+    def _draw_lines(
+        ax: Any,
+        series_list: list,
+        title: str,
+    ) -> None:
+        """Draw one line per (repeat, series) combination onto *ax*."""
+        all_turns: list[int] = sorted(
+            {t for _, _, s, _ in series_list for t in s.get("turns", [])}
+        )
+        for lbl, color, series, marker in series_list:
+            turns = series.get("turns", [])
+            decisions = series.get("decisions", [])
+            if not turns:
+                continue
+            ax.plot(
+                turns,
+                decisions,
+                color=color,
+                marker=marker,
+                linewidth=1.5,
+                markersize=7,
+                alpha=0.8,
+                label=lbl,
+            )
+        ax.axhline(0.5, color="grey", linewidth=0.8, linestyle="--", alpha=0.5)
+        if all_turns:
+            ax.set_xticks(all_turns)
+            ax.set_xticklabels([f"T{t}" for t in all_turns])
+        ax.set_ylim(-0.15, 1.15)
+        ax.set_yticks([0, 1])
+        ax.set_yticklabels(["0", "1"])
+        ax.set_xlabel("Turn")
+        ax.set_ylabel(y_label)
+        ax.set_title(title)
+        if series_list:
+            ax.legend(loc="upper right", fontsize=7)
+        ax.grid(axis="y", alpha=0.3)
+
+    # ---- Figure 1: per-agent public vs. private ------------------------------
+    agent_slots = [(alpha_name, "Alpha"), (beta_name, "Beta")]
+    fig1, axes1 = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    for ax, (display_name, slot) in zip(axes1, agent_slots):
+        series_list: list = []
+        for r_idx, repeat_data in enumerate(repeats):
+            marker = _MARKERS[r_idx % len(_MARKERS)]
+            slot_data = repeat_data.get(slot, {})
+            if slot_data.get("public"):
+                series_list.append(
+                    (f"Public (rep {r_idx + 1})", _PUB_COLOR, slot_data["public"], marker)
+                )
+            if slot_data.get("private"):
+                series_list.append(
+                    (f"Private (rep {r_idx + 1})", _PRIV_COLOR, slot_data["private"], marker)
+                )
+        _draw_lines(ax, series_list, f"{display_name}\n(public vs. private)")
+    fig1.suptitle(
+        f"Response Decisions per Repeat \u2014 Public vs. Private\n"
+        f"Decision tracked: {decision_label}  (1\u202f=\u202fyes,\u20020\u202f=\u202fno)",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()
+
+    # ---- Figure 2: cross-agent public (left) and private (right) -------------
+    channels = [("public", "Public Responses"), ("private", "Private Responses")]
+    fig2, axes2 = plt.subplots(1, 2, figsize=(13, 5), sharey=True)
+    for ax, (channel, panel_title) in zip(axes2, channels):
+        series_list2: list = []
+        for r_idx, repeat_data in enumerate(repeats):
+            marker = _MARKERS[r_idx % len(_MARKERS)]
+            alpha_data = repeat_data.get("Alpha", {}).get(channel, {})
+            beta_data = repeat_data.get("Beta", {}).get(channel, {})
+            if alpha_data:
+                series_list2.append(
+                    (f"{alpha_name} (rep {r_idx + 1})", _ALPHA_COLOR, alpha_data, marker)
+                )
+            if beta_data:
+                series_list2.append(
+                    (f"{beta_name} (rep {r_idx + 1})", _BETA_COLOR, beta_data, marker)
+                )
+        _draw_lines(ax, series_list2, panel_title)
+    fig2.suptitle(
+        f"Response Decisions per Repeat \u2014 Cross-Agent "
+        f"({alpha_name} \u2194 {beta_name})\n"
+        f"Decision tracked: {decision_label}  (1\u202f=\u202fyes,\u20020\u202f=\u202fno)",
+        fontsize=12,
+    )
+    plt.tight_layout()
+    if show:
+        plt.show()

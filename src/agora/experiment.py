@@ -6,7 +6,7 @@ import csv
 import json
 import re
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence
 from uuid import uuid4
@@ -146,6 +146,7 @@ class ExperimentResult:
     run_id: Optional[str]
     semantic_analyzer: Optional[SemanticSimilarityAnalyzer]
     persona_adherence_eval: Optional[dict[str, Any]]
+    survey_question_specs: list = field(default_factory=list)
 
 
 def _coerce_path(value: Any, *, fallback: Path) -> Path:
@@ -292,7 +293,7 @@ def _append_index_row(
     row = {
         "run_id": run_id,
         "run_dir": str(run_dir),
-        "timestamp_utc": datetime.now(UTC).isoformat(),
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         **{k: str(v) if isinstance(v, Path) else v for k, v in asdict(cfg).items()},
     }
 
@@ -912,6 +913,7 @@ def run_persona_experiment(
         run_id=run_id,
         semantic_analyzer=semantic_analyzer,
         persona_adherence_eval=persona_adherence_eval,
+        survey_question_specs=survey_question_specs,
     )
 
 

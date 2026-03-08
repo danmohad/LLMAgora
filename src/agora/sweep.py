@@ -14,7 +14,7 @@ import time
 from collections import deque
 from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
 from dataclasses import fields
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from functools import lru_cache
 from pathlib import Path
 import re
@@ -67,7 +67,7 @@ MASTER_FORBIDDEN_FIELDS = frozenset(
 
 
 def _now_utc_iso() -> str:
-    return datetime.now(UTC).isoformat()
+    return datetime.now(timezone.utc).isoformat()
 
 
 def _json_ready(value: Any) -> Any:
@@ -743,7 +743,7 @@ def render_status_dashboard(
     height: int,
     now: datetime | None = None,
 ) -> str:
-    now = now or datetime.now(UTC)
+    now = now or datetime.now(timezone.utc)
     counts = _status_counts(status)
     total_cases = manifest["total_cases"]
     completed = sum(counts[name] for name in TERMINAL_CASE_STATUSES)
