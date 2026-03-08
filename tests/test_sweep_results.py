@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 
 import numpy as np
 import pytest
@@ -671,7 +671,7 @@ def test_group_result_plot_nli_smoke():
     ):
         gr.plot_nli()
 
-    nli = gr._nli_cache
+    nli = gr.run_nli_analysis()
     assert "cross_agent_public" in nli
     assert "cross_agent_private" in nli
 
@@ -1025,6 +1025,29 @@ def test_run_nli_analysis_with_model_name():
     assert captured_kwargs.get("model_name") == "my-model"
 
 
+def test_run_nli_analysis_with_device():
+    """Passing device forwards it to SemanticSimilarityAnalyzer kwargs."""
+    res, debate_data = _fake_result_with_nli_history("pub", "priv", "pub2", "priv2")
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res])
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data
+    mock_analyzer._id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+    captured_kwargs = {}
+
+    def fake_ssa(history, **kwargs):
+        captured_kwargs.update(kwargs)
+        return mock_analyzer
+
+    with (
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", side_effect=fake_ssa),
+        patch("agora.sweep_results._nli_bidirectional", return_value=[0.1, 0.3, 0.6]),
+    ):
+        gr.run_nli_analysis(device="mps")
+
+    assert captured_kwargs.get("device") == "mps"
+
+
 def test_run_nli_analysis_second_repeat_non_dict_history():
     """Second repeat whose structured_history isn't a dict with 'turns' uses it directly."""
     res1, debate_data = _fake_result_with_nli_history("pub", "priv", "pub2", "priv2")
@@ -1086,6 +1109,26 @@ def test_run_emotion_analysis():
     assert result2 is result
 
 
+def test_run_emotion_analysis_with_device():
+    """Passing device forwards it to EmotionAnalyzer."""
+    history = {"turns": [{"turn_num": 1, "public_speech": "hello"}]}
+
+    result = MagicMock()
+    result.agora.structured_history.return_value = history
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[result])
+
+    mock_ea = MagicMock()
+    mock_ea.classify_field.return_value = {
+        "AgentA": {"turns": [1], "emotions": {"joy": [0.5]}},
+    }
+
+    with patch("agora.emotion_analyzer.EmotionAnalyzer", return_value=mock_ea) as mock_cls:
+        gr.run_emotion_analysis("public_speech", device="cpu")
+
+    _, kwargs = mock_cls.call_args
+    assert kwargs.get("device") == "cpu"
+
+
 def test_group_result_summary_no_self_consistency(capsys):
     """Summary with empty self_consistency prints 'not computed' message."""
     r = _fake_result(sem={"cross_agent_public_alignment": {"turns": [1], "scores": [0.7]}})
@@ -1129,6 +1172,50 @@ def test_group_result_plot_emotions():
     ):
         gr.plot_emotions("public_speech")
 
+    mock_plot.assert_called_once()
+
+
+def test_group_result_plot_nli_forwards_device():
+    """plot_nli forwards model and device to run_nli_analysis."""
+    r = _fake_result()
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+
+    with (
+        patch.object(
+            GroupAnalysisResult,
+            "run_nli_analysis",
+            autospec=True,
+            return_value={"id2label": {0: "contradiction"}},
+        ) as mock_run,
+        patch("agora.plotting.plot_group_nli") as mock_plot,
+    ):
+        gr.plot_nli(model_name="nli-model", device="cpu")
+
+    mock_run.assert_called_once_with(gr, model_name="nli-model", device="cpu")
+    mock_plot.assert_called_once()
+
+
+def test_group_result_plot_emotions_forwards_device():
+    """plot_emotions forwards model and device to both emotion-analysis passes."""
+    r = _fake_result()
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+
+    with (
+        patch.object(
+            GroupAnalysisResult,
+            "run_emotion_analysis",
+            autospec=True,
+            side_effect=[{"alpha": {}}, {"alpha": {}}],
+        ) as mock_run,
+        patch("agora.plotting.build_emotion_style", return_value={}),
+        patch("agora.plotting.plot_group_emotions") as mock_plot,
+    ):
+        gr.plot_emotions("public_speech", model_name="emo-model", device="mps")
+
+    assert mock_run.call_args_list == [
+        call(gr, "public_speech", model_name="emo-model", device="mps"),
+        call(gr, "private_reflection", model_name="emo-model", device="mps"),
+    ]
     mock_plot.assert_called_once()
 
 
@@ -1589,4 +1676,3 @@ def test_plot_response_decisions_all_repeats_empty_prints_message(capsys, tmp_pa
     )
     gr.plot_response_decisions_all_repeats(catalog_path=catalog)
     assert "No response decision data" in capsys.readouterr().out
-
