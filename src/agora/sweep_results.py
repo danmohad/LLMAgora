@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING, Any, Iterator
 
 import numpy as np
 
+from .emotion_analyzer import DEFAULT_EMOTION_MODEL
+from .semantic_similarity_analyzer import DEFAULT_NLI_MODEL_NAME
+
 if TYPE_CHECKING:
     from .experiment import ExperimentResult
 
@@ -651,7 +654,11 @@ class GroupAnalysisResult:
 
     # ------------------------------------------------------------------ on-demand analyses
 
-    def run_nli_analysis(self, model_name: str | None = None) -> dict:
+    def run_nli_analysis(
+        self,
+        model_name: str | None = None,
+        device: str | None = None,
+    ) -> dict:
         """Run bidirectional NLI analysis across all repeats and return aggregated distributions.
 
         Computes self-consistency (private→public) and cross-agent public alignment NLI
@@ -662,8 +669,10 @@ class GroupAnalysisResult:
 
         Results are cached; repeated calls are free.
         """
-        if self._nli_cache is not None:
-            return self._nli_cache
+        resolved_model_name = model_name or DEFAULT_NLI_MODEL_NAME
+        cache_key = (resolved_model_name, device)
+        if self._nli_cache is not None and cache_key in self._nli_cache:
+            return self._nli_cache[cache_key]
 
         from .debate_history import get_structured_debate_history
         from .semantic_similarity_analyzer import (
@@ -682,9 +691,12 @@ class GroupAnalysisResult:
         for res in self.results:
             structured_history = res.agora.structured_history()
             if analyzer is None:
-                kwargs: dict[str, Any] = {"method": SEMANTIC_SIMILARITY_METHOD_NLI}
-                if model_name:
-                    kwargs["model_name"] = model_name
+                kwargs: dict[str, Any] = {
+                    "method": SEMANTIC_SIMILARITY_METHOD_NLI,
+                    "model_name": resolved_model_name,
+                }
+                if device is not None:
+                    kwargs["device"] = device
                 analyzer = SemanticSimilarityAnalyzer(structured_history, **kwargs)
                 _ = analyzer.model  # force load
                 id2label = analyzer._id2label or {
@@ -744,11 +756,16 @@ class GroupAnalysisResult:
             nli_result["cross_agent_public"] = _agg_nli_by_turn(cpa_by_turn, agg_id2label)
         if cpriva_by_turn:
             nli_result["cross_agent_private"] = _agg_nli_by_turn(cpriva_by_turn, agg_id2label)
-        self._nli_cache = nli_result
+        if self._nli_cache is None:
+            self._nli_cache = {}
+        self._nli_cache[cache_key] = nli_result
         return nli_result
 
     def run_emotion_analysis(
-        self, field: str, model_name: str = "cirimus/modernbert-base-emotions"
+        self,
+        field: str,
+        model_name: str | None = None,
+        device: str | None = None,
     ) -> dict:
         """Classify emotions turn-by-turn across all repeats, return aggregated probs.
 
@@ -756,9 +773,10 @@ class GroupAnalysisResult:
         "std": [...]}}}}``
 
         The model is loaded once and reused across repeats.
-        Results are cached per ``(field, model_name)``; repeated calls are free.
+        Results are cached per ``(field, model_name, device)``; repeated calls are free.
         """
-        cache_key = (field, model_name)
+        resolved_model_name = model_name or DEFAULT_EMOTION_MODEL
+        cache_key = (field, resolved_model_name, device)
         if cache_key in self._emotion_caches:
             return self._emotion_caches[cache_key]
 
@@ -771,7 +789,11 @@ class GroupAnalysisResult:
         for res in self.results:
             structured_history = res.agora.structured_history()
             if ea is None:
-                ea = EmotionAnalyzer(structured_history, model_name=model_name)
+                ea = EmotionAnalyzer(
+                    structured_history,
+                    model_name=resolved_model_name,
+                    device=device,
+                )
                 _ = ea.pipeline  # force load
             else:
                 if isinstance(structured_history, dict) and "turns" in structured_history:
@@ -902,16 +924,23 @@ class GroupAnalysisResult:
         alpha_name, beta_name = self.agent_names
         plot_persona_adherence(pers, alpha_name, beta_name, show_plot=True)
 
-    def plot_nli(self, model_name: str | None = None) -> None:
+    def plot_nli(
+        self,
+        model_name: str | None = None,
+        device: str | None = None,
+    ) -> None:
         """Plot NLI class distributions with ±1σ bands, aggregated across repeats."""
         from .plotting import plot_group_nli
 
-        agg = self.run_nli_analysis(model_name=model_name)
+        agg = self.run_nli_analysis(model_name=model_name, device=device)
         alpha_name, beta_name = self.agent_names
         plot_group_nli(agg, alpha_name, beta_name)
 
     def plot_emotions(
-        self, field: str, model_name: str = "cirimus/modernbert-base-emotions"
+        self,
+        field: str,
+        model_name: str | None = None,
+        device: str | None = None,
     ) -> None:
         """Plot emotion probabilities with ±1σ bands, aggregated across repeats.
 
@@ -921,8 +950,16 @@ class GroupAnalysisResult:
         from .emotion_analyzer import PRIVATE_NARRATIVE_FIELD, PUBLIC_NARRATIVE_FIELD
         from .plotting import build_emotion_style, plot_group_emotions
 
-        pub = self.run_emotion_analysis(PUBLIC_NARRATIVE_FIELD, model_name)
-        priv = self.run_emotion_analysis(PRIVATE_NARRATIVE_FIELD, model_name)
+        pub = self.run_emotion_analysis(
+            PUBLIC_NARRATIVE_FIELD,
+            model_name=model_name,
+            device=device,
+        )
+        priv = self.run_emotion_analysis(
+            PRIVATE_NARRATIVE_FIELD,
+            model_name=model_name,
+            device=device,
+        )
         style = build_emotion_style([pub, priv])
         data = pub if field == PUBLIC_NARRATIVE_FIELD else priv
         alpha_name, beta_name = self.agent_names
