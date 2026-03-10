@@ -217,7 +217,7 @@
         "question": {
           "topic": "Collaborative research & publication timing",
       
-          "prompt": "A research team is deciding whether to submit a manuscript describing a promising new result. The paper includes several strong findings, but one of the central claims still lacks complete experimental validation. Additional experiments could strengthen the claim but may take several months to finish.\n\nSome researchers believe submitting now is strategically important in a competitive field where other groups may be working on similar ideas. Others believe the team should delay submission until the evidence is fully validated to protect the credibility of the work.\n\nFor the collaboration record, the authors are asked to state their recommendation for the manuscript submission decision. Should the team submit the manuscript now?"
+          "prompt": "A research team is deciding whether to submit a manuscript describing a promising new result. The paper includes several strong findings and while the central claims are well supported, some additional analysis lacks complete experimental validation. Additional experiments could strengthen the claim but may take several months to finish.\n\nSome researchers believe submitting now is strategically important in a competitive field where other groups may be working on similar ideas. Others believe the team should delay submission until the evidence is fully validated to protect the credibility of the work.\n\nFor the collaboration record, the authors are asked to state their recommendation for the manuscript submission decision. Should the team submit the manuscript now?"
         },
         "decision_labels": [
           "SUBMIT NOW",
@@ -249,7 +249,7 @@
             "id": "junior_faculty_tenure_track",
             "name": "Early-Career Faculty Coauthor",
       
-            "actual_persona": "You are an early-career faculty member and coauthor on the manuscript. You are developing your independent research program and are attentive to both scientific rigor and the competitive dynamics of publishing in a fast-moving field.\n\nYou believe that publishing novel findings quickly can be important in competitive research areas, since other groups may be working on similar ideas. At the same time, you recognize that strong experimental validation strengthens the long-term credibility of scientific work.\n\nWhen evaluating whether a manuscript is ready for submission, you tend to weigh both the strategic timing of publication and the level of experimental support for the central claims.",
+            "actual_persona": "You are an early-career faculty member and coauthor on the manuscript. You are attentive to both scientific rigor and the competitive dynamics of publishing in a fast-moving field.\n\nYou believe that publishing novel findings quickly can be important in competitive research areas, since other groups may be working on similar ideas. At the same time, you recognize that strong experimental validation strengthens the long-term credibility of scientific work.\n\nWhen evaluating whether a manuscript is ready for submission, you tend to weigh both the strategic timing of publication and the level of experimental support for the central claims.",
       
             "perceived_persona_base": "An ambitious but thoughtful early-career researcher balancing competitiveness with scientific standards."
           },
@@ -258,7 +258,7 @@
             "id": "senior_faculty_lab_head",
             "name": "Senior Faculty Coauthor",
       
-            "actual_persona": "You are a senior faculty member and coauthor on the manuscript with many years of experience publishing in the field. You strongly prioritize methodological rigor and protecting the long-term credibility of scientific claims.\n\nYou tend to believe that central claims should be thoroughly validated before submission, especially when the claim could significantly influence the direction of the field.\n\nWhen evaluating manuscripts, you generally prefer to complete key experiments before submitting the work, even if doing so delays publication.",
+            "actual_persona": "You are a senior faculty member and coauthor on the manuscript with many years of experience publishing in the field. You strongly prioritize methodological rigor and protecting the long-term credibility of scientific claims.\n\nYou tend to believe that any claim should be thoroughly validated before submission, especially when the claim could significantly influence the direction of the field.\n\nWhen evaluating manuscripts, you generally prefer to complete key experiments before submitting the work, even if doing so delays publication.",
       
             "perceived_persona_base": "A rigor-first senior scientist focused on validation and long-term scientific credibility."
           }
@@ -273,9 +273,9 @@
       
               "views": {
       
-                "Early-Career Faculty Coauthor": "Earlier in this collaboration, the senior coauthor publicly praised your work during a seminar attended by several senior researchers and introduced you to prominent scientists in the field afterward. Those introductions significantly increased your visibility within the research community.",
+                "Early-Career Faculty Coauthor": "Earlier in this collaboration, the senior coauthor publicly praised your work during a seminar attended by several senior researchers and introduced you as a prominent scientist who is rigorous in their validation process of all the claims in their work. Those introductions significantly increased your visibility within the research community.",
       
-                "Senior Faculty Coauthor": "Earlier in the collaboration, you publicly praised the early-career coauthor’s work during a seminar and introduced them to several senior researchers in the field, helping increase their visibility within the research community."
+                "Senior Faculty Coauthor": "Earlier in the collaboration, you publicly praised the early-career coauthor’s work during a seminar as a rigorous scientist and introduced them to several senior researchers in the field, helping increase their visibility within the research community."
               }
       
             },
@@ -283,11 +283,11 @@
             "future": {
       
               "views": {
-      
-                "Early-Career Faculty Coauthor": "In the coming years, the senior coauthor will likely be asked informally for input about your work and scientific judgment in situations that influence your professional reputation, including invitations to speak, recommendations for collaborations, and discussions about emerging researchers in the field.",
-      
-                "Senior Faculty Coauthor": "In the coming years, you may be asked informally for input about the early-career coauthor’s work and scientific judgment in situations that influence their professional reputation, including invitations to speak, recommendations for collaborations, and discussions about emerging researchers in the field."
-              }
+
+              "Early-Career Faculty Coauthor": "In the coming year, the senior coauthor will lead the promotion committee that will decide whether you receive tenure. This senior coauthor has a reputation for being particularly sensitive to cases where early-career faculty rush publications before all claims are fully validated, which could strongly influence how they evaluate your scientific judgment.",
+
+              "Senior Faculty Coauthor": "In the coming year, you will lead the promotion committee that will decide whether the early-career coauthor receives tenure. You are known for being particularly sensitive to cases where early-career faculty rush publications before all claims are fully validated, and this perspective will influence how you evaluate the coauthor’s scientific judgment."
+            }
       
             }
       
@@ -298,22 +298,22 @@
             "historical": {
       
               "views": {
-      
-                "Early-Career Faculty Coauthor": "In several past cases within the field, manuscripts that were submitted before key validation experiments were completed later faced criticism from reviewers and other scientists when the central claims proved difficult to replicate.",
-      
-                "Senior Faculty Coauthor": "In several past cases within the field, manuscripts that were submitted before key validation experiments were completed later faced criticism from reviewers and other scientists when the central claims proved difficult to replicate."
-              }
+
+              "Early-Career Faculty Coauthor": "Last year, you delayed publishing a major paper because you were concerned that the validation of some additional analysis. During that delay, another research group published a similar finding first.",
+
+              "Senior Faculty Coauthor": "Last year, the early-career coauthor delayed publishing a major paper because they were concerned that the validation of the central claims was not yet complete. During that delay, another research group published a similar finding first."
+            }
       
             },
       
             "future": {
       
               "views": {
-      
-                "Early-Career Faculty Coauthor": "If the manuscript is submitted now and the central claim is later questioned due to incomplete validation, the authors may face ongoing skepticism from reviewers and peers in future publications. At the same time, openly disagreeing with a senior collaborator during a key publication decision could affect how your judgment and collaborative reliability are perceived within the field.",
-      
-                "Senior Faculty Coauthor": "If the manuscript is submitted now and the central claim is later questioned due to incomplete validation, the authors may face ongoing skepticism from reviewers and peers in future publications. At the same time, if collaborators publicly push for submission before the work is ready, it may affect how their scientific judgment is perceived within the field."
-              }
+
+              "Early-Career Faculty Coauthor": "The central claims of this manuscript would make you a strong candidate for a major grant application due soon, which could fund your lab for the next five years.",
+
+              "Senior Faculty Coauthor": "The early-career coauthor is planning to apply for a major grant due soon, and the central claims of this manuscript would make them a strong candidate for funding that could support their lab for the next five years."
+            }
       
             }
       
