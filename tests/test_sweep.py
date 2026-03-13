@@ -264,7 +264,9 @@ def test_load_sweep_config_resolves_relative_path_fields(tmp_path):
     ]
 
 
-def test_generate_sweep_preserves_explicit_nulls_and_avoids_unspecified_defaults(tmp_path):
+def test_generate_sweep_normalizes_no_incentive_type_to_null_and_avoids_unspecified_defaults(
+    tmp_path,
+):
     config_dir = tmp_path / "configs"
     config_dir.mkdir()
     master_path = config_dir / "master.jsonc"
@@ -296,10 +298,51 @@ def test_generate_sweep_preserves_explicit_nulls_and_avoids_unspecified_defaults
     assert config_payload["catalog_path"] == str(tmp_path / "data" / "catalog.json")
     assert config_payload["prompts_path"] == str(tmp_path / "data" / "prompts.json")
     assert config_payload["semantic_similarity_method"] is None
-    assert config_payload["incentive_type"] == "historical"
+    assert config_payload["incentive_type"] is None
     assert Path(config_payload["output_dir"]).is_absolute()
     assert "semantic_similarity_model" not in config_payload
     assert "subturn_event_order" not in config_payload
+
+
+def test_generate_sweep_collapses_no_incentive_type_cartesian_duplicates(tmp_path):
+    master_path = tmp_path / "master.jsonc"
+    payload = _master_payload(
+        tmp_path,
+        sweep={
+            "incentive_direction": [None, "positive", "negative"],
+            "incentive_type": ["historical", "future"],
+        },
+    )
+    _write_master(master_path, payload)
+
+    manifest = sweep.generate_sweep(master_path)
+    root = Path(manifest["sweep_root"])
+
+    assert manifest["total_cases"] == 5
+    observed = {
+        (
+            case["sweep_values"].get("incentive_direction"),
+            case["sweep_values"].get("incentive_type"),
+        )
+        for case in manifest["cases"]
+    }
+    assert observed == {
+        (None, None),
+        ("positive", "historical"),
+        ("positive", "future"),
+        ("negative", "historical"),
+        ("negative", "future"),
+    }
+
+    no_incentive_case = next(
+        case
+        for case in manifest["cases"]
+        if case["sweep_values"].get("incentive_direction") is None
+    )
+    config_payload = json.loads(
+        (root / no_incentive_case["config_path"]).read_text(encoding="utf-8")
+    )
+    assert config_payload["incentive_type"] is None
 
 
 def test_expand_cases_rejects_duplicates_and_hash_collisions(tmp_path, monkeypatch):
@@ -336,8 +379,8 @@ def test_generate_sweep_writes_tree_and_force_replaces(tmp_path):
     root = Path(manifest["sweep_root"])
     status = json.loads((root / "status.json").read_text(encoding="utf-8"))
     assert manifest["number_of_repeats"] == 3
-    assert manifest["total_cases"] == 6
-    assert status["aggregate_counts"]["pending"] == 6
+    assert manifest["total_cases"] == 3
+    assert status["aggregate_counts"]["pending"] == 3
 
     first_case = manifest["cases"][0]["case_id"]
     assert manifest["cases"][0]["repeat_number"] == 1

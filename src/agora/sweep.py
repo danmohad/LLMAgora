@@ -413,6 +413,14 @@ def _case_identity(
     return case_fingerprint[:12], case_fingerprint
 
 
+def _normalize_generated_case(payload: Mapping[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+    # A no-incentive run must not carry a historical/future subtype.
+    if normalized.get("incentive_direction") is None and "incentive_type" in normalized:
+        normalized["incentive_type"] = None
+    return normalized
+
+
 def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
     base = dict(master["base"])
     sweep = dict(master["sweep"])
@@ -421,7 +429,7 @@ def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
     value_sets = [sweep[field_name] for field_name in sweep_fields]
     combinations = itertools.product(*value_sets) if sweep_fields else [()]
 
-    seen_fingerprints: set[str] = set()
+    seen_fingerprints: dict[str, str] = {}
     seen_case_ids: dict[str, str] = {}
     cases: list[dict[str, Any]] = []
     sweep_root = Path(master["sweep_root"])
@@ -432,11 +440,19 @@ def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
         }
         merged = dict(base)
         merged.update(sweep_values)
+        merged = _normalize_generated_case(merged)
+        normalized_sweep_values = {
+            field_name: merged.get(field_name) for field_name in sweep_fields
+        }
 
+        raw_combination = _canonical_json({**base, **sweep_values})
         canonical_config = _canonical_json(merged)
-        if canonical_config in seen_fingerprints:
-            raise ValueError("Sweep expansion produced duplicate cases")
-        seen_fingerprints.add(canonical_config)
+        prior_combination = seen_fingerprints.get(canonical_config)
+        if prior_combination is not None:
+            if prior_combination == raw_combination:
+                raise ValueError("Sweep expansion produced duplicate cases")
+            continue
+        seen_fingerprints[canonical_config] = raw_combination
 
         config_fingerprint = hashlib.sha256(canonical_config.encode("utf-8")).hexdigest()
         for repeat_number in range(1, repeat_count + 1):
@@ -460,13 +476,13 @@ def _expand_cases(master: Mapping[str, Any]) -> list[dict[str, Any]]:
                     "case_dir": Path("cases") / case_id,
                     "config_path": Path("cases") / case_id / "config.json",
                     "label": _case_label(
-                        sweep_values,
+                        normalized_sweep_values,
                         repeat_number=repeat_number,
                         repeat_count=repeat_count,
                     ),
                     "repeat_number": repeat_number,
                     "repeat_count": repeat_count,
-                    "sweep_values": sweep_values,
+                    "sweep_values": normalized_sweep_values,
                     "config_fingerprint": config_fingerprint,
                     "config_payload": _json_ready(config_payload),
                 }
