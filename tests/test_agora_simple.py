@@ -5,7 +5,7 @@ import pytest
 from agora.agora import Agora
 from agora.agent import Agent, build_system_prompt
 from agora.memory import MemoryTurn
-from agora.persistence import load_snapshot, save_snapshot
+from agora.persistence import AgoraSnapshot, load_snapshot, save_snapshot
 
 
 def test_agora_runs_with_turn_limit(stub_llm_factory):
@@ -328,6 +328,47 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
     )
     restored_agents = {agent.name: agent for agent in restored.agents}
     assert restored_agents["Alpha"].survey_question_groups == {"Q1": "direct"}
+
+
+def test_load_snapshot_accepts_agent_states_alias(tmp_path, stub_llm_factory):
+    payload = {
+        "agent_states": [
+            {
+                "id": "alpha-id",
+                "name": "Alpha",
+                "model": "demo",
+                "system_prompt": "",
+                "response_instruction": "Say",
+            },
+            {
+                "id": "beta-id",
+                "name": "Beta",
+                "model": "demo",
+                "system_prompt": "",
+                "response_instruction": "Say",
+            },
+        ],
+        "pre_interviews": {},
+        "turns": [],
+        "post_interviews": {},
+        "llm_receipts": [],
+    }
+
+    snapshot_path = tmp_path / "legacy_snapshot.json"
+    snapshot_path.write_text(json.dumps(payload), encoding="utf-8")
+
+    restored = load_snapshot(
+        snapshot_path,
+        lambda _state: stub_llm_factory([]),
+        event_order=["public_utterance"],
+    )
+
+    assert [agent.name for agent in restored.agents] == ["Alpha", "Beta"]
+
+
+def test_snapshot_from_dict_requires_agent_configs_or_agent_states():
+    with pytest.raises(KeyError, match="agent_configs"):
+        AgoraSnapshot.from_dict({"turns": [], "pre_interviews": {}, "post_interviews": {}, "llm_receipts": []})
 
 
 def test_build_system_prompt_falls_back_to_raw():

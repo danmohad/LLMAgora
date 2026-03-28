@@ -498,6 +498,27 @@ def test_group_result_aggregate_semantic_empty():
     assert gr.aggregate_semantic() == {}
 
 
+def test_group_result_aggregate_semantic_handles_none_payload():
+    agents = [MagicMock(name='Alpha', id='alpha'), MagicMock(name='Beta', id='beta')]
+    for agent, name in zip(agents, ('Alpha', 'Beta')):
+        agent.name = name
+    agora_mock = MagicMock()
+    agora_mock.structured_history.return_value = {'turns': []}
+    r = MagicMock(
+        agents=agents,
+        eval_data={'semantic_similarity': None, 'persona_adherence': None},
+        agora=agora_mock,
+    )
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    assert gr.aggregate_semantic() == {}
+
+
+def test_group_result_aggregate_semantic_skips_non_dict_payload():
+    r = _fake_result(sem='invalid_payload')
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
+    assert gr.aggregate_semantic() == {}
+
+
 # ---------------------------------------------------------------------------
 # GroupAnalysisResult — aggregate_persona
 # ---------------------------------------------------------------------------
