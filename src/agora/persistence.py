@@ -146,8 +146,14 @@ class AgoraSnapshot:
 
     @classmethod
     def from_dict(cls, payload: dict) -> "AgoraSnapshot":
+        raw_agent_configs = payload.get("agent_configs")
+        if raw_agent_configs is None:
+            raw_agent_configs = payload.get("agent_states")
+        if raw_agent_configs is None:
+            raise KeyError("agent_configs")
+
         agent_configs = [
-            AgentConfig.from_dict(item) for item in payload["agent_configs"]
+            AgentConfig.from_dict(item) for item in raw_agent_configs
         ]
         return cls(
             agent_configs=agent_configs,

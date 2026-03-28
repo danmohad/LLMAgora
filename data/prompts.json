@@ -12,14 +12,13 @@
     "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
     "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
     "survey_questions": {
-      "default": [
-        "I agree with the overall position of the other participant.",
+      "discussion-process": [
+        "I agree with the other participant’s overall position on this decision.",
         "I am confident in the position I have taken.",
-        "I respect the other participant.",
-        "The other participant raised points worth considering.",
-        "There is tension between me and the other participant",
+        "The other participant raised points worth serious consideration.",
+        "There is meaningful tension between my position and the other participant’s position.",
         "The other participant is engaging in this discussion in good faith.",
-        "The other participant's arguments affected my thinking."
+        "The other participant’s arguments meaningfully influenced my thinking."
       ]
     }
   }

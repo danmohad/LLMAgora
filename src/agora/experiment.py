@@ -470,8 +470,9 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
             "semantic_similarity_method must be one of "
             f"{list(SEMANTIC_SIMILARITY_METHODS)}"
         )
-    if cfg.semantic_similarity_device not in {None, "cpu", "mps"}:
-        raise ValueError("semantic_similarity_device must be one of: cpu, mps")
+    # Normalize to these strings for the semantic backend; cuda is valid when CUDA is available.
+    if cfg.semantic_similarity_device not in {None, "cpu", "mps", "cuda"}:
+        raise ValueError("semantic_similarity_device must be one of: cpu, mps, cuda")
     if cfg.keep_private_reflection and not cfg.enable_private_reflection:
         raise ValueError(
             "keep_private_reflection requires private_utterance in subturn_event_order"

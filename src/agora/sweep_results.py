@@ -274,14 +274,19 @@ class GroupAnalysisResult:
         cpa_series: list[dict] = []
         cpriva_series: list[dict] = []
         for res in self.results:
-            sem = res.eval_data.get("semantic_similarity", {})
-            for agent_id, data in sem.get("self_consistency", {}).items():
-                sc_by_agent.setdefault(agent_id, []).append(data)
+            sem = res.eval_data.get("semantic_similarity") or {}
+            if not isinstance(sem, dict):
+                continue
+            sc_payload = sem.get("self_consistency") or {}
+            if isinstance(sc_payload, dict):
+                for agent_id, data in sc_payload.items():
+                    if isinstance(data, dict):
+                        sc_by_agent.setdefault(agent_id, []).append(data)
             cpa = sem.get("cross_agent_public_alignment")
-            if cpa:
+            if isinstance(cpa, dict):
                 cpa_series.append(cpa)
             cpriva = sem.get("cross_agent_private_alignment")
-            if cpriva:
+            if isinstance(cpriva, dict):
                 cpriva_series.append(cpriva)
         result: dict[str, Any] = {}
         if sc_by_agent:
