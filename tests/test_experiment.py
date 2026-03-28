@@ -284,8 +284,9 @@ def test_build_experiment_config_and_helpers(tmp_path):
         build_experiment_config({"scenario_id": "s1", "show_plots": True, "save_plots": False})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "semantic_similarity_method": "bad"})
+    # cuda is valid alongside cpu/mps; use an unsupported string to assert validation.
     with pytest.raises(ValueError):
-        build_experiment_config({"scenario_id": "s1", "semantic_similarity_device": "cuda"})
+        build_experiment_config({"scenario_id": "s1", "semantic_similarity_device": "gpu"})
     with pytest.raises(ValueError):
         build_experiment_config({"scenario_id": "s1", "keep_private_reflection": True})
     with pytest.raises(ValueError):
