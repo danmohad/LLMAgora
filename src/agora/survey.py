@@ -86,16 +86,6 @@ def survey_question_groups(question_specs: list[dict[str, str]]) -> dict[str, st
     return {
         f"Q{index}": entry["group"] for index, entry in enumerate(question_specs, start=1)
     }
-
-
-def survey_group_scale_label(group: str) -> str:
-    """Return a short human-readable label for the response scale."""
-
-    if group not in VALID_SURVEY_GROUPS:
-        raise ValueError(f"Unknown survey group: {group}")
-    return "Likert"
-
-
 def build_survey_scale_prompt(question_groups: dict[str, str]) -> str:
     """Render survey scale instructions for the configured question groups."""
 

@@ -109,11 +109,6 @@ def test_build_survey_scale_prompt_uses_single_likert_scale_for_all_groups():
     assert "No / Yes" not in prompt
 
 
-def test_survey_group_scale_label_rejects_unknown_group():
-    with pytest.raises(ValueError, match="Unknown survey group"):
-        survey.survey_group_scale_label("invalid")
-
-
 def test_normalize_survey_questions_rejects_unknown_group():
     with pytest.raises(ValueError, match="Unknown survey group"):
         survey.normalize_survey_questions({"invalid": ["q"]}, default_group="deliberative")

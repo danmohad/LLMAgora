@@ -95,7 +95,7 @@ def test_agent_generate_survey_passes_questions():
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
     assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "evaluative"}
     assert "Use the following Likert scale:" in llm_client.calls[0]["messages"][-1]["content"]
-    assert "Q1. [Likert] q1" in llm_client.calls[0]["messages"][-1]["content"]
+    assert "Q1. q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 def test_agent_generate_survey_passes_questions_private():
     llm_client = QueueLLM([json.dumps({"Q1": "Neutral"})])
@@ -112,7 +112,7 @@ def test_agent_generate_survey_passes_questions_private():
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
     assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "incentive"}
     assert "Strongly disagree" in llm_client.calls[0]["messages"][-1]["content"]
-    assert "Q1. [Likert] q1" in llm_client.calls[0]["messages"][-1]["content"]
+    assert "Q1. q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 
 def test_agent_generate_survey_expands_partial_question_groups():
@@ -135,8 +135,8 @@ def test_agent_generate_survey_expands_partial_question_groups():
     }
     prompt = llm_client.calls[0]["messages"][-1]["content"]
     assert "Use the following Likert scale:" in prompt
-    assert "Q1. [Likert] q1" in prompt
-    assert "Q2. [Likert] q2" in prompt
+    assert "Q1. q1" in prompt
+    assert "Q2. q2" in prompt
 
 
 def test_agent_survey_generation_rejects_disabled_modes():
@@ -519,7 +519,7 @@ def test_agora_structured_history_includes_exact_survey_receipt():
     assert "Use the following Likert scale:" in prompt
     assert "- Strongly disagree" in prompt
     assert "- Strongly agree" in prompt
-    assert "Q1. [Likert] q1" in prompt
+    assert "Q1. q1" in prompt
     enum_values = survey_receipt["request"]["response_format"]["json_schema"][
         "schema"
     ]["properties"]["Q1"]["enum"]

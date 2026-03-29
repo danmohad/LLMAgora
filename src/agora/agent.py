@@ -15,7 +15,6 @@ from .memory import (
 from .survey import (
     SURVEY_GROUP_DELIBERATIVE,
     build_survey_scale_prompt,
-    survey_group_scale_label,
 )
 
 if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
@@ -234,8 +233,7 @@ class Agent:
             build_survey_scale_prompt(resolved_question_groups),
         )
         for i, q in enumerate(survey_questions, start=1):
-            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DELIBERATIVE)
-            survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
+            survey_prompt += f"Q{i}. {q}\n"
 
         return self._complete_and_record(
             final_instruction=survey_prompt,
@@ -255,8 +253,7 @@ class Agent:
             build_survey_scale_prompt(resolved_question_groups),
         )
         for i, q in enumerate(survey_questions, start=1):
-            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DELIBERATIVE)
-            survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
+            survey_prompt += f"Q{i}. {q}\n"
 
         return self._complete_and_record(
             final_instruction=survey_prompt,
