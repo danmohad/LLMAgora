@@ -12,7 +12,7 @@
 
   "base": {
     // Scenario selection. See data/scenarios.json for available IDs.
-    "scenario_id": "promotion_committee_max_divergence",
+    "scenario_id": "promotion_committee",
     "incentive_direction": null, // positive | negative | null
     "incentive_type": "historical", // historical | future
     "prompt_set": "default",

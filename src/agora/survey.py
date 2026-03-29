@@ -17,23 +17,13 @@ LIKERT_TO_SCORE = {
     "Strongly agree": 2,
 }
 
-BINARY_VALUES = [
-    "No",
-    "Yes",
-]
-
-BINARY_TO_SCORE = {
-    "No": -1,
-    "Yes": 1,
-}
-
-SURVEY_GROUP_DEFAULT = "default"
-SURVEY_GROUP_DIRECT = "direct"
-SURVEY_GROUP_SENTIMENT = "sentiment"
+SURVEY_GROUP_DELIBERATIVE = "deliberative"
+SURVEY_GROUP_EVALUATIVE = "evaluative"
+SURVEY_GROUP_INCENTIVE = "incentive"
 VALID_SURVEY_GROUPS = {
-    SURVEY_GROUP_DEFAULT,
-    SURVEY_GROUP_DIRECT,
-    SURVEY_GROUP_SENTIMENT,
+    SURVEY_GROUP_DELIBERATIVE,
+    SURVEY_GROUP_EVALUATIVE,
+    SURVEY_GROUP_INCENTIVE,
 }
 
 
@@ -80,9 +70,9 @@ def merge_survey_question_configs(
 ) -> list[dict[str, str]]:
     """Merge prompt-level and scenario-level survey questions into one ordered list."""
     return normalize_survey_questions(
-        default_questions, default_group=SURVEY_GROUP_DEFAULT
+        default_questions, default_group=SURVEY_GROUP_DELIBERATIVE
     ) + normalize_survey_questions(
-        scenario_questions, default_group=SURVEY_GROUP_DIRECT
+        scenario_questions, default_group=SURVEY_GROUP_EVALUATIVE
     )
 
 
@@ -101,40 +91,19 @@ def survey_question_groups(question_specs: list[dict[str, str]]) -> dict[str, st
 def survey_group_scale_label(group: str) -> str:
     """Return a short human-readable label for the response scale."""
 
-    if group == SURVEY_GROUP_DIRECT:
-        return "Yes/No"
+    if group not in VALID_SURVEY_GROUPS:
+        raise ValueError(f"Unknown survey group: {group}")
     return "Likert"
 
 
 def build_survey_scale_prompt(question_groups: dict[str, str]) -> str:
     """Render survey scale instructions for the configured question groups."""
 
-    if not question_groups:
-        return _single_scale_prompt(LIKERT_VALUES, scale_name="Likert")
-
-    likert_questions = [
-        q_key
-        for q_key, group in _sorted_question_groups(question_groups)
-        if group != SURVEY_GROUP_DIRECT
-    ]
-    binary_questions = [
-        q_key
-        for q_key, group in _sorted_question_groups(question_groups)
-        if group == SURVEY_GROUP_DIRECT
-    ]
-
-    if not binary_questions:
-        return _single_scale_prompt(LIKERT_VALUES, scale_name="Likert")
-    if not likert_questions:
-        return _single_scale_prompt(BINARY_VALUES, scale_name="binary")
-
-    return "\n".join(
-        [
-            "Use the following response scales:",
-            f"- {_format_question_refs(likert_questions)}: {_format_scale_values(LIKERT_VALUES)}",
-            f"- {_format_question_refs(binary_questions)}: {_format_scale_values(BINARY_VALUES)}",
-        ]
-    )
+    if question_groups:
+        for group in question_groups.values():
+            if group not in VALID_SURVEY_GROUPS:
+                raise ValueError(f"Unknown survey group: {group}")
+    return _single_scale_prompt(LIKERT_VALUES, scale_name="Likert")
 
 
 def _normalize_survey_question_entry(
@@ -160,7 +129,7 @@ def build_likert_survey_schema(num_questions: int):
     Build a strict JSON Schema for a Likert survey with Q1..Q{num_q}.
     """
     question_groups = {
-        f"Q{i}": SURVEY_GROUP_DEFAULT for i in range(1, num_questions + 1)
+        f"Q{i}": SURVEY_GROUP_DELIBERATIVE for i in range(1, num_questions + 1)
     }
     return build_survey_response_schema(question_groups)
 
@@ -205,9 +174,9 @@ def parse_survey_response_str(
     numeric_scores = {
         q: _answer_to_score(
             answer,
-            group=question_groups.get(q, SURVEY_GROUP_DEFAULT)
+            group=question_groups.get(q, SURVEY_GROUP_DELIBERATIVE)
             if question_groups
-            else SURVEY_GROUP_DEFAULT,
+            else SURVEY_GROUP_DELIBERATIVE,
         )
         for q, answer in survey_answers.items()
     }
@@ -216,17 +185,13 @@ def parse_survey_response_str(
 
 
 def _response_values_for_group(group: str) -> list[str]:
-    if group == SURVEY_GROUP_DIRECT:
-        return BINARY_VALUES
-    if group in {SURVEY_GROUP_DEFAULT, SURVEY_GROUP_SENTIMENT}:
+    if group in VALID_SURVEY_GROUPS:
         return LIKERT_VALUES
     raise ValueError(f"Unknown survey group: {group}")
 
 
 def _answer_to_score(answer: str, *, group: str) -> int:
-    if group == SURVEY_GROUP_DIRECT:
-        return BINARY_TO_SCORE[answer]
-    if group in {SURVEY_GROUP_DEFAULT, SURVEY_GROUP_SENTIMENT}:
+    if group in VALID_SURVEY_GROUPS:
         return LIKERT_TO_SCORE[answer]
     raise ValueError(f"Unknown survey group: {group}")
 
@@ -249,34 +214,3 @@ def _single_scale_prompt(values: list[str], *, scale_name: str) -> str:
             *[f"- {value}" for value in values],
         ]
     )
-
-
-def _format_scale_values(values: list[str]) -> str:
-    return " / ".join(values)
-
-
-def _format_question_refs(question_keys: list[str]) -> str:
-    if not question_keys:
-        return ""
-
-    question_numbers = [_question_sort_key(question_key) for question_key in question_keys]
-    ranges: list[str] = []
-    range_start = question_numbers[0]
-    range_end = question_numbers[0]
-
-    for question_number in question_numbers[1:]:
-        if question_number == range_end + 1:
-            range_end = question_number
-            continue
-        ranges.append(_format_question_ref_range(range_start, range_end))
-        range_start = question_number
-        range_end = question_number
-
-    ranges.append(_format_question_ref_range(range_start, range_end))
-    return ", ".join(ranges)
-
-
-def _format_question_ref_range(start: int, end: int) -> str:
-    if start == end:
-        return f"Q{start}"
-    return f"Q{start}-Q{end}"

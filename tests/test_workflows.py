@@ -331,7 +331,7 @@ def test_persona_builder_uses_catalogues():
     catalog = load_debate_construction("data/scenarios.json")
 
     configs = build_scenario_agent_configs(
-        scenario_id="promotion_committee_max_divergence",
+        scenario_id="promotion_committee",
         catalog=catalog,
         model="shared-model",
         incentive_direction="positive",
@@ -342,7 +342,7 @@ def test_persona_builder_uses_catalogues():
     assert configs[1]["model"] == "shared-model"
     assert "Persona" in configs[0]["self_role"] or "persona" in configs[0]["self_role"].lower()
     # Assert first agent's self_role includes the historical incentive text from the catalogue
-    scenario = next(s for s in catalog["scenarios"] if s["scenario_id"] == "promotion_committee_max_divergence")
+    scenario = next(s for s in catalog["scenarios"] if s["scenario_id"] == "promotion_committee")
     first_side_name = next(iter(scenario["sides"]))
     historical_view = scenario["incentive_modules"]["positive"]["historical"]["views"][first_side_name]
     assert historical_view in configs[0]["self_role"]
@@ -361,7 +361,7 @@ def test_persona_builder_honors_keep_flags():
     catalog = load_debate_construction("data/scenarios.json")
 
     configs = build_scenario_agent_configs(
-        scenario_id="promotion_committee_max_divergence",
+        scenario_id="promotion_committee",
         catalog=catalog,
         model="shared-model",
         private_response_keep=False,

@@ -81,21 +81,21 @@ def test_agent_survey_requires_prompt_private():
 
 
 def test_agent_generate_survey_passes_questions():
-    llm_client = QueueLLM([json.dumps({"Q1": "Yes"})])
+    llm_client = QueueLLM([json.dumps({"Q1": "Agree"})])
     agent = Agent(
         name="Solo",
         model="demo",
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_question_groups={"Q1": "direct"},
+        survey_question_groups={"Q1": "evaluative"},
         survey_public_prompt="Base\n{scale}\n",
     )
     agent.generate_public_survey_response(["q1"])
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
-    assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "direct"}
-    assert "Use the following binary scale:" in llm_client.calls[0]["messages"][-1]["content"]
-    assert "Q1. [Yes/No] q1" in llm_client.calls[0]["messages"][-1]["content"]
+    assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "evaluative"}
+    assert "Use the following Likert scale:" in llm_client.calls[0]["messages"][-1]["content"]
+    assert "Q1. [Likert] q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 def test_agent_generate_survey_passes_questions_private():
     llm_client = QueueLLM([json.dumps({"Q1": "Neutral"})])
@@ -105,39 +105,38 @@ def test_agent_generate_survey_passes_questions_private():
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_question_groups={"Q1": "sentiment"},
+        survey_question_groups={"Q1": "incentive"},
         survey_private_prompt="Base\n{scale}\n",
     )
     agent.generate_private_survey_response(["q1"])
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
-    assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "sentiment"}
+    assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "incentive"}
     assert "Strongly disagree" in llm_client.calls[0]["messages"][-1]["content"]
     assert "Q1. [Likert] q1" in llm_client.calls[0]["messages"][-1]["content"]
 
 
 def test_agent_generate_survey_expands_partial_question_groups():
-    llm_client = QueueLLM([json.dumps({"Q1": "Neutral", "Q2": "Yes"})])
+    llm_client = QueueLLM([json.dumps({"Q1": "Neutral", "Q2": "Agree"})])
     agent = Agent(
         name="Solo",
         model="demo",
         llm_client=llm_client,
         response_instruction="respond",
         survey_questions=["q1", "q2"],
-        survey_question_groups={"Q2": "direct"},
+        survey_question_groups={"Q2": "incentive"},
         survey_public_prompt="Base\n{scale}\n",
     )
 
     agent.generate_public_survey_response(["q1", "q2"])
 
     assert llm_client.calls[0]["survey_question_groups"] == {
-        "Q1": "default",
-        "Q2": "direct",
+        "Q1": "deliberative",
+        "Q2": "incentive",
     }
     prompt = llm_client.calls[0]["messages"][-1]["content"]
-    assert "- Q1: Strongly disagree / Disagree / Neutral / Agree / Strongly agree" in prompt
-    assert "- Q2: No / Yes" in prompt
+    assert "Use the following Likert scale:" in prompt
     assert "Q1. [Likert] q1" in prompt
-    assert "Q2. [Yes/No] q2" in prompt
+    assert "Q2. [Likert] q2" in prompt
 
 
 def test_agent_survey_generation_rejects_disabled_modes():
@@ -485,7 +484,7 @@ def test_agora_structured_history_includes_exact_survey_receipt():
     alpha_llm = QueueLLM(
         [
             "alpha public",
-            json.dumps({"Q1": "Yes"}),
+            json.dumps({"Q1": "Agree"}),
         ]
     )
     alpha = Agent(
@@ -494,7 +493,7 @@ def test_agora_structured_history_includes_exact_survey_receipt():
         llm_client=alpha_llm,
         response_instruction="respond",
         survey_questions=["q1"],
-        survey_question_groups={"Q1": "direct"},
+        survey_question_groups={"Q1": "incentive"},
         survey_public_prompt="Base\n{scale}\n",
         survey_private_prompt="Private\n",
         enable_public_survey=True,
@@ -517,15 +516,21 @@ def test_agora_structured_history_includes_exact_survey_receipt():
 
     prompt = survey_receipt["request"]["messages"][-1]["content"]
     assert "{scale}" not in prompt
-    assert "Use the following binary scale:" in prompt
-    assert "- No" in prompt
-    assert "- Yes" in prompt
-    assert "Q1. [Yes/No] q1" in prompt
+    assert "Use the following Likert scale:" in prompt
+    assert "- Strongly disagree" in prompt
+    assert "- Strongly agree" in prompt
+    assert "Q1. [Likert] q1" in prompt
     enum_values = survey_receipt["request"]["response_format"]["json_schema"][
         "schema"
     ]["properties"]["Q1"]["enum"]
-    assert enum_values == ["No", "Yes"]
-    assert survey_receipt["response"] == '{"Q1": "Yes"}'
+    assert enum_values == [
+        "Strongly disagree",
+        "Disagree",
+        "Neutral",
+        "Agree",
+        "Strongly agree",
+    ]
+    assert survey_receipt["response"] == '{"Q1": "Agree"}'
 
 
 def test_agora_append_completion_receipt_requires_pending_receipt():

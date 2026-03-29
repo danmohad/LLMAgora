@@ -895,13 +895,13 @@ def test_group_result_aggregate_survey_caching():
     assert agg_qs is not agg
 
 
-def test_group_result_aggregate_survey_sentiment_abs():
-    # Q1 is direct (pub 1, priv 3): signed diff = 1-3 = -2
-    # Q2 is sentiment (pub 1, priv 3): abs diff = |1-3| = 2
+def test_group_result_aggregate_survey_incentive_abs():
+    # Q1 is evaluative (pub 1, priv 3): signed diff = 1-3 = -2
+    # Q2 is incentive (pub 1, priv 3): abs diff = |1-3| = 2
     turns = _make_survey_turns(1, {"Q1": 1, "Q2": 1}, {"Q1": 3, "Q2": 3})
     r = _fake_result_with_survey(turns)
     gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
-    q_specs = {"direct": ["Direct question"], "sentiment": ["Sentiment question"]}
+    q_specs = {"evaluative": ["Evaluative question"], "incentive": ["Incentive question"]}
     agg = gr.aggregate_survey(survey_questions=q_specs)
 
     diff_a = agg["diff"]["Alpha"]
@@ -918,7 +918,7 @@ def test_group_result_survey_question_specs_property():
 
     # Returns specs from the first result that has them
     r_with_specs = _fake_result_with_survey(turns)
-    specs = [{"text": "A question", "group": "direct"}]
+    specs = [{"text": "A question", "group": "evaluative"}]
     r_with_specs.survey_question_specs = specs
     gr2 = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r, r_with_specs])
     assert gr2.survey_question_specs is specs
@@ -929,8 +929,8 @@ def test_group_result_plot_survey_uses_stored_specs():
     turns = _make_survey_turns(1, {"Q1": 1, "Q2": -1}, {"Q1": 2})
     r = _fake_result_with_survey(turns)
     r.survey_question_specs = [
-        {"text": "Direct question", "group": "direct"},
-        {"text": "Sentiment question", "group": "sentiment"},
+        {"text": "Evaluative question", "group": "evaluative"},
+        {"text": "Incentive question", "group": "incentive"},
     ]
     gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r])
     with patch("agora.plotting.plt.show"):

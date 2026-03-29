@@ -68,8 +68,8 @@ def _catalog_payload():
                     "prompt": "Q prompt",
                 },
                 "decision_labels": ["YES", "NO"],
-                "survey": {
-                    "direct": ["scenario survey"],
+                "survey_questions": {
+                    "evaluative": ["scenario survey"],
                 },
                 "sides": {
                     "Persona One": {
@@ -134,7 +134,7 @@ def _prompt_payload():
             "post_interview_instruction": "post",
             "survey_public_prompt": "pub survey {scale}",
             "survey_private_prompt": "priv survey {scale}",
-            "survey_questions": {"default": ["default survey"]},
+            "survey_questions": {"deliberative": ["default survey"]},
         }
     }
     return payload
@@ -142,6 +142,36 @@ def _prompt_payload():
 
 def _write_json(path: Path, payload):
     path.write_text(json.dumps(payload), encoding="utf-8")
+
+
+def test_offline_analysis_demo_tracks_config_example_default_run_dir():
+    config_payload = json.loads(Path("data/config_example.json").read_text(encoding="utf-8"))
+    notebook_payload = json.loads(
+        Path("notebooks/offline_analysis_demo.ipynb").read_text(encoding="utf-8")
+    )
+
+    incentive_label = (
+        "no_incentive"
+        if config_payload["incentive_direction"] is None
+        else f"{config_payload['incentive_direction']}_{config_payload['incentive_type']}"
+    )
+    base_name = config_payload["run_name"] or (
+        f"{_slug(config_payload['scenario_id'])}_{_slug(incentive_label)}"
+    )
+    expected_source_run_dir = (Path("..") / config_payload["outputs_root"] / base_name).as_posix()
+
+    source_run_dir_line = None
+    for cell in notebook_payload["cells"]:
+        if cell.get("cell_type") != "code":
+            continue
+        for line in cell.get("source", []):
+            if line.startswith("source_run_dir = Path("):
+                source_run_dir_line = line.strip()
+                break
+        if source_run_dir_line is not None:
+            break
+
+    assert source_run_dir_line == f'source_run_dir = Path("{expected_source_run_dir}")'
 
 
 def test_build_experiment_config_and_helpers(tmp_path):
@@ -1550,7 +1580,7 @@ def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path)
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     catalog = _catalog_payload()
-    catalog["scenarios"][0]["survey"] = {}
+    catalog["scenarios"][0]["survey_questions"] = {}
     prompts = _prompt_payload()
     prompts["default"]["survey_questions"] = []
     _write_json(catalog_path, catalog)
@@ -1627,8 +1657,8 @@ def test_run_persona_experiment_passes_incentive_selection_to_builder(
         "scenario survey",
     ]
     assert captured["build_kwargs"]["survey_question_groups"] == {
-        "Q1": "default",
-        "Q2": "direct",
+        "Q1": "deliberative",
+        "Q2": "evaluative",
     }
 
 
@@ -1655,7 +1685,7 @@ def test_run_persona_experiment_requires_survey_questions(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     catalog = _catalog_payload()
-    catalog["scenarios"][0]["survey"] = {}
+    catalog["scenarios"][0]["survey_questions"] = {}
     prompts = _prompt_payload()
     prompts["default"]["survey_questions"] = []
     _write_json(catalog_path, catalog)

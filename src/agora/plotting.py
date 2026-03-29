@@ -10,9 +10,9 @@ from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
 from agora.agent import Agent
 from agora.survey import (
-    SURVEY_GROUP_DEFAULT,
-    SURVEY_GROUP_DIRECT,
-    SURVEY_GROUP_SENTIMENT,
+    SURVEY_GROUP_DELIBERATIVE,
+    SURVEY_GROUP_EVALUATIVE,
+    SURVEY_GROUP_INCENTIVE,
     normalize_survey_questions,
 )
 
@@ -142,12 +142,12 @@ def plot_survey_distance(
     individual_questions = [
         q_key
         for q_key, group in group_by_question.items()
-        if group in {SURVEY_GROUP_DEFAULT, SURVEY_GROUP_DIRECT}
+        if group in {SURVEY_GROUP_DELIBERATIVE, SURVEY_GROUP_EVALUATIVE}
     ]
-    sentiment_questions = [
-        q_key for q_key, group in group_by_question.items() if group == SURVEY_GROUP_SENTIMENT
+    incentive_questions = [
+        q_key for q_key, group in group_by_question.items() if group == SURVEY_GROUP_INCENTIVE
     ]
-    if not individual_questions and not sentiment_questions:
+    if not individual_questions and not incentive_questions:
         return
 
     if y_limits_base is None:
@@ -161,7 +161,7 @@ def plot_survey_distance(
         }
         for agent_id in agent_ids
     }
-    sentiment_distances = {
+    incentive_distances = {
         agent_id: {"rounds": [], "distance": []} for agent_id in agent_ids
     }
 
@@ -201,15 +201,15 @@ def plot_survey_distance(
                     individual_distances[agent_id][question]["distance"].append(
                         response_diff
                     )
-                elif question in sentiment_questions:
+                elif question in incentive_questions:
                     sum_diff += abs(response_diff)
                     count += 1
 
             if count > 0:
-                sentiment_distances[agent_id]["rounds"].append(my_round)
-                sentiment_distances[agent_id]["distance"].append(sum_diff / count)
+                incentive_distances[agent_id]["rounds"].append(my_round)
+                incentive_distances[agent_id]["distance"].append(sum_diff / count)
 
-    n = len(individual_questions) + (1 if sentiment_questions else 0)
+    n = len(individual_questions) + (1 if incentive_questions else 0)
     ncols = min(6, n)
     nrows = math.ceil(n / ncols)
 
@@ -249,11 +249,11 @@ def plot_survey_distance(
         if y_limits_base is not None:
             ax.set_ylim(*y_limits_base)
 
-    if sentiment_questions:
+    if incentive_questions:
         ax = axes[len(individual_questions)]
         avg_rounds: set[int] = set()
         for agent_id in agent_ids:
-            agent_plot_data = sentiment_distances[agent_id]
+            agent_plot_data = incentive_distances[agent_id]
             if agent_plot_data["rounds"]:
                 ax.plot(
                     agent_plot_data["rounds"],
@@ -267,7 +267,7 @@ def plot_survey_distance(
         ax.xaxis.set_major_formatter(StrMethodFormatter("{x:.0f}"))
         if avg_rounds:
             ax.set_xticks(sorted(avg_rounds))
-        ax.set_title("Avg. Sentiment Dist.")
+        ax.set_title("Avg. Incentive Dist.")
         ax.grid(True)
         if y_limits_avg is not None:
             ax.set_ylim(*y_limits_avg)
@@ -290,7 +290,7 @@ def _normalize_plot_question_specs(
     survey_questions: list[str] | list[dict[str, str]] | dict[str, list[str]],
 ) -> list[dict[str, str]]:
     return normalize_survey_questions(
-        survey_questions, default_group=SURVEY_GROUP_DEFAULT
+        survey_questions, default_group=SURVEY_GROUP_DELIBERATIVE
     )
 
 
@@ -300,19 +300,19 @@ def _build_question_panels(
 ) -> list[dict[str, Any]]:
     available = set(available_questions)
     panels: list[dict[str, Any]] = []
-    sentiment_keys: list[str] = []
+    incentive_keys: list[str] = []
 
     for index, spec in enumerate(question_specs, start=1):
         q_key = f"Q{index}"
         if q_key not in available:
             continue
-        if spec["group"] == SURVEY_GROUP_SENTIMENT:
-            sentiment_keys.append(q_key)
+        if spec["group"] == SURVEY_GROUP_INCENTIVE:
+            incentive_keys.append(q_key)
             continue
         panels.append({"label": spec["text"], "questions": [q_key]})
 
-    if sentiment_keys:
-        panels.append({"label": "Avg. Sentiment", "questions": sentiment_keys})
+    if incentive_keys:
+        panels.append({"label": "Avg. Incentive", "questions": incentive_keys})
 
     known_questions = {f"Q{index}" for index in range(1, len(question_specs) + 1)}
     for q_key in sorted(available - known_questions):

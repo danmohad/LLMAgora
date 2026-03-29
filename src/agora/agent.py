@@ -13,7 +13,7 @@ from .memory import (
     strip_transcript_label_prefix,
 )
 from .survey import (
-    SURVEY_GROUP_DEFAULT,
+    SURVEY_GROUP_DELIBERATIVE,
     build_survey_scale_prompt,
     survey_group_scale_label,
 )
@@ -234,7 +234,7 @@ class Agent:
             build_survey_scale_prompt(resolved_question_groups),
         )
         for i, q in enumerate(survey_questions, start=1):
-            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DELIBERATIVE)
             survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
         return self._complete_and_record(
@@ -255,7 +255,7 @@ class Agent:
             build_survey_scale_prompt(resolved_question_groups),
         )
         for i, q in enumerate(survey_questions, start=1):
-            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            group = resolved_question_groups.get(f"Q{i}", SURVEY_GROUP_DELIBERATIVE)
             survey_prompt += f"Q{i}. [{survey_group_scale_label(group)}] {q}\n"
 
         return self._complete_and_record(
@@ -433,13 +433,13 @@ class Agent:
         self,
         survey_questions: Sequence[str],
     ) -> dict[str, str]:
-        """Fill missing survey question groups with the default Likert group."""
+        """Fill missing survey question groups with the deliberative Likert group."""
 
         if not self._survey_question_groups:
             return {}
         return {
             f"Q{i}": self._survey_question_groups.get(
-                f"Q{i}", SURVEY_GROUP_DEFAULT
+                f"Q{i}", SURVEY_GROUP_DELIBERATIVE
             )
             for i in range(1, len(survey_questions) + 1)
         }

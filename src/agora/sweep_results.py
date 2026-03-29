@@ -335,17 +335,17 @@ class GroupAnalysisResult:
                 "diff":    {"Alpha": {q_key: ...}, ...},
             }
 
-        For questions in the ``"sentiment"`` group, the diff is computed as
+        For questions in the ``"incentive"`` group, the diff is computed as
         ``abs(public − private)`` so that the aggregated mean reflects the
         average *magnitude* of the gap (matching :func:`~agora.plotting.plot_survey_distance`).
-        Direct/default questions keep the signed difference.
+        Deliberative/evaluative questions keep the signed difference.
 
         Parameters
         ----------
         survey_questions:
             Optional question specs (same format accepted by
             :func:`~agora.plotting.plot_survey_responses`).  When supplied,
-            sentiment questions are identified and their diffs are
+            incentive questions are identified and their diffs are
             absolute-valued before aggregation.  When *None* every diff is
             signed and results are cached on the instance.
 
@@ -354,14 +354,20 @@ class GroupAnalysisResult:
         if survey_questions is None and self._survey_cache is not None:
             return self._survey_cache
 
-        from .survey import SURVEY_GROUP_DEFAULT, SURVEY_GROUP_SENTIMENT, normalize_survey_questions
+        from .survey import (
+            SURVEY_GROUP_DELIBERATIVE,
+            SURVEY_GROUP_INCENTIVE,
+            normalize_survey_questions,
+        )
 
-        sentiment_q_keys: set[str] = set()
+        incentive_q_keys: set[str] = set()
         if survey_questions is not None:
-            specs = normalize_survey_questions(survey_questions, default_group=SURVEY_GROUP_DEFAULT)
+            specs = normalize_survey_questions(
+                survey_questions, default_group=SURVEY_GROUP_DELIBERATIVE
+            )
             for i, spec in enumerate(specs, start=1):
-                if spec["group"] == SURVEY_GROUP_SENTIMENT:
-                    sentiment_q_keys.add(f"Q{i}")
+                if spec["group"] == SURVEY_GROUP_INCENTIVE:
+                    incentive_q_keys.add(f"Q{i}")
 
         def _parse_slot(turns: list, event_key: str) -> dict:
             """Returns {slot: {turn_num: {q_key: score}}}, keyed by slot name."""
@@ -422,7 +428,7 @@ class GroupAnalysisResult:
             _accumulate(priv_by_slot, priv)
 
             # diff: (public − private) per slot/turn/question where both present.
-            # For sentiment questions, abs() is applied before aggregation.
+            # For incentive questions, abs() is applied before aggregation.
             for slot in set(pub.keys()) | set(priv.keys()):
                 pub_slot = pub.get(slot, {})
                 priv_slot = priv.get(slot, {})
@@ -431,7 +437,7 @@ class GroupAnalysisResult:
                     priv_q = priv_slot[turn_num]
                     for q_key in set(pub_q.keys()) & set(priv_q.keys()):
                         raw_diff = float(pub_q[q_key]) - float(priv_q[q_key])
-                        score = abs(raw_diff) if q_key in sentiment_q_keys else raw_diff
+                        score = abs(raw_diff) if q_key in incentive_q_keys else raw_diff
                         (
                             diff_by_slot
                             .setdefault(slot, {})
@@ -984,7 +990,7 @@ class GroupAnalysisResult:
         Parameters
         ----------
         survey_questions:
-            Optional question specs used to label panels and group sentiment questions.
+            Optional question specs used to label panels and group incentive questions.
             Accepts the same format as :func:`~agora.plotting.plot_survey_responses`.
             When *None*, the specs stored on the result object are used automatically
             (populated from the experiment run), falling back to bare Q-key labels.

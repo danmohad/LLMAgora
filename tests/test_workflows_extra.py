@@ -71,7 +71,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         {
             "survey": {
                 "survey_questions": ["q1", "q2"],
-                "survey_question_groups": {"Q1": "default", "Q2": "direct"},
+                "survey_question_groups": {"Q1": "deliberative", "Q2": "incentive"},
                 "survey_public_prompt": "public",
                 "survey_private_prompt": "private",
                 "public_survey_keep": True,
@@ -82,7 +82,7 @@ def test_extract_survey_instructions_handles_missing_and_present():
         }
     )
     assert questions == ["q1", "q2"]
-    assert question_groups == {"Q1": "default", "Q2": "direct"}
+    assert question_groups == {"Q1": "deliberative", "Q2": "incentive"}
     assert public_prompt == "public"
     assert private_prompt == "private"
     assert keep is True
@@ -321,12 +321,12 @@ def test_build_scenario_agent_configs_accepts_optional_private_instruction_and_n
         prompt_set="custom",
         prompt_catalog=_prompt_catalog_for_builder(private_instruction=None),
         survey_questions=["q1"],
-        survey_question_groups={"Q1": "direct"},
+        survey_question_groups={"Q1": "incentive"},
     )
     assert "|INC:" not in configs[0]["self_role"]
     assert configs[0]["private_response"]["instruction"] is None
     assert configs[0]["survey"]["survey_questions"] == ["q1"]
-    assert configs[0]["survey"]["survey_question_groups"] == {"Q1": "direct"}
+    assert configs[0]["survey"]["survey_question_groups"] == {"Q1": "incentive"}
 
 
 def test_build_scenario_agent_configs_rejects_unknown_scenario():

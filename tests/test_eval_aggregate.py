@@ -17,8 +17,8 @@ class _FakeGroupResult:
             )
         ]
         self.survey_question_specs = [
-            {"text": "How confident are you?", "group": "default"},
-            {"text": "How positive do you feel?", "group": "sentiment"},
+            {"text": "How confident are you?", "group": "deliberative"},
+            {"text": "How positive do you feel?", "group": "incentive"},
         ]
 
     def aggregate_semantic(self):

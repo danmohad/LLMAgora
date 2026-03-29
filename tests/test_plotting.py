@@ -34,12 +34,12 @@ def test_plot_survey_responses_saves_file(tmp_path):
         }
     }
     questions = {
-        "default": [
+        "deliberative": [
             "This is a long survey question that should be truncated.",
             "Short 2",
         ],
-        "direct": ["Short 3", "Short 4"],
-        "sentiment": ["Short 5", "Short 6"],
+        "evaluative": ["Short 3", "Short 4"],
+        "incentive": ["Short 5", "Short 6"],
     }
     plot_survey_responses(responses, agents, questions, "Survey", output_path)
     assert output_path.exists()
@@ -69,7 +69,7 @@ def test_plot_survey_responses_hides_unused_subplots(tmp_path, monkeypatch):
             1: {f"Q{i}": i + 1 for i in range(1, 7)},
         }
     }
-    questions = {"default": [f"Question {i}" for i in range(1, 7)]}
+    questions = {"deliberative": [f"Question {i}" for i in range(1, 7)]}
 
     real_subplots = plt.subplots
     captured: dict[str, object] = {}
@@ -101,8 +101,8 @@ def test_plot_survey_responses_hides_unused_grouped_subplots(tmp_path, monkeypat
         }
     }
     questions = {
-        "default": [f"Question {i}" for i in range(1, 7)],
-        "sentiment": [f"Sentiment {i}" for i in range(7, 12)],
+        "deliberative": [f"Question {i}" for i in range(1, 7)],
+        "incentive": [f"Incentive {i}" for i in range(7, 12)],
     }
 
     real_subplots = plt.subplots
@@ -155,7 +155,7 @@ def test_plot_survey_distance_saves_file(tmp_path):
         public_responses,
         private_responses,
         agents,
-        {"default": ["question1"], "sentiment": ["question2"]},
+        {"deliberative": ["question1"], "incentive": ["question2"]},
         "Distance",
         output_path,
     )
@@ -210,14 +210,14 @@ def test_plot_survey_distance_with_extra_questions(tmp_path):
         },
     }
     questions = {
-        "default": [
+        "deliberative": [
             "question1",
             "question2",
             "question3",
             "question4",
             "question5",
         ],
-        "sentiment": ["extra6", "extra7", "extra8", "extra9", "extra10"],
+        "incentive": ["extra6", "extra7", "extra8", "extra9", "extra10"],
     }
     plot_survey_distance(
         public_responses,
@@ -246,8 +246,8 @@ def test_plot_survey_distance_hides_unused_grouped_subplots(tmp_path, monkeypatc
         }
     }
     questions = {
-        "default": [f"Question {i}" for i in range(1, 8)],
-        "sentiment": [f"Sentiment {i}" for i in range(8, 13)],
+        "deliberative": [f"Question {i}" for i in range(1, 8)],
+        "incentive": [f"Incentive {i}" for i in range(8, 13)],
     }
 
     real_subplots = plt.subplots
@@ -300,13 +300,13 @@ def test_plot_survey_distance_sets_distinct_y_limits(tmp_path, monkeypatch):
     public_responses = {"a": {0: {"Q1": 1, "Q3": 4}}}
     private_responses = {"a": {0: {"Q1": 4, "Q3": 1}}}
 
-    # Q1 is per-question, while Q2/Q3 are sentiment questions and collapse into
-    # the Avg. Sentiment Dist. panel.
+    # Q1 is per-question, while Q2/Q3 are incentive questions and collapse into
+    # the Avg. Incentive Dist. panel.
     plot_survey_distance(
         public_responses,
         private_responses,
         agents,
-        {"default": ["question1"], "sentiment": ["question2", "question3"]},
+        {"deliberative": ["question1"], "incentive": ["question2", "question3"]},
         "Distance",
         output_path,
         y_limits_base=(-4, 4),
@@ -328,7 +328,7 @@ def test_plot_survey_distance_sets_distinct_y_limits(tmp_path, monkeypatch):
 
 def test_build_question_panels_adds_unknown_question_panel():
     panels = plotting._build_question_panels(
-        [{"text": "Known", "group": "default"}],
+        [{"text": "Known", "group": "deliberative"}],
         ["Q1", "Q3"],
     )
 
@@ -412,7 +412,7 @@ def test_plot_group_survey_with_questions():
             },
         },
     }
-    questions = {"default": ["Question one", "Question two"]}
+    questions = {"deliberative": ["Question one", "Question two"]}
     with patch("agora.plotting.plt.show"):
         plot_group_survey(agg, survey_questions=questions)
 
@@ -707,4 +707,3 @@ def test_plot_group_response_decisions_all_repeats_empty_series_in_repeat():
     }
     with patch("agora.plotting.plt.show"):
         plot_group_response_decisions_all_repeats(per_repeat)
-
