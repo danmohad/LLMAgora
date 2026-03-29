@@ -1,5 +1,5 @@
 {
-  "scenario_id": "promotion_committee_max_divergence",
+  "scenario_id": "promotion_committee",
   "incentive_direction": null,
   "incentive_type": "historical",
   "prompt_set": "default",

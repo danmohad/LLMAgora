@@ -649,7 +649,7 @@ def run_persona_experiment(
     survey_question_group_map = {}
     survey_questions = []
     if cfg.enable_public_survey or cfg.enable_private_survey:
-        scenario_survey = scenario.get("survey") or {}
+        scenario_survey = scenario.get("survey_questions") or {}
         survey_question_specs = merge_survey_question_configs(
             prompt_payload.get("survey_questions", []),
             scenario_survey,

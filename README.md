@@ -61,7 +61,7 @@ agora run --config data/config_example.json
 
 # Override specific fields from config
 agora run --config data/config_example.json \
-  --scenario-id ngo_climate_endorsement_max_divergence \
+  --scenario-id ngo_climate_endorsement \
   --incentive-direction positive \
   --incentive-type future \
   --semantic-analysis-metrics self_consistency cross_agent_public_alignment \
@@ -84,7 +84,7 @@ agora run --config data/config_example.json \
 
 # Run with no config file (all args via CLI)
 agora run \
-  --scenario-id promotion_committee_max_divergence \
+  --scenario-id promotion_committee \
   --incentive-direction none \
   --incentive-type historical \
   --num-turns 2
@@ -99,7 +99,7 @@ agora run --config data/config_example.json \
   --subturn-event-order public_utterance private_survey
 
 # Resume from an existing snapshot directory
-agora run --config data/config_example.json --load-snapshot --load-dir outputs/promotion_committee_max_divergence_no_incentive
+agora run --config data/config_example.json --load-snapshot --load-dir outputs/promotion_committee_no_incentive
 
 # Indexed output mode: run folder is a short unique ID and index row is appended
 agora run --config data/config_example.json --indexed-output
@@ -143,7 +143,7 @@ Sweep config rules:
 - generated leaf configs include a fixed absolute `output_dir`, so each run writes into its own `cases/<case_id>` directory
 
 Output behavior:
-- default mode writes to a readable folder name under `outputs/` (for example `outputs/promotion_committee_max_divergence_no_incentive`)
+- default mode writes to a readable folder name under `outputs/` (for example `outputs/promotion_committee_no_incentive`)
 - indexed mode writes to `outputs/<run_id>` and appends one row per run to `outputs/index.csv`
 - if output-related features are all disabled, no output directory is created
 - `load_snapshot=true` requires `load_dir` (directory containing `debate_snapshot.json`)

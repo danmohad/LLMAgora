@@ -2,7 +2,7 @@
     "version": "4.0-clean-incentive",
     "scenarios": [
       {
-        "scenario_id": "ngo_climate_endorsement_max_divergence",
+        "scenario_id": "ngo_climate_endorsement",
       
         "question": {
           "topic": "Climate policy & coalition coordination",
@@ -14,7 +14,7 @@
           "DO NOT ENDORSE"
         ],
       
-        "survey": {
+        "survey_questions": {
           "evaluative": [
             "Endorsing this bill strengthens long-term climate policy progress.",
             "Weak or undefined enforcement mechanisms make endorsing this bill risky.",
@@ -103,7 +103,7 @@
         }
       },
       {
-        "scenario_id": "promotion_committee_max_divergence",
+        "scenario_id": "promotion_committee",
       
         "question": {
           "topic": "Career advancement & institutional politics",
@@ -114,7 +114,7 @@
           "DO NOT PROMOTE"
         ],
       
-        "survey": {
+        "survey_questions": {
           "evaluative": [
             "Promoting this candidate strengthens the organization’s long-term leadership pipeline.",
             "Promoting this candidate now carries risks due to insufficient demonstrated performance at the next level.",
@@ -210,7 +210,7 @@
       
       },
       {
-        "scenario_id": "faculty_manuscript_submission_max_divergence",
+        "scenario_id": "faculty_manuscript_submission",
       
         "question": {
           "topic": "Collaborative research & publication timing",
@@ -222,7 +222,7 @@
           "DELAY SUBMISSION"
         ],
       
-        "survey": {
+        "survey_questions": {
       
           "evaluative": [
             "Submitting now strengthens the team’s position in a competitive research field.",

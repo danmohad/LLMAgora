@@ -68,8 +68,8 @@ def _catalog_payload():
                     "prompt": "Q prompt",
                 },
                 "decision_labels": ["YES", "NO"],
-                "survey": {
-                    "direct": ["scenario survey"],
+                "survey_questions": {
+                    "evaluative": ["scenario survey"],
                 },
                 "sides": {
                     "Persona One": {
@@ -134,7 +134,7 @@ def _prompt_payload():
             "post_interview_instruction": "post",
             "survey_public_prompt": "pub survey {scale}",
             "survey_private_prompt": "priv survey {scale}",
-            "survey_questions": {"default": ["default survey"]},
+            "survey_questions": {"deliberative": ["default survey"]},
         }
     }
     return payload
@@ -1550,7 +1550,7 @@ def test_run_persona_experiment_requires_questions_when_survey_enabled(tmp_path)
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     catalog = _catalog_payload()
-    catalog["scenarios"][0]["survey"] = {}
+    catalog["scenarios"][0]["survey_questions"] = {}
     prompts = _prompt_payload()
     prompts["default"]["survey_questions"] = []
     _write_json(catalog_path, catalog)
@@ -1627,8 +1627,8 @@ def test_run_persona_experiment_passes_incentive_selection_to_builder(
         "scenario survey",
     ]
     assert captured["build_kwargs"]["survey_question_groups"] == {
-        "Q1": "default",
-        "Q2": "direct",
+        "Q1": "deliberative",
+        "Q2": "evaluative",
     }
 
 
@@ -1655,7 +1655,7 @@ def test_run_persona_experiment_requires_survey_questions(tmp_path):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"
     catalog = _catalog_payload()
-    catalog["scenarios"][0]["survey"] = {}
+    catalog["scenarios"][0]["survey_questions"] = {}
     prompts = _prompt_payload()
     prompts["default"]["survey_questions"] = []
     _write_json(catalog_path, catalog)
