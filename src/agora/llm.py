@@ -7,7 +7,7 @@ from typing import Any, Dict, List, Mapping, Optional, Protocol, Sequence, Typed
 import httpx
 
 from .survey import (
-    SURVEY_GROUP_DEFAULT,
+    SURVEY_GROUP_DELIBERATIVE,
     build_likert_survey_schema,
     build_survey_response_schema,
 )
@@ -52,7 +52,7 @@ def build_completion_payload(
 
     if survey_question_groups:
         full_question_groups = {
-            f"Q{i}": survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DEFAULT)
+            f"Q{i}": survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DELIBERATIVE)
             for i in range(1, len(survey_questions) + 1)
         }
         survey_schema = build_survey_response_schema(full_question_groups)

@@ -285,10 +285,10 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
     agent_a = Agent(
         name="Alpha",
         model="demo",
-        llm_client=stub_llm_factory(["Alpha public", json.dumps({"Q1": "Yes"})]),
+        llm_client=stub_llm_factory(["Alpha public", json.dumps({"Q1": "Agree"})]),
         response_instruction="Alpha respond",
         survey_questions=["q1"],
-        survey_question_groups={"Q1": "direct"},
+        survey_question_groups={"Q1": "evaluative"},
         survey_public_prompt="Survey\n{scale}\n",
         survey_private_prompt="Private\n",
         enable_public_survey=True,
@@ -311,7 +311,7 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
     assert "agents" not in payload
     assert "agent_states" not in payload
     assert "event_order" not in payload
-    assert payload["agent_configs"][0]["survey_question_groups"] == {"Q1": "direct"}
+    assert payload["agent_configs"][0]["survey_question_groups"] == {"Q1": "evaluative"}
 
     survey_receipt = next(
         receipt
@@ -319,7 +319,7 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
         if receipt["event_type"] == "public_survey"
     )
     assert "{scale}" not in survey_receipt["request"]["messages"][-1]["content"]
-    assert survey_receipt["response"] == '{"Q1": "Yes"}'
+    assert survey_receipt["response"] == '{"Q1": "Agree"}'
 
     restored = load_snapshot(
         snapshot_path,
@@ -327,7 +327,7 @@ def test_snapshot_persists_receipts_and_survey_groups(tmp_path, stub_llm_factory
         event_order=["public_utterance", "public_survey"],
     )
     restored_agents = {agent.name: agent for agent in restored.agents}
-    assert restored_agents["Alpha"].survey_question_groups == {"Q1": "direct"}
+    assert restored_agents["Alpha"].survey_question_groups == {"Q1": "evaluative"}
 
 
 def test_load_snapshot_accepts_agent_states_alias(tmp_path, stub_llm_factory):

@@ -9,20 +9,20 @@ def test_build_likert_schema():
     assert schema["schema"]["properties"]["Q1"]["enum"] == survey.LIKERT_VALUES
 
 
-def test_build_mixed_scale_schema():
+def test_build_grouped_likert_schema():
     schema = survey.build_survey_response_schema(
         {
-            "Q1": survey.SURVEY_GROUP_DEFAULT,
-            "Q2": survey.SURVEY_GROUP_DIRECT,
-            "Q3": survey.SURVEY_GROUP_SENTIMENT,
+            "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+            "Q2": survey.SURVEY_GROUP_EVALUATIVE,
+            "Q3": survey.SURVEY_GROUP_INCENTIVE,
         }
     )
     assert schema["schema"]["properties"]["Q1"]["enum"] == survey.LIKERT_VALUES
-    assert schema["schema"]["properties"]["Q2"]["enum"] == survey.BINARY_VALUES
+    assert schema["schema"]["properties"]["Q2"]["enum"] == survey.LIKERT_VALUES
     assert schema["schema"]["properties"]["Q3"]["enum"] == survey.LIKERT_VALUES
 
 
-def test_build_mixed_scale_schema_rejects_unknown_group():
+def test_build_grouped_likert_schema_rejects_unknown_group():
     with pytest.raises(ValueError, match="Unknown survey group"):
         survey.build_survey_response_schema({"Q1": "invalid"})
 
@@ -33,17 +33,17 @@ def test_parse_survey_response():
     assert result == {"Q1": 1, "Q2": 0}
 
 
-def test_parse_survey_response_supports_binary_questions():
-    payload = '{"Q1": "Agree", "Q2": "Yes", "Q3": "No"}'
+def test_parse_survey_response_supports_named_groups():
+    payload = '{"Q1": "Agree", "Q2": "Neutral", "Q3": "Disagree"}'
     result = survey.parse_survey_response_str(
         payload,
         {
-            "Q1": survey.SURVEY_GROUP_DEFAULT,
-            "Q2": survey.SURVEY_GROUP_DIRECT,
-            "Q3": survey.SURVEY_GROUP_DIRECT,
+            "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+            "Q2": survey.SURVEY_GROUP_EVALUATIVE,
+            "Q3": survey.SURVEY_GROUP_INCENTIVE,
         },
     )
-    assert result == {"Q1": 1, "Q2": 1, "Q3": -1}
+    assert result == {"Q1": 1, "Q2": 0, "Q3": -1}
 
 
 def test_parse_survey_invalid_json():
@@ -58,29 +58,29 @@ def test_parse_survey_invalid_answer():
 
 def test_parse_survey_rejects_unknown_group_mapping():
     with pytest.raises(ValueError, match="Unknown survey group"):
-        survey.parse_survey_response_str('{"Q1": "Yes"}', {"Q1": "invalid"})
+        survey.parse_survey_response_str('{"Q1": "Agree"}', {"Q1": "invalid"})
 
 
 def test_merge_survey_question_configs_assigns_groups():
     merged = survey.merge_survey_question_configs(
-        {"default": ["default q"]},
-        {"direct": ["direct q"], "sentiment": ["sentiment q"]},
+        {"deliberative": ["deliberative q"]},
+        {"evaluative": ["evaluative q"], "incentive": ["incentive q"]},
     )
 
     assert merged == [
-        {"text": "default q", "group": survey.SURVEY_GROUP_DEFAULT},
-        {"text": "direct q", "group": survey.SURVEY_GROUP_DIRECT},
-        {"text": "sentiment q", "group": survey.SURVEY_GROUP_SENTIMENT},
+        {"text": "deliberative q", "group": survey.SURVEY_GROUP_DELIBERATIVE},
+        {"text": "evaluative q", "group": survey.SURVEY_GROUP_EVALUATIVE},
+        {"text": "incentive q", "group": survey.SURVEY_GROUP_INCENTIVE},
     ]
     assert survey.survey_question_texts(merged) == [
-        "default q",
-        "direct q",
-        "sentiment q",
+        "deliberative q",
+        "evaluative q",
+        "incentive q",
     ]
     assert survey.survey_question_groups(merged) == {
-        "Q1": survey.SURVEY_GROUP_DEFAULT,
-        "Q2": survey.SURVEY_GROUP_DIRECT,
-        "Q3": survey.SURVEY_GROUP_SENTIMENT,
+        "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+        "Q2": survey.SURVEY_GROUP_EVALUATIVE,
+        "Q3": survey.SURVEY_GROUP_INCENTIVE,
     }
 
 
@@ -90,32 +90,37 @@ def test_build_survey_scale_prompt_defaults_to_likert():
     assert "Strongly disagree" in prompt
 
 
-def test_build_survey_scale_prompt_supports_mixed_ranges():
+def test_build_survey_scale_prompt_rejects_unknown_group():
+    with pytest.raises(ValueError, match="Unknown survey group"):
+        survey.build_survey_scale_prompt({"Q1": "invalid"})
+
+
+def test_build_survey_scale_prompt_uses_single_likert_scale_for_all_groups():
     prompt = survey.build_survey_scale_prompt(
         {
-            "Q1": survey.SURVEY_GROUP_DEFAULT,
-            "Q2": survey.SURVEY_GROUP_SENTIMENT,
-            "Q3": survey.SURVEY_GROUP_DIRECT,
-            "Q4": survey.SURVEY_GROUP_DIRECT,
+            "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+            "Q2": survey.SURVEY_GROUP_INCENTIVE,
+            "Q3": survey.SURVEY_GROUP_EVALUATIVE,
+            "Q4": survey.SURVEY_GROUP_EVALUATIVE,
         }
     )
-    assert "Q1-Q2" in prompt
-    assert "Q3-Q4" in prompt
-    assert "No / Yes" in prompt
+    assert "Likert scale" in prompt
+    assert "Strongly agree" in prompt
+    assert "No / Yes" not in prompt
 
 
-def test_format_question_refs_handles_empty_and_non_contiguous_ranges():
-    assert survey._format_question_refs([]) == ""
-    assert survey._format_question_refs(["Q1", "Q3"]) == "Q1, Q3"
+def test_survey_group_scale_label_rejects_unknown_group():
+    with pytest.raises(ValueError, match="Unknown survey group"):
+        survey.survey_group_scale_label("invalid")
 
 
 def test_normalize_survey_questions_rejects_unknown_group():
     with pytest.raises(ValueError, match="Unknown survey group"):
-        survey.normalize_survey_questions({"invalid": ["q"]}, default_group="default")
+        survey.normalize_survey_questions({"invalid": ["q"]}, default_group="deliberative")
 
 
 def test_normalize_survey_questions_accepts_none():
-    assert survey.normalize_survey_questions(None, default_group="default") == []
+    assert survey.normalize_survey_questions(None, default_group="deliberative") == []
 
 
 def test_normalize_survey_questions_rejects_unknown_default_group():
@@ -125,37 +130,37 @@ def test_normalize_survey_questions_rejects_unknown_default_group():
 
 def test_normalize_survey_questions_rejects_non_list_group_entries():
     with pytest.raises(ValueError, match="must contain a list"):
-        survey.normalize_survey_questions({"default": "q1"}, default_group="default")
+        survey.normalize_survey_questions({"deliberative": "q1"}, default_group="deliberative")
 
 
 def test_normalize_survey_questions_rejects_invalid_top_level_type():
     with pytest.raises(ValueError, match="list or dict"):
-        survey.normalize_survey_questions("q1", default_group="default")
+        survey.normalize_survey_questions("q1", default_group="deliberative")
 
 
 def test_normalize_survey_questions_rejects_invalid_entry_group():
     with pytest.raises(ValueError, match="Unknown survey group"):
         survey.normalize_survey_questions(
             [{"text": "q1", "group": "invalid"}],
-            default_group="default",
+            default_group="deliberative",
         )
 
 
 def test_normalize_survey_questions_rejects_missing_entry_text():
     with pytest.raises(ValueError, match="non-empty text"):
         survey.normalize_survey_questions(
-            [{"group": "default"}],
-            default_group="default",
+            [{"group": "deliberative"}],
+            default_group="deliberative",
         )
 
 
 def test_normalize_survey_questions_rejects_invalid_entry_type():
     with pytest.raises(ValueError, match="strings or dicts"):
-        survey.normalize_survey_questions([1], default_group="default")
+        survey.normalize_survey_questions([1], default_group="deliberative")
 
 
 def test_normalize_survey_questions_accepts_dict_entry_with_explicit_group():
     assert survey.normalize_survey_questions(
-        [{"text": "q1", "group": "sentiment"}],
-        default_group="default",
-    ) == [{"text": "q1", "group": "sentiment"}]
+        [{"text": "q1", "group": "incentive"}],
+        default_group="deliberative",
+    ) == [{"text": "q1", "group": "incentive"}]
