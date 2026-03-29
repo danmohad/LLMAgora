@@ -144,6 +144,36 @@ def _write_json(path: Path, payload):
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
+def test_offline_analysis_demo_tracks_config_example_default_run_dir():
+    config_payload = json.loads(Path("data/config_example.json").read_text(encoding="utf-8"))
+    notebook_payload = json.loads(
+        Path("notebooks/offline_analysis_demo.ipynb").read_text(encoding="utf-8")
+    )
+
+    incentive_label = (
+        "no_incentive"
+        if config_payload["incentive_direction"] is None
+        else f"{config_payload['incentive_direction']}_{config_payload['incentive_type']}"
+    )
+    base_name = config_payload["run_name"] or (
+        f"{_slug(config_payload['scenario_id'])}_{_slug(incentive_label)}"
+    )
+    expected_source_run_dir = (Path("..") / config_payload["outputs_root"] / base_name).as_posix()
+
+    source_run_dir_line = None
+    for cell in notebook_payload["cells"]:
+        if cell.get("cell_type") != "code":
+            continue
+        for line in cell.get("source", []):
+            if line.startswith("source_run_dir = Path("):
+                source_run_dir_line = line.strip()
+                break
+        if source_run_dir_line is not None:
+            break
+
+    assert source_run_dir_line == f'source_run_dir = Path("{expected_source_run_dir}")'
+
+
 def test_build_experiment_config_and_helpers(tmp_path):
     cfg = build_experiment_config(
         {
