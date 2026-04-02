@@ -382,6 +382,69 @@ def test_experiment_group_run_analysis_returns_group_result(tmp_path: Path):
     assert isinstance(group_result, GroupAnalysisResult)
     assert group_result.n_repeats == 2
     assert group_result.group is group
+    assert [case.case_id for case in group_result.analyzed_cases] == ["r1", "r2"]
+
+
+def test_experiment_group_run_analysis_skips_missing_snapshot_case(tmp_path: Path, capsys: pytest.CaptureFixture[str]):
+    """Missing snapshot files warn and are skipped instead of aborting the group."""
+    for cid in ("r1", "r2"):
+        _write_case_config(tmp_path / "cases" / cid)
+
+    cases = [
+        SweepCase(cid, Path(f"cases/{cid}"), Path(f"cases/{cid}/config.json"), "lbl", i + 1, 2, {})
+        for i, cid in enumerate(("r1", "r2"))
+    ]
+    group = ExperimentGroup(FP_A, {}, cases)
+
+    def fake_run_persona_experiment(cfg):
+        if cfg.load_dir == tmp_path / "cases/r1":
+            raise FileNotFoundError(f"Snapshot not found at {cfg.load_dir / 'debate_snapshot.json'}")
+        return MagicMock()
+
+    with patch("agora.experiment.run_persona_experiment", fake_run_persona_experiment):
+        group_result = group.run_analysis(tmp_path)
+
+    captured = capsys.readouterr()
+    assert "Warning: skipping case r1 " in captured.out
+    assert "model='openai/gpt-x'" in captured.out
+    assert "scenario_id='s1'" in captured.out
+    assert group_result.n_repeats == 1
+    assert [case.case_id for case in group_result.analyzed_cases] == ["r2"]
+
+
+def test_format_case_warning_context_returns_empty_when_config_missing(tmp_path: Path):
+    case = SweepCase(
+        case_id="missing",
+        case_dir=Path("cases/missing"),
+        config_path=Path("cases/missing/config.json"),
+        label="lbl",
+        repeat_number=1,
+        repeat_count=1,
+        sweep_values={},
+    )
+
+    from agora.sweep_results import format_case_warning_context
+
+    assert format_case_warning_context(case, tmp_path) == ""
+
+
+def test_format_case_warning_context_returns_empty_for_invalid_json(tmp_path: Path):
+    case_dir = tmp_path / "cases" / "broken"
+    case_dir.mkdir(parents=True)
+    (case_dir / "config.json").write_text("{not-json", encoding="utf-8")
+    case = SweepCase(
+        case_id="broken",
+        case_dir=Path("cases/broken"),
+        config_path=Path("cases/broken/config.json"),
+        label="lbl",
+        repeat_number=1,
+        repeat_count=1,
+        sweep_values={},
+    )
+
+    from agora.sweep_results import format_case_warning_context
+
+    assert format_case_warning_context(case, tmp_path) == ""
 
 
 # ---------------------------------------------------------------------------

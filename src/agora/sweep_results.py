@@ -16,6 +16,33 @@ if TYPE_CHECKING:
     from .experiment import ExperimentResult
 
 
+_WARNING_CONFIG_FIELDS = (
+    "model",
+    "scenario_id",
+    "incentive_direction",
+    "incentive_type",
+)
+
+
+def format_case_warning_context(case: SweepCase, sweep_root: Path) -> str:
+    """Return a compact warning suffix with key config identifiers when available."""
+    abs_config_path = sweep_root / case.config_path
+    if not abs_config_path.exists():
+        return ""
+
+    try:
+        payload = json.loads(abs_config_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+
+    parts = [
+        f"{field}={payload[field]!r}"
+        for field in _WARNING_CONFIG_FIELDS
+        if payload.get(field) is not None
+    ]
+    return f" ({', '.join(parts)})" if parts else ""
+
+
 @dataclass(slots=True)
 class SweepCase:
     """One executed case (a single repeat of an experiment)."""
@@ -218,6 +245,7 @@ class GroupAnalysisResult:
 
     group: ExperimentGroup
     results: list  # list[ExperimentResult]
+    analyzed_cases: list[SweepCase] = field(default_factory=list)
     _semantic_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _persona_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _nli_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
@@ -1097,8 +1125,16 @@ class ExperimentGroup:
         **postpro:
             Forwarded verbatim to :meth:`SweepCase.run_analysis` for each repeat.
         """
-        results = [case.run_analysis(sweep_root, **postpro) for case in self.cases]
-        return GroupAnalysisResult(group=self, results=results)
+        results = []
+        analyzed_cases = []
+        for case in self.cases:
+            try:
+                results.append(case.run_analysis(sweep_root, **postpro))
+                analyzed_cases.append(case)
+            except FileNotFoundError as exc:
+                context = format_case_warning_context(case, sweep_root)
+                print(f"Warning: skipping case {case.case_id}{context}: {exc}")
+        return GroupAnalysisResult(group=self, results=results, analyzed_cases=analyzed_cases)
 
 
 @dataclass(slots=True)

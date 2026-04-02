@@ -7,7 +7,7 @@ from typing import Any
 
 from .emotion_analyzer import PRIVATE_NARRATIVE_FIELD, PUBLIC_NARRATIVE_FIELD
 from .semantic_similarity_analyzer import DEFAULT_NLI_MODEL_NAME
-from .sweep_results import SweepManifest
+from .sweep_results import SweepManifest, format_case_warning_context
 
 
 def _agent_slot_lookup(group_result: Any) -> dict[str, str]:
@@ -402,6 +402,16 @@ def build_experiment_analysis_record(
 ) -> dict[str, Any]:
     """Build a single dataframe-ready row for one experiment group."""
     group_result = group.run_analysis(Path(sweep_root), **(analysis_kwargs or {}))
+    analyzed_cases = list(getattr(group_result, "analyzed_cases", []) or group.cases)
+    if not group_result.results:
+        context = ""
+        if getattr(group, "cases", None):
+            context = format_case_warning_context(group.cases[0], Path(sweep_root))
+        print(
+            "Warning: skipping experiment group "
+            f"{group.config_fingerprint}{context} because no analyzable cases remained."
+        )
+        return {}
 
     cosine_self, cosine_cross = _serialize_semantic(group_result)
     persona_individual, persona_cumulative, persona_full = _serialize_persona(group_result)
@@ -412,8 +422,8 @@ def build_experiment_analysis_record(
     row = {
         "experiment_index": int(experiment_index),
         "config_fingerprint": group.config_fingerprint,
-        "repeat_count": int(group.repeat_count),
-        "case_ids": [case.case_id for case in group.cases],
+        "repeat_count": int(len(analyzed_cases)),
+        "case_ids": [case.case_id for case in analyzed_cases],
         **dict(group.sweep_values or {}),
         "cosine-similarity-self-consistency": cosine_self,
         "cosine-similarity-cross-agent-alignment": cosine_cross,
@@ -458,7 +468,7 @@ def build_experiment_analysis_records(
     device: str | None = None,
 ) -> list[dict[str, Any]]:
     """Build one aggregate row per experiment group in a sweep manifest."""
-    return [
+    records = [
         build_experiment_analysis_record(
             group,
             manifest.sweep_root,
@@ -472,6 +482,7 @@ def build_experiment_analysis_records(
         )
         for index, group in enumerate(manifest)
     ]
+    return [record for record in records if record]
 
 
 def build_experiment_analysis_dataframe(
