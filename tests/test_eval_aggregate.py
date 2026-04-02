@@ -4,6 +4,7 @@ from types import SimpleNamespace
 import pytest
 
 from agora import eval_aggregate
+from agora.sweep_results import SweepCase
 
 
 class _FakeGroupResult:
@@ -225,6 +226,92 @@ def test_build_records_and_dataframe_support_disabled_optional_sections(monkeypa
     )
     assert dataframe["kind"] == "dataframe"
     assert dataframe["records"][0]["experiment_index"] == 0
+
+
+def test_build_records_skips_empty_groups_and_uses_analyzed_case_metadata(tmp_path, capsys):
+    class _PartiallySkippedGroup(_FakeGroup):
+        def run_analysis(self, sweep_root, **analysis_kwargs):
+            result = _FakeGroupResult()
+            result.results = [result.results[0]]
+            result.analyzed_cases = [SimpleNamespace(case_id="case-b")]
+            return result
+
+    class _FullySkippedGroup(_FakeGroup):
+        def __init__(self):
+            super().__init__()
+            self.config_fingerprint = "fingerprint-empty"
+            self.cases = [
+                SweepCase(
+                    case_id="case-empty",
+                    case_dir=eval_aggregate.Path("cases/case-empty"),
+                    config_path=eval_aggregate.Path("cases/case-empty/config.json"),
+                    label="label",
+                    repeat_number=1,
+                    repeat_count=1,
+                    sweep_values={},
+                )
+            ]
+
+        def run_analysis(self, sweep_root, **analysis_kwargs):
+            return SimpleNamespace(results=[], analyzed_cases=[])
+
+    class _IterableManifest:
+        sweep_root = tmp_path / "sweeps_5"
+
+        def __iter__(self):
+            return iter([_PartiallySkippedGroup(), _FullySkippedGroup()])
+
+    config_dir = _IterableManifest.sweep_root / "cases" / "case-empty"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (config_dir / "config.json").write_text(
+        """{
+  "model": "m-empty",
+  "scenario_id": "scenario-empty",
+  "incentive_direction": "negative",
+  "incentive_type": "historical"
+}""",
+        encoding="utf-8",
+    )
+
+    records = eval_aggregate.build_experiment_analysis_records(
+        _IterableManifest(),
+        analysis_kwargs={"semantic_analysis_metrics": ["self_consistency"]},
+        include_nli=False,
+        include_emotions=False,
+    )
+
+    captured = capsys.readouterr()
+    assert len(records) == 1
+    assert records[0]["repeat_count"] == 1
+    assert records[0]["case_ids"] == ["case-b"]
+    assert "Warning: skipping experiment group fingerprint-empty" in captured.out
+    assert "model='m-empty'" in captured.out
+    assert "scenario_id='scenario-empty'" in captured.out
+    assert "incentive_direction='negative'" in captured.out
+    assert "incentive_type='historical'" in captured.out
+
+
+def test_build_record_skips_empty_group_without_cases(capsys):
+    class _EmptyGroup:
+        config_fingerprint = "fp-no-cases"
+        cases = []
+        sweep_values = {}
+
+        def run_analysis(self, sweep_root, **analysis_kwargs):
+            return SimpleNamespace(results=[], analyzed_cases=[])
+
+    record = eval_aggregate.build_experiment_analysis_record(
+        _EmptyGroup(),
+        "/tmp/outputs/sweeps_5",
+        experiment_index=0,
+        analysis_kwargs={},
+        include_nli=False,
+        include_emotions=False,
+    )
+
+    captured = capsys.readouterr()
+    assert record == {}
+    assert "Warning: skipping experiment group fp-no-cases because no analyzable cases remained." in captured.out
 
 
 def test_internal_helpers_cover_fallback_and_sparse_paths():
