@@ -93,10 +93,15 @@ def gap_violin(
     *,
     metric: str = "gap_signed",
     models: list[str] | None = None,
+    split_roles: bool | None = None,
     save_path: str | Path | None = None,
     show: bool = True,
 ) -> plt.Figure:
-    """B5/D1: violin of gap by model — rows = role, cols = family."""
+    """B5/D1: violin of gap by model — rows = role, cols = family.
+
+    *split_roles* is accepted for backward compatibility and ignored: alpha and
+    beta are always plotted on separate rows.
+    """
     sub = _filter_df(df, scenario=scenario, models=models)
     families = config.FAMILIES
     model_order = sorted(sub["model"].unique())
