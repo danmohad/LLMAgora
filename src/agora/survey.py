@@ -1,4 +1,5 @@
 import json
+import re
 from typing import Any
 
 LIKERT_VALUES = [
@@ -25,6 +26,12 @@ VALID_SURVEY_GROUPS = {
     SURVEY_GROUP_EVALUATIVE,
     SURVEY_GROUP_INCENTIVE,
 }
+_QUESTION_LINE_RE = re.compile(
+    r"^\s*(?:[-*]\s*)?(?:[*_`]+\s*)?Q(?P<number>\d+)\s*"
+    r"(?:[.):]|\s+-)\s*(?P<rest>.*?)\s*(?:[*_`]+)?\s*$",
+    re.IGNORECASE,
+)
+_JSON_STRING_PAIR_RE = re.compile(r'"(?P<key>Q\d+)"\s*:\s*"(?P<value>[^"]*)')
 
 
 def normalize_survey_questions(
@@ -155,11 +162,27 @@ def parse_survey_response_str(
     Parse and validate a survey response provided as a JSON string.
     """
 
-    # --- Deserialize JSON ---
     try:
-        survey_answers = json.loads(response_str)
-    except json.JSONDecodeError as e:
-        raise ValueError(f"Invalid JSON returned by model: {response_str}") from e
+        survey_answers = _load_json_survey_answers(response_str)
+    except json.JSONDecodeError:
+        expected_keys = _expected_question_keys(question_groups)
+        try:
+            survey_answers = _parse_json_like_survey_object(
+                response_str,
+                expected_keys=expected_keys,
+            )
+        except ValueError as json_like_error:
+            try:
+                survey_answers = _parse_numbered_likert_response(
+                    response_str,
+                    expected_keys=expected_keys,
+                )
+            except ValueError as fallback_error:
+                raise ValueError(
+                    "Invalid survey response returned by model: expected a JSON "
+                    f"object or numbered Likert answers ({json_like_error}; "
+                    f"{fallback_error}). Raw response: {response_str}"
+                ) from fallback_error
 
     numeric_scores = {
         q: _answer_to_score(
@@ -174,15 +197,137 @@ def parse_survey_response_str(
     return numeric_scores
 
 
+def _load_json_survey_answers(response_str: str) -> dict[str, Any]:
+    try:
+        survey_answers = json.loads(response_str)
+    except json.JSONDecodeError:
+        embedded = _extract_embedded_json_object(response_str)
+        if embedded is None:
+            raise
+        survey_answers = embedded
+
+    if not isinstance(survey_answers, dict):
+        raise ValueError(
+            "Survey response JSON must be an object mapping question IDs to answers; "
+            f"got {type(survey_answers).__name__}."
+        )
+    return survey_answers
+
+
+def _extract_embedded_json_object(response_str: str) -> dict[str, Any] | None:
+    decoder = json.JSONDecoder()
+    for index, char in enumerate(response_str):
+        if char != "{":
+            continue
+        try:
+            value, _end = decoder.raw_decode(response_str[index:])
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            return value
+    return None
+
+
+def _parse_numbered_likert_response(
+    response_str: str,
+    *,
+    expected_keys: list[str],
+) -> dict[str, str]:
+    answers: dict[str, str] = {}
+    pending_key: str | None = None
+
+    for raw_line in response_str.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+
+        match = _QUESTION_LINE_RE.match(line)
+        if match:
+            key = f"Q{int(match.group('number'))}"
+            answer = _extract_likert_answer(match.group("rest"))
+            if answer is None:
+                pending_key = key
+                continue
+            answers[key] = answer
+            pending_key = None
+            continue
+
+        if pending_key is None:
+            continue
+        answer = _extract_likert_answer(line)
+        if answer is not None:
+            answers[pending_key] = answer
+            pending_key = None
+
+    if expected_keys:
+        missing = [key for key in expected_keys if key not in answers]
+        if missing:
+            raise ValueError(
+                "Numbered survey response missing answers for: "
+                + ", ".join(missing)
+            )
+        return {key: answers[key] for key in expected_keys}
+
+    if not answers:
+        raise ValueError("No numbered Likert answers found in survey response")
+    return dict(sorted(answers.items(), key=lambda item: _question_sort_key(item[0])))
+
+
+def _parse_json_like_survey_object(
+    response_str: str,
+    *,
+    expected_keys: list[str],
+) -> dict[str, str]:
+    pairs = {
+        match.group("key"): match.group("value")
+        for match in _JSON_STRING_PAIR_RE.finditer(response_str)
+    }
+    if not pairs:
+        raise ValueError("No JSON-like question answers found in survey response")
+
+    if expected_keys:
+        missing = [key for key in expected_keys if key not in pairs]
+        if missing:
+            raise ValueError(
+                "JSON-like survey response missing answers for: "
+                + ", ".join(missing)
+            )
+        return {key: pairs[key] for key in expected_keys}
+
+    return dict(sorted(pairs.items(), key=lambda item: _question_sort_key(item[0])))
+
+
+def _expected_question_keys(question_groups: dict[str, str] | None) -> list[str]:
+    if not question_groups:
+        return []
+    return [key for key, _group in _sorted_question_groups(question_groups)]
+
+
+def _extract_likert_answer(candidate: str) -> str | None:
+    cleaned = re.sub(r"[*_`]+", "", candidate).strip()
+    for value in sorted(LIKERT_VALUES, key=len, reverse=True):
+        answer_pattern = rf"^{re.escape(value)}(?=$|[\s.,;:!?\-\u2013\u2014])"
+        if re.match(answer_pattern, cleaned, re.IGNORECASE):
+            return value
+    return None
+
+
 def _response_values_for_group(group: str) -> list[str]:
     if group in VALID_SURVEY_GROUPS:
         return LIKERT_VALUES
     raise ValueError(f"Unknown survey group: {group}")
 
 
-def _answer_to_score(answer: str, *, group: str) -> int:
+def _answer_to_score(answer: Any, *, group: str) -> int:
     if group in VALID_SURVEY_GROUPS:
-        return LIKERT_TO_SCORE[answer]
+        if not isinstance(answer, str):
+            raise ValueError(
+                "Survey answer values must be strings from the configured scale"
+            )
+        normalized = _extract_likert_answer(answer)
+        if normalized is not None:
+            return LIKERT_TO_SCORE[normalized]
+        raise ValueError(f"Unknown survey answer: {answer}")
     raise ValueError(f"Unknown survey group: {group}")
 
 

@@ -80,6 +80,57 @@ def test_complete_survey_includes_schema(monkeypatch):
     assert "response_format" in payload
 
 
+def test_complete_survey_uses_reasoning_when_content_missing(monkeypatch):
+    response = DummyResponse(
+        {
+            "choices": [
+                {
+                    "message": {
+                        "content": None,
+                        "reasoning": '{"Q1": "Agree"}',
+                    }
+                }
+            ]
+        }
+    )
+    _install_dummy_client(monkeypatch, response)
+
+    client = llm.OpenRouterClient(api_key="key")
+    result = client.complete(
+        messages=[{"role": "user", "content": "hi"}],
+        model="m",
+        survey_questions=["q1"],
+    )
+
+    assert result == '{"Q1": "Agree"}'
+
+
+def test_complete_survey_uses_reasoning_details_when_content_missing(monkeypatch):
+    response = DummyResponse(
+        {
+            "choices": [
+                {
+                    "message": {
+                        "content": None,
+                        "reasoning": None,
+                        "reasoning_details": [{"text": '{"Q1": "Neutral"}'}],
+                    }
+                }
+            ]
+        }
+    )
+    _install_dummy_client(monkeypatch, response)
+
+    client = llm.OpenRouterClient(api_key="key")
+    result = client.complete(
+        messages=[{"role": "user", "content": "hi"}],
+        model="m",
+        survey_questions=["q1"],
+    )
+
+    assert result == '{"Q1": "Neutral"}'
+
+
 def test_complete_survey_uses_question_groups_for_schema(monkeypatch):
     response = DummyResponse({"choices": [{"message": {"content": "{\"Q1\": \"Agree\"}"}}]})
     dummy = _install_dummy_client(monkeypatch, response)
@@ -135,6 +186,30 @@ def test_complete_requires_content(monkeypatch):
     client = llm.OpenRouterClient(api_key="key")
     with pytest.raises(RuntimeError):
         client.complete(messages=[{"role": "user", "content": "hi"}], model="m")
+
+
+def test_complete_requires_text_content(monkeypatch):
+    response = DummyResponse({"choices": [{"message": {"content": None}}]})
+    _install_dummy_client(monkeypatch, response)
+
+    client = llm.OpenRouterClient(api_key="key")
+    with pytest.raises(RuntimeError, match="content was not text"):
+        client.complete(messages=[{"role": "user", "content": "hi"}], model="m")
+
+
+def test_complete_survey_requires_text_when_no_content_fallback(monkeypatch):
+    response = DummyResponse(
+        {"choices": [{"message": {"content": None, "reasoning_details": [{}]}}]}
+    )
+    _install_dummy_client(monkeypatch, response)
+
+    client = llm.OpenRouterClient(api_key="key")
+    with pytest.raises(RuntimeError, match="content was not text"):
+        client.complete(
+            messages=[{"role": "user", "content": "hi"}],
+            model="m",
+            survey_questions=["q1"],
+        )
 
 
 def test_format_error_uses_text_on_invalid_json(monkeypatch):
