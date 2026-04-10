@@ -33,6 +33,71 @@ def test_parse_survey_response():
     assert result == {"Q1": 1, "Q2": 0}
 
 
+def test_parse_survey_response_extracts_embedded_json_object():
+    payload = 'Here is the survey:\n```json\n{"Q1": "Agree", "Q2": "Neutral"}\n```'
+    result = survey.parse_survey_response_str(payload)
+    assert result == {"Q1": 1, "Q2": 0}
+
+
+def test_parse_survey_response_recovers_truncated_json_object():
+    payload = '{"Q1":"Agree","Q2":"Neutral'
+    result = survey.parse_survey_response_str(
+        payload,
+        {
+            "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+            "Q2": survey.SURVEY_GROUP_DELIBERATIVE,
+        },
+    )
+    assert result == {"Q1": 1, "Q2": 0}
+
+
+def test_parse_survey_response_recovers_truncated_json_object_without_expected_keys():
+    payload = '{"Q2":"Neutral","Q1":"Agree'
+    result = survey.parse_survey_response_str(payload)
+    assert result == {"Q1": 1, "Q2": 0}
+
+
+def test_parse_survey_response_rejects_truncated_json_with_missing_answer():
+    payload = '{"Q1":"Agree","Q2'
+    with pytest.raises(ValueError, match="missing answers for: Q2"):
+        survey.parse_survey_response_str(
+            payload,
+            {
+                "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+                "Q2": survey.SURVEY_GROUP_DELIBERATIVE,
+            },
+        )
+
+
+def test_parse_survey_response_recovers_numbered_markdown_answers():
+    payload = """# Likert Scale Responses
+
+**Q1. I agree with the other participant's overall position.**
+Disagree - my assessment differs.
+
+Q2. **Strongly agree** - their points deserve weight.
+Q3. Neutral
+
+---
+Summary reflection that should be ignored.
+"""
+    result = survey.parse_survey_response_str(
+        payload,
+        {
+            "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+            "Q2": survey.SURVEY_GROUP_EVALUATIVE,
+            "Q3": survey.SURVEY_GROUP_INCENTIVE,
+        },
+    )
+    assert result == {"Q1": -1, "Q2": 2, "Q3": 0}
+
+
+def test_parse_survey_response_recovers_numbered_answers_after_bad_brace():
+    payload = "{not json}\nQ2. Agree\nQ1. Strongly disagree"
+    result = survey.parse_survey_response_str(payload)
+    assert result == {"Q1": -2, "Q2": 1}
+
+
 def test_parse_survey_response_supports_named_groups():
     payload = '{"Q1": "Agree", "Q2": "Neutral", "Q3": "Disagree"}'
     result = survey.parse_survey_response_str(
@@ -47,13 +112,34 @@ def test_parse_survey_response_supports_named_groups():
 
 
 def test_parse_survey_invalid_json():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="No numbered Likert answers"):
         survey.parse_survey_response_str("not json")
 
 
 def test_parse_survey_invalid_answer():
-    with pytest.raises(KeyError):
+    with pytest.raises(ValueError, match="Unknown survey answer"):
         survey.parse_survey_response_str('{"Q1": "maybe"}')
+
+
+def test_parse_survey_rejects_json_non_object():
+    with pytest.raises(ValueError, match="must be an object"):
+        survey.parse_survey_response_str("1.0")
+
+
+def test_parse_survey_rejects_json_non_string_answer():
+    with pytest.raises(ValueError, match="must be strings"):
+        survey.parse_survey_response_str('{"Q1": 1}')
+
+
+def test_parse_survey_rejects_numbered_response_with_missing_expected_answer():
+    with pytest.raises(ValueError, match="missing answers for: Q2"):
+        survey.parse_survey_response_str(
+            "Q1. Agree",
+            {
+                "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+                "Q2": survey.SURVEY_GROUP_DELIBERATIVE,
+            },
+        )
 
 
 def test_parse_survey_rejects_unknown_group_mapping():

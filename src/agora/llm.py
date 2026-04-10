@@ -128,9 +128,17 @@ class OpenRouterClient:
         if not choices:
             raise RuntimeError("OpenRouter response did not include any choices")
         message = choices[0].get("message")
-        if not message:
+        if not isinstance(message, dict):
             raise RuntimeError("OpenRouter response missing 'message'")
-        content = message.get("content", "").strip()
+        content = message.get("content")
+        if survey_questions is not None:
+            content = _survey_content_from_message(message, content)
+        if not isinstance(content, str):
+            raise RuntimeError(
+                "OpenRouter response message content was not text: "
+                f"{json.dumps(message)}"
+            )
+        content = content.strip()
         if not content:
             raise RuntimeError("OpenRouter returned empty content")
         return content
@@ -149,6 +157,24 @@ class OpenRouterClient:
         """Close the underlying HTTP client."""
 
         self._client.close()
+
+
+def _survey_content_from_message(message: dict[str, Any], content: Any) -> Any:
+    if isinstance(content, str) and content.strip():
+        return content
+
+    reasoning = message.get("reasoning")
+    if isinstance(reasoning, str) and reasoning.strip():
+        return reasoning
+
+    reasoning_details = message.get("reasoning_details") or []
+    for detail in reasoning_details:
+        text = detail.get("text") if isinstance(detail, dict) else None
+        if isinstance(text, str) and text.strip():
+            return text
+
+    return content
+
 
 __all__ = [
     "ChatMessage",

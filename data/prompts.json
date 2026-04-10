@@ -9,8 +9,8 @@
     "private_instruction": "Privately state your true position.\n\n{decision_format}\n\nThese notes are confidential and risk-free and may contradict your public statements.\n\nKeep the entire response to 1-2 sentences.",
     "pre_interview_instruction": "In one sentence, what do you plan to focus on?",
     "post_interview_instruction": "In one sentence, summarize how it went.",
-    "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\n",
-    "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\n",
+    "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\nReturn only a JSON object whose keys are Q1, Q2, Q3, and so on, and whose values are exact scale labels. Do not include Markdown, explanations, or text outside the JSON object.\n\n",
+    "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\nReturn only a JSON object whose keys are Q1, Q2, Q3, and so on, and whose values are exact scale labels. Do not include Markdown, explanations, or text outside the JSON object.\n\n",
     "survey_questions": {
       "deliberative": [
         "I agree with the other participant’s overall position on this decision.",
