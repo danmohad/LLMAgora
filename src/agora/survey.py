@@ -161,11 +161,15 @@ def parse_survey_response_str(
     """
     Parse and validate a survey response provided as a JSON string.
     """
+    expected_keys = _expected_question_keys(question_groups)
 
     try:
-        survey_answers = _load_json_survey_answers(response_str)
+        survey_answers = _require_expected_survey_answers(
+            _load_json_survey_answers(response_str),
+            expected_keys=expected_keys,
+            response_kind="Survey response JSON",
+        )
     except json.JSONDecodeError:
-        expected_keys = _expected_question_keys(question_groups)
         try:
             survey_answers = _parse_json_like_survey_object(
                 response_str,
@@ -260,13 +264,11 @@ def _parse_numbered_likert_response(
             pending_key = None
 
     if expected_keys:
-        missing = [key for key in expected_keys if key not in answers]
-        if missing:
-            raise ValueError(
-                "Numbered survey response missing answers for: "
-                + ", ".join(missing)
-            )
-        return {key: answers[key] for key in expected_keys}
+        return _require_expected_survey_answers(
+            answers,
+            expected_keys=expected_keys,
+            response_kind="Numbered survey response",
+        )
 
     if not answers:
         raise ValueError("No numbered Likert answers found in survey response")
@@ -286,13 +288,11 @@ def _parse_json_like_survey_object(
         raise ValueError("No JSON-like question answers found in survey response")
 
     if expected_keys:
-        missing = [key for key in expected_keys if key not in pairs]
-        if missing:
-            raise ValueError(
-                "JSON-like survey response missing answers for: "
-                + ", ".join(missing)
-            )
-        return {key: pairs[key] for key in expected_keys}
+        return _require_expected_survey_answers(
+            pairs,
+            expected_keys=expected_keys,
+            response_kind="JSON-like survey response",
+        )
 
     return dict(sorted(pairs.items(), key=lambda item: _question_sort_key(item[0])))
 
@@ -301,6 +301,20 @@ def _expected_question_keys(question_groups: dict[str, str] | None) -> list[str]
     if not question_groups:
         return []
     return [key for key, _group in _sorted_question_groups(question_groups)]
+
+
+def _require_expected_survey_answers(
+    survey_answers: dict[str, Any],
+    *,
+    expected_keys: list[str],
+    response_kind: str,
+) -> dict[str, Any]:
+    if not expected_keys:
+        return survey_answers
+    missing = [key for key in expected_keys if key not in survey_answers]
+    if missing:
+        raise ValueError(f"{response_kind} missing answers for: " + ", ".join(missing))
+    return {key: survey_answers[key] for key in expected_keys}
 
 
 def _extract_likert_answer(candidate: str) -> str | None:

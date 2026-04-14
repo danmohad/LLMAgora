@@ -111,6 +111,28 @@ def test_parse_survey_response_supports_named_groups():
     assert result == {"Q1": 1, "Q2": 0, "Q3": -1}
 
 
+def test_parse_survey_response_rejects_json_with_missing_expected_answer():
+    with pytest.raises(ValueError, match="missing answers for: Q2"):
+        survey.parse_survey_response_str(
+            '{"Q1": "Agree"}',
+            {
+                "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+                "Q2": survey.SURVEY_GROUP_DELIBERATIVE,
+            },
+        )
+
+
+def test_parse_survey_response_rejects_embedded_json_with_missing_expected_answer():
+    with pytest.raises(ValueError, match="missing answers for: Q2"):
+        survey.parse_survey_response_str(
+            '```json\n{"Q1": "Agree"}\n```',
+            {
+                "Q1": survey.SURVEY_GROUP_DELIBERATIVE,
+                "Q2": survey.SURVEY_GROUP_DELIBERATIVE,
+            },
+        )
+
+
 def test_parse_survey_invalid_json():
     with pytest.raises(ValueError, match="No numbered Likert answers"):
         survey.parse_survey_response_str("not json")
