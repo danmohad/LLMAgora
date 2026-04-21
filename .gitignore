@@ -6,6 +6,8 @@ __pycache__/
 *.egg-info/
 .ipynb_checkpoints/
 snapshots/
-outputs/
+outputs/*
+!outputs/saved_plots/
+!outputs/saved_plots/**
 .coverage
 .DS_Store
