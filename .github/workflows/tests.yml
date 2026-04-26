@@ -91,25 +91,3 @@ jobs:
                 body,
               });
             }
-
-      - name: Request Codex review
-        if: github.event_name == 'pull_request' && (github.event.action == 'ready_for_review' || ((github.event.action == 'opened' || github.event.action == 'reopened') && !github.event.pull_request.draft))
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const body = '@codex';
-            const { owner, repo } = context.repo;
-            const issue_number = context.payload.pull_request.number;
-            const comments = await github.rest.issues.listComments({ owner, repo, issue_number });
-            const existing = comments.data.find(
-              (comment) => comment.user?.type === 'Bot' && comment.body === body
-            );
-
-            if (!existing) {
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body,
-              });
-            }
