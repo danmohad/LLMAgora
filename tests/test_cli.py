@@ -70,13 +70,23 @@ def test_build_parser_registers_run_subcommand():
     )
     assert args_sweep_generate.func is cli._sweep_generate
     args_sweep_run = parser.parse_args(
-        ["sweep", "run", "--root", "outputs/sweeps/example", "--mode", "failed"]
+        [
+            "sweep",
+            "run",
+            "--root",
+            "outputs/sweeps/example",
+            "--mode",
+            "failed",
+            "--persistent",
+        ]
     )
     assert args_sweep_run.func is cli._sweep_run
     assert args_sweep_run.mode == "failed"
+    assert args_sweep_run.persistent is True
     args_sweep_run_default = parser.parse_args(["sweep", "run"])
     assert args_sweep_run_default.func is cli._sweep_run
     assert args_sweep_run_default.root is None
+    assert args_sweep_run_default.persistent is False
     args_emit_progress = parser.parse_args(
         ["run", "--scenario-id", "s1", "--emit-progress-markers"]
     )
@@ -385,7 +395,7 @@ def test_sweep_generate_dispatches(monkeypatch, tmp_path):
 def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
     captured = {}
 
-    def fake_run(root, *, max_parallel_jobs, mode, case_ids, stop_on_error):
+    def fake_run(root, *, max_parallel_jobs, mode, case_ids, stop_on_error, persistent):
         captured.update(
             {
                 "root": root,
@@ -393,6 +403,7 @@ def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
                 "mode": mode,
                 "case_ids": case_ids,
                 "stop_on_error": stop_on_error,
+                "persistent": persistent,
             }
         )
         return 2
@@ -407,6 +418,7 @@ def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
                 mode="resume",
                 cases=["abc123def456"],
                 stop_on_error=True,
+                persistent=True,
             )
         )
 
@@ -416,6 +428,7 @@ def test_sweep_run_dispatches_and_exits(monkeypatch, tmp_path):
     assert captured["mode"] == "resume"
     assert captured["case_ids"] == ["abc123def456"]
     assert captured["stop_on_error"] is True
+    assert captured["persistent"] is True
 
 
 def test_sweep_run_infers_root_from_single_jsonc(monkeypatch, tmp_path):
@@ -439,7 +452,7 @@ def test_sweep_run_infers_root_from_single_jsonc(monkeypatch, tmp_path):
     generated_copy.parent.mkdir(parents=True, exist_ok=True)
     generated_copy.write_text("{}", encoding="utf-8")
 
-    def fake_run(root, *, max_parallel_jobs, mode, case_ids, stop_on_error):
+    def fake_run(root, *, max_parallel_jobs, mode, case_ids, stop_on_error, persistent):
         captured.update(
             {
                 "root": root,
@@ -447,6 +460,7 @@ def test_sweep_run_infers_root_from_single_jsonc(monkeypatch, tmp_path):
                 "mode": mode,
                 "case_ids": case_ids,
                 "stop_on_error": stop_on_error,
+                "persistent": persistent,
             }
         )
         return 0
@@ -461,6 +475,7 @@ def test_sweep_run_infers_root_from_single_jsonc(monkeypatch, tmp_path):
             mode="failed",
             cases=["abc123def456"],
             stop_on_error=False,
+            persistent=True,
         )
     )
 
@@ -469,6 +484,7 @@ def test_sweep_run_infers_root_from_single_jsonc(monkeypatch, tmp_path):
     assert captured["mode"] == "failed"
     assert captured["case_ids"] == ["abc123def456"]
     assert captured["stop_on_error"] is False
+    assert captured["persistent"] is True
 
 
 def test_sweep_run_requires_root_when_no_jsonc_exists(monkeypatch, tmp_path):
@@ -482,6 +498,7 @@ def test_sweep_run_requires_root_when_no_jsonc_exists(monkeypatch, tmp_path):
                 mode="resume",
                 cases=None,
                 stop_on_error=None,
+                persistent=False,
             )
         )
 
@@ -505,5 +522,6 @@ def test_sweep_run_requires_root_when_multiple_jsonc_exist(monkeypatch, tmp_path
                 mode="resume",
                 cases=None,
                 stop_on_error=None,
+                persistent=False,
             )
         )

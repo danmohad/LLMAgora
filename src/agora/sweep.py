@@ -552,6 +552,7 @@ def _initial_status(manifest: Mapping[str, Any]) -> dict[str, Any]:
             "mode": None,
             "worker_count": None,
             "stop_on_error": None,
+            "persistent": None,
             "selected_case_ids": [],
             "active_case_ids": [],
         },
@@ -959,6 +960,7 @@ class _StatusStore:
         worker_count: int,
         stop_on_error: bool,
         selected_case_ids: Sequence[str],
+        persistent: bool = False,
     ) -> None:
         with self._lock:
             if self.data["run_session"]["is_active"]:
@@ -970,6 +972,7 @@ class _StatusStore:
                 "mode": mode,
                 "worker_count": worker_count,
                 "stop_on_error": stop_on_error,
+                "persistent": persistent,
                 "selected_case_ids": list(selected_case_ids),
                 "active_case_ids": [],
             }
@@ -1166,6 +1169,7 @@ def _build_summary(
     mode: str,
     worker_count: int,
     selected_case_ids: Sequence[str],
+    persistent: bool,
     started_at: str,
     finished_at: str,
 ) -> dict[str, Any]:
@@ -1197,6 +1201,7 @@ def _build_summary(
             "finished_at": finished_at,
             "mode": mode,
             "worker_count": worker_count,
+            "persistent": persistent,
             "selected_case_ids": list(selected_case_ids),
             "selected_case_count": len(selected_case_ids),
             "success": success,
@@ -1217,12 +1222,15 @@ def run_sweep(
     mode: str = "resume",
     case_ids: Sequence[str] | None = None,
     stop_on_error: bool | None = None,
+    persistent: bool = False,
     stream: IO[str] | None = None,
     dashboard_refresh_interval: float = 0.25,
     terminal_size_getter: Any = shutil.get_terminal_size,
 ) -> int:
     if mode not in RUN_SELECTION_MODES:
         raise ValueError(f"mode must be one of: {list(RUN_SELECTION_MODES)}")
+    if persistent and stop_on_error is True:
+        raise ValueError("persistent cannot be combined with --stop-on-error")
 
     root_path = Path(root)
     stream = sys.stdout if stream is None else stream
@@ -1250,6 +1258,7 @@ def run_sweep(
             mode=mode,
             worker_count=worker_count,
             selected_case_ids=[],
+            persistent=persistent,
             started_at=_now_utc_iso(),
             finished_at=_now_utc_iso(),
         )
@@ -1265,7 +1274,9 @@ def run_sweep(
         _write_line(stream, "No matching cases to run.")
         return 0
 
-    if stop_on_error is None:
+    if persistent:
+        effective_stop_on_error = False
+    elif stop_on_error is None:
         effective_stop_on_error = bool(manifest["runner_defaults"]["stop_on_error"])
     else:
         effective_stop_on_error = stop_on_error
@@ -1275,6 +1286,7 @@ def run_sweep(
         mode=mode,
         worker_count=worker_count,
         stop_on_error=effective_stop_on_error,
+        persistent=persistent,
         selected_case_ids=selected_case_ids,
     )
 
@@ -1287,31 +1299,34 @@ def run_sweep(
     failed_this_run = False
     interrupted = False
 
-    iterator = iter(selected_case_ids)
+    pending_case_ids = deque(selected_case_ids)
     futures: dict[Any, str] = {}
     executor = ThreadPoolExecutor(max_workers=worker_count)
 
+    def submit_next_case() -> bool:
+        if not pending_case_ids:
+            return False
+        case_id = pending_case_ids.popleft()
+        scheduled_case_ids.append(case_id)
+        store.mark_case_queued(case_id)
+        futures[
+            executor.submit(
+                _run_case_subprocess,
+                root_path,
+                case_lookup[case_id],
+                store=store,
+                process_lock=process_lock,
+                active_processes=active_processes,
+                interrupted_case_ids=interrupted_case_ids,
+            )
+        ] = case_id
+        if not live_dashboard:
+            _write_line(stream, f"Started {case_id}")
+        return True
+
     try:
-        while len(futures) < worker_count:
-            try:
-                case_id = next(iterator)
-            except StopIteration:
-                break
-            scheduled_case_ids.append(case_id)
-            store.mark_case_queued(case_id)
-            futures[
-                executor.submit(
-                    _run_case_subprocess,
-                    root_path,
-                    case_lookup[case_id],
-                    store=store,
-                    process_lock=process_lock,
-                    active_processes=active_processes,
-                    interrupted_case_ids=interrupted_case_ids,
-                )
-            ] = case_id
-            if not live_dashboard:
-                _write_line(stream, f"Started {case_id}")
+        while len(futures) < worker_count and submit_next_case():
+            pass
 
         if live_dashboard:
             _render_live_dashboard(
@@ -1342,6 +1357,8 @@ def run_sweep(
                 final_status = result["status"]
                 if final_status in {"failed", "interrupted"}:
                     failed_this_run = True
+                if persistent and final_status == "failed":
+                    pending_case_ids.append(case_id)
                 if not live_dashboard:
                     _write_line(stream, f"{final_status.capitalize()}: {case_id}")
 
@@ -1349,25 +1366,8 @@ def run_sweep(
                 continue
 
             for _ in range(completed_slots):
-                try:
-                    next_case_id = next(iterator)
-                except StopIteration:
+                if not submit_next_case():
                     break
-                scheduled_case_ids.append(next_case_id)
-                store.mark_case_queued(next_case_id)
-                futures[
-                    executor.submit(
-                        _run_case_subprocess,
-                        root_path,
-                        case_lookup[next_case_id],
-                        store=store,
-                        process_lock=process_lock,
-                        active_processes=active_processes,
-                        interrupted_case_ids=interrupted_case_ids,
-                    )
-                ] = next_case_id
-                if not live_dashboard:
-                    _write_line(stream, f"Started {next_case_id}")
     except KeyboardInterrupt:
         interrupted = True
         for future, case_id in list(futures.items()):
@@ -1408,6 +1408,7 @@ def run_sweep(
         mode=mode,
         worker_count=worker_count,
         selected_case_ids=selected_case_ids,
+        persistent=persistent,
         started_at=started_at,
         finished_at=finished_at,
     )

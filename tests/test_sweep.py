@@ -1275,6 +1275,71 @@ def test_run_sweep_respects_explicit_no_stop_on_error_override(tmp_path, monkeyp
     assert status["run_session"]["stop_on_error"] is False
 
 
+def test_run_sweep_persistent_requeues_failed_mode_until_success(tmp_path, monkeypatch):
+    master_path = tmp_path / "master.jsonc"
+    payload = _master_payload(
+        tmp_path,
+        stop_on_error=True,
+        sweep={
+            "incentive_direction": [None, "positive"],
+        },
+    )
+    _write_master(master_path, payload)
+    manifest = sweep.generate_sweep(master_path)
+    root = Path(manifest["sweep_root"])
+    case_ids = [case["case_id"] for case in manifest["cases"]]
+
+    status = json.loads((root / "status.json").read_text(encoding="utf-8"))
+    status["cases"][case_ids[0]]["last_status"] = "succeeded"
+    status["cases"][case_ids[0]]["attempt_count"] = 1
+    status["cases"][case_ids[1]]["last_status"] = "failed"
+    status["cases"][case_ids[1]]["attempt_count"] = 1
+    status["cases"][case_ids[1]]["last_return_code"] = 1
+    status["aggregate_counts"] = sweep._counts_for_cases(status["cases"])
+    (root / "status.json").write_text(json.dumps(status), encoding="utf-8")
+
+    launched = []
+    outcomes = {case_ids[1]: [1, 0]}
+
+    class ImmediatePopen:
+        def __init__(self, cmd, stdout, stderr, **kwargs):
+            self.case_id = Path(cmd[-1]).parent.name
+            launched.append(self.case_id)
+            self.returncode = outcomes[self.case_id].pop(0)
+            stdout.write(f"log for {self.case_id}\n")
+
+        def wait(self, timeout=None):
+            return self.returncode
+
+        def poll(self):
+            return self.returncode
+
+        def terminate(self):
+            self.returncode = -15
+
+        def kill(self):
+            self.returncode = -9
+
+    monkeypatch.setattr(sweep.subprocess, "Popen", ImmediatePopen)
+
+    exit_code = sweep.run_sweep(root, mode="failed", persistent=True)
+
+    assert exit_code == 0
+    assert launched == [case_ids[1], case_ids[1]]
+
+    final_status = json.loads((root / "status.json").read_text(encoding="utf-8"))
+    assert final_status["cases"][case_ids[0]]["last_status"] == "succeeded"
+    assert final_status["cases"][case_ids[1]]["last_status"] == "succeeded"
+    assert final_status["cases"][case_ids[1]]["attempt_count"] == 3
+    assert final_status["run_session"]["stop_on_error"] is False
+    assert final_status["run_session"]["persistent"] is True
+
+    summary = json.loads((root / "summary.json").read_text(encoding="utf-8"))
+    assert summary["run"]["success"] is True
+    assert summary["run"]["persistent"] is True
+    assert summary["run"]["selected_case_ids"] == [case_ids[1]]
+
+
 def test_run_sweep_modes_noop_and_invalid_mode(tmp_path, monkeypatch):
     master_path = tmp_path / "master.jsonc"
     payload = _master_payload(tmp_path)
@@ -1343,6 +1408,8 @@ def test_run_sweep_modes_noop_and_invalid_mode(tmp_path, monkeypatch):
         sweep.run_sweep(root, mode="bad")
     with pytest.raises(ValueError):
         sweep.run_sweep(root, max_parallel_jobs=0)
+    with pytest.raises(ValueError, match="persistent"):
+        sweep.run_sweep(root, stop_on_error=True, persistent=True)
 
 
 def test_run_sweep_handles_keyboard_interrupt(tmp_path, monkeypatch):

@@ -119,6 +119,9 @@ agora sweep run
 
 # Re-run failed or interrupted cases only
 agora sweep run --root outputs/sweeps/example --mode failed
+
+# Keep retrying selected failed attempts until every selected case succeeds
+agora sweep run --root outputs/sweeps/example --mode failed --persistent
 ```
 
 When `--root` is omitted, `agora sweep run` infers it from the only non-generated

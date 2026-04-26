@@ -132,6 +132,7 @@ def _sweep_run(args: argparse.Namespace) -> None:
         mode=args.mode,
         case_ids=args.cases,
         stop_on_error=args.stop_on_error,
+        persistent=args.persistent,
     )
     if exit_code:
         raise SystemExit(exit_code)
@@ -302,6 +303,16 @@ def build_parser() -> argparse.ArgumentParser:
         sweep_run_cmd,
         "stop-on-error",
         "Stop scheduling new cases after the first failure.",
+    )
+    sweep_run_cmd.add_argument(
+        "--persistent",
+        action="store_true",
+        default=False,
+        help=(
+            "Retry failed cases until every selected case succeeds. "
+            "This overrides manifest stop-on-error defaults and cannot be combined "
+            "with --stop-on-error."
+        ),
     )
     sweep_run_cmd.set_defaults(func=_sweep_run)
 
