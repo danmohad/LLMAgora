@@ -9,12 +9,77 @@ from agora.sweep_results import SweepCase
 
 class _FakeGroupResult:
     def __init__(self):
+        structured_history = {
+            "turns": [
+                {
+                    "turn_num": 1,
+                    "Alpha": {
+                        "public_utterance": "PROMOTE now",
+                        "private_utterance": "PROMOTE privately",
+                        "public_survey": {"Q1": 1.0},
+                        "private_survey": {"Q2": 0.5},
+                    },
+                    "Beta": {
+                        "public_utterance": "DO NOT PROMOTE now",
+                        "private_utterance": "DO NOT PROMOTE privately",
+                        "public_survey": {"Q1": 3.0},
+                        "private_survey": {"Q2": 0.6},
+                    },
+                },
+                {
+                    "turn_num": 2,
+                    "Alpha": {
+                        "public_utterance": "DO NOT PROMOTE later",
+                        "private_utterance": "PROMOTE still",
+                        "public_survey": {"Q1": 2.0},
+                    },
+                    "Beta": {
+                        "public_utterance": "PROMOTE later",
+                        "private_utterance": "DO NOT PROMOTE still",
+                        "public_survey": {"Q1": 4.0},
+                    },
+                },
+            ]
+        }
         self.results = [
             SimpleNamespace(
                 agents=[
                     SimpleNamespace(id="agent_alpha", name="Alpha Name"),
                     SimpleNamespace(id="agent_beta", name="Beta Name"),
-                ]
+                ],
+                eval_data={
+                    "semantic_similarity": {
+                        "self_consistency": {
+                            "agent_alpha": {"turns": [1, 2], "scores": [0.11, 0.22]},
+                            "agent_beta": {"turns": [1, 2], "scores": [0.33, 0.44]},
+                        },
+                        "cross_agent_public_alignment": {"turns": [1, 2], "scores": [0.55, 0.66]},
+                        "cross_agent_private_alignment": {"turns": [1, 2], "scores": [0.77, 0.88]},
+                    },
+                    "persona_adherence": {
+                        "alpha": {
+                            "public_per_turn_scores": {"turns": [1, 2], "scores": {"mean": [1.1, 2.1]}},
+                            "private_per_turn_scores": {"turns": [1, 2], "scores": {"mean": [1.6, 2.6]}},
+                            "public_cumulative_scores": {"turns": [1, 2], "scores": {"mean": [2.1, 3.1]}},
+                            "private_cumulative_scores": {"turns": [1, 2], "scores": {"mean": [2.6, 3.6]}},
+                            "full_debate_public_score": {"mean": 4.1},
+                            "full_debate_private_score": {"mean": 4.6},
+                        },
+                        "beta": {
+                            "public_per_turn_scores": {"turns": [1, 2], "scores": {"mean": [2.1, 3.1]}},
+                            "private_per_turn_scores": {"turns": [1, 2], "scores": {"mean": [2.6, 3.6]}},
+                            "public_cumulative_scores": {"turns": [1, 2], "scores": {"mean": [3.1, 4.1]}},
+                            "private_cumulative_scores": {"turns": [1, 2], "scores": {"mean": [3.6, 4.6]}},
+                            "full_debate_public_score": {"mean": 5.1},
+                            "full_debate_private_score": {"mean": 5.6},
+                        },
+                    },
+                },
+                agora=SimpleNamespace(structured_history=lambda: structured_history),
+                survey_question_specs=[
+                    {"text": "How confident are you?", "group": "deliberative"},
+                    {"text": "How positive do you feel?", "group": "incentive"},
+                ],
             )
         ]
         self.survey_question_specs = [
@@ -156,7 +221,75 @@ class _FakeGroup:
         return _FakeGroupResult()
 
 
-def test_build_experiment_analysis_record_serializes_requested_sections():
+def test_build_experiment_analysis_record_serializes_requested_sections(monkeypatch):
+    fake_nli = {
+        "self_consistency": {
+            "agent_alpha": {
+                "turns": [1, 2],
+                "label_names": ["contradiction", "neutral", "entailment"],
+                "distributions": {
+                    "contradiction": {"mean": [0.1, 0.2], "se": [0.01, 0.02]},
+                    "neutral": {"mean": [0.3, 0.4], "se": [0.03, 0.04]},
+                    "entailment": {"mean": [0.6, 0.4], "se": [0.06, 0.04]},
+                },
+            },
+            "agent_beta": {
+                "turns": [1, 2],
+                "label_names": ["contradiction", "neutral", "entailment"],
+                "distributions": {
+                    "contradiction": {"mean": [0.1, 0.2], "se": [0.01, 0.02]},
+                    "neutral": {"mean": [0.3, 0.4], "se": [0.03, 0.04]},
+                    "entailment": {"mean": [0.6, 0.4], "se": [0.06, 0.04]},
+                },
+            },
+        },
+        "cross_agent_public": {
+            "turns": [1, 2],
+            "label_names": ["contradiction", "neutral", "entailment"],
+            "distributions": {
+                "contradiction": {"mean": [0.1, 0.2], "se": [0.01, 0.02]},
+                "neutral": {"mean": [0.3, 0.4], "se": [0.03, 0.04]},
+                "entailment": {"mean": [0.6, 0.4], "se": [0.06, 0.04]},
+            },
+        },
+        "cross_agent_private": {
+            "turns": [1, 2],
+            "label_names": ["contradiction", "neutral", "entailment"],
+            "distributions": {
+                "contradiction": {"mean": [0.1, 0.2], "se": [0.01, 0.02]},
+                "neutral": {"mean": [0.3, 0.4], "se": [0.03, 0.04]},
+                "entailment": {"mean": [0.6, 0.4], "se": [0.06, 0.04]},
+            },
+        },
+    }
+    fake_emotions = {
+        "agent_alpha": {
+            "turns": [1, 2],
+            "emotions": {
+                "joy": {"mean": [0.7, 0.6], "se": [0.07, 0.06]},
+                "sadness": {"mean": [0.3, 0.4], "se": [0.03, 0.04]},
+            },
+        },
+        "agent_beta": {
+            "turns": [1, 2],
+            "emotions": {
+                "joy": {"mean": [0.2, 0.1], "se": [0.02, 0.01]},
+                "sadness": {"mean": [0.8, 0.9], "se": [0.08, 0.09]},
+            },
+        },
+    }
+
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_nli_analysis",
+        lambda self, model_name=None, device=None: fake_nli,
+    )
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_emotion_analysis",
+        lambda self, field, model_name=None, device=None: fake_emotions,
+    )
+
     row = eval_aggregate.build_experiment_analysis_record(
         _FakeGroup(),
         "/tmp/outputs/sweeps_5",
@@ -174,13 +307,22 @@ def test_build_experiment_analysis_record_serializes_requested_sections():
     assert row["model"] == "m1"
     assert row["cosine-similarity-self-consistency"]["alpha"]["cosine_similarity"] == [0.1, 0.2]
     assert row["cosine-similarity-cross-agent-alignment"]["private alignment"]["standard_error"] == [0.07, 0.08]
+    assert row["cosine-similarity-self-consistency-all-repeats"]["repeats"][0]["alpha"]["cosine_similarity"] == [0.11, 0.22]
+    assert row["cosine-similarity-cross-agent-alignment-all-repeats"]["repeats"][0]["private alignment"]["cosine_similarity"] == [0.77, 0.88]
     assert row["persona-individual-turn-scores"]["beta"]["private"]["persona_score"] == [2.5, 3.5]
     assert row["persona-full-debate-scores"]["alpha"]["public"] == {"score": 4.0, "standard_error": 0.4}
+    assert row["persona-individual-turn-scores-all-repeats"]["repeats"][0]["alpha"]["public"]["persona_score"] == [1.1, 2.1]
+    assert row["persona-full-debate-scores-all-repeats"]["repeats"][0]["beta"]["private"] == {"score": 5.6}
     assert row["nli-self-consistency"]["alpha"]["nli_tuple_ordering"] == ("entailment", "neutral", "contradiction")
     assert row["nli-cross-agent-alignment"]["public utterances"]["nli_probabilities"][0] == (0.6, 0.3, 0.1)
+    assert row["nli-self-consistency-all-repeats"]["repeats"][0]["alpha"]["nli_probabilities"][0] == (0.6, 0.3, 0.1)
+    assert row["nli-cross-agent-alignment-all-repeats"]["repeats"][0]["private reflections"]["nli_probabilities"][1] == (0.4, 0.4, 0.2)
     assert row["emotion-public-utterances"]["alpha"]["emotion_tuple_ordering"] == ("joy", "sadness")
+    assert row["emotion-public-utterances-all-repeats"]["repeats"][0]["alpha"]["emotion_probabilities"][0] == (0.7, 0.3)
     assert row["survey-public"]["Q1"]["question"] == "How confident are you?"
     assert row["survey-private"]["Q2"]["alpha"]["response_score"] == [0.5]
+    assert row["survey-public-all-repeats"]["repeats"][0]["Q1"]["alpha"]["response_score"] == [1.0, 2.0]
+    assert row["survey-private-all-repeats"]["repeats"][0]["Q2"]["beta"]["response_score"] == [0.6]
     assert row["decision-self-consistency"]["decision"] == "PROMOTE"
     assert row["decision-self-consistency"]["alpha"]["prob_decision"][0] == (1.0, 0.5)
     assert row["decision-cross-agent-alignment"]["public"]["prob_decision_standard_error"][1] == (0.1, 0.0)
@@ -366,3 +508,68 @@ def test_internal_helpers_cover_fallback_and_sparse_paths():
         value_key="prob_decision",
     )
     assert paired["prob_decision"] == [(0.2, None), (None, 0.8)]
+
+
+def test_all_repeat_helpers_cover_unknown_agents_and_case_id_metadata(monkeypatch):
+    semantic_group_result = SimpleNamespace(
+        results=[
+            SimpleNamespace(
+                eval_data={
+                    "semantic_similarity": {
+                        "self_consistency": {
+                            "unknown-agent": {"turns": [1], "scores": [0.9]},
+                        }
+                    }
+                }
+            )
+        ],
+        analyzed_cases=[SimpleNamespace(case_id="case-1")],
+    )
+    semantic_self, _ = eval_aggregate._serialize_semantic_all_repeats(semantic_group_result)
+    assert semantic_self["repeats"][0]["case_id"] == "case-1"
+    assert semantic_self["repeats"][0]["alpha"] == {}
+    assert semantic_self["repeats"][0]["beta"] == {}
+
+    fake_nli = {
+        "self_consistency": {
+            "agent_alpha": {
+                "turns": [1],
+                "label_names": ["neutral"],
+                "distributions": {"neutral": {"mean": [1.0], "se": [0.0]}},
+            }
+        }
+    }
+    fake_emotions = {
+        "agent_alpha": {
+            "turns": [1],
+            "emotions": {"calm": {"mean": [1.0], "se": [0.0]}},
+        }
+    }
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_nli_analysis",
+        lambda self, model_name=None, device=None: fake_nli,
+    )
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_emotion_analysis",
+        lambda self, field, model_name=None, device=None: fake_emotions,
+    )
+
+    repeat_group_result = SimpleNamespace(
+        group=None,
+        results=[SimpleNamespace()],
+        analyzed_cases=[SimpleNamespace(case_id="case-2")],
+    )
+    nli_self, _ = eval_aggregate._serialize_nli_all_repeats(
+        repeat_group_result,
+        model_name="ignored",
+        device="cpu",
+    )
+    emotions_public, _ = eval_aggregate._serialize_emotions_all_repeats(
+        repeat_group_result,
+        model_name="ignored",
+        device="cpu",
+    )
+    assert nli_self["repeats"][0]["case_id"] == "case-2"
+    assert emotions_public["repeats"][0]["case_id"] == "case-2"
