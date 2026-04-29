@@ -43,6 +43,11 @@ Canonical notebooks:
 - `notebooks/offline_analysis_demo.ipynb` for post-processing from an existing `debate_snapshot.json` (offline analysis mode).
   It loads baseline settings from the source run's `config.json`, so you only choose post-processing overrides.
   It writes post-processing artifacts back into that same source run directory.
+- `notebooks/eval_aggreagate.ipynb` builds a stance-dropped aggregate dataframe over a tracked sweep.
+  Set `SWEEP_NUMBER` near the top of cell 1 to pick a sweep under `Sweep_results/`; the notebook auto-detects the local
+  accelerator (mps/cuda/cpu), strips the leading scenario decision label from each utterance/reflection before semantic
+  similarity / NLI / emotion analysis, and writes `aggregate_df_stance_drop_sweep_<N>.pkl` back into the same sweep folder.
+  Persona adherence and any other LLM-API-call analyses are disabled in this notebook, so no `OPENROUTER_API_KEY` is required to run it.
 
 Both are intentionally thin and call the high-level workflow in `agora.experiment`.
 
