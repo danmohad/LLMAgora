@@ -1,0 +1,96 @@
+{
+  // Root directory that will hold manifest/status plus one leaf folder per case.
+  "sweep_root": "sweep_6",
+
+  // Batch runner defaults.
+  "max_parallel_jobs": 8,
+  "stop_on_error": false,
+  // Total runs to generate for each Cartesian case.
+  // 1 means one run per combination; 3 means three separate case folders per combination.
+  "number_of_repeats": 5,
+  "notes": "Production parameter sweep",
+
+  "base": {
+    // Scenario selection. See data/scenarios.json for available IDs.
+    "prompt_set": "default",
+
+    // Debate length and event ordering.
+    "num_turns": 5,
+    "subturn_event_order": [
+      "private_survey",
+      "private_utterance",
+      "public_survey",
+      "public_utterance"
+    ],
+    "verbose": false,
+
+    // Private reflection retention.
+    "keep_private_reflection": false,
+
+    // Pre/post interviews run by default.
+    // These flags only control whether those notes are retained in local memory.
+    "keep_pre_interview": false,
+    "keep_post_interview": false,
+
+    // Surveys.
+    "keep_public_survey": false,
+    "keep_private_survey": false,
+
+    // Semantic similarity analysis.
+    // Options: self_consistency, cross_agent_public_alignment, cross_agent_private_alignment
+    "semantic_analysis_metrics": [],
+    "semantic_similarity_method": null, // cosine | nli
+    "semantic_similarity_model": null, // defaults by method
+    "semantic_similarity_device": null, // null | cpu | mps
+
+    // Persona adherence analysis.
+    // Options: public_per_turn, private_per_turn, public_cumulative,
+    //          private_cumulative, full_debate_public, full_debate_private
+    "persona_analysis_metrics": [],
+    "persona_scoring_model": null,
+    "persona_scoring_verbose": false,
+    "persona_score_samples": null,
+
+    // Plotting.
+    "save_plots": false,
+    "show_plots": false, // requires save_plots=true
+
+    // Snapshot handling.
+    "load_snapshot": false,
+    "load_dir": null, // required when load_snapshot=true
+    "save_snapshot": true,
+
+    // Input files.
+    "catalog_path": "../LLMAgora/data/scenarios.json",
+    "prompts_path": "../LLMAgora/data/prompts.json"
+
+    // Per-case output fields are intentionally omitted here.
+    // The generator injects a fixed output_dir for each case.
+  },
+
+  "sweep": {
+    "model": [
+      "openai/gpt-5.4",
+      "openai/gpt-oss-120b",
+      "anthropic/claude-opus-4.6",
+      "google/gemini-3.1-pro-preview",
+      "google/gemini-3.1-flash-lite-preview",
+      "deepseek/deepseek-v3.2",
+      "qwen/qwen3.5-397b-a17b",
+      "x-ai/grok-4",
+      "z-ai/glm-5",
+      "minimax/minimax-m2.7"
+    ],
+    "incentive_direction": [
+			"positive"
+		],
+    "incentive_type": [
+			"future"
+		],
+    "scenario_id":[
+			"promotion_committee",
+			"ngo_climate_endorsement",
+			"faculty_manuscript_submission"
+		]
+  }
+}

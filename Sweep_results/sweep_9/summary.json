@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "created_at": "2026-04-26T18:16:51.309000+00:00",
+  "run": {
+    "started_at": "2026-04-26T17:20:45.153995+00:00",
+    "finished_at": "2026-04-26T18:16:51.309000+00:00",
+    "mode": "failed",
+    "worker_count": 32,
+    "persistent": true,
+    "selected_case_ids": [
+      "12d5296df8ee",
+      "31ee5c719d29",
+      "d6cd11e5a600",
+      "9025839917e7",
+      "401689945a41"
+    ],
+    "selected_case_count": 5,
+    "success": true,
+    "elapsed_seconds": 3366.155
+  },
+  "total_cases": 300,
+  "counts": {
+    "pending": 0,
+    "queued": 0,
+    "running": 0,
+    "succeeded": 300,
+    "failed": 0,
+    "skipped": 0,
+    "interrupted": 0
+  },
+  "failed_case_ids": [],
+  "skipped_case_ids": [],
+  "interrupted_case_ids": []
+}

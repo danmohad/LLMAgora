@@ -1,0 +1,2264 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-10T02:22:22.800532+00:00",
+  "sweep_root": "/Users/danmohad/Developer/agora-exploration/sweep_7",
+  "runner_defaults": {
+    "max_parallel_jobs": 8,
+    "stop_on_error": false
+  },
+  "number_of_repeats": 5,
+  "notes": "Production parameter sweep",
+  "total_cases": 150,
+  "cases": [
+    {
+      "case_id": "20c595be0448",
+      "case_dir": "cases/20c595be0448",
+      "config_path": "cases/20c595be0448/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ef2278b3c437f9561df447dd7e01f1bae6e22140a7127243238badad63ebf202"
+    },
+    {
+      "case_id": "0ce6fa5268cb",
+      "case_dir": "cases/0ce6fa5268cb",
+      "config_path": "cases/0ce6fa5268cb/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ef2278b3c437f9561df447dd7e01f1bae6e22140a7127243238badad63ebf202"
+    },
+    {
+      "case_id": "5efa2d046a0c",
+      "case_dir": "cases/5efa2d046a0c",
+      "config_path": "cases/5efa2d046a0c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ef2278b3c437f9561df447dd7e01f1bae6e22140a7127243238badad63ebf202"
+    },
+    {
+      "case_id": "976dde73495e",
+      "case_dir": "cases/976dde73495e",
+      "config_path": "cases/976dde73495e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ef2278b3c437f9561df447dd7e01f1bae6e22140a7127243238badad63ebf202"
+    },
+    {
+      "case_id": "31c8496b7090",
+      "case_dir": "cases/31c8496b7090",
+      "config_path": "cases/31c8496b7090/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ef2278b3c437f9561df447dd7e01f1bae6e22140a7127243238badad63ebf202"
+    },
+    {
+      "case_id": "093776bd3818",
+      "case_dir": "cases/093776bd3818",
+      "config_path": "cases/093776bd3818/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "af0a22426152f77320ddb1c6740f7482c98c6b86eeb39758e885231206c5c1f5"
+    },
+    {
+      "case_id": "6593c73ad85d",
+      "case_dir": "cases/6593c73ad85d",
+      "config_path": "cases/6593c73ad85d/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "af0a22426152f77320ddb1c6740f7482c98c6b86eeb39758e885231206c5c1f5"
+    },
+    {
+      "case_id": "f5f4f3d0222b",
+      "case_dir": "cases/f5f4f3d0222b",
+      "config_path": "cases/f5f4f3d0222b/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "af0a22426152f77320ddb1c6740f7482c98c6b86eeb39758e885231206c5c1f5"
+    },
+    {
+      "case_id": "4a7166182f1c",
+      "case_dir": "cases/4a7166182f1c",
+      "config_path": "cases/4a7166182f1c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "af0a22426152f77320ddb1c6740f7482c98c6b86eeb39758e885231206c5c1f5"
+    },
+    {
+      "case_id": "c13cb461af4d",
+      "case_dir": "cases/c13cb461af4d",
+      "config_path": "cases/c13cb461af4d/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "af0a22426152f77320ddb1c6740f7482c98c6b86eeb39758e885231206c5c1f5"
+    },
+    {
+      "case_id": "e7e4d1fb4871",
+      "case_dir": "cases/e7e4d1fb4871",
+      "config_path": "cases/e7e4d1fb4871/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "bc8c985669918ea5c237f29fce120452186a85b0d74f05ccdb6c9b24d38eaf27"
+    },
+    {
+      "case_id": "d4e9c9a7b266",
+      "case_dir": "cases/d4e9c9a7b266",
+      "config_path": "cases/d4e9c9a7b266/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "bc8c985669918ea5c237f29fce120452186a85b0d74f05ccdb6c9b24d38eaf27"
+    },
+    {
+      "case_id": "393d371e399d",
+      "case_dir": "cases/393d371e399d",
+      "config_path": "cases/393d371e399d/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "bc8c985669918ea5c237f29fce120452186a85b0d74f05ccdb6c9b24d38eaf27"
+    },
+    {
+      "case_id": "f2172f0119be",
+      "case_dir": "cases/f2172f0119be",
+      "config_path": "cases/f2172f0119be/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "bc8c985669918ea5c237f29fce120452186a85b0d74f05ccdb6c9b24d38eaf27"
+    },
+    {
+      "case_id": "5839028620f0",
+      "case_dir": "cases/5839028620f0",
+      "config_path": "cases/5839028620f0/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-5.4\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-5.4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "bc8c985669918ea5c237f29fce120452186a85b0d74f05ccdb6c9b24d38eaf27"
+    },
+    {
+      "case_id": "243e6b09946a",
+      "case_dir": "cases/243e6b09946a",
+      "config_path": "cases/243e6b09946a/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ebae15bfd5ba50d7b663b0b22cff9c8cedc456087bb4c82d60d6b3a79fd0e5cc"
+    },
+    {
+      "case_id": "7fc53605e195",
+      "case_dir": "cases/7fc53605e195",
+      "config_path": "cases/7fc53605e195/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ebae15bfd5ba50d7b663b0b22cff9c8cedc456087bb4c82d60d6b3a79fd0e5cc"
+    },
+    {
+      "case_id": "4ed4dafd2645",
+      "case_dir": "cases/4ed4dafd2645",
+      "config_path": "cases/4ed4dafd2645/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ebae15bfd5ba50d7b663b0b22cff9c8cedc456087bb4c82d60d6b3a79fd0e5cc"
+    },
+    {
+      "case_id": "7e140ec46445",
+      "case_dir": "cases/7e140ec46445",
+      "config_path": "cases/7e140ec46445/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ebae15bfd5ba50d7b663b0b22cff9c8cedc456087bb4c82d60d6b3a79fd0e5cc"
+    },
+    {
+      "case_id": "4b364cc20ed6",
+      "case_dir": "cases/4b364cc20ed6",
+      "config_path": "cases/4b364cc20ed6/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "ebae15bfd5ba50d7b663b0b22cff9c8cedc456087bb4c82d60d6b3a79fd0e5cc"
+    },
+    {
+      "case_id": "5276f68b1ec2",
+      "case_dir": "cases/5276f68b1ec2",
+      "config_path": "cases/5276f68b1ec2/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "d28bd427dc961ad5a6d68bb38b84227ae8c52f9b8a27353467f4a178a19b98be"
+    },
+    {
+      "case_id": "393ee71b147c",
+      "case_dir": "cases/393ee71b147c",
+      "config_path": "cases/393ee71b147c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "d28bd427dc961ad5a6d68bb38b84227ae8c52f9b8a27353467f4a178a19b98be"
+    },
+    {
+      "case_id": "2a7c193f3081",
+      "case_dir": "cases/2a7c193f3081",
+      "config_path": "cases/2a7c193f3081/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "d28bd427dc961ad5a6d68bb38b84227ae8c52f9b8a27353467f4a178a19b98be"
+    },
+    {
+      "case_id": "b7e2e1e58d93",
+      "case_dir": "cases/b7e2e1e58d93",
+      "config_path": "cases/b7e2e1e58d93/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "d28bd427dc961ad5a6d68bb38b84227ae8c52f9b8a27353467f4a178a19b98be"
+    },
+    {
+      "case_id": "943c106ee76b",
+      "case_dir": "cases/943c106ee76b",
+      "config_path": "cases/943c106ee76b/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "d28bd427dc961ad5a6d68bb38b84227ae8c52f9b8a27353467f4a178a19b98be"
+    },
+    {
+      "case_id": "be9d2c3900de",
+      "case_dir": "cases/be9d2c3900de",
+      "config_path": "cases/be9d2c3900de/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "263c2198a97c4934366bd199f5581a3413353d138eb8059ea906c0bb33f6e74a"
+    },
+    {
+      "case_id": "4a963ec3f925",
+      "case_dir": "cases/4a963ec3f925",
+      "config_path": "cases/4a963ec3f925/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "263c2198a97c4934366bd199f5581a3413353d138eb8059ea906c0bb33f6e74a"
+    },
+    {
+      "case_id": "fd512a726d14",
+      "case_dir": "cases/fd512a726d14",
+      "config_path": "cases/fd512a726d14/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "263c2198a97c4934366bd199f5581a3413353d138eb8059ea906c0bb33f6e74a"
+    },
+    {
+      "case_id": "d0bc1bf63732",
+      "case_dir": "cases/d0bc1bf63732",
+      "config_path": "cases/d0bc1bf63732/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "263c2198a97c4934366bd199f5581a3413353d138eb8059ea906c0bb33f6e74a"
+    },
+    {
+      "case_id": "b39f482efa88",
+      "case_dir": "cases/b39f482efa88",
+      "config_path": "cases/b39f482efa88/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"openai/gpt-oss-120b\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "openai/gpt-oss-120b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "263c2198a97c4934366bd199f5581a3413353d138eb8059ea906c0bb33f6e74a"
+    },
+    {
+      "case_id": "5b0564e9be51",
+      "case_dir": "cases/5b0564e9be51",
+      "config_path": "cases/5b0564e9be51/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "341472586b02718f47cbdd02233be9e79dfa38dabc08175aeaf7cf31db6878ac"
+    },
+    {
+      "case_id": "e47c86fa721c",
+      "case_dir": "cases/e47c86fa721c",
+      "config_path": "cases/e47c86fa721c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "341472586b02718f47cbdd02233be9e79dfa38dabc08175aeaf7cf31db6878ac"
+    },
+    {
+      "case_id": "406719e4263e",
+      "case_dir": "cases/406719e4263e",
+      "config_path": "cases/406719e4263e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "341472586b02718f47cbdd02233be9e79dfa38dabc08175aeaf7cf31db6878ac"
+    },
+    {
+      "case_id": "c26f2067d200",
+      "case_dir": "cases/c26f2067d200",
+      "config_path": "cases/c26f2067d200/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "341472586b02718f47cbdd02233be9e79dfa38dabc08175aeaf7cf31db6878ac"
+    },
+    {
+      "case_id": "5975a35012a5",
+      "case_dir": "cases/5975a35012a5",
+      "config_path": "cases/5975a35012a5/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "341472586b02718f47cbdd02233be9e79dfa38dabc08175aeaf7cf31db6878ac"
+    },
+    {
+      "case_id": "c907d2730156",
+      "case_dir": "cases/c907d2730156",
+      "config_path": "cases/c907d2730156/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "9d31c07693ba50e776d067075454b03249f992dfc88e4d9d3c1e9fc65a0d4cf5"
+    },
+    {
+      "case_id": "31e23d93b531",
+      "case_dir": "cases/31e23d93b531",
+      "config_path": "cases/31e23d93b531/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "9d31c07693ba50e776d067075454b03249f992dfc88e4d9d3c1e9fc65a0d4cf5"
+    },
+    {
+      "case_id": "b4cf15b2458e",
+      "case_dir": "cases/b4cf15b2458e",
+      "config_path": "cases/b4cf15b2458e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "9d31c07693ba50e776d067075454b03249f992dfc88e4d9d3c1e9fc65a0d4cf5"
+    },
+    {
+      "case_id": "bef5bf501f8d",
+      "case_dir": "cases/bef5bf501f8d",
+      "config_path": "cases/bef5bf501f8d/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "9d31c07693ba50e776d067075454b03249f992dfc88e4d9d3c1e9fc65a0d4cf5"
+    },
+    {
+      "case_id": "070a6badb618",
+      "case_dir": "cases/070a6badb618",
+      "config_path": "cases/070a6badb618/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "9d31c07693ba50e776d067075454b03249f992dfc88e4d9d3c1e9fc65a0d4cf5"
+    },
+    {
+      "case_id": "4edd38d48bfd",
+      "case_dir": "cases/4edd38d48bfd",
+      "config_path": "cases/4edd38d48bfd/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3d44cf39f9d9fdaa384181f8c93534c7c622108019787cae2e43d70fcddb8ad2"
+    },
+    {
+      "case_id": "980ea5d40593",
+      "case_dir": "cases/980ea5d40593",
+      "config_path": "cases/980ea5d40593/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3d44cf39f9d9fdaa384181f8c93534c7c622108019787cae2e43d70fcddb8ad2"
+    },
+    {
+      "case_id": "6e3caf31d042",
+      "case_dir": "cases/6e3caf31d042",
+      "config_path": "cases/6e3caf31d042/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3d44cf39f9d9fdaa384181f8c93534c7c622108019787cae2e43d70fcddb8ad2"
+    },
+    {
+      "case_id": "94cd754e1b5c",
+      "case_dir": "cases/94cd754e1b5c",
+      "config_path": "cases/94cd754e1b5c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3d44cf39f9d9fdaa384181f8c93534c7c622108019787cae2e43d70fcddb8ad2"
+    },
+    {
+      "case_id": "30d90158a4fe",
+      "case_dir": "cases/30d90158a4fe",
+      "config_path": "cases/30d90158a4fe/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"anthropic/claude-opus-4.6\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "anthropic/claude-opus-4.6",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3d44cf39f9d9fdaa384181f8c93534c7c622108019787cae2e43d70fcddb8ad2"
+    },
+    {
+      "case_id": "86c29a1caac8",
+      "case_dir": "cases/86c29a1caac8",
+      "config_path": "cases/86c29a1caac8/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "b88cf5d79e4c87750bd5e11eb92b2f282b95c347756e3927be1ae90cfef1ab58"
+    },
+    {
+      "case_id": "59c1daef7f90",
+      "case_dir": "cases/59c1daef7f90",
+      "config_path": "cases/59c1daef7f90/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "b88cf5d79e4c87750bd5e11eb92b2f282b95c347756e3927be1ae90cfef1ab58"
+    },
+    {
+      "case_id": "a2f40effd943",
+      "case_dir": "cases/a2f40effd943",
+      "config_path": "cases/a2f40effd943/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "b88cf5d79e4c87750bd5e11eb92b2f282b95c347756e3927be1ae90cfef1ab58"
+    },
+    {
+      "case_id": "86dbf218024a",
+      "case_dir": "cases/86dbf218024a",
+      "config_path": "cases/86dbf218024a/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "b88cf5d79e4c87750bd5e11eb92b2f282b95c347756e3927be1ae90cfef1ab58"
+    },
+    {
+      "case_id": "68a64b751c58",
+      "case_dir": "cases/68a64b751c58",
+      "config_path": "cases/68a64b751c58/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "b88cf5d79e4c87750bd5e11eb92b2f282b95c347756e3927be1ae90cfef1ab58"
+    },
+    {
+      "case_id": "d9f42a9709fc",
+      "case_dir": "cases/d9f42a9709fc",
+      "config_path": "cases/d9f42a9709fc/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "6042490858e3ed0c02025dad02f804706e69304960737e27745889fc5e00036e"
+    },
+    {
+      "case_id": "a6ada9e94ca9",
+      "case_dir": "cases/a6ada9e94ca9",
+      "config_path": "cases/a6ada9e94ca9/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "6042490858e3ed0c02025dad02f804706e69304960737e27745889fc5e00036e"
+    },
+    {
+      "case_id": "5c40838f34b6",
+      "case_dir": "cases/5c40838f34b6",
+      "config_path": "cases/5c40838f34b6/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "6042490858e3ed0c02025dad02f804706e69304960737e27745889fc5e00036e"
+    },
+    {
+      "case_id": "3cb4738826fb",
+      "case_dir": "cases/3cb4738826fb",
+      "config_path": "cases/3cb4738826fb/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "6042490858e3ed0c02025dad02f804706e69304960737e27745889fc5e00036e"
+    },
+    {
+      "case_id": "e64f2b0d3799",
+      "case_dir": "cases/e64f2b0d3799",
+      "config_path": "cases/e64f2b0d3799/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "6042490858e3ed0c02025dad02f804706e69304960737e27745889fc5e00036e"
+    },
+    {
+      "case_id": "bda137242ad3",
+      "case_dir": "cases/bda137242ad3",
+      "config_path": "cases/bda137242ad3/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "334dfdd1a81205d78cdcb59e231048c90f3f8ae3190668da7f3ea858b13b8c15"
+    },
+    {
+      "case_id": "c6442d8f1c33",
+      "case_dir": "cases/c6442d8f1c33",
+      "config_path": "cases/c6442d8f1c33/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "334dfdd1a81205d78cdcb59e231048c90f3f8ae3190668da7f3ea858b13b8c15"
+    },
+    {
+      "case_id": "e09a6ab44f6f",
+      "case_dir": "cases/e09a6ab44f6f",
+      "config_path": "cases/e09a6ab44f6f/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "334dfdd1a81205d78cdcb59e231048c90f3f8ae3190668da7f3ea858b13b8c15"
+    },
+    {
+      "case_id": "3582b7152c20",
+      "case_dir": "cases/3582b7152c20",
+      "config_path": "cases/3582b7152c20/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "334dfdd1a81205d78cdcb59e231048c90f3f8ae3190668da7f3ea858b13b8c15"
+    },
+    {
+      "case_id": "52920db12354",
+      "case_dir": "cases/52920db12354",
+      "config_path": "cases/52920db12354/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-pro-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-pro-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "334dfdd1a81205d78cdcb59e231048c90f3f8ae3190668da7f3ea858b13b8c15"
+    },
+    {
+      "case_id": "91d6eda5eeff",
+      "case_dir": "cases/91d6eda5eeff",
+      "config_path": "cases/91d6eda5eeff/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "881bd6ebb6d4d0dea804ef02716fce920bf1ada3ecf3350f637c06f1a5eefd6e"
+    },
+    {
+      "case_id": "d3f228a67a3e",
+      "case_dir": "cases/d3f228a67a3e",
+      "config_path": "cases/d3f228a67a3e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "881bd6ebb6d4d0dea804ef02716fce920bf1ada3ecf3350f637c06f1a5eefd6e"
+    },
+    {
+      "case_id": "3cbe32773627",
+      "case_dir": "cases/3cbe32773627",
+      "config_path": "cases/3cbe32773627/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "881bd6ebb6d4d0dea804ef02716fce920bf1ada3ecf3350f637c06f1a5eefd6e"
+    },
+    {
+      "case_id": "aa2dafed91da",
+      "case_dir": "cases/aa2dafed91da",
+      "config_path": "cases/aa2dafed91da/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "881bd6ebb6d4d0dea804ef02716fce920bf1ada3ecf3350f637c06f1a5eefd6e"
+    },
+    {
+      "case_id": "a27612e2f64b",
+      "case_dir": "cases/a27612e2f64b",
+      "config_path": "cases/a27612e2f64b/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "881bd6ebb6d4d0dea804ef02716fce920bf1ada3ecf3350f637c06f1a5eefd6e"
+    },
+    {
+      "case_id": "49200bf87c23",
+      "case_dir": "cases/49200bf87c23",
+      "config_path": "cases/49200bf87c23/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "5e8c0ec5db034b6cfcd8f761c28f1b6685d389d9de67ddb8f68b327457d2f481"
+    },
+    {
+      "case_id": "ecaca1529480",
+      "case_dir": "cases/ecaca1529480",
+      "config_path": "cases/ecaca1529480/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "5e8c0ec5db034b6cfcd8f761c28f1b6685d389d9de67ddb8f68b327457d2f481"
+    },
+    {
+      "case_id": "c2350cd9d73f",
+      "case_dir": "cases/c2350cd9d73f",
+      "config_path": "cases/c2350cd9d73f/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "5e8c0ec5db034b6cfcd8f761c28f1b6685d389d9de67ddb8f68b327457d2f481"
+    },
+    {
+      "case_id": "40b9b091fd8a",
+      "case_dir": "cases/40b9b091fd8a",
+      "config_path": "cases/40b9b091fd8a/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "5e8c0ec5db034b6cfcd8f761c28f1b6685d389d9de67ddb8f68b327457d2f481"
+    },
+    {
+      "case_id": "3f0c82c4ad64",
+      "case_dir": "cases/3f0c82c4ad64",
+      "config_path": "cases/3f0c82c4ad64/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "5e8c0ec5db034b6cfcd8f761c28f1b6685d389d9de67ddb8f68b327457d2f481"
+    },
+    {
+      "case_id": "d736e2668da8",
+      "case_dir": "cases/d736e2668da8",
+      "config_path": "cases/d736e2668da8/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "881e009d1e0b523d2b9d7bd0ed818b56232a6af104d58922ae0984ae61cdf9a0"
+    },
+    {
+      "case_id": "c7e581b38adf",
+      "case_dir": "cases/c7e581b38adf",
+      "config_path": "cases/c7e581b38adf/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "881e009d1e0b523d2b9d7bd0ed818b56232a6af104d58922ae0984ae61cdf9a0"
+    },
+    {
+      "case_id": "3d09447c2614",
+      "case_dir": "cases/3d09447c2614",
+      "config_path": "cases/3d09447c2614/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "881e009d1e0b523d2b9d7bd0ed818b56232a6af104d58922ae0984ae61cdf9a0"
+    },
+    {
+      "case_id": "05197df4796d",
+      "case_dir": "cases/05197df4796d",
+      "config_path": "cases/05197df4796d/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "881e009d1e0b523d2b9d7bd0ed818b56232a6af104d58922ae0984ae61cdf9a0"
+    },
+    {
+      "case_id": "4d6f7748ec01",
+      "case_dir": "cases/4d6f7748ec01",
+      "config_path": "cases/4d6f7748ec01/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"google/gemini-3.1-flash-lite-preview\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "google/gemini-3.1-flash-lite-preview",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "881e009d1e0b523d2b9d7bd0ed818b56232a6af104d58922ae0984ae61cdf9a0"
+    },
+    {
+      "case_id": "554ad373006e",
+      "case_dir": "cases/554ad373006e",
+      "config_path": "cases/554ad373006e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2fcb36f5d209b6880c26fd42952baaad2865815fbb9a4f15312df3c2e18496c1"
+    },
+    {
+      "case_id": "d35223f9f436",
+      "case_dir": "cases/d35223f9f436",
+      "config_path": "cases/d35223f9f436/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2fcb36f5d209b6880c26fd42952baaad2865815fbb9a4f15312df3c2e18496c1"
+    },
+    {
+      "case_id": "a4edd87d517e",
+      "case_dir": "cases/a4edd87d517e",
+      "config_path": "cases/a4edd87d517e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2fcb36f5d209b6880c26fd42952baaad2865815fbb9a4f15312df3c2e18496c1"
+    },
+    {
+      "case_id": "510f143e9ef0",
+      "case_dir": "cases/510f143e9ef0",
+      "config_path": "cases/510f143e9ef0/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2fcb36f5d209b6880c26fd42952baaad2865815fbb9a4f15312df3c2e18496c1"
+    },
+    {
+      "case_id": "972c064dad7d",
+      "case_dir": "cases/972c064dad7d",
+      "config_path": "cases/972c064dad7d/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2fcb36f5d209b6880c26fd42952baaad2865815fbb9a4f15312df3c2e18496c1"
+    },
+    {
+      "case_id": "c4083d833a0e",
+      "case_dir": "cases/c4083d833a0e",
+      "config_path": "cases/c4083d833a0e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "00bb5617ee80f80b3d30542c0410b547218e50a492e214f89801583fc98a11f1"
+    },
+    {
+      "case_id": "b55786383339",
+      "case_dir": "cases/b55786383339",
+      "config_path": "cases/b55786383339/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "00bb5617ee80f80b3d30542c0410b547218e50a492e214f89801583fc98a11f1"
+    },
+    {
+      "case_id": "234b18015017",
+      "case_dir": "cases/234b18015017",
+      "config_path": "cases/234b18015017/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "00bb5617ee80f80b3d30542c0410b547218e50a492e214f89801583fc98a11f1"
+    },
+    {
+      "case_id": "7d5fac93f017",
+      "case_dir": "cases/7d5fac93f017",
+      "config_path": "cases/7d5fac93f017/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "00bb5617ee80f80b3d30542c0410b547218e50a492e214f89801583fc98a11f1"
+    },
+    {
+      "case_id": "d8b702bf7809",
+      "case_dir": "cases/d8b702bf7809",
+      "config_path": "cases/d8b702bf7809/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "00bb5617ee80f80b3d30542c0410b547218e50a492e214f89801583fc98a11f1"
+    },
+    {
+      "case_id": "d6044679284e",
+      "case_dir": "cases/d6044679284e",
+      "config_path": "cases/d6044679284e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "69beec5ad116805207aab599988a7b6b10ffa5f1f0a7f7cf530b319993d2fa47"
+    },
+    {
+      "case_id": "2cf237ab38d7",
+      "case_dir": "cases/2cf237ab38d7",
+      "config_path": "cases/2cf237ab38d7/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "69beec5ad116805207aab599988a7b6b10ffa5f1f0a7f7cf530b319993d2fa47"
+    },
+    {
+      "case_id": "2b3ee1e7f063",
+      "case_dir": "cases/2b3ee1e7f063",
+      "config_path": "cases/2b3ee1e7f063/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "69beec5ad116805207aab599988a7b6b10ffa5f1f0a7f7cf530b319993d2fa47"
+    },
+    {
+      "case_id": "286909be4dbe",
+      "case_dir": "cases/286909be4dbe",
+      "config_path": "cases/286909be4dbe/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "69beec5ad116805207aab599988a7b6b10ffa5f1f0a7f7cf530b319993d2fa47"
+    },
+    {
+      "case_id": "ff2a52b006a5",
+      "case_dir": "cases/ff2a52b006a5",
+      "config_path": "cases/ff2a52b006a5/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"deepseek/deepseek-v3.2\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "deepseek/deepseek-v3.2",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "69beec5ad116805207aab599988a7b6b10ffa5f1f0a7f7cf530b319993d2fa47"
+    },
+    {
+      "case_id": "551ca1cf30e8",
+      "case_dir": "cases/551ca1cf30e8",
+      "config_path": "cases/551ca1cf30e8/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "5139f946157d08ca4eecbe67ba9c82f42f647b171f3a3a2426a0758bb3dac813"
+    },
+    {
+      "case_id": "8c50659fbf53",
+      "case_dir": "cases/8c50659fbf53",
+      "config_path": "cases/8c50659fbf53/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "5139f946157d08ca4eecbe67ba9c82f42f647b171f3a3a2426a0758bb3dac813"
+    },
+    {
+      "case_id": "2fa206a1aafa",
+      "case_dir": "cases/2fa206a1aafa",
+      "config_path": "cases/2fa206a1aafa/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "5139f946157d08ca4eecbe67ba9c82f42f647b171f3a3a2426a0758bb3dac813"
+    },
+    {
+      "case_id": "90eb4943f28b",
+      "case_dir": "cases/90eb4943f28b",
+      "config_path": "cases/90eb4943f28b/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "5139f946157d08ca4eecbe67ba9c82f42f647b171f3a3a2426a0758bb3dac813"
+    },
+    {
+      "case_id": "c444633c8d94",
+      "case_dir": "cases/c444633c8d94",
+      "config_path": "cases/c444633c8d94/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "5139f946157d08ca4eecbe67ba9c82f42f647b171f3a3a2426a0758bb3dac813"
+    },
+    {
+      "case_id": "e71ab613341c",
+      "case_dir": "cases/e71ab613341c",
+      "config_path": "cases/e71ab613341c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "413928b3ae97f306ef0fa993d606b2bcf3e847c68d6b89c92ce4d42f3f4a1c56"
+    },
+    {
+      "case_id": "81bfc9464b69",
+      "case_dir": "cases/81bfc9464b69",
+      "config_path": "cases/81bfc9464b69/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "413928b3ae97f306ef0fa993d606b2bcf3e847c68d6b89c92ce4d42f3f4a1c56"
+    },
+    {
+      "case_id": "4a3ba7189c72",
+      "case_dir": "cases/4a3ba7189c72",
+      "config_path": "cases/4a3ba7189c72/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "413928b3ae97f306ef0fa993d606b2bcf3e847c68d6b89c92ce4d42f3f4a1c56"
+    },
+    {
+      "case_id": "9813266a5907",
+      "case_dir": "cases/9813266a5907",
+      "config_path": "cases/9813266a5907/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "413928b3ae97f306ef0fa993d606b2bcf3e847c68d6b89c92ce4d42f3f4a1c56"
+    },
+    {
+      "case_id": "3647576f3000",
+      "case_dir": "cases/3647576f3000",
+      "config_path": "cases/3647576f3000/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "413928b3ae97f306ef0fa993d606b2bcf3e847c68d6b89c92ce4d42f3f4a1c56"
+    },
+    {
+      "case_id": "f1e49e81c229",
+      "case_dir": "cases/f1e49e81c229",
+      "config_path": "cases/f1e49e81c229/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3ce29a561bd37d6562fdfe7a032be23da96e3e9c27b6c5fd740454def83d8a23"
+    },
+    {
+      "case_id": "acf22e100600",
+      "case_dir": "cases/acf22e100600",
+      "config_path": "cases/acf22e100600/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3ce29a561bd37d6562fdfe7a032be23da96e3e9c27b6c5fd740454def83d8a23"
+    },
+    {
+      "case_id": "58676ee9b2ea",
+      "case_dir": "cases/58676ee9b2ea",
+      "config_path": "cases/58676ee9b2ea/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3ce29a561bd37d6562fdfe7a032be23da96e3e9c27b6c5fd740454def83d8a23"
+    },
+    {
+      "case_id": "aa8f07fe4dd9",
+      "case_dir": "cases/aa8f07fe4dd9",
+      "config_path": "cases/aa8f07fe4dd9/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3ce29a561bd37d6562fdfe7a032be23da96e3e9c27b6c5fd740454def83d8a23"
+    },
+    {
+      "case_id": "b111e72dc94a",
+      "case_dir": "cases/b111e72dc94a",
+      "config_path": "cases/b111e72dc94a/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"qwen/qwen3.5-397b-a17b\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "qwen/qwen3.5-397b-a17b",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "3ce29a561bd37d6562fdfe7a032be23da96e3e9c27b6c5fd740454def83d8a23"
+    },
+    {
+      "case_id": "81df5c276aeb",
+      "case_dir": "cases/81df5c276aeb",
+      "config_path": "cases/81df5c276aeb/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "7113fe66914082df7aab9ee84f5a89235c6ffc5e06c81e837f4c6b757dab5491"
+    },
+    {
+      "case_id": "8a021b275935",
+      "case_dir": "cases/8a021b275935",
+      "config_path": "cases/8a021b275935/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "7113fe66914082df7aab9ee84f5a89235c6ffc5e06c81e837f4c6b757dab5491"
+    },
+    {
+      "case_id": "06649199dd83",
+      "case_dir": "cases/06649199dd83",
+      "config_path": "cases/06649199dd83/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "7113fe66914082df7aab9ee84f5a89235c6ffc5e06c81e837f4c6b757dab5491"
+    },
+    {
+      "case_id": "1c86bcc38bdf",
+      "case_dir": "cases/1c86bcc38bdf",
+      "config_path": "cases/1c86bcc38bdf/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "7113fe66914082df7aab9ee84f5a89235c6ffc5e06c81e837f4c6b757dab5491"
+    },
+    {
+      "case_id": "44e0a3d058d8",
+      "case_dir": "cases/44e0a3d058d8",
+      "config_path": "cases/44e0a3d058d8/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "7113fe66914082df7aab9ee84f5a89235c6ffc5e06c81e837f4c6b757dab5491"
+    },
+    {
+      "case_id": "8cc6d976b283",
+      "case_dir": "cases/8cc6d976b283",
+      "config_path": "cases/8cc6d976b283/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "523e24b35e1ebf7c2015462317ca24dc8c8e624bdd8368941ee6814015b97e07"
+    },
+    {
+      "case_id": "a49f3b3eea45",
+      "case_dir": "cases/a49f3b3eea45",
+      "config_path": "cases/a49f3b3eea45/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "523e24b35e1ebf7c2015462317ca24dc8c8e624bdd8368941ee6814015b97e07"
+    },
+    {
+      "case_id": "8877303e389c",
+      "case_dir": "cases/8877303e389c",
+      "config_path": "cases/8877303e389c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "523e24b35e1ebf7c2015462317ca24dc8c8e624bdd8368941ee6814015b97e07"
+    },
+    {
+      "case_id": "37d53a50ed93",
+      "case_dir": "cases/37d53a50ed93",
+      "config_path": "cases/37d53a50ed93/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "523e24b35e1ebf7c2015462317ca24dc8c8e624bdd8368941ee6814015b97e07"
+    },
+    {
+      "case_id": "44466b53cb4f",
+      "case_dir": "cases/44466b53cb4f",
+      "config_path": "cases/44466b53cb4f/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "523e24b35e1ebf7c2015462317ca24dc8c8e624bdd8368941ee6814015b97e07"
+    },
+    {
+      "case_id": "f653c10450e9",
+      "case_dir": "cases/f653c10450e9",
+      "config_path": "cases/f653c10450e9/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "73f3a8a2bfc7c86847c0e1e3e9cf0fba40d869ead8fe5291c7df99efb7856b2d"
+    },
+    {
+      "case_id": "9e41a0cda9fc",
+      "case_dir": "cases/9e41a0cda9fc",
+      "config_path": "cases/9e41a0cda9fc/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "73f3a8a2bfc7c86847c0e1e3e9cf0fba40d869ead8fe5291c7df99efb7856b2d"
+    },
+    {
+      "case_id": "19286ce95be3",
+      "case_dir": "cases/19286ce95be3",
+      "config_path": "cases/19286ce95be3/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "73f3a8a2bfc7c86847c0e1e3e9cf0fba40d869ead8fe5291c7df99efb7856b2d"
+    },
+    {
+      "case_id": "c2544bba96a3",
+      "case_dir": "cases/c2544bba96a3",
+      "config_path": "cases/c2544bba96a3/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "73f3a8a2bfc7c86847c0e1e3e9cf0fba40d869ead8fe5291c7df99efb7856b2d"
+    },
+    {
+      "case_id": "aab0f499cd24",
+      "case_dir": "cases/aab0f499cd24",
+      "config_path": "cases/aab0f499cd24/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"x-ai/grok-4\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "x-ai/grok-4",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "73f3a8a2bfc7c86847c0e1e3e9cf0fba40d869ead8fe5291c7df99efb7856b2d"
+    },
+    {
+      "case_id": "9d4c06a21e27",
+      "case_dir": "cases/9d4c06a21e27",
+      "config_path": "cases/9d4c06a21e27/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "6987812bea28f2adfe2740492fb84c737c51772b0ce542c386a91cee079958d0"
+    },
+    {
+      "case_id": "63c4e8952aa5",
+      "case_dir": "cases/63c4e8952aa5",
+      "config_path": "cases/63c4e8952aa5/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "6987812bea28f2adfe2740492fb84c737c51772b0ce542c386a91cee079958d0"
+    },
+    {
+      "case_id": "8fd3e5d42e14",
+      "case_dir": "cases/8fd3e5d42e14",
+      "config_path": "cases/8fd3e5d42e14/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "6987812bea28f2adfe2740492fb84c737c51772b0ce542c386a91cee079958d0"
+    },
+    {
+      "case_id": "dc36a38750fe",
+      "case_dir": "cases/dc36a38750fe",
+      "config_path": "cases/dc36a38750fe/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "6987812bea28f2adfe2740492fb84c737c51772b0ce542c386a91cee079958d0"
+    },
+    {
+      "case_id": "039794ec238e",
+      "case_dir": "cases/039794ec238e",
+      "config_path": "cases/039794ec238e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "6987812bea28f2adfe2740492fb84c737c51772b0ce542c386a91cee079958d0"
+    },
+    {
+      "case_id": "76b9d2dc5845",
+      "case_dir": "cases/76b9d2dc5845",
+      "config_path": "cases/76b9d2dc5845/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "268afd4b402b4dcab6fa54669fa7fd68111540f71c108b531e754de7480e1a7c"
+    },
+    {
+      "case_id": "2bd3aa5b2122",
+      "case_dir": "cases/2bd3aa5b2122",
+      "config_path": "cases/2bd3aa5b2122/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "268afd4b402b4dcab6fa54669fa7fd68111540f71c108b531e754de7480e1a7c"
+    },
+    {
+      "case_id": "a1ea5ee06439",
+      "case_dir": "cases/a1ea5ee06439",
+      "config_path": "cases/a1ea5ee06439/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "268afd4b402b4dcab6fa54669fa7fd68111540f71c108b531e754de7480e1a7c"
+    },
+    {
+      "case_id": "6fb559999a6f",
+      "case_dir": "cases/6fb559999a6f",
+      "config_path": "cases/6fb559999a6f/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "268afd4b402b4dcab6fa54669fa7fd68111540f71c108b531e754de7480e1a7c"
+    },
+    {
+      "case_id": "eaaaab7c8329",
+      "case_dir": "cases/eaaaab7c8329",
+      "config_path": "cases/eaaaab7c8329/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "268afd4b402b4dcab6fa54669fa7fd68111540f71c108b531e754de7480e1a7c"
+    },
+    {
+      "case_id": "c190651b3366",
+      "case_dir": "cases/c190651b3366",
+      "config_path": "cases/c190651b3366/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "5af7f87d6c00c94510be0845beca59075d9145cbe9e4552eb82301f729151ad6"
+    },
+    {
+      "case_id": "b6ab643b1a76",
+      "case_dir": "cases/b6ab643b1a76",
+      "config_path": "cases/b6ab643b1a76/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "5af7f87d6c00c94510be0845beca59075d9145cbe9e4552eb82301f729151ad6"
+    },
+    {
+      "case_id": "53bc4cadf045",
+      "case_dir": "cases/53bc4cadf045",
+      "config_path": "cases/53bc4cadf045/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "5af7f87d6c00c94510be0845beca59075d9145cbe9e4552eb82301f729151ad6"
+    },
+    {
+      "case_id": "610976a02af2",
+      "case_dir": "cases/610976a02af2",
+      "config_path": "cases/610976a02af2/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "5af7f87d6c00c94510be0845beca59075d9145cbe9e4552eb82301f729151ad6"
+    },
+    {
+      "case_id": "6f1ee584e338",
+      "case_dir": "cases/6f1ee584e338",
+      "config_path": "cases/6f1ee584e338/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"z-ai/glm-5\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "z-ai/glm-5",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "5af7f87d6c00c94510be0845beca59075d9145cbe9e4552eb82301f729151ad6"
+    },
+    {
+      "case_id": "abf50111c91c",
+      "case_dir": "cases/abf50111c91c",
+      "config_path": "cases/abf50111c91c/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"promotion_committee\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2d81c6685d282831a0b9d1adad5b3597edc4fe620bd98abb1f9fb5f16075c37d"
+    },
+    {
+      "case_id": "3ab742ffdb2e",
+      "case_dir": "cases/3ab742ffdb2e",
+      "config_path": "cases/3ab742ffdb2e/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"promotion_committee\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2d81c6685d282831a0b9d1adad5b3597edc4fe620bd98abb1f9fb5f16075c37d"
+    },
+    {
+      "case_id": "025d0ab32dab",
+      "case_dir": "cases/025d0ab32dab",
+      "config_path": "cases/025d0ab32dab/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"promotion_committee\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2d81c6685d282831a0b9d1adad5b3597edc4fe620bd98abb1f9fb5f16075c37d"
+    },
+    {
+      "case_id": "e56ad8cd96e2",
+      "case_dir": "cases/e56ad8cd96e2",
+      "config_path": "cases/e56ad8cd96e2/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"promotion_committee\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2d81c6685d282831a0b9d1adad5b3597edc4fe620bd98abb1f9fb5f16075c37d"
+    },
+    {
+      "case_id": "c5f68cc6b578",
+      "case_dir": "cases/c5f68cc6b578",
+      "config_path": "cases/c5f68cc6b578/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"promotion_committee\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "promotion_committee"
+      },
+      "config_fingerprint": "2d81c6685d282831a0b9d1adad5b3597edc4fe620bd98abb1f9fb5f16075c37d"
+    },
+    {
+      "case_id": "6efc9ca13097",
+      "case_dir": "cases/6efc9ca13097",
+      "config_path": "cases/6efc9ca13097/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"ngo_climate_endorsement\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "07431fb9a2b339400076ad2761703cc2dc43db8f651a99aa8a6ba368413a849b"
+    },
+    {
+      "case_id": "9694e783764a",
+      "case_dir": "cases/9694e783764a",
+      "config_path": "cases/9694e783764a/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"ngo_climate_endorsement\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "07431fb9a2b339400076ad2761703cc2dc43db8f651a99aa8a6ba368413a849b"
+    },
+    {
+      "case_id": "97606bc08c31",
+      "case_dir": "cases/97606bc08c31",
+      "config_path": "cases/97606bc08c31/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"ngo_climate_endorsement\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "07431fb9a2b339400076ad2761703cc2dc43db8f651a99aa8a6ba368413a849b"
+    },
+    {
+      "case_id": "7424c506a5af",
+      "case_dir": "cases/7424c506a5af",
+      "config_path": "cases/7424c506a5af/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"ngo_climate_endorsement\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "07431fb9a2b339400076ad2761703cc2dc43db8f651a99aa8a6ba368413a849b"
+    },
+    {
+      "case_id": "8d7e57b13c27",
+      "case_dir": "cases/8d7e57b13c27",
+      "config_path": "cases/8d7e57b13c27/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"ngo_climate_endorsement\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "ngo_climate_endorsement"
+      },
+      "config_fingerprint": "07431fb9a2b339400076ad2761703cc2dc43db8f651a99aa8a6ba368413a849b"
+    },
+    {
+      "case_id": "ef440d46aaec",
+      "case_dir": "cases/ef440d46aaec",
+      "config_path": "cases/ef440d46aaec/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"faculty_manuscript_submission\" (repeat 1/5)",
+      "repeat_number": 1,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "9aedd3726893564caa2aa3f697ca687ad77e5c717b6ea42adb6bcd2e55fc743d"
+    },
+    {
+      "case_id": "2b2d52a9b9e2",
+      "case_dir": "cases/2b2d52a9b9e2",
+      "config_path": "cases/2b2d52a9b9e2/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"faculty_manuscript_submission\" (repeat 2/5)",
+      "repeat_number": 2,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "9aedd3726893564caa2aa3f697ca687ad77e5c717b6ea42adb6bcd2e55fc743d"
+    },
+    {
+      "case_id": "9c4873f76c09",
+      "case_dir": "cases/9c4873f76c09",
+      "config_path": "cases/9c4873f76c09/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"faculty_manuscript_submission\" (repeat 3/5)",
+      "repeat_number": 3,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "9aedd3726893564caa2aa3f697ca687ad77e5c717b6ea42adb6bcd2e55fc743d"
+    },
+    {
+      "case_id": "66e1a4a6fc41",
+      "case_dir": "cases/66e1a4a6fc41",
+      "config_path": "cases/66e1a4a6fc41/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"faculty_manuscript_submission\" (repeat 4/5)",
+      "repeat_number": 4,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "9aedd3726893564caa2aa3f697ca687ad77e5c717b6ea42adb6bcd2e55fc743d"
+    },
+    {
+      "case_id": "6801ff0f6d84",
+      "case_dir": "cases/6801ff0f6d84",
+      "config_path": "cases/6801ff0f6d84/config.json",
+      "label": "incentive_direction=\"positive\", incentive_type=\"historical\", model=\"minimax/minimax-m2.7\", scenario_id=\"faculty_manuscript_submission\" (repeat 5/5)",
+      "repeat_number": 5,
+      "repeat_count": 5,
+      "sweep_values": {
+        "model": "minimax/minimax-m2.7",
+        "incentive_direction": "positive",
+        "incentive_type": "historical",
+        "scenario_id": "faculty_manuscript_submission"
+      },
+      "config_fingerprint": "9aedd3726893564caa2aa3f697ca687ad77e5c717b6ea42adb6bcd2e55fc743d"
+    }
+  ]
+}
