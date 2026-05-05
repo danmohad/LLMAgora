@@ -573,3 +573,200 @@ def test_all_repeat_helpers_cover_unknown_agents_and_case_id_metadata(monkeypatc
     )
     assert nli_self["repeats"][0]["case_id"] == "case-2"
     assert emotions_public["repeats"][0]["case_id"] == "case-2"
+
+
+def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
+    assert eval_aggregate._strip_leading_stance("DO NOT PROMOTE - keep this", ["PROMOTE", "DO NOT PROMOTE"]) == "keep this"
+    assert eval_aggregate._strip_leading_stance("PROMOTE: keep this", ["PROMOTE", "DO NOT PROMOTE"]) == "keep this"
+    assert eval_aggregate._strip_leading_stance("No stance here", ["PROMOTE"]) == "No stance here"
+
+    history = {
+        "turns": [
+            "not-a-turn",
+            {
+                "turn_num": 1,
+                "Alpha": {
+                    "public_utterance": "PROMOTE - public reason",
+                    "private_utterance": "DO NOT PROMOTE: private reason",
+                },
+                "Beta": {
+                    "public_utterance": "DO NOT PROMOTE. beta public",
+                    "private_utterance": "PROMOTE, beta private",
+                },
+                "Gamma": {"public_utterance": "PROMOTE ignored"},
+            },
+            {"turn_num": 2, "Alpha": "not-a-dict"},
+        ]
+    }
+    stripped = eval_aggregate._strip_stance_from_structured_history(
+        history,
+        ["PROMOTE", "DO NOT PROMOTE"],
+    )
+    assert stripped["turns"][1]["Alpha"]["public_utterance"] == "public reason"
+    assert stripped["turns"][1]["Alpha"]["private_utterance"] == "private reason"
+    assert stripped["turns"][1]["Beta"]["public_utterance"] == "beta public"
+    assert stripped["turns"][1]["Beta"]["private_utterance"] == "beta private"
+    assert history["turns"][1]["Alpha"]["public_utterance"] == "PROMOTE - public reason"
+    assert eval_aggregate._strip_stance_from_structured_history(history, []) is history
+
+    class _FakeSemanticSimilarityAnalyzer:
+        def __init__(self, stripped_history, method, model_name, device):
+            assert method == eval_aggregate.SEMANTIC_SIMILARITY_METHOD_COSINE
+            assert model_name == "fake-cosine"
+            assert device == "cpu"
+            assert stripped_history["turns"][1]["Alpha"]["public_utterance"] == "public reason"
+
+        def compute_self_consistency_scores(self):
+            return {
+                "agent_alpha": {"turns": [1], "scores": [0.2]},
+                "agent_beta": {"turns": [1], "scores": [0.4]},
+            }
+
+        def compute_cross_agent_alignment_scores(self, agent_a_field, agent_b_field):
+            if agent_a_field == eval_aggregate.PUBLIC_NARRATIVE_FIELD:
+                return {"turns": [1], "scores": [0.6]}
+            return {"turns": [1], "scores": [0.8]}
+
+    monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", _FakeSemanticSimilarityAnalyzer)
+    result = SimpleNamespace(
+        results=[
+            SimpleNamespace(
+                agents=[
+                    SimpleNamespace(id="agent_alpha", name="Alpha"),
+                    SimpleNamespace(id="agent_beta", name="Beta"),
+                ],
+                agora=SimpleNamespace(structured_history=lambda: history),
+            )
+        ],
+        analyzed_cases=[SimpleNamespace(case_id="case-strip")],
+    )
+
+    self_agg, cross_agg, self_repeats, cross_repeats = eval_aggregate._serialize_semantic_no_stance(
+        result,
+        ["PROMOTE", "DO NOT PROMOTE"],
+        model_name="fake-cosine",
+        device="cpu",
+    )
+    assert self_agg["alpha"]["cosine_similarity"] == [0.2]
+    assert cross_agg["private alignment"]["cosine_similarity"] == [0.8]
+    assert self_repeats["repeats"][0]["case_id"] == "case-strip"
+    assert cross_repeats["repeats"][0]["public alignment"]["cosine_similarity"] == [0.6]
+
+
+def test_no_stance_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_path, monkeypatch):
+    class _CaseBackedGroup:
+        sweep_values = {}
+        cases = [
+            SweepCase(
+                case_id="case-config",
+                case_dir=eval_aggregate.Path("cases/case-config"),
+                config_path=eval_aggregate.Path("cases/case-config/config.json"),
+                label="label",
+                repeat_number=1,
+                repeat_count=1,
+                sweep_values={},
+            )
+        ]
+
+    config_dir = tmp_path / "cases" / "case-config"
+    config_dir.mkdir(parents=True)
+    (config_dir / "config.json").write_text('{"scenario_id": "promotion_committee"}', encoding="utf-8")
+    assert eval_aggregate._decision_labels_for_group(_CaseBackedGroup(), tmp_path) == [
+        "PROMOTE",
+        "DO NOT PROMOTE",
+    ]
+    assert eval_aggregate._decision_labels_for_group(SimpleNamespace(sweep_values={}, cases=[]), tmp_path) == []
+    assert eval_aggregate._HistoryView({"turns": []}).structured_history() == {"turns": []}
+
+    class _FakeSemanticSimilarityAnalyzer:
+        def __init__(self, stripped_history, method, model_name, device):
+            pass
+
+        def compute_self_consistency_scores(self):
+            return {
+                "unknown-agent": {"turns": [1], "scores": [0.1]},
+                "agent_alpha": {"turns": [1], "scores": [0.2]},
+            }
+
+        def compute_cross_agent_alignment_scores(self, agent_a_field, agent_b_field):
+            return {"turns": [], "scores": []}
+
+    monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", _FakeSemanticSimilarityAnalyzer)
+    result = SimpleNamespace(
+        results=[
+            SimpleNamespace(
+                agents=[SimpleNamespace(id="agent_alpha", name="Alpha")],
+                agora=SimpleNamespace(structured_history=lambda: {"turns": []}),
+            )
+        ],
+        analyzed_cases=[],
+    )
+    self_agg, _, self_repeats, _ = eval_aggregate._serialize_semantic_no_stance(
+        result,
+        ["PROMOTE"],
+        model_name="fake-cosine",
+        device=None,
+    )
+    assert self_agg["alpha"]["cosine_similarity"] == [0.2]
+    assert "unknown-agent" not in self_repeats["repeats"][0]
+
+
+def test_no_stance_only_record_emits_only_no_stance_analysis(monkeypatch):
+    class _FakeSemanticSimilarityAnalyzer:
+        def __init__(self, stripped_history, method, model_name, device):
+            assert stripped_history["turns"][0]["Alpha"]["public_utterance"] == "visible reason"
+
+        def compute_self_consistency_scores(self):
+            return {"agent_alpha": {"turns": [1], "scores": [0.5]}}
+
+        def compute_cross_agent_alignment_scores(self, agent_a_field, agent_b_field):
+            return {"turns": [1], "scores": [0.7]}
+
+    class _NoStanceGroup(_FakeGroup):
+        def __init__(self):
+            super().__init__()
+            self.sweep_values["scenario_id"] = "promotion_committee"
+
+        def run_analysis(self, sweep_root, **analysis_kwargs):
+            result = _FakeGroupResult()
+            result.results[0].agora = SimpleNamespace(
+                structured_history=lambda: {
+                    "turns": [
+                        {
+                            "turn_num": 1,
+                            "Alpha": {
+                                "public_utterance": "PROMOTE - visible reason",
+                                "private_utterance": "PROMOTE - private reason",
+                            },
+                            "Beta": {
+                                "public_utterance": "DO NOT PROMOTE - beta reason",
+                                "private_utterance": "DO NOT PROMOTE - beta private",
+                            },
+                        }
+                    ]
+                }
+            )
+            return result
+
+    monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", _FakeSemanticSimilarityAnalyzer)
+    row = eval_aggregate.build_experiment_analysis_record(
+        _NoStanceGroup(),
+        "/tmp/outputs/sweeps_5",
+        experiment_index=0,
+        analysis_kwargs={
+            "semantic_analysis_metrics": ["self_consistency"],
+            "semantic_similarity_method": "cosine",
+            "semantic_similarity_model": "fake-cosine",
+        },
+        include_nli=False,
+        include_emotions=False,
+        no_stance_only=True,
+    )
+
+    assert "cosine-similarity-self-consistency" not in row
+    assert "emotion-public-utterances-no_stance" not in row
+    assert "emotion-private-reflections-no_stance" not in row
+    assert "emotion-public-utterances-all-repeats-no_stance" not in row
+    assert "emotion-private-reflections-all-repeats-no_stance" not in row
+    assert row["cosine-similarity-self-consistency-no_stance"]["alpha"]["cosine_similarity"] == [0.5]
+    assert row["cosine-similarity-cross-agent-alignment-all-repeats-no_stance"]["repeats"][0]["private alignment"]["cosine_similarity"] == [0.7]
