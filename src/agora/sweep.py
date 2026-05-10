@@ -56,6 +56,7 @@ MASTER_ALLOWED_KEYS = frozenset(
         "max_parallel_jobs",
         "stop_on_error",
         "number_of_repeats",
+        "aggregation",
         "base",
         "sweep",
         "notes",
@@ -63,6 +64,36 @@ MASTER_ALLOWED_KEYS = frozenset(
 )
 MASTER_FORBIDDEN_FIELDS = frozenset(
     {"output_dir", "outputs_root", "run_name", "indexed_output", "index_csv"}
+)
+DEFAULT_AGGREGATION_OUTPUT_PATH = Path("aggregate_analysis.json")
+AGGREGATION_ALLOWED_KEYS = frozenset(
+    {
+        "output_path",
+        "analysis",
+        "include_nli",
+        "nli_model_name",
+        "include_emotions",
+        "emotion_model_name",
+        "device",
+        "include_no_stance",
+        "no_stance_only",
+    }
+)
+AGGREGATION_ANALYSIS_ALLOWED_FIELDS = frozenset(
+    {
+        "semantic_analysis_metrics",
+        "semantic_similarity_method",
+        "semantic_similarity_model",
+        "semantic_similarity_device",
+        "persona_analysis_metrics",
+        "persona_scoring_model",
+        "persona_scoring_verbose",
+        "persona_score_samples",
+        "save_plots",
+        "show_plots",
+        "catalog_path",
+        "prompts_path",
+    }
 )
 
 
@@ -262,6 +293,60 @@ def _experiment_field_names() -> set[str]:
     return {field.name for field in fields(ExperimentConfig)}
 
 
+def _normalize_aggregation_config(
+    payload: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    if payload is None:
+        raw: dict[str, Any] = {}
+    elif not isinstance(payload, Mapping):
+        raise ValueError("aggregation must be a JSON object when provided")
+    else:
+        raw = dict(payload)
+
+    unknown_keys = set(raw) - AGGREGATION_ALLOWED_KEYS
+    if unknown_keys:
+        raise ValueError(f"Unknown aggregation config keys: {sorted(unknown_keys)}")
+
+    output_path = raw.get("output_path", DEFAULT_AGGREGATION_OUTPUT_PATH)
+    if output_path in (None, ""):
+        raise ValueError("aggregation.output_path must not be empty")
+    output_path = output_path if isinstance(output_path, Path) else Path(str(output_path))
+
+    analysis = raw.get("analysis", {})
+    if analysis is None:
+        analysis = {}
+    if not isinstance(analysis, Mapping):
+        raise ValueError("aggregation.analysis must be a JSON object")
+    unknown_analysis_fields = set(analysis) - AGGREGATION_ANALYSIS_ALLOWED_FIELDS
+    if unknown_analysis_fields:
+        raise ValueError(
+            "Unknown aggregation.analysis fields: "
+            f"{sorted(unknown_analysis_fields)}"
+        )
+
+    normalized: dict[str, Any] = {
+        "output_path": output_path,
+        "analysis": dict(analysis),
+    }
+    for key in ("include_nli", "include_emotions", "include_no_stance", "no_stance_only"):
+        value = raw.get(key, False)
+        if not isinstance(value, bool):
+            raise ValueError(f"aggregation.{key} must be a boolean")
+        normalized[key] = value
+
+    for key in ("nli_model_name", "emotion_model_name"):
+        value = raw.get(key)
+        if value is not None and not isinstance(value, str):
+            raise ValueError(f"aggregation.{key} must be a string or null")
+        normalized[key] = value
+
+    device = raw.get("device")
+    if device is not None and device not in {"cpu", "mps", "cuda"}:
+        raise ValueError("aggregation.device must be one of: cpu, mps, cuda, or null")
+    normalized["device"] = device
+    return normalized
+
+
 def _normalize_master_config(payload: Mapping[str, Any]) -> dict[str, Any]:
     unknown_keys = set(payload) - MASTER_ALLOWED_KEYS
     if unknown_keys:
@@ -284,6 +369,8 @@ def _normalize_master_config(payload: Mapping[str, Any]) -> dict[str, Any]:
     notes = payload.get("notes")
     if notes is not None and not isinstance(notes, str):
         raise ValueError("notes must be a string when provided")
+
+    aggregation = _normalize_aggregation_config(payload.get("aggregation"))
 
     max_parallel_jobs = payload.get("max_parallel_jobs", 1)
     if not isinstance(max_parallel_jobs, int) or max_parallel_jobs <= 0:
@@ -332,9 +419,25 @@ def _normalize_master_config(payload: Mapping[str, Any]) -> dict[str, Any]:
         "stop_on_error": stop_on_error,
         "number_of_repeats": number_of_repeats,
         "notes": notes,
+        "aggregation": aggregation,
         "base": dict(base),
         "sweep": normalized_sweep,
     }
+
+
+def _resolve_aggregation_payload_paths(
+    payload: Any, *, base_dir: Path
+) -> Any:
+    if not isinstance(payload, Mapping):
+        return payload
+
+    resolved = dict(payload)
+    analysis = resolved.get("analysis")
+    if isinstance(analysis, Mapping):
+        resolved["analysis"] = resolve_experiment_payload_paths(
+            analysis, base_dir=base_dir
+        )
+    return resolved
 
 
 def _resolve_sweep_master_paths(
@@ -372,6 +475,11 @@ def _resolve_sweep_master_paths(
                 for value in values
             ]
         resolved["sweep"] = resolved_sweep
+
+    if "aggregation" in resolved:
+        resolved["aggregation"] = _resolve_aggregation_payload_paths(
+            resolved["aggregation"], base_dir=base_dir
+        )
 
     return resolved
 
@@ -500,6 +608,7 @@ def _manifest_from_master(master: Mapping[str, Any], cases: Sequence[Mapping[str
             "max_parallel_jobs": master["max_parallel_jobs"],
             "stop_on_error": master["stop_on_error"],
         },
+        "aggregation": _json_ready(master["aggregation"]),
         "number_of_repeats": master["number_of_repeats"],
         "notes": master["notes"],
         "total_cases": len(cases),
@@ -606,6 +715,11 @@ def _load_manifest(root: Path | str) -> dict[str, Any]:
 
 def _load_status(root: Path | str) -> dict[str, Any]:
     return _load_json_object(Path(root) / "status.json")
+
+
+def load_sweep_aggregation_config(root: Path | str) -> dict[str, Any]:
+    manifest = _load_manifest(root)
+    return _normalize_aggregation_config(manifest.get("aggregation"))
 
 
 def _status_counts(status: Mapping[str, Any]) -> dict[str, int]:

@@ -864,6 +864,7 @@ def build_experiment_analysis_record(
     include_emotions: bool = True,
     emotion_model_name: str | None = None,
     device: str | None = None,
+    include_no_stance: bool = True,
     no_stance_only: bool = False,
 ) -> dict[str, Any]:
     """Build a single dataframe-ready row for one experiment group."""
@@ -924,22 +925,23 @@ def build_experiment_analysis_record(
     semantic_kwargs = analysis_kwargs or {}
     semantic_model_name = semantic_kwargs.get("semantic_similarity_model")
     semantic_method = semantic_kwargs.get("semantic_similarity_method")
-    if semantic_method in {None, SEMANTIC_SIMILARITY_METHOD_COSINE}:
-        (
-            cosine_self_no_stance,
-            cosine_cross_no_stance,
-            cosine_self_repeats_no_stance,
-            cosine_cross_repeats_no_stance,
-        ) = _serialize_semantic_no_stance(
-            group_result,
-            no_stance_labels,
-            model_name=semantic_model_name,
-            device=device or semantic_kwargs.get("semantic_similarity_device"),
-        )
-        row["cosine-similarity-self-consistency-no_stance"] = cosine_self_no_stance
-        row["cosine-similarity-cross-agent-alignment-no_stance"] = cosine_cross_no_stance
-        row["cosine-similarity-self-consistency-all-repeats-no_stance"] = cosine_self_repeats_no_stance
-        row["cosine-similarity-cross-agent-alignment-all-repeats-no_stance"] = cosine_cross_repeats_no_stance
+    if include_no_stance or no_stance_only:
+        if semantic_method in {None, SEMANTIC_SIMILARITY_METHOD_COSINE}:
+            (
+                cosine_self_no_stance,
+                cosine_cross_no_stance,
+                cosine_self_repeats_no_stance,
+                cosine_cross_repeats_no_stance,
+            ) = _serialize_semantic_no_stance(
+                group_result,
+                no_stance_labels,
+                model_name=semantic_model_name,
+                device=device or semantic_kwargs.get("semantic_similarity_device"),
+            )
+            row["cosine-similarity-self-consistency-no_stance"] = cosine_self_no_stance
+            row["cosine-similarity-cross-agent-alignment-no_stance"] = cosine_cross_no_stance
+            row["cosine-similarity-self-consistency-all-repeats-no_stance"] = cosine_self_repeats_no_stance
+            row["cosine-similarity-cross-agent-alignment-all-repeats-no_stance"] = cosine_cross_repeats_no_stance
 
     if include_nli:
         if not no_stance_only:
@@ -1000,6 +1002,7 @@ def build_experiment_analysis_records(
     include_emotions: bool = True,
     emotion_model_name: str | None = None,
     device: str | None = None,
+    include_no_stance: bool = True,
     no_stance_only: bool = False,
 ) -> list[dict[str, Any]]:
     """Build one aggregate row per experiment group in a sweep manifest."""
@@ -1014,11 +1017,65 @@ def build_experiment_analysis_records(
             include_emotions=include_emotions,
             emotion_model_name=emotion_model_name,
             device=device,
+            include_no_stance=include_no_stance,
             no_stance_only=no_stance_only,
         )
         for index, group in enumerate(manifest)
     ]
     return [record for record in records if record]
+
+
+def _aggregate_json_default(value: Any) -> Any:
+    if isinstance(value, Path):
+        return str(value)
+    item = getattr(value, "item", None)
+    if callable(item):
+        return item()
+    raise TypeError(f"Object of type {type(value).__name__} is not JSON serializable")  # pragma: no cover
+
+
+def write_experiment_analysis_records(
+    records: list[dict[str, Any]],
+    output_path: Path | str,
+) -> Path:
+    """Write aggregate records as portable JSON and return the output path."""
+    path = Path(output_path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(records, indent=2, default=_aggregate_json_default) + "\n",
+        encoding="utf-8",
+    )
+    return path
+
+
+def aggregate_sweep_analysis(
+    manifest_path: Path | str,
+    *,
+    output_path: Path | str,
+    analysis_kwargs: dict[str, Any] | None = None,
+    include_nli: bool = False,
+    nli_model_name: str | None = None,
+    include_emotions: bool = False,
+    emotion_model_name: str | None = None,
+    device: str | None = None,
+    include_no_stance: bool = False,
+    no_stance_only: bool = False,
+) -> dict[str, Any]:
+    """Build and persist one aggregate JSON record per experiment group."""
+    manifest = SweepManifest.from_path(manifest_path)
+    records = build_experiment_analysis_records(
+        manifest,
+        analysis_kwargs=analysis_kwargs,
+        include_nli=include_nli,
+        nli_model_name=nli_model_name,
+        include_emotions=include_emotions,
+        emotion_model_name=emotion_model_name,
+        device=device,
+        include_no_stance=include_no_stance,
+        no_stance_only=no_stance_only,
+    )
+    written_path = write_experiment_analysis_records(records, output_path)
+    return {"output_path": written_path, "row_count": len(records)}
 
 
 def build_experiment_analysis_dataframe(
@@ -1030,6 +1087,7 @@ def build_experiment_analysis_dataframe(
     include_emotions: bool = True,
     emotion_model_name: str | None = None,
     device: str | None = None,
+    include_no_stance: bool = True,
     no_stance_only: bool = False,
 ) -> Any:
     """Build the aggregate dataframe for a sweep manifest.
@@ -1047,6 +1105,7 @@ def build_experiment_analysis_dataframe(
         include_emotions=include_emotions,
         emotion_model_name=emotion_model_name,
         device=device,
+        include_no_stance=include_no_stance,
         no_stance_only=no_stance_only,
     )
     return pd.DataFrame(records)

@@ -991,3 +991,102 @@ def test_no_stance_only_record_emits_only_no_stance_analysis(monkeypatch):
     assert "emotion-private-reflections-all-repeats-no_stance" not in row
     assert row["cosine-similarity-self-consistency-no_stance"]["alpha"]["cosine_similarity"] == [0.5]
     assert row["cosine-similarity-cross-agent-alignment-all-repeats-no_stance"]["repeats"][0]["private alignment"]["cosine_similarity"] == [0.7]
+
+
+def test_build_record_can_skip_no_stance_analysis(monkeypatch):
+    def fail_if_called(*_args, **_kwargs):
+        raise AssertionError("no-stance semantic analysis should be skipped")
+
+    monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", fail_if_called)
+
+    row = eval_aggregate.build_experiment_analysis_record(
+        _FakeGroup(),
+        "/tmp/outputs/sweeps_5",
+        experiment_index=0,
+        analysis_kwargs={"semantic_analysis_metrics": ["self_consistency"]},
+        include_nli=False,
+        include_emotions=False,
+        include_no_stance=False,
+    )
+
+    assert "cosine-similarity-self-consistency-no_stance" not in row
+    assert "cosine-similarity-cross-agent-alignment-no_stance" not in row
+
+
+def test_write_experiment_analysis_records_writes_json(tmp_path):
+    class _Scalar:
+        def item(self):
+            return 7
+
+    output_path = eval_aggregate.write_experiment_analysis_records(
+        [
+            {
+                "experiment_index": 0,
+                "path": tmp_path / "case",
+                "tuple_value": (1, 2),
+                "scalar": _Scalar(),
+            }
+        ],
+        tmp_path / "aggregate.json",
+    )
+
+    assert output_path == tmp_path / "aggregate.json"
+    payload = eval_aggregate.json.loads(output_path.read_text(encoding="utf-8"))
+    assert payload == [
+        {
+            "experiment_index": 0,
+            "path": str(tmp_path / "case"),
+            "tuple_value": [1, 2],
+            "scalar": 7,
+        }
+    ]
+
+
+def test_aggregate_sweep_analysis_builds_and_writes_records(monkeypatch, tmp_path):
+    captured = {}
+    fake_manifest = object()
+
+    def fake_from_path(manifest_path):
+        captured["manifest_path"] = manifest_path
+        return fake_manifest
+
+    monkeypatch.setattr(eval_aggregate.SweepManifest, "from_path", fake_from_path)
+
+    def fake_build_records(manifest, **kwargs):
+        captured["manifest"] = manifest
+        captured.update(kwargs)
+        return [{"experiment_index": 0}]
+
+    monkeypatch.setattr(
+        eval_aggregate,
+        "build_experiment_analysis_records",
+        fake_build_records,
+    )
+
+    result = eval_aggregate.aggregate_sweep_analysis(
+        tmp_path / "manifest.json",
+        output_path=tmp_path / "aggregate.json",
+        analysis_kwargs={"semantic_analysis_metrics": ["self_consistency"]},
+        include_nli=True,
+        nli_model_name="nli-model",
+        include_emotions=True,
+        emotion_model_name="emotion-model",
+        device="cpu",
+        include_no_stance=True,
+        no_stance_only=True,
+    )
+
+    assert captured["manifest_path"] == tmp_path / "manifest.json"
+    assert captured["manifest"] is fake_manifest
+    assert captured["analysis_kwargs"] == {"semantic_analysis_metrics": ["self_consistency"]}
+    assert captured["include_nli"] is True
+    assert captured["nli_model_name"] == "nli-model"
+    assert captured["include_emotions"] is True
+    assert captured["emotion_model_name"] == "emotion-model"
+    assert captured["device"] == "cpu"
+    assert captured["include_no_stance"] is True
+    assert captured["no_stance_only"] is True
+    assert result == {"output_path": tmp_path / "aggregate.json", "row_count": 1}
+    assert eval_aggregate.json.loads((tmp_path / "aggregate.json").read_text()) == [
+        {"experiment_index": 0}
+    ]

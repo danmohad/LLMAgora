@@ -9,6 +9,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from .eval_aggregate import aggregate_sweep_analysis
 from .experiment import (
     DEFAULT_CATALOG_PATH,
     DEFAULT_INDEX_CSV,
@@ -25,6 +26,7 @@ from .experiment import (
 from .sweep import (
     RUN_SELECTION_MODES,
     generate_sweep,
+    load_sweep_aggregation_config,
     load_sweep_config,
     run_sweep,
 )
@@ -136,6 +138,32 @@ def _sweep_run(args: argparse.Namespace) -> None:
     )
     if exit_code:
         raise SystemExit(exit_code)
+
+
+def _sweep_aggregate(args: argparse.Namespace) -> None:
+    root = args.root
+    if root is None:
+        root = _infer_sweep_root_from_single_jsonc()
+    aggregation = load_sweep_aggregation_config(root)
+    output_path = Path(aggregation["output_path"])
+    if not output_path.is_absolute():
+        output_path = root / output_path
+
+    result = aggregate_sweep_analysis(
+        root / "manifest.json",
+        output_path=output_path,
+        analysis_kwargs=aggregation["analysis"],
+        include_nli=aggregation["include_nli"],
+        nli_model_name=aggregation["nli_model_name"],
+        include_emotions=aggregation["include_emotions"],
+        emotion_model_name=aggregation["emotion_model_name"],
+        device=aggregation["device"],
+        include_no_stance=aggregation["include_no_stance"],
+        no_stance_only=aggregation["no_stance_only"],
+    )
+    print(
+        f"Aggregated {result['row_count']} experiment(s) into {result['output_path']}"
+    )
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -315,6 +343,21 @@ def build_parser() -> argparse.ArgumentParser:
         ),
     )
     sweep_run_cmd.set_defaults(func=_sweep_run)
+
+    sweep_aggregate_cmd = sweep_subparsers.add_parser(
+        "aggregate",
+        help="Build one aggregate analysis JSON table for a generated sweep.",
+    )
+    sweep_aggregate_cmd.add_argument(
+        "--root",
+        type=Path,
+        default=None,
+        help=(
+            "Generated sweep root containing manifest.json. "
+            "When omitted, inferred from the only .jsonc sweep config in the current working tree."
+        ),
+    )
+    sweep_aggregate_cmd.set_defaults(func=_sweep_aggregate)
 
     return parser
 
