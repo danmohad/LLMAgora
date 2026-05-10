@@ -1228,6 +1228,47 @@ def test_run_emotion_analysis():
     assert result2 is result
 
 
+def test_run_emotion_analysis_all_repeats_reuses_single_analyzer_and_cache():
+    history1 = {"turns": [{"turn_num": 1, "public_speech": "hello"}]}
+    history2 = {"AgentA": {"debate_turns": [], "pre_interview": None, "post_interview": None}}
+
+    r1 = MagicMock()
+    r1.agora.structured_history.return_value = history1
+    r2 = MagicMock()
+    r2.agora.structured_history.return_value = history2
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[r1, r2])
+
+    mock_ea = MagicMock()
+    mock_ea.classify_field.side_effect = [
+        {"AgentA": {"turns": [1], "emotions": {"joy": [0.2], "sadness": [0.8]}}},
+        {"AgentA": {"turns": [1], "emotions": {"joy": [0.8], "sadness": [0.2]}}},
+    ]
+
+    with patch("agora.emotion_analyzer.EmotionAnalyzer", return_value=mock_ea) as mock_cls:
+        repeats = gr.run_emotion_analysis_all_repeats(
+            "public_speech",
+            model_name="emotion-model",
+            device="cpu",
+        )
+        aggregate = gr.run_emotion_analysis(
+            "public_speech",
+            model_name="emotion-model",
+            device="cpu",
+        )
+        cached_repeats = gr.run_emotion_analysis_all_repeats(
+            "public_speech",
+            model_name="emotion-model",
+            device="cpu",
+        )
+
+    mock_cls.assert_called_once_with(history1, model_name="emotion-model", device="cpu")
+    assert mock_ea.classify_field.call_count == 2
+    assert cached_repeats is repeats
+    assert repeats[0]["AgentA"]["emotions"]["joy"]["mean"] == [0.2]
+    assert repeats[1]["AgentA"]["emotions"]["sadness"]["mean"] == [0.2]
+    assert aggregate["AgentA"]["emotions"]["joy"]["mean"] == pytest.approx([0.5])
+
+
 def test_run_emotion_analysis_with_device():
     """Passing device forwards it to EmotionAnalyzer."""
     history = {"turns": [{"turn_num": 1, "public_speech": "hello"}]}

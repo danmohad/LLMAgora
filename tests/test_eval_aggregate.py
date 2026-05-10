@@ -156,6 +156,9 @@ class _FakeGroupResult:
             },
         }
 
+    def run_emotion_analysis_all_repeats(self, field, model_name=None, device=None):
+        return [self.run_emotion_analysis(field=field, model_name=model_name, device=device)]
+
     def aggregate_survey(self, survey_questions=None):
         assert survey_questions == self.survey_question_specs
         return {
@@ -296,6 +299,11 @@ def test_build_experiment_analysis_record_serializes_requested_sections(monkeypa
         eval_aggregate.GroupAnalysisResult,
         "run_emotion_analysis",
         lambda self, field, model_name=None, device=None: fake_emotions,
+    )
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_emotion_analysis_all_repeats",
+        lambda self, field, model_name=None, device=None: [fake_emotions for _ in self.results],
     )
 
     row = eval_aggregate.build_experiment_analysis_record(
@@ -568,12 +576,18 @@ def test_all_repeat_helpers_cover_unknown_agents_and_case_id_metadata(monkeypatc
         "run_emotion_analysis",
         lambda self, field, model_name=None, device=None: fake_emotions,
     )
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_emotion_analysis_all_repeats",
+        lambda self, field, model_name=None, device=None: [fake_emotions for _ in self.results],
+    )
 
     repeat_group_result = SimpleNamespace(
         group=None,
         results=[SimpleNamespace()],
         analyzed_cases=[SimpleNamespace(case_id="case-2")],
         run_nli_analysis_all_repeats=lambda model_name=None, device=None: [fake_nli],
+        run_emotion_analysis_all_repeats=lambda field, model_name=None, device=None: [fake_emotions],
     )
     nli_self, _ = eval_aggregate._serialize_nli_all_repeats(
         repeat_group_result,
@@ -647,6 +661,59 @@ def test_serialize_nli_all_repeats_uses_group_repeat_cache(monkeypatch):
     assert nli_self["repeats"][1]["case_id"] == "case-b"
     assert nli_self["repeats"][0]["alpha"]["nli_probabilities"][0] == pytest.approx((0.8, 0.0, 0.2))
     assert nli_cross["repeats"][1]["public utterances"]["nli_probabilities"][0] == pytest.approx((0.2, 0.0, 0.8))
+
+
+def test_serialize_emotions_all_repeats_uses_group_repeat_cache(monkeypatch):
+    def payload(joy):
+        sadness = 1.0 - joy
+        return {
+            "agent_alpha": {
+                "turns": [1],
+                "emotions": {
+                    "joy": {"mean": [joy], "se": [0.0]},
+                    "sadness": {"mean": [sadness], "se": [0.0]},
+                },
+            }
+        }
+
+    calls = []
+
+    def run_all_repeats(field, model_name=None, device=None):
+        calls.append((field, model_name, device))
+        return [payload(0.7), payload(0.3)]
+
+    group_result = SimpleNamespace(
+        results=[
+            SimpleNamespace(
+                agents=[
+                    SimpleNamespace(id="agent_alpha", name="Alpha"),
+                    SimpleNamespace(id="agent_beta", name="Beta"),
+                ]
+            )
+        ],
+        analyzed_cases=[SimpleNamespace(case_id="case-a"), SimpleNamespace(case_id="case-b")],
+        run_emotion_analysis_all_repeats=run_all_repeats,
+    )
+    monkeypatch.setattr(
+        eval_aggregate,
+        "GroupAnalysisResult",
+        lambda *args, **kwargs: pytest.fail("unexpected per-repeat wrapper"),
+    )
+
+    public, private = eval_aggregate._serialize_emotions_all_repeats(
+        group_result,
+        model_name="emotion-model",
+        device="cpu",
+    )
+
+    assert calls == [
+        (eval_aggregate.PUBLIC_NARRATIVE_FIELD, "emotion-model", "cpu"),
+        (eval_aggregate.PRIVATE_NARRATIVE_FIELD, "emotion-model", "cpu"),
+    ]
+    assert public["repeats"][0]["case_id"] == "case-a"
+    assert private["repeats"][1]["case_id"] == "case-b"
+    assert public["repeats"][0]["alpha"]["emotion_probabilities"][0] == pytest.approx((0.7, 0.3))
+    assert private["repeats"][1]["alpha"]["emotion_probabilities"][0] == pytest.approx((0.3, 0.7))
 
 
 def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
@@ -725,6 +792,59 @@ def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
     assert cross_agg["private alignment"]["cosine_similarity"] == [0.8]
     assert self_repeats["repeats"][0]["case_id"] == "case-strip"
     assert cross_repeats["repeats"][0]["public alignment"]["cosine_similarity"] == [0.6]
+
+
+def test_no_stance_semantic_uses_default_cosine_model_when_model_omitted(monkeypatch):
+    captured = {}
+
+    class _FakeSemanticSimilarityAnalyzer:
+        def __init__(self, stripped_history, method, model_name, device):
+            captured["model_name"] = model_name
+            assert method == eval_aggregate.SEMANTIC_SIMILARITY_METHOD_COSINE
+            assert device is None
+            assert stripped_history["turns"][0]["Alpha"]["public_utterance"] == "visible reason"
+
+        def compute_self_consistency_scores(self):
+            return {"agent_alpha": {"turns": [1], "scores": [0.5]}}
+
+        def compute_cross_agent_alignment_scores(self, agent_a_field, agent_b_field):
+            return {"turns": [1], "scores": [0.7]}
+
+    monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", _FakeSemanticSimilarityAnalyzer)
+    group_result = SimpleNamespace(
+        results=[
+            SimpleNamespace(
+                agents=[SimpleNamespace(id="agent_alpha", name="Alpha")],
+                agora=SimpleNamespace(
+                    structured_history=lambda: {
+                        "turns": [
+                            {
+                                "turn_num": 1,
+                                "Alpha": {
+                                    "public_utterance": "PROMOTE - visible reason",
+                                    "private_utterance": "PROMOTE - private reason",
+                                },
+                            }
+                        ]
+                    }
+                ),
+            )
+        ],
+        analyzed_cases=[],
+    )
+
+    self_agg, cross_agg, self_repeats, cross_repeats = eval_aggregate._serialize_semantic_no_stance(
+        group_result,
+        ["PROMOTE"],
+        model_name=None,
+        device=None,
+    )
+
+    assert captured["model_name"] is None
+    assert self_agg["alpha"]["cosine_similarity"] == [0.5]
+    assert cross_agg["public alignment"]["cosine_similarity"] == [0.7]
+    assert self_repeats["repeats"][0]["alpha"]["cosine_similarity"] == [0.5]
+    assert cross_repeats["repeats"][0]["private alignment"]["cosine_similarity"] == [0.7]
 
 
 def test_no_stance_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_path, monkeypatch):
