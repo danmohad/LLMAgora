@@ -572,10 +572,7 @@ def _reordered_nli_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
-def _serialize_nli(group_result: Any, *, model_name: str | None, device: str | None) -> tuple[dict[str, Any], dict[str, Any]]:
-    nli = group_result.run_nli_analysis(model_name=model_name, device=device)
-    slot_lookup = _agent_slot_lookup(group_result)
-
+def _serialize_nli_payload(nli: dict[str, Any], slot_lookup: dict[str, str]) -> tuple[dict[str, Any], dict[str, Any]]:
     self_consistency = {"alpha": {}, "beta": {}}
     for agent_key, payload in (nli.get("self_consistency") or {}).items():
         slot = slot_lookup.get(agent_key)
@@ -591,6 +588,11 @@ def _serialize_nli(group_result: Any, *, model_name: str | None, device: str | N
     return self_consistency, cross_agent
 
 
+def _serialize_nli(group_result: Any, *, model_name: str | None, device: str | None) -> tuple[dict[str, Any], dict[str, Any]]:
+    nli = group_result.run_nli_analysis(model_name=model_name, device=device)
+    return _serialize_nli_payload(nli, _agent_slot_lookup(group_result))
+
+
 def _serialize_nli_all_repeats(
     group_result: Any,
     *,
@@ -600,18 +602,17 @@ def _serialize_nli_all_repeats(
     analyzed_cases = list(getattr(group_result, "analyzed_cases", []) or [])
     self_consistency = {"repeats": []}
     cross_agent = {"repeats": []}
-    base_group = getattr(group_result, "group", None)
+    slot_lookup = _agent_slot_lookup(group_result)
+    repeat_payloads = group_result.run_nli_analysis_all_repeats(
+        model_name=model_name,
+        device=device,
+    )
 
-    for repeat_index, res in enumerate(getattr(group_result, "results", []), start=1):
+    for repeat_index, nli in enumerate(repeat_payloads, start=1):
         repeat_meta = {"repeat_number": repeat_index}
         if repeat_index - 1 < len(analyzed_cases):
             repeat_meta["case_id"] = analyzed_cases[repeat_index - 1].case_id
-        single = GroupAnalysisResult(
-            group=base_group,
-            results=[res],
-            analyzed_cases=analyzed_cases[repeat_index - 1:repeat_index],
-        )
-        repeat_self, repeat_cross = _serialize_nli(single, model_name=model_name, device=device)
+        repeat_self, repeat_cross = _serialize_nli_payload(nli, slot_lookup)
         self_consistency["repeats"].append({**repeat_self, **repeat_meta})
         cross_agent["repeats"].append({**repeat_cross, **repeat_meta})
     return self_consistency, cross_agent

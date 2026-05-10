@@ -783,6 +783,41 @@ def test_group_result_plot_nli_second_repeat_uses_existing_analyzer():
         gr.plot_nli()  # should not raise
 
 
+def test_run_nli_analysis_all_repeats_reuses_single_analyzer_and_cache():
+    res1, debate_data_1 = _fake_result_with_nli_history("pa", "qa", "pb", "qb")
+    res2, debate_data_2 = _fake_result_with_nli_history("pc", "qc", "pd", "qd")
+    res2.agora.structured_history.return_value = debate_data_2
+    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[res1, res2])
+
+    mock_analyzer = MagicMock()
+    mock_analyzer.debate_data = debate_data_1
+    mock_analyzer._id2label = {0: "contradiction", 1: "neutral", 2: "entailment"}
+    mock_analyzer.model = MagicMock()
+    analyzer_calls = []
+
+    def fake_analyzer(history, **kwargs):
+        analyzer_calls.append((history, kwargs))
+        return mock_analyzer
+
+    repeat_1_dist = [0.1, 0.3, 0.6]
+    repeat_2_dist = [0.8, 0.1, 0.1]
+    with (
+        patch("agora.semantic_similarity_analyzer.SemanticSimilarityAnalyzer", side_effect=fake_analyzer),
+        patch("agora.sweep_results._nli_bidirectional", side_effect=[repeat_1_dist] * 4 + [repeat_2_dist] * 4),
+    ):
+        repeats = gr.run_nli_analysis_all_repeats(model_name="nli-model", device="cpu")
+        aggregate = gr.run_nli_analysis(model_name="nli-model", device="cpu")
+        cached_repeats = gr.run_nli_analysis_all_repeats(model_name="nli-model", device="cpu")
+
+    assert len(analyzer_calls) == 1
+    assert analyzer_calls[0][1]["model_name"] == "nli-model"
+    assert analyzer_calls[0][1]["device"] == "cpu"
+    assert cached_repeats is repeats
+    assert repeats[0]["cross_agent_public"]["distributions"]["entailment"]["mean"] == [0.6]
+    assert repeats[1]["cross_agent_public"]["distributions"]["contradiction"]["mean"] == [0.8]
+    assert aggregate["cross_agent_public"]["distributions"]["contradiction"]["mean"] == pytest.approx([0.45])
+
+
 # ---------------------------------------------------------------------------
 # build_emotion_style
 # ---------------------------------------------------------------------------
