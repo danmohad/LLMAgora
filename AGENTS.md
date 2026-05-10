@@ -6,4 +6,3 @@
 - When implementing changes, pay no heed to backward compatibility. We want our codebase (including our tests) to be minimal. 
 - Don't keep code around just to pass tests. All code must be functional.
 - Don't hard-code any prompt text inside the source code; it makes it impossible to audit, debug and tweak. Prompt text should always be inside one of the input json files.
-- When editing Jupyter notebooks, **append new cells at the end** of the notebook unless the user explicitly asks for a different placement.
