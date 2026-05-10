@@ -321,9 +321,6 @@ def _serialize_semantic_no_stance(
     model_name: str | None,
     device: str | None,
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any]]:
-    if not model_name:
-        return {"alpha": {}, "beta": {}}, {}, {"repeats": []}, {"repeats": []}
-
     analyzed_cases = list(getattr(group_result, "analyzed_cases", []) or [])
     slot_lookup = _agent_slot_lookup(group_result)
     sc_by_slot: dict[str, list[dict[str, Any]]] = {}
@@ -618,29 +615,41 @@ def _serialize_nli_all_repeats(
     return self_consistency, cross_agent
 
 
+def _serialize_emotion_payload(payload: dict[str, Any], slot_lookup: dict[str, str]) -> dict[str, Any]:
+    result = {"alpha": {}, "beta": {}}
+    for agent_key, agent_payload in (payload or {}).items():
+        slot = slot_lookup.get(agent_key)
+        if slot is None:
+            continue
+        ordering = sorted((agent_payload.get("emotions") or {}).keys())
+        series = _tuple_series_payload(
+            agent_payload.get("turns", []),
+            agent_payload.get("emotions", {}),
+            ordering,
+            tuple_key="emotion_probabilities",
+            error_key="emotion_probabilities_standard_error",
+        )
+        series["emotion_tuple_ordering"] = tuple(ordering)
+        result[slot] = series
+    return result
+
+
 def _serialize_emotions(group_result: Any, *, model_name: str | None, device: str | None) -> tuple[dict[str, Any], dict[str, Any]]:
     slot_lookup = _agent_slot_lookup(group_result)
-
-    def _one(field: str) -> dict[str, Any]:
-        payload = group_result.run_emotion_analysis(field=field, model_name=model_name, device=device)
-        result = {"alpha": {}, "beta": {}}
-        for agent_key, agent_payload in (payload or {}).items():
-            slot = slot_lookup.get(agent_key)
-            if slot is None:
-                continue
-            ordering = sorted((agent_payload.get("emotions") or {}).keys())
-            series = _tuple_series_payload(
-                agent_payload.get("turns", []),
-                agent_payload.get("emotions", {}),
-                ordering,
-                tuple_key="emotion_probabilities",
-                error_key="emotion_probabilities_standard_error",
-            )
-            series["emotion_tuple_ordering"] = tuple(ordering)
-            result[slot] = series
-        return result
-
-    return _one(PUBLIC_NARRATIVE_FIELD), _one(PRIVATE_NARRATIVE_FIELD)
+    public = group_result.run_emotion_analysis(
+        field=PUBLIC_NARRATIVE_FIELD,
+        model_name=model_name,
+        device=device,
+    )
+    private = group_result.run_emotion_analysis(
+        field=PRIVATE_NARRATIVE_FIELD,
+        model_name=model_name,
+        device=device,
+    )
+    return (
+        _serialize_emotion_payload(public, slot_lookup),
+        _serialize_emotion_payload(private, slot_lookup),
+    )
 
 
 def _serialize_emotions_all_repeats(
@@ -652,23 +661,30 @@ def _serialize_emotions_all_repeats(
     analyzed_cases = list(getattr(group_result, "analyzed_cases", []) or [])
     public = {"repeats": []}
     private = {"repeats": []}
-    base_group = getattr(group_result, "group", None)
+    slot_lookup = _agent_slot_lookup(group_result)
+    public_payloads = group_result.run_emotion_analysis_all_repeats(
+        field=PUBLIC_NARRATIVE_FIELD,
+        model_name=model_name,
+        device=device,
+    )
+    private_payloads = group_result.run_emotion_analysis_all_repeats(
+        field=PRIVATE_NARRATIVE_FIELD,
+        model_name=model_name,
+        device=device,
+    )
 
-    for repeat_index, res in enumerate(getattr(group_result, "results", []), start=1):
+    for repeat_index, repeat_payload in enumerate(public_payloads, start=1):
         repeat_meta = {"repeat_number": repeat_index}
         if repeat_index - 1 < len(analyzed_cases):
             repeat_meta["case_id"] = analyzed_cases[repeat_index - 1].case_id
-        single = GroupAnalysisResult(
-            group=base_group,
-            results=[res],
-            analyzed_cases=analyzed_cases[repeat_index - 1:repeat_index],
-        )
-        repeat_public, repeat_private = _serialize_emotions(
-            single,
-            model_name=model_name,
-            device=device,
-        )
+        repeat_public = _serialize_emotion_payload(repeat_payload, slot_lookup)
         public["repeats"].append({**repeat_public, **repeat_meta})
+
+    for repeat_index, repeat_payload in enumerate(private_payloads, start=1):
+        repeat_meta = {"repeat_number": repeat_index}
+        if repeat_index - 1 < len(analyzed_cases):
+            repeat_meta["case_id"] = analyzed_cases[repeat_index - 1].case_id
+        repeat_private = _serialize_emotion_payload(repeat_payload, slot_lookup)
         private["repeats"].append({**repeat_private, **repeat_meta})
     return public, private
 

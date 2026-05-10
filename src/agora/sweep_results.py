@@ -235,6 +235,32 @@ def _nli_result_from_buckets(
     return result
 
 
+def _emotion_result_from_buckets(
+    by_agent: dict[str, dict[int, dict[str, list[float]]]],
+) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for agent_id, turn_dict in by_agent.items():
+        turns_sorted = sorted(turn_dict)
+        all_labels = sorted({lbl for t in turn_dict.values() for lbl in t})
+        result[agent_id] = {
+            "turns": turns_sorted,
+            "emotions": {
+                lbl: {
+                    "mean": [float(np.mean(turn_dict[t].get(lbl, [0.0]))) for t in turns_sorted],
+                    "se": [
+                        float(
+                            np.std(turn_dict[t].get(lbl, [0.0]))
+                            / np.sqrt(max(len(turn_dict[t].get(lbl, [0.0])), 1))
+                        )
+                        for t in turns_sorted
+                    ],
+                }
+                for lbl in all_labels
+            },
+        }
+    return result
+
+
 def _classify_decision(text: str, decision_labels: list[str]) -> int | None:
     """Return index of the matching decision label at the start of *text*, or *None*.
 
@@ -269,6 +295,7 @@ class GroupAnalysisResult:
     _nli_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _nli_repeat_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _emotion_caches: dict = field(default_factory=dict, repr=False, compare=False, init=False)
+    _emotion_repeat_caches: dict = field(default_factory=dict, repr=False, compare=False, init=False)
     _survey_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _decision_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _decision_per_repeat_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
@@ -866,7 +893,7 @@ class GroupAnalysisResult:
         """
         resolved_model_name = model_name or DEFAULT_EMOTION_MODEL
         cache_key = (field, resolved_model_name, device)
-        if cache_key in self._emotion_caches:
+        if cache_key in self._emotion_caches and cache_key in self._emotion_repeat_caches:
             return self._emotion_caches[cache_key]
 
         from .debate_history import get_structured_debate_history
@@ -874,6 +901,7 @@ class GroupAnalysisResult:
 
         ea: Any = None
         by_agent: dict[str, dict[int, dict[str, list[float]]]] = {}
+        repeat_results: list[dict[str, Any]] = []
 
         for res in self.results:
             structured_history = res.agora.structured_history()
@@ -891,40 +919,45 @@ class GroupAnalysisResult:
                     ea.debate_data = structured_history
 
             field_result = ea.classify_field(field)
+            repeat_by_agent: dict[str, dict[int, dict[str, list[float]]]] = {}
             for agent_id, data in field_result.items():
                 turns = data["turns"]
                 emotions = data["emotions"]
                 for i, turn_num in enumerate(turns):
                     for label, vals in emotions.items():
+                        value = float(vals[i])
                         (
                             by_agent.setdefault(agent_id, {})
                             .setdefault(int(turn_num), {})
                             .setdefault(label, [])
-                            .append(float(vals[i]))
+                            .append(value)
                         )
+                        (
+                            repeat_by_agent.setdefault(agent_id, {})
+                            .setdefault(int(turn_num), {})
+                            .setdefault(label, [])
+                            .append(value)
+                        )
+            repeat_results.append(_emotion_result_from_buckets(repeat_by_agent))
 
-        agg_result: dict[str, Any] = {}
-        for agent_id, turn_dict in by_agent.items():
-            turns_sorted = sorted(turn_dict)
-            all_labels = sorted({lbl for t in turn_dict.values() for lbl in t})
-            agg_result[agent_id] = {
-                "turns": turns_sorted,
-                "emotions": {
-                    lbl: {
-                        "mean": [float(np.mean(turn_dict[t].get(lbl, [0.0]))) for t in turns_sorted],
-                        "se": [
-                            float(
-                                np.std(turn_dict[t].get(lbl, [0.0]))
-                                / np.sqrt(max(len(turn_dict[t].get(lbl, [0.0])), 1))
-                            )
-                            for t in turns_sorted
-                        ],
-                    }
-                    for lbl in all_labels
-                },
-            }
+        agg_result = _emotion_result_from_buckets(by_agent)
         self._emotion_caches[cache_key] = agg_result
+        self._emotion_repeat_caches[cache_key] = repeat_results
         return agg_result
+
+    def run_emotion_analysis_all_repeats(
+        self,
+        field: str,
+        model_name: str | None = None,
+        device: str | None = None,
+    ) -> list[dict]:
+        """Return per-repeat emotion probabilities, reusing the aggregate cache."""
+        resolved_model_name = model_name or DEFAULT_EMOTION_MODEL
+        cache_key = (field, resolved_model_name, device)
+        if cache_key in self._emotion_repeat_caches:
+            return self._emotion_repeat_caches[cache_key]
+        self.run_emotion_analysis(field=field, model_name=model_name, device=device)
+        return self._emotion_repeat_caches[cache_key]
 
     # ------------------------------------------------------------------ summary
 
