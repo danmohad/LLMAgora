@@ -87,6 +87,9 @@ def test_build_parser_registers_run_subcommand():
     assert args_sweep_run_default.func is cli._sweep_run
     assert args_sweep_run_default.root is None
     assert args_sweep_run_default.persistent is False
+    args_sweep_aggregate = parser.parse_args(["sweep", "aggregate"])
+    assert args_sweep_aggregate.func is cli._sweep_aggregate
+    assert args_sweep_aggregate.root is None
     args_emit_progress = parser.parse_args(
         ["run", "--scenario-id", "s1", "--emit-progress-markers"]
     )
@@ -525,3 +528,46 @@ def test_sweep_run_requires_root_when_multiple_jsonc_exist(monkeypatch, tmp_path
                 persistent=False,
             )
         )
+
+
+def test_sweep_aggregate_infers_root_and_dispatches(monkeypatch, tmp_path, capsys):
+    inferred_root = tmp_path / "outputs" / "sweeps" / "demo"
+    captured = {}
+
+    monkeypatch.setattr(cli, "_infer_sweep_root_from_single_jsonc", lambda: inferred_root)
+    monkeypatch.setattr(
+        cli,
+        "load_sweep_aggregation_config",
+        lambda root: {
+            "output_path": Path("aggregate_analysis.json"),
+            "analysis": {"semantic_analysis_metrics": ["self_consistency"]},
+            "include_nli": True,
+            "nli_model_name": "nli-model",
+            "include_emotions": True,
+            "emotion_model_name": "emotion-model",
+            "device": "cpu",
+            "include_no_stance": True,
+            "no_stance_only": False,
+        },
+    )
+
+    def fake_aggregate(manifest_path, **kwargs):
+        captured["manifest_path"] = manifest_path
+        captured.update(kwargs)
+        return {"output_path": kwargs["output_path"], "row_count": 3}
+
+    monkeypatch.setattr(cli, "aggregate_sweep_analysis", fake_aggregate)
+
+    cli._sweep_aggregate(SimpleNamespace(root=None))
+
+    assert captured["manifest_path"] == inferred_root / "manifest.json"
+    assert captured["output_path"] == inferred_root / "aggregate_analysis.json"
+    assert captured["analysis_kwargs"] == {"semantic_analysis_metrics": ["self_consistency"]}
+    assert captured["include_nli"] is True
+    assert captured["nli_model_name"] == "nli-model"
+    assert captured["include_emotions"] is True
+    assert captured["emotion_model_name"] == "emotion-model"
+    assert captured["device"] == "cpu"
+    assert captured["include_no_stance"] is True
+    assert captured["no_stance_only"] is False
+    assert "Aggregated 3 experiment(s)" in capsys.readouterr().out

@@ -38,13 +38,10 @@ Runs `pytest` with coverage report, and comments the coverage percentage on the 
 
 ## Notebook demo
 
-Canonical notebooks:
-- `notebooks/run_demo.ipynb` for on-the-fly/online runs.
-- `notebooks/offline_analysis_demo.ipynb` for post-processing from an existing `debate_snapshot.json` (offline analysis mode).
-  It loads baseline settings from the source run's `config.json`, so you only choose post-processing overrides.
-  It writes post-processing artifacts back into that same source run directory.
+Canonical notebook:
+- `notebooks/run_demo.ipynb` for online runs and offline post-processing from an existing `debate_snapshot.json`.
 
-Both are intentionally thin and call the high-level workflow in `agora.experiment`.
+The notebook is intentionally thin and calls the high-level workflow in `agora.experiment`.
 
 ## CLI
 
@@ -122,9 +119,12 @@ agora sweep run --root outputs/sweeps/example --mode failed
 
 # Keep retrying selected failed attempts until every selected case succeeds
 agora sweep run --root outputs/sweeps/example --mode failed --persistent
+
+# Build one aggregate JSON record per experiment group
+agora sweep aggregate
 ```
 
-When `--root` is omitted, `agora sweep run` infers it from the only non-generated
+When `--root` is omitted, `agora sweep run` and `agora sweep aggregate` infer it from the only non-generated
 `.jsonc` sweep config in the current working tree; if there is not exactly one,
 pass `--root` explicitly.
 
@@ -135,15 +135,20 @@ Sweep directory layout:
 - `summary.json` stores the latest run summary
 - `cases/<case_id>/config.json` stores the strict JSON config for that case
 - `cases/<case_id>/run.log` stores the latest combined stdout/stderr for that case
+- `aggregate_analysis.json` stores the default aggregate table produced by `agora sweep aggregate`
 
 Sweep config rules:
 - `base` uses the normal single-run config fields
 - `sweep` maps fields to candidate-value lists
+- `aggregation` is optional and configures `agora sweep aggregate`
 - multiple sweep axes expand as a Cartesian product
 - `number_of_repeats` controls how many separate generated runs are created for each Cartesian case (default `1`)
 - list-valued run fields use a list of candidate full values (for example `subturn_event_order` as a list of lists)
 - `output_dir`, `outputs_root`, `run_name`, `indexed_output`, and `index_csv` are generator-managed and not allowed in the master file
 - generated leaf configs include a fixed absolute `output_dir`, so each run writes into its own `cases/<case_id>` directory
+- aggregation defaults write `aggregate_analysis.json` under the sweep root with no extra offline post-processing
+- aggregation `analysis` overrides use the normal analysis field names, such as `semantic_analysis_metrics`, `persona_analysis_metrics`, and their model/device controls
+- aggregation can opt into extra aggregate-only analyses with `include_nli`, `include_emotions`, `include_no_stance`, and `no_stance_only`
 
 Output behavior:
 - default mode writes to a readable folder name under `outputs/` (for example `outputs/promotion_committee_no_incentive`)

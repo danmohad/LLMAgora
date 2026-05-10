@@ -126,6 +126,7 @@ def test_normalize_master_config_rejects_invalid_shapes(tmp_path):
     )
     assert normalized["number_of_repeats"] == 1
     assert normalized["sweep"] == {}
+    assert normalized["aggregation"]["output_path"] == Path("aggregate_analysis.json")
     assert sweep._expand_cases(normalized)[0]["label"] == "base"
 
     with pytest.raises(ValueError):
@@ -198,6 +199,54 @@ def test_normalize_master_config_rejects_invalid_shapes(tmp_path):
         )
 
 
+def test_normalize_aggregation_config_custom_and_invalid(tmp_path):
+    custom = sweep._normalize_aggregation_config(
+        {
+            "output_path": "nested/aggregate.json",
+            "analysis": {
+                "semantic_analysis_metrics": ["self_consistency"],
+                "semantic_similarity_method": "cosine",
+                "semantic_similarity_model": "all-mpnet-base-v2",
+                "catalog_path": tmp_path / "catalog.json",
+            },
+            "include_nli": True,
+            "nli_model_name": "nli-model",
+            "include_emotions": True,
+            "emotion_model_name": "emotion-model",
+            "device": "cpu",
+            "include_no_stance": True,
+            "no_stance_only": True,
+        }
+    )
+
+    assert custom["output_path"] == Path("nested/aggregate.json")
+    assert custom["analysis"]["catalog_path"] == tmp_path / "catalog.json"
+    assert custom["include_nli"] is True
+    assert custom["nli_model_name"] == "nli-model"
+    assert custom["include_emotions"] is True
+    assert custom["emotion_model_name"] == "emotion-model"
+    assert custom["device"] == "cpu"
+    assert custom["include_no_stance"] is True
+    assert custom["no_stance_only"] is True
+
+    invalid_payloads = [
+        ([], "aggregation must be a JSON object"),
+        ({"unknown": True}, "Unknown aggregation config keys"),
+        ({"output_path": ""}, "aggregation.output_path must not be empty"),
+        ({"analysis": None, "include_nli": []}, "aggregation.include_nli must be a boolean"),
+        ({"analysis": []}, "aggregation.analysis must be a JSON object"),
+        ({"analysis": {"num_turns": 0}}, "Unknown aggregation.analysis fields"),
+        ({"include_nli": "yes"}, "aggregation.include_nli must be a boolean"),
+        ({"nli_model_name": 3}, "aggregation.nli_model_name must be a string or null"),
+        ({"device": "gpu"}, "aggregation.device must be one of"),
+    ]
+    for payload, message in invalid_payloads:
+        with pytest.raises(ValueError, match=message):
+            sweep._normalize_aggregation_config(payload)
+
+    assert sweep._resolve_aggregation_payload_paths([], base_dir=tmp_path) == []
+
+
 def test_load_sweep_config_and_expand_cases(tmp_path):
     master_path = tmp_path / "master.jsonc"
     sweep_root = tmp_path / "sweeps" / "demo"
@@ -248,6 +297,13 @@ def test_load_sweep_config_resolves_relative_path_fields(tmp_path):
             "  },\n"
             '  "sweep": {\n'
             '    "prompts_path": ["../data/prompts-a.json", "../data/prompts-b.json"]\n'
+            "  },\n"
+            '  "aggregation": {\n'
+            '    "output_path": "aggregate.json",\n'
+            '    "analysis": {\n'
+            '      "catalog_path": "../data/catalog.json",\n'
+            '      "prompts_path": "../data/prompts.json"\n'
+            "    }\n"
             "  }\n"
             "}\n"
         ),
@@ -262,6 +318,9 @@ def test_load_sweep_config_resolves_relative_path_fields(tmp_path):
         tmp_path / "data" / "prompts-a.json",
         tmp_path / "data" / "prompts-b.json",
     ]
+    assert master["aggregation"]["output_path"] == Path("aggregate.json")
+    assert master["aggregation"]["analysis"]["catalog_path"] == tmp_path / "data" / "catalog.json"
+    assert master["aggregation"]["analysis"]["prompts_path"] == tmp_path / "data" / "prompts.json"
 
 
 def test_generate_sweep_normalizes_no_incentive_type_to_null_and_avoids_unspecified_defaults(
@@ -380,6 +439,8 @@ def test_generate_sweep_writes_tree_and_force_replaces(tmp_path):
     status = json.loads((root / "status.json").read_text(encoding="utf-8"))
     assert manifest["number_of_repeats"] == 3
     assert manifest["total_cases"] == 3
+    assert manifest["aggregation"]["output_path"] == "aggregate_analysis.json"
+    assert sweep.load_sweep_aggregation_config(root)["output_path"] == Path("aggregate_analysis.json")
     assert status["aggregate_counts"]["pending"] == 3
 
     first_case = manifest["cases"][0]["case_id"]
