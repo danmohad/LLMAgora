@@ -227,6 +227,17 @@ class _FakeGroup:
         return _FakeGroupResult()
 
 
+class _NoExternalSemanticSimilarityAnalyzer:
+    def __init__(self, stripped_history, method, model_name, device):
+        assert method == eval_aggregate.SEMANTIC_SIMILARITY_METHOD_COSINE
+
+    def compute_self_consistency_scores(self):
+        return {}
+
+    def compute_cross_agent_alignment_scores(self, agent_a_field, agent_b_field):
+        return {}
+
+
 def test_build_experiment_analysis_record_serializes_requested_sections(monkeypatch):
     fake_nli = {
         "self_consistency": {
@@ -305,6 +316,11 @@ def test_build_experiment_analysis_record_serializes_requested_sections(monkeypa
         "run_emotion_analysis_all_repeats",
         lambda self, field, model_name=None, device=None: [fake_emotions for _ in self.results],
     )
+    monkeypatch.setattr(
+        eval_aggregate,
+        "SemanticSimilarityAnalyzer",
+        _NoExternalSemanticSimilarityAnalyzer,
+    )
 
     row = eval_aggregate.build_experiment_analysis_record(
         _FakeGroup(),
@@ -347,6 +363,11 @@ def test_build_experiment_analysis_record_serializes_requested_sections(monkeypa
 
 
 def test_build_records_and_dataframe_support_disabled_optional_sections(monkeypatch):
+    monkeypatch.setattr(
+        eval_aggregate,
+        "SemanticSimilarityAnalyzer",
+        _NoExternalSemanticSimilarityAnalyzer,
+    )
     fake_manifest = SimpleNamespace(
         sweep_root="/tmp/outputs/sweeps_5",
         __iter__=lambda self: iter([_FakeGroup()]),
@@ -386,7 +407,13 @@ def test_build_records_and_dataframe_support_disabled_optional_sections(monkeypa
     assert dataframe["records"][0]["experiment_index"] == 0
 
 
-def test_build_records_skips_empty_groups_and_uses_analyzed_case_metadata(tmp_path, capsys):
+def test_build_records_skips_empty_groups_and_uses_analyzed_case_metadata(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr(
+        eval_aggregate,
+        "SemanticSimilarityAnalyzer",
+        _NoExternalSemanticSimilarityAnalyzer,
+    )
+
     class _PartiallySkippedGroup(_FakeGroup):
         def run_analysis(self, sweep_root, **analysis_kwargs):
             result = _FakeGroupResult()
