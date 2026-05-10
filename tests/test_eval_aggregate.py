@@ -133,6 +133,9 @@ class _FakeGroupResult:
             "cross_agent_private": {"turns": [1, 2], "label_names": ["contradiction", "neutral", "entailment"], "distributions": distributions},
         }
 
+    def run_nli_analysis_all_repeats(self, model_name=None, device=None):
+        return [self.run_nli_analysis(model_name=model_name, device=device)]
+
     def run_emotion_analysis(self, field, model_name=None, device=None):
         assert model_name == "emotion-model"
         assert device == "cpu"
@@ -283,6 +286,11 @@ def test_build_experiment_analysis_record_serializes_requested_sections(monkeypa
         eval_aggregate.GroupAnalysisResult,
         "run_nli_analysis",
         lambda self, model_name=None, device=None: fake_nli,
+    )
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
+        "run_nli_analysis_all_repeats",
+        lambda self, model_name=None, device=None: [fake_nli for _ in self.results],
     )
     monkeypatch.setattr(
         eval_aggregate.GroupAnalysisResult,
@@ -552,6 +560,11 @@ def test_all_repeat_helpers_cover_unknown_agents_and_case_id_metadata(monkeypatc
     )
     monkeypatch.setattr(
         eval_aggregate.GroupAnalysisResult,
+        "run_nli_analysis_all_repeats",
+        lambda self, model_name=None, device=None: [fake_nli for _ in self.results],
+    )
+    monkeypatch.setattr(
+        eval_aggregate.GroupAnalysisResult,
         "run_emotion_analysis",
         lambda self, field, model_name=None, device=None: fake_emotions,
     )
@@ -560,6 +573,7 @@ def test_all_repeat_helpers_cover_unknown_agents_and_case_id_metadata(monkeypatc
         group=None,
         results=[SimpleNamespace()],
         analyzed_cases=[SimpleNamespace(case_id="case-2")],
+        run_nli_analysis_all_repeats=lambda model_name=None, device=None: [fake_nli],
     )
     nli_self, _ = eval_aggregate._serialize_nli_all_repeats(
         repeat_group_result,
@@ -573,6 +587,66 @@ def test_all_repeat_helpers_cover_unknown_agents_and_case_id_metadata(monkeypatc
     )
     assert nli_self["repeats"][0]["case_id"] == "case-2"
     assert emotions_public["repeats"][0]["case_id"] == "case-2"
+
+
+def test_serialize_nli_all_repeats_uses_group_repeat_cache(monkeypatch):
+    def payload(entailment):
+        contradiction = 1.0 - entailment
+        distributions = {
+            "contradiction": {"mean": [contradiction], "se": [0.0]},
+            "neutral": {"mean": [0.0], "se": [0.0]},
+            "entailment": {"mean": [entailment], "se": [0.0]},
+        }
+        return {
+            "self_consistency": {
+                "agent_alpha": {
+                    "turns": [1],
+                    "label_names": ["contradiction", "neutral", "entailment"],
+                    "distributions": distributions,
+                }
+            },
+            "cross_agent_public": {
+                "turns": [1],
+                "label_names": ["contradiction", "neutral", "entailment"],
+                "distributions": distributions,
+            },
+        }
+
+    calls = []
+
+    def run_all_repeats(model_name=None, device=None):
+        calls.append((model_name, device))
+        return [payload(0.8), payload(0.2)]
+
+    group_result = SimpleNamespace(
+        results=[
+            SimpleNamespace(
+                agents=[
+                    SimpleNamespace(id="agent_alpha", name="Alpha"),
+                    SimpleNamespace(id="agent_beta", name="Beta"),
+                ]
+            )
+        ],
+        analyzed_cases=[SimpleNamespace(case_id="case-a"), SimpleNamespace(case_id="case-b")],
+        run_nli_analysis_all_repeats=run_all_repeats,
+    )
+    monkeypatch.setattr(
+        eval_aggregate,
+        "GroupAnalysisResult",
+        lambda *args, **kwargs: pytest.fail("unexpected per-repeat wrapper"),
+    )
+
+    nli_self, nli_cross = eval_aggregate._serialize_nli_all_repeats(
+        group_result,
+        model_name="nli-model",
+        device="cpu",
+    )
+
+    assert calls == [("nli-model", "cpu")]
+    assert nli_self["repeats"][0]["case_id"] == "case-a"
+    assert nli_self["repeats"][1]["case_id"] == "case-b"
+    assert nli_self["repeats"][0]["alpha"]["nli_probabilities"][0] == pytest.approx((0.8, 0.0, 0.2))
+    assert nli_cross["repeats"][1]["public utterances"]["nli_probabilities"][0] == pytest.approx((0.2, 0.0, 0.8))
 
 
 def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):

@@ -217,6 +217,24 @@ def _agg_nli_by_turn(
     return {"turns": turns, "label_names": label_names, "distributions": distributions}
 
 
+def _nli_result_from_buckets(
+    sc_by_agent: dict[str, dict[int, list[list[float]]]],
+    cpa_by_turn: dict[int, list[list[float]]],
+    cpriva_by_turn: dict[int, list[list[float]]],
+    id2label: dict,
+) -> dict[str, Any]:
+    result: dict[str, Any] = {"id2label": id2label}
+    if sc_by_agent:
+        result["self_consistency"] = {
+            aid: _agg_nli_by_turn(td, id2label) for aid, td in sc_by_agent.items()
+        }
+    if cpa_by_turn:
+        result["cross_agent_public"] = _agg_nli_by_turn(cpa_by_turn, id2label)
+    if cpriva_by_turn:
+        result["cross_agent_private"] = _agg_nli_by_turn(cpriva_by_turn, id2label)
+    return result
+
+
 def _classify_decision(text: str, decision_labels: list[str]) -> int | None:
     """Return index of the matching decision label at the start of *text*, or *None*.
 
@@ -249,6 +267,7 @@ class GroupAnalysisResult:
     _semantic_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _persona_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _nli_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
+    _nli_repeat_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _emotion_caches: dict = field(default_factory=dict, repr=False, compare=False, init=False)
     _survey_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
     _decision_cache: dict | None = field(default=None, repr=False, compare=False, init=False)
@@ -726,6 +745,7 @@ class GroupAnalysisResult:
         sc_by_agent: dict[str, dict[int, list[list[float]]]] = {}
         cpa_by_turn: dict[int, list[list[float]]] = {}
         cpriva_by_turn: dict[int, list[list[float]]] = {}
+        repeat_results: list[dict[str, Any]] = []
 
         for res in self.results:
             structured_history = res.agora.structured_history()
@@ -751,6 +771,9 @@ class GroupAnalysisResult:
 
             debate_data = analyzer.debate_data
             agent_ids = list(debate_data.keys())
+            repeat_sc_by_agent: dict[str, dict[int, list[list[float]]]] = {}
+            repeat_cpa_by_turn: dict[int, list[list[float]]] = {}
+            repeat_cpriva_by_turn: dict[int, list[list[float]]] = {}
 
             for agent_id in agent_ids:
                 for i, turn in enumerate(debate_data[agent_id]["debate_turns"]):
@@ -760,6 +783,7 @@ class GroupAnalysisResult:
                     if private and public_:
                         dist = _nli_bidirectional(analyzer, private, public_)
                         sc_by_agent.setdefault(agent_id, {}).setdefault(turn_num, []).append(dist)
+                        repeat_sc_by_agent.setdefault(agent_id, {}).setdefault(turn_num, []).append(dist)
 
             if len(agent_ids) >= 2:
                 a0, a1 = agent_ids[0], agent_ids[1]
@@ -777,28 +801,54 @@ class GroupAnalysisResult:
                     if ta and tb:
                         dist = _nli_bidirectional(analyzer, ta, tb)
                         cpa_by_turn.setdefault(tn, []).append(dist)
+                        repeat_cpa_by_turn.setdefault(tn, []).append(dist)
                     ta_priv = t0[tn].get(PRIVATE_NARRATIVE_FIELD, "")
                     tb_priv = t1[tn].get(PRIVATE_NARRATIVE_FIELD, "")
                     if ta_priv and tb_priv:
                         dist = _nli_bidirectional(analyzer, ta_priv, tb_priv)
                         cpriva_by_turn.setdefault(tn, []).append(dist)
+                        repeat_cpriva_by_turn.setdefault(tn, []).append(dist)
+
+            repeat_results.append(
+                _nli_result_from_buckets(
+                    repeat_sc_by_agent,
+                    repeat_cpa_by_turn,
+                    repeat_cpriva_by_turn,
+                    id2label
+                    if id2label is not None
+                    else {0: "contradiction", 1: "neutral", 2: "entailment"},
+                )
+            )
 
         agg_id2label: dict = id2label if id2label is not None else {
             0: "contradiction", 1: "neutral", 2: "entailment"
         }
-        nli_result: dict[str, Any] = {"id2label": agg_id2label}
-        if sc_by_agent:
-            nli_result["self_consistency"] = {
-                aid: _agg_nli_by_turn(td, agg_id2label) for aid, td in sc_by_agent.items()
-            }
-        if cpa_by_turn:
-            nli_result["cross_agent_public"] = _agg_nli_by_turn(cpa_by_turn, agg_id2label)
-        if cpriva_by_turn:
-            nli_result["cross_agent_private"] = _agg_nli_by_turn(cpriva_by_turn, agg_id2label)
+        nli_result = _nli_result_from_buckets(
+            sc_by_agent,
+            cpa_by_turn,
+            cpriva_by_turn,
+            agg_id2label,
+        )
         if self._nli_cache is None:
             self._nli_cache = {}
+        if self._nli_repeat_cache is None:
+            self._nli_repeat_cache = {}
         self._nli_cache[cache_key] = nli_result
+        self._nli_repeat_cache[cache_key] = repeat_results
         return nli_result
+
+    def run_nli_analysis_all_repeats(
+        self,
+        model_name: str | None = None,
+        device: str | None = None,
+    ) -> list[dict]:
+        """Return per-repeat NLI distributions, reusing the aggregate NLI cache."""
+        resolved_model_name = model_name or DEFAULT_NLI_MODEL_NAME
+        cache_key = (resolved_model_name, device)
+        if self._nli_repeat_cache is not None and cache_key in self._nli_repeat_cache:
+            return self._nli_repeat_cache[cache_key]
+        self.run_nli_analysis(model_name=model_name, device=device)
+        return self._nli_repeat_cache[cache_key] if self._nli_repeat_cache is not None else []
 
     def run_emotion_analysis(
         self,
