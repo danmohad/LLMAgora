@@ -27,10 +27,10 @@
   "load_snapshot": false,
   "load_dir": null,
   "save_snapshot": false,
-  "outputs_root": "outputs",
+  "outputs_root": "../outputs",
   "run_name": null,
   "indexed_output": false,
   "index_csv": null,
-  "catalog_path": "data/scenarios.json",
-  "prompts_path": "data/prompts.json"
+  "catalog_path": "scenarios.json",
+  "prompts_path": "prompts.json"
 }

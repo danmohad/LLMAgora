@@ -1,13 +1,15 @@
 # LLM Agora
 
-A minimal arena where LLM-backed agents interact by taking public turns (optionally preceded by private reflections, succeeded by public and private surveys) until each reaches a configurable quota.
-Pre- and post-interviews run by default; `keep_pre_interview` and `keep_post_interview` only control whether agents retain those notes in local memory. Agent personas, topics of the interaction, and scenario incentive modules are configurable. An analysis and plotting suite is also included.
+A minimal arena where two LLM-backed agents discuss a scenario through configurable sub-turn events: public utterances, optional private reflections, and optional public or private surveys. Pre- and post-interviews run by default; `keep_pre_interview` and `keep_post_interview` only control whether agents retain those notes in local memory.
+
+Agent personas, scenario topics, incentive modules, and prompt templates are data-driven through JSON files in `data/`. The package also includes optional semantic, persona-adherence, plotting, and sweep aggregation workflows.
 
 
 ## Requirements
 
 - Python >=3.12
-- An OpenRouter API key stored in `.env`
+- An OpenRouter API key for real LLM runs (`OPENROUTER_API_KEY`)
+- Optional: the `analysis` extra for semantic similarity and aggregate NLI/emotion post-processing
 
 
 ## Setup
@@ -16,9 +18,13 @@ Pre- and post-interviews run by default; `keep_pre_interview` and `keep_post_int
    ```bash
    uv venv --python 3.12.4
    source .venv/bin/activate
+   uv pip install -e .
+   ```
+2. Install optional local analysis dependencies only if you will run semantic similarity or aggregate NLI/emotion analysis:
+   ```bash
    uv pip install -e ".[analysis]"
    ```
-2. Add your OpenRouter API key to a `.env` file in the repo root:
+3. Add your OpenRouter API key to the shell environment or to a `.env` file in the repo root:
    ```bash
    OPENROUTER_API_KEY=sk-...
    ```
@@ -32,14 +38,14 @@ Pre- and post-interviews run by default; `keep_pre_interview` and `keep_post_int
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
 Tests assume the package is installed (editable install recommended).
 
-## GitHub PR pipeline
+## CI
 
-Runs `pytest` with coverage report, and comments the coverage percentage on the PR. Note that it doesn't install the package in 'analysis' mode, because the `sentence-transformers` package is too large for GitHub free nodes.
+CI runs `pytest` with coverage and enforces 100% coverage through `pyproject.toml`. It installs the base package, not the heavy `analysis` extra.
 
 ## Notebook demo
 
 Canonical notebook:
-- `notebooks/run_demo.ipynb` for online runs and offline post-processing from an existing `debate_snapshot.json`.
+- `notebooks/run_demo.ipynb` for a single configurable online run that can save a `debate_snapshot.json`.
 
 The notebook is intentionally thin and calls the high-level workflow in `agora.experiment`.
 
@@ -47,16 +53,18 @@ The notebook is intentionally thin and calls the high-level workflow in `agora.e
 
 Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command.
 
-Canonical config lives at `data/config_example.json` and matches the notebook and CLI arguments exactly.
-Optional retention and analysis features are disabled by default (`false` flags and empty analysis metric lists).
-Analysis backends must be configured explicitly when their metric lists are non-empty; otherwise config validation fails.
-Sweep generation uses the commented master template at `data/sweep_example.jsonc`.
+Canonical single-run config lives at `data/config_example.json`. Relative paths inside JSON config files are resolved relative to the file that contains them, so the checked-in config uses `scenarios.json`, `prompts.json`, and `../outputs`. CLI-only paths are resolved from the current working directory.
+
+Optional retention, output, and analysis features are disabled by default (`false` flags and empty analysis metric lists). Analysis backends must be configured explicitly when their metric lists are non-empty; otherwise config validation fails. Prompt templates live in `data/prompts.json`, and sweep generation uses the commented master template at `data/sweep_example.jsonc`.
 
 ```bash
 # Run with config
+# With the default config, no output directory is created unless you enable
+# snapshots, surveys, indexed output, plots, or analysis.
 agora run --config data/config_example.json
 
 # Override specific fields from config
+# Semantic similarity requires the analysis extra.
 agora run --config data/config_example.json \
   --scenario-id ngo_climate_endorsement \
   --incentive-direction positive \
@@ -66,12 +74,12 @@ agora run --config data/config_example.json \
   --semantic-similarity-model all-mpnet-base-v2 \
   --save-plots
 
-# Use NLI for semantic scoring (instead of cosine embeddings)
+# Use NLI for semantic scoring
 agora run --config data/config_example.json \
   --semantic-analysis-metrics self_consistency \
   --semantic-similarity-method nli \
   --semantic-similarity-model dleemiller/finecat-nli-l \
-  --semantic-similarity-device mps  # or cpu
+  --semantic-similarity-device mps
 
 # Run persona adherence analysis for selected metric slices only
 agora run --config data/config_example.json \
@@ -95,8 +103,15 @@ agora run --config data/config_example.json \
   --keep-private-survey \
   --subturn-event-order public_utterance private_survey
 
-# Resume from an existing snapshot directory
-agora run --config data/config_example.json --load-snapshot --load-dir outputs/promotion_committee_no_incentive
+# Save a snapshot that can be resumed later
+agora run --config data/config_example.json \
+  --save-snapshot \
+  --run-name snapshot_demo
+
+# Resume from that snapshot directory
+agora run --config data/config_example.json \
+  --load-snapshot \
+  --load-dir outputs/snapshot_demo
 
 # Indexed output mode: run folder is a short unique ID and index row is appended
 agora run --config data/config_example.json --indexed-output
@@ -104,7 +119,7 @@ agora run --config data/config_example.json --indexed-output
 
 ### Sweep Workflows
 
-Use `agora sweep` to generate and run parameter sweeps. `agora sweep run` owns the terminal and renders the live dashboard until the batch completes.
+Use `agora sweep` to generate and run parameter sweeps. The checked-in sweep example writes to `outputs/sweeps/example` from the repo root and generates one case for each `incentive_type` value. `agora sweep run` owns the terminal and renders the live dashboard until the batch completes.
 
 ```bash
 # Expand the master config into manifest/status plus cases/<case_id>/config.json
@@ -157,10 +172,10 @@ Output behavior:
 - `load_snapshot=true` requires `load_dir` (directory containing `debate_snapshot.json`)
 - `show_plots=true` requires `save_plots=true`
 - `subturn_event_order` drives event enablement directly:
-- must include `public_utterance`
-- include `private_utterance` to enable private reflection
-- include `public_survey` to enable public survey
-- include `private_survey` to enable private survey
+  - must include `public_utterance`
+  - include `private_utterance` to enable private reflection
+  - include `public_survey` to enable public survey
+  - include `private_survey` to enable private survey
 - `keep_private_reflection`, `keep_public_survey`, and `keep_private_survey` require their respective events in `subturn_event_order`
 - when outputs are enabled, each run folder contains run artifacts (`config.json`, plots, optional snapshot)
 - `eval_data.json` is written only when at least one analysis stream is enabled (`semantic_analysis_metrics` or `persona_analysis_metrics`)
