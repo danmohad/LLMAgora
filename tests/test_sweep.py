@@ -358,6 +358,7 @@ def test_generate_sweep_normalizes_no_incentive_type_to_null_and_avoids_unspecif
     assert config_payload["prompts_path"] == str(tmp_path / "data" / "prompts.json")
     assert config_payload["semantic_similarity_method"] is None
     assert config_payload["incentive_type"] is None
+    assert config_payload["save_snapshot"] is True
     assert Path(config_payload["output_dir"]).is_absolute()
     assert "semantic_similarity_model" not in config_payload
     assert "subturn_event_order" not in config_payload
@@ -1167,6 +1168,7 @@ def test_run_sweep_resume_and_stop_on_error(tmp_path, monkeypatch):
 
     class ImmediatePopen:
         def __init__(self, cmd, stdout, stderr, **kwargs):
+            assert "--save-snapshot" in cmd
             self.case_id = Path(cmd[-1]).parent.name
             launched.append(self.case_id)
             self.returncode = outcomes[self.case_id]

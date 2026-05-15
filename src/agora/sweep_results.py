@@ -72,20 +72,26 @@ class SweepCase:
             Any :class:`~agora.experiment.ExperimentConfig` fields you want to
             override for the analysis pass (analysis metrics, scoring model, …).
         """
-        from .experiment import ExperimentConfig, build_experiment_config, run_persona_experiment
+        from .experiment import (
+            ExperimentConfig,
+            build_experiment_config,
+            resolve_experiment_payload_paths,
+            run_persona_experiment,
+        )
 
         abs_case_dir = sweep_root / self.case_dir
         abs_config_path = sweep_root / self.config_path
 
-        base_raw = json.loads(abs_config_path.read_text(encoding="utf-8"))
+        base_raw = resolve_experiment_payload_paths(
+            json.loads(abs_config_path.read_text(encoding="utf-8")),
+            base_dir=abs_config_path.parent,
+        )
         allowed = {f.name for f in dc_fields(ExperimentConfig)}
-        # Strip fields we override explicitly, plus any machine-specific paths from the
-        # original run (output_dir, outputs_root, index_csv, run_name).
+        # Strip fields we override explicitly, plus output paths from the original run.
         _OFFLINE_OVERRIDE_FIELDS = {
             "num_turns", "load_snapshot", "load_dir", "save_snapshot",
             "reuse_load_dir_for_outputs", "indexed_output",
             "output_dir", "outputs_root", "index_csv", "run_name",
-            "catalog_path", "prompts_path",
         }
         base_config = {
             k: v for k, v in base_raw.items()

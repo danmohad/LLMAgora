@@ -176,7 +176,7 @@ class _FakeGroupResult:
             },
         }
 
-    def aggregate_response_decisions(self):
+    def aggregate_response_decisions(self, scenario_id=None, catalog_path=None):
         return {
             "decision_label": "PROMOTE",
             "by_slot": {
@@ -191,7 +191,7 @@ class _FakeGroupResult:
             },
         }
 
-    def aggregate_response_decisions_all_repeats(self):
+    def aggregate_response_decisions_all_repeats(self, scenario_id=None, catalog_path=None):
         return {
             "decision_label": "PROMOTE",
             "repeats": [
@@ -360,6 +360,64 @@ def test_build_experiment_analysis_record_serializes_requested_sections(monkeypa
     assert row["decision-cross-agent-alignment"]["public"]["prob_decision_standard_error"][1] == (0.1, 0.0)
     assert row["decision-self-consistency-all-repeats"]["repeats"][0]["alpha"]["public"]["decisions"] == [1, 0]
     assert row["decision-cross-agent-alignment-all-repeats"]["repeats"][0]["private"]["beta"]["decisions"] == [0, 0]
+
+
+def test_build_record_uses_case_config_for_decision_catalog(tmp_path, monkeypatch):
+    monkeypatch.setattr(
+        eval_aggregate,
+        "SemanticSimilarityAnalyzer",
+        _NoExternalSemanticSimilarityAnalyzer,
+    )
+    sweep_root = tmp_path / "sweep"
+    config_dir = sweep_root / "cases" / "case-a"
+    config_dir.mkdir(parents=True)
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        '{"scenarios": [{"scenario_id": "external-scenario", "decision_labels": ["YES", "NO"]}]}',
+        encoding="utf-8",
+    )
+    (config_dir / "config.json").write_text(
+        f'{{"scenario_id": "external-scenario", "catalog_path": "{catalog_path}"}}',
+        encoding="utf-8",
+    )
+    result = _FakeGroupResult()
+    captured = {"aggregate": [], "repeats": []}
+
+    def aggregate_response_decisions(scenario_id=None, catalog_path=None):
+        captured["aggregate"].append((scenario_id, catalog_path))
+        return _FakeGroupResult.aggregate_response_decisions(result)
+
+    def aggregate_response_decisions_all_repeats(scenario_id=None, catalog_path=None):
+        captured["repeats"].append((scenario_id, catalog_path))
+        return _FakeGroupResult.aggregate_response_decisions_all_repeats(result)
+
+    result.aggregate_response_decisions = aggregate_response_decisions
+    result.aggregate_response_decisions_all_repeats = aggregate_response_decisions_all_repeats
+
+    group = SimpleNamespace(
+        config_fingerprint="fingerprint-paths",
+        sweep_values={},
+        cases=[
+            SimpleNamespace(
+                case_id="case-a",
+                config_path=eval_aggregate.Path("cases/case-a/config.json"),
+            )
+        ],
+        run_analysis=lambda sweep_root, **analysis_kwargs: result,
+    )
+
+    row = eval_aggregate.build_experiment_analysis_record(
+        group,
+        sweep_root,
+        experiment_index=0,
+        include_nli=False,
+        include_emotions=False,
+        include_no_stance=False,
+    )
+
+    assert row["decision-self-consistency"]["decision"] == "PROMOTE"
+    assert captured["aggregate"] == [("external-scenario", catalog_path)]
+    assert captured["repeats"] == [("external-scenario", catalog_path)]
 
 
 def test_build_records_and_dataframe_support_disabled_optional_sections(monkeypatch):
@@ -891,10 +949,18 @@ def test_no_stance_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_pa
 
     config_dir = tmp_path / "cases" / "case-config"
     config_dir.mkdir(parents=True)
-    (config_dir / "config.json").write_text('{"scenario_id": "promotion_committee"}', encoding="utf-8")
+    catalog_path = tmp_path / "catalog.json"
+    catalog_path.write_text(
+        '{"scenarios": [{"scenario_id": "custom-scenario", "decision_labels": ["GO", "STOP"]}]}',
+        encoding="utf-8",
+    )
+    (config_dir / "config.json").write_text(
+        '{"scenario_id": "custom-scenario", "catalog_path": "../../catalog.json"}',
+        encoding="utf-8",
+    )
     assert eval_aggregate._decision_labels_for_group(_CaseBackedGroup(), tmp_path) == [
-        "PROMOTE",
-        "DO NOT PROMOTE",
+        "GO",
+        "STOP",
     ]
     assert eval_aggregate._decision_labels_for_group(SimpleNamespace(sweep_values={}, cases=[]), tmp_path) == []
     assert eval_aggregate._HistoryView({"turns": []}).structured_history() == {"turns": []}

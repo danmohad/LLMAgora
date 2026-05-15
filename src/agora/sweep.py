@@ -526,6 +526,8 @@ def _normalize_generated_case(payload: Mapping[str, Any]) -> dict[str, Any]:
     # A no-incentive run must not carry a historical/future subtype.
     if normalized.get("incentive_direction") is None and "incentive_type" in normalized:
         normalized["incentive_type"] = None
+    # Sweep aggregation replays completed runs from snapshots.
+    normalized["save_snapshot"] = True
     return normalized
 
 
@@ -1178,6 +1180,7 @@ def _run_case_subprocess(
                     "agora.cli",
                     "run",
                     "--emit-progress-markers",
+                    "--save-snapshot",
                     "--config",
                     str(config_path),
                 ],

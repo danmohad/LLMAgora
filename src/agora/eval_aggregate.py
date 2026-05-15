@@ -116,21 +116,80 @@ def _strip_leading_stance(text: str, decision_labels: list[str]) -> str:
     return text
 
 
-def _decision_labels_for_group(group: Any, sweep_root: Path) -> list[str]:
+def _resolve_optional_config_path(value: Any, *, base_dir: Path | None) -> Path | None:
+    if value in (None, ""):
+        return None
+    path = value if isinstance(value, Path) else Path(str(value))
+    if path.is_absolute() or base_dir is None:
+        return path
+    return (base_dir / path).resolve()
+
+
+def _first_case_config_payload(
+    group: Any,
+    sweep_root: Path,
+) -> tuple[dict[str, Any], Path | None]:
+    cases = list(getattr(group, "cases", []) or [])
+    if not cases:
+        return {}, None
+    config_path = getattr(cases[0], "config_path", None)
+    if config_path is None:
+        return {}, None
+    abs_config_path = sweep_root / config_path
+    payload = json.loads(abs_config_path.read_text(encoding="utf-8"))
+    return payload, abs_config_path.parent
+
+
+def _group_decision_context(
+    group: Any,
+    sweep_root: Path,
+    analysis_kwargs: dict[str, Any],
+) -> tuple[str | None, Path | None]:
+    payload, config_dir = _first_case_config_payload(group, sweep_root)
     scenario_id = (getattr(group, "sweep_values", {}) or {}).get("scenario_id")
-    if not scenario_id and getattr(group, "cases", None):
-        config_path = sweep_root / group.cases[0].config_path
-        if config_path.exists():
-            payload = json.loads(config_path.read_text(encoding="utf-8"))
-            scenario_id = payload.get("scenario_id")
     if not scenario_id:
+        scenario_id = payload.get("scenario_id")
+    catalog_path = _resolve_optional_config_path(
+        analysis_kwargs.get("catalog_path", payload.get("catalog_path")),
+        base_dir=config_dir,
+    )
+    return scenario_id, catalog_path
+
+
+def _decision_labels_for_group(
+    group: Any,
+    sweep_root: Path,
+    *,
+    scenario_id: str | None = None,
+    catalog_path: Path | str | None = None,
+) -> list[str]:
+    payload, config_dir = _first_case_config_payload(group, sweep_root)
+    effective_scenario_id = scenario_id or (
+        getattr(group, "sweep_values", {}) or {}
+    ).get("scenario_id")
+    if not effective_scenario_id:
+        effective_scenario_id = payload.get("scenario_id")
+    if not effective_scenario_id:
         return []
 
-    from .experiment import DEFAULT_CATALOG_PATH
+    effective_catalog = _resolve_optional_config_path(catalog_path, base_dir=config_dir)
+    if effective_catalog is None:
+        effective_catalog = _resolve_optional_config_path(
+            payload.get("catalog_path"),
+            base_dir=config_dir,
+        )
+    if effective_catalog is None:
+        from .experiment import DEFAULT_CATALOG_PATH
 
-    catalog = json.loads(DEFAULT_CATALOG_PATH.read_text(encoding="utf-8"))
+        effective_catalog = DEFAULT_CATALOG_PATH
+
+    catalog = json.loads(effective_catalog.read_text(encoding="utf-8"))
     scenario = next(
-        (item for item in catalog.get("scenarios", []) if item.get("scenario_id") == scenario_id),
+        (
+            item
+            for item in catalog.get("scenarios", [])
+            if item.get("scenario_id") == effective_scenario_id
+        ),
         None,
     )
     labels = scenario.get("decision_labels", []) if isinstance(scenario, dict) else []
@@ -775,8 +834,16 @@ def _pair_series(left: dict[str, Any], right: dict[str, Any], *, value_key: str)
     }
 
 
-def _serialize_decisions(group_result: Any) -> tuple[dict[str, Any], dict[str, Any]]:
-    decisions = group_result.aggregate_response_decisions()
+def _serialize_decisions(
+    group_result: Any,
+    *,
+    scenario_id: str | None,
+    catalog_path: Path | None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    decisions = group_result.aggregate_response_decisions(
+        scenario_id=scenario_id,
+        catalog_path=catalog_path,
+    )
     by_slot = decisions.get("by_slot", {})
     self_consistency = {
         "decision": decisions.get("decision_label"),
@@ -809,8 +876,16 @@ def _serialize_decisions(group_result: Any) -> tuple[dict[str, Any], dict[str, A
     return self_consistency, cross_agent
 
 
-def _serialize_decisions_all_repeats(group_result: Any) -> tuple[dict[str, Any], dict[str, Any]]:
-    decisions = group_result.aggregate_response_decisions_all_repeats()
+def _serialize_decisions_all_repeats(
+    group_result: Any,
+    *,
+    scenario_id: str | None,
+    catalog_path: Path | None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    decisions = group_result.aggregate_response_decisions_all_repeats(
+        scenario_id=scenario_id,
+        catalog_path=catalog_path,
+    )
     self_consistency = {
         "decision": decisions.get("decision_label"),
         "channel_tuple_ordering": ("public", "private"),
@@ -868,12 +943,19 @@ def build_experiment_analysis_record(
     no_stance_only: bool = False,
 ) -> dict[str, Any]:
     """Build a single dataframe-ready row for one experiment group."""
-    group_result = group.run_analysis(Path(sweep_root), **(analysis_kwargs or {}))
+    sweep_root_path = Path(sweep_root)
+    effective_analysis_kwargs = analysis_kwargs or {}
+    decision_scenario_id, decision_catalog_path = _group_decision_context(
+        group,
+        sweep_root_path,
+        effective_analysis_kwargs,
+    )
+    group_result = group.run_analysis(sweep_root_path, **effective_analysis_kwargs)
     analyzed_cases = list(getattr(group_result, "analyzed_cases", []) or group.cases)
     if not group_result.results:
         context = ""
         if getattr(group, "cases", None):
-            context = format_case_warning_context(group.cases[0], Path(sweep_root))
+            context = format_case_warning_context(group.cases[0], sweep_root_path)
         print(
             "Warning: skipping experiment group "
             f"{group.config_fingerprint}{context} because no analyzable cases remained."
@@ -894,8 +976,16 @@ def build_experiment_analysis_record(
         persona_individual_repeats, persona_cumulative_repeats, persona_full_repeats = _serialize_persona_all_repeats(group_result)
         survey_public, survey_private, survey_diff = _serialize_survey(group_result)
         survey_public_repeats, survey_private_repeats, survey_diff_repeats = _serialize_survey_all_repeats(group_result)
-        decision_self, decision_cross = _serialize_decisions(group_result)
-        decision_self_repeats, decision_cross_repeats = _serialize_decisions_all_repeats(group_result)
+        decision_self, decision_cross = _serialize_decisions(
+            group_result,
+            scenario_id=decision_scenario_id,
+            catalog_path=decision_catalog_path,
+        )
+        decision_self_repeats, decision_cross_repeats = _serialize_decisions_all_repeats(
+            group_result,
+            scenario_id=decision_scenario_id,
+            catalog_path=decision_catalog_path,
+        )
         row.update(
             {
                 "cosine-similarity-self-consistency": cosine_self,
@@ -921,8 +1011,18 @@ def build_experiment_analysis_record(
             }
         )
 
-    no_stance_labels = _decision_labels_for_group(group, Path(sweep_root))
-    semantic_kwargs = analysis_kwargs or {}
+    needs_no_stance_labels = include_no_stance or no_stance_only or include_nli
+    no_stance_labels = (
+        _decision_labels_for_group(
+            group,
+            sweep_root_path,
+            scenario_id=decision_scenario_id,
+            catalog_path=decision_catalog_path,
+        )
+        if needs_no_stance_labels
+        else []
+    )
+    semantic_kwargs = effective_analysis_kwargs
     semantic_model_name = semantic_kwargs.get("semantic_similarity_model")
     semantic_method = semantic_kwargs.get("semantic_similarity_method")
     if include_no_stance or no_stance_only:
