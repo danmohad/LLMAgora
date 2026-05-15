@@ -1,0 +1,16 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,x,y,width,height
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,0,_nolegend_,0.7,0.0,0.6000000000000001,0.2989325050730258
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,1,_nolegend_,1.7,0.0,0.6000000000000001,0.0013062914804322645
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,2,_nolegend_,2.7,0.0,0.6000000000000001,0.00029187258041929454
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,3,_nolegend_,3.7,0.0,0.6000000000000001,0.00013387679427978583
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,4,_nolegend_,4.7,0.0,0.6000000000000001,0.00011955297304666601
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,5,_nolegend_,0.7,0.2989325050730258,0.6000000000000001,0.7005374282598495
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,6,_nolegend_,1.7,0.0013062914804322645,0.6000000000000001,0.012966328009497374
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,7,_nolegend_,2.7,0.00029187258041929454,0.6000000000000001,0.00509037624578923
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,8,_nolegend_,3.7,0.00013387679427978583,0.6000000000000001,0.0017649218207225204
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,9,_nolegend_,4.7,0.00011955297304666601,0.6000000000000001,0.0016798910801298916
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,10,_nolegend_,0.7,0.9994699333328754,0.6000000000000001,0.00053004601795692
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,11,_nolegend_,1.7,0.014272619489929639,0.6000000000000001,0.9857273399829865
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,12,_nolegend_,2.7,0.005382248826208524,0.6000000000000001,0.9946177005767822
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,13,_nolegend_,3.7,0.0018987986150023062,0.6000000000000001,0.9981011748313904
+0,NLI self{-}consistency --- mid{-}level manager,Debate turn,probability,rectilinear,patch,14,_nolegend_,4.7,0.0017994440531765576,0.6000000000000001,0.9982005953788757

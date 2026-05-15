@@ -1,0 +1,16 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,x,y,width,height
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,0,_nolegend_,0.7,0.0,0.6000000000000001,0.002548084725276567
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,1,_nolegend_,1.7,0.0,0.6000000000000001,0.3923898208886385
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,2,_nolegend_,2.7,0.0,0.6000000000000001,0.00011460972746135667
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,3,_nolegend_,3.7,0.0,0.6000000000000001,0.04230740445200354
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,4,_nolegend_,4.7,0.0,0.6000000000000001,0.0016621370159555227
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,5,_nolegend_,0.7,0.002548084725276567,0.6000000000000001,0.996719628572464
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,6,_nolegend_,1.7,0.3923898208886385,0.6000000000000001,0.6069637909531593
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,7,_nolegend_,2.7,0.00011460972746135667,0.6000000000000001,0.0005329448031261563
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,8,_nolegend_,3.7,0.04230740445200354,0.6000000000000001,0.33685768488794565
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,9,_nolegend_,4.7,0.0016621370159555227,0.6000000000000001,0.9976284801959991
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,10,_nolegend_,0.7,0.9992677132977406,0.6000000000000001,0.0007322770252358168
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,11,_nolegend_,1.7,0.9993536118417978,0.6000000000000001,0.0006464377802331001
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,12,_nolegend_,2.7,0.000647554530587513,0.6000000000000001,0.9993524849414825
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,13,_nolegend_,3.7,0.3791650893399492,0.6000000000000001,0.6208349019289017
+0,NLI self{-}consistency --- junior faculty,Debate turn,probability,rectilinear,patch,14,_nolegend_,4.7,0.9992906172119547,0.6000000000000001,0.0007093983876984566

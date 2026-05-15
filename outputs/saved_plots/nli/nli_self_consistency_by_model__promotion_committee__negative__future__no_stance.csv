@@ -1,0 +1,301 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,x,y,width,height
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.47478481093421576
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.10838248296640814
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.013647561508696527
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.09910505815641954
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.20925690814910922
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,5,_nolegend_,-0.275,0.47478481093421576,0.55,0.5246432435698807
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,6,_nolegend_,0.725,0.10838248296640814,0.55,0.8909191876649857
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,7,_nolegend_,1.725,0.013647561508696527,0.55,0.984187465906143
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,8,_nolegend_,2.725,0.09910505815641954,0.55,0.8992770597338676
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,9,_nolegend_,3.725,0.20925690814910922,0.55,0.7879882179200649
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,10,_nolegend_,-0.275,0.9994280545040964,0.55,0.000571931335434761
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,11,_nolegend_,0.725,0.9993016706313939,0.55,0.0006983410479733942
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,12,_nolegend_,1.725,0.9978350274148396,0.55,0.002164971941965521
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,13,_nolegend_,2.725,0.9983821178902872,0.55,0.0016178901511011423
+0,$\alpha$ (NLI self),Debate turn,\textbf{Claude Opus 4.6},rectilinear,patch,14,_nolegend_,3.725,0.9972451260691741,0.55,0.0027548732032299794
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.021716122204088605
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.001571889512706548
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.018373711104504763
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.025619300024118274
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.002121642473503016
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.021716122204088605,0.55,0.9771799564361572
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.001571889512706548,0.55,0.996389901638031
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.018373711104504763,0.55,0.9189811915159225
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.025619300024118274,0.55,0.9727361619472503
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.002121642473503016,0.55,0.996434235572815
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9988960786402458,0.55,0.0011039297489333633
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9979617911507376,0.55,0.0020382103277371
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9373549026204273,0.55,0.06264508227468457
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9983554619713686,0.55,0.0016445344765089187
+1,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.998555878046318,0.55,0.00144411711371506
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.37127565359114667
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.004345636471407488
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.42864142430189534
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.10221901910263113
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.1056985342860571
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,5,_nolegend_,-0.275,0.37127565359114667,0.55,0.6282711219508201
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,6,_nolegend_,0.725,0.004345636471407488,0.55,0.9296991378068925
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,7,_nolegend_,1.725,0.42864142430189534,0.55,0.5709053410217166
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,8,_nolegend_,2.725,0.10221901910263113,0.55,0.8970730725675821
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,9,_nolegend_,3.725,0.1056985342860571,0.55,0.8923373377881944
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,10,_nolegend_,-0.275,0.9995467755419668,0.55,0.00045320356730371714
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,11,_nolegend_,0.725,0.9340447742782999,0.55,0.06595520869304894
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,12,_nolegend_,1.725,0.999546765323612,0.55,0.000453248867415712
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,13,_nolegend_,2.725,0.9992920916702133,0.55,0.0007079028640873952
+2,$\alpha$ (NLI self),Debate turn,\textbf{DeepSeek V3.2},rectilinear,patch,14,_nolegend_,3.725,0.9980358720742516,0.55,0.001964143272198293
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.5293651133775711
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.2801337341807084
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.023495404660934582
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.02928145881742239
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.1404557455156464
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.5293651133775711,0.55,0.46976704373955724
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.2801337341807084,0.55,0.718880420923233
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.023495404660934582,0.55,0.9393349826335907
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.02928145881742239,0.55,0.9696537613868713
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.1404557455156464,0.55,0.8584126383066178
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9991321571171283,0.55,0.0008678475918713069
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9990141551039414,0.55,0.0009858405741396403
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9628303872945253,0.55,0.03716961698955856
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9989352202042937,0.55,0.0010647879069438648
+3,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9988683838222642,0.55,0.0011316236865241969
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.40549157115165146
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.2922381197306095
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.22262091109878385
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.5028472456149757
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.32219143519178034
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,5,_nolegend_,-0.275,0.40549157115165146,0.55,0.5939160939306021
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,6,_nolegend_,0.725,0.2922381197306095,0.55,0.7071592929773033
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,7,_nolegend_,1.725,0.22262091109878385,0.55,0.7681429086253048
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,8,_nolegend_,2.725,0.5028472456149757,0.55,0.470626730285585
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,9,_nolegend_,3.725,0.32219143519178034,0.55,0.5240875663235783
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,10,_nolegend_,-0.275,0.9994076650822535,0.55,0.0005923353790421304
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,11,_nolegend_,0.725,0.9993974127079128,0.55,0.0006025995622621627
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,12,_nolegend_,1.725,0.9907638197240884,0.55,0.009236168221104957
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,13,_nolegend_,2.725,0.9734739759005606,0.55,0.026526036325958624
+4,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Flash{-}Lite},rectilinear,patch,14,_nolegend_,3.725,0.8462790015153587,0.55,0.15372098236693998
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.51856793127954
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.04127171000000089
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.024363747957977466
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.044278660282725466
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.0797385954298079
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.51856793127954,0.55,0.4803926763590426
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.04127171000000089,0.55,0.9576182305812836
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.024363747957977466,0.55,0.9733657121658325
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.044278660282725466,0.55,0.9545910477638243
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.0797385954298079,0.55,0.9194017916917799
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9989606076385826,0.55,0.0010393969059805386
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9988899405812844,0.55,0.0011100545991211686
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.99772946012381,0.55,0.002270546281943009
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9988697080465498,0.55,0.0011302924700431483
+5,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9991403871215879,0.55,0.0008596117884736021
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.4776913814828731
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.4504412934882566
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.5396472657419509
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.4848873362177983
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.3625207060715184
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,5,_nolegend_,-0.275,0.4776913814828731,0.55,0.5212184242904185
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,6,_nolegend_,0.725,0.4504412934882566,0.55,0.5486560944467782
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,7,_nolegend_,1.725,0.5396472657419509,0.55,0.45933662662282587
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,8,_nolegend_,2.725,0.4848873362177983,0.55,0.5143567532300948
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,9,_nolegend_,3.725,0.3625207060715184,0.55,0.6361174221150576
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,10,_nolegend_,-0.275,0.9989098057732917,0.55,0.0010901702058617735
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,11,_nolegend_,0.725,0.9990973879350349,0.55,0.0009026225045090097
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,12,_nolegend_,1.725,0.9989838923647767,0.55,0.0010160837206057982
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,13,_nolegend_,2.725,0.9992440894478931,0.55,0.0007559229037724657
+6,$\alpha$ (NLI self),Debate turn,\textbf{Gemini 3.1 Pro},rectilinear,patch,14,_nolegend_,3.725,0.9986381281865762,0.55,0.0013618917801068164
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.27541377699235453
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.018329976208042352
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.1249280724558048
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.042306319938506934
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.36232060014153833
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.27541377699235453,0.55,0.7237458642572163
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.018329976208042352,0.55,0.9748225867748259
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.1249280724558048,0.55,0.8742631569504737
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.042306319938506934,0.55,0.6329900327255018
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.36232060014153833,0.55,0.60902281999588
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9991596412495709,0.55,0.0008403527157497814
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9931525629828684,0.55,0.00684744198806575
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9991912294062786,0.55,0.0008087872003670338
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.6752963526640088,0.55,0.32470363466127306
+7,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9713434201374185,0.55,0.02865660283423499
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.44921232555643653
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.20318438358372076
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.3113037222472485
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.20248029341455548
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.29357805964536965
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,5,_nolegend_,-0.275,0.44921232555643653,0.55,0.5501655189320445
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,6,_nolegend_,0.725,0.20318438358372076,0.55,0.7962062513455749
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,7,_nolegend_,1.725,0.3113037222472485,0.55,0.687871793936938
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,8,_nolegend_,2.725,0.20248029341455548,0.55,0.7887179329991342
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,9,_nolegend_,3.725,0.29357805964536965,0.55,0.7057037955150008
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,10,_nolegend_,-0.275,0.999377844488481,0.55,0.0006221494186320342
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,11,_nolegend_,0.725,0.9993906349292956,0.55,0.0006093848860473372
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,12,_nolegend_,1.725,0.9991755161841867,0.55,0.0008245000251917434
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,13,_nolegend_,2.725,0.9911982264136896,0.55,0.008801776156178609
+8,$\alpha$ (NLI self),Debate turn,\textbf{MiniMax M2.7},rectilinear,patch,14,_nolegend_,3.725,0.9992818551603705,0.55,0.0007181127104559648
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.1688370239775395
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.14188861002912745
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.049130653712200004
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.1624825051811058
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.18739429214620032
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.1688370239775395,0.55,0.8301666855812073
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.14188861002912745,0.55,0.8574885771609843
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.049130653712200004,0.55,0.9488783597946165
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.1624825051811058,0.55,0.8367048650979995
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.18739429214620032,0.55,0.811677162349224
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9990037095587468,0.55,0.0009963098898878586
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9993771871901117,0.55,0.0006227978185051608
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9980090135068167,0.55,0.0019909860944608004
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9991873702791054,0.55,0.0008126110638840833
+9,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9990714544954243,0.55,0.0009285475825890899
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.8473220475018024
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.8215516481548548
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.4547641872544773
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.6595004907343537
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.7148089713184163
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,5,_nolegend_,-0.275,0.8473220475018024,0.55,0.15215332056395714
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,6,_nolegend_,0.725,0.8215516481548548,0.55,0.17796116340905432
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,7,_nolegend_,1.725,0.4547641872544773,0.55,0.5446665892377496
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,8,_nolegend_,2.725,0.6595004907343537,0.55,0.33978021466173236
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,9,_nolegend_,3.725,0.7148089713184163,0.55,0.2845707388594747
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,10,_nolegend_,-0.275,0.9994753680657595,0.55,0.000524646915437188
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,11,_nolegend_,0.725,0.9995128115639091,0.55,0.0004871712953899987
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,12,_nolegend_,1.725,0.9994307764922269,0.55,0.0005692183884093982
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,13,_nolegend_,2.725,0.9992807053960859,0.55,0.0007192840712377802
+10,$\alpha$ (NLI self),Debate turn,\textbf{GPT{-}5.4},rectilinear,patch,14,_nolegend_,3.725,0.999379710177891,0.55,0.0006202849501277807
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.8607927232980728
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.8216836586594581
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.9539913296699524
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.9217757046222687
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.8650562137365341
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.8607927232980728,0.55,0.1384454381652176
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.8216836586594581,0.55,0.17775411456823353
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.9539913296699524,0.55,0.0456730308011174
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.9217757046222687,0.55,0.07743568662554023
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.8650562137365341,0.55,0.1344378450885415
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9992381614632904,0.55,0.0007618255112902261
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9994377732276916,0.55,0.0005622314245556925
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9996643604710698,0.55,0.0003356370623806004
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9992113912478089,0.55,0.0007886110804975477
+11,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9994940588250756,0.55,0.000505945294571597
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.2600805159425363
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.4579110735387076
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.5128926996607334
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.5100650260283146
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.47293782663764433
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,5,_nolegend_,-0.275,0.2600805159425363,0.55,0.7394299141597003
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,6,_nolegend_,0.725,0.4579110735387076,0.55,0.5413104885723441
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,7,_nolegend_,1.725,0.5128926996607334,0.55,0.48662704806774854
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,8,_nolegend_,2.725,0.5100650260283146,0.55,0.48958926352206616
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,9,_nolegend_,3.725,0.47293782663764433,0.55,0.5266423515509813
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,10,_nolegend_,-0.275,0.9995104301022366,0.55,0.0004895597267022822
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,11,_nolegend_,0.725,0.9992215621110518,0.55,0.0007784304980305023
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,12,_nolegend_,1.725,0.9995197477284818,0.55,0.0004802720417501627
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,13,_nolegend_,2.725,0.9996542895503808,0.55,0.0003456947459199444
+12,$\alpha$ (NLI self),Debate turn,\textbf{GPT OSS 120B},rectilinear,patch,14,_nolegend_,3.725,0.9995801781886258,0.55,0.00041982113834815316
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.17975530786497984
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.43572753461776303
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.10583156582724769
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.23153281537815928
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.03136356020113453
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.17975530786497984,0.55,0.80298782736063
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.43572753461776303,0.55,0.5637892108410597
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.10583156582724769,0.55,0.8935327280312777
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.23153281537815928,0.55,0.7672804171219468
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.03136356020113453,0.55,0.9679162979125977
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9827431352256099,0.55,0.017256841759081043
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9995167454588227,0.55,0.0004832613456529078
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9993642938585254,0.55,0.0006357230551656823
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9988132325001061,0.55,0.001186755290837005
+13,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9992798581137322,0.55,0.0007201476342743041
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.2159474474261515
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.6523333821649431
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.29663732573390006
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.35566997235582676
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.3843637303332798
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,5,_nolegend_,-0.275,0.2159474474261515,0.55,0.7830480486154556
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,6,_nolegend_,0.725,0.6523333821649431,0.55,0.34733255123719575
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,7,_nolegend_,1.725,0.29663732573390006,0.55,0.7008863441646099
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,8,_nolegend_,2.725,0.35566997235582676,0.55,0.6432248502969742
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,9,_nolegend_,3.725,0.3843637303332798,0.55,0.6142916947603225
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,10,_nolegend_,-0.275,0.9989954960416071,0.55,0.0010044831738923454
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,11,_nolegend_,0.725,0.9996659334021388,0.55,0.000334048007789578
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,12,_nolegend_,1.725,0.9975236698985099,0.55,0.0024763380817603986
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,13,_nolegend_,2.725,0.9988948226528009,0.55,0.0011051799374400817
+14,$\alpha$ (NLI self),Debate turn,\textbf{Qwen 3.5 397B},rectilinear,patch,14,_nolegend_,3.725,0.9986554250936024,0.55,0.0013445686112391053
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.4750539340544492
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.11069597860332578
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.4962904941290617
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.4642617277102545
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.5294624721864238
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.4750539340544492,0.55,0.5244554596487433
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.11069597860332578,0.55,0.8887744016945361
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.4962904941290617,0.55,0.5029460472986103
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.4642617277102545,0.55,0.5353863844648005
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.5294624721864238,0.55,0.47006374616175883
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9995093937031925,0.55,0.0004905884983600339
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9994703802978621,0.55,0.0005296077695675638
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9992365414276719,0.55,0.0007634789086297111
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9996481121750549,0.55,0.0003518811456160176
+15,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9995262183481828,0.55,0.00047379177558470875
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.08455830798775424
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.3078045077272691
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.27789824215578846
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.215663245099131
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.21573777029989288
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,5,_nolegend_,-0.275,0.08455830798775424,0.55,0.914262729883194
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,6,_nolegend_,0.725,0.3078045077272691,0.55,0.6914728756994009
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,7,_nolegend_,1.725,0.27789824215578846,0.55,0.7216881031170488
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,8,_nolegend_,2.725,0.215663245099131,0.55,0.7829230159521103
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,9,_nolegend_,3.725,0.21573777029989288,0.55,0.7835525009781122
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,10,_nolegend_,-0.275,0.9988210378709482,0.55,0.0011789663098170644
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,11,_nolegend_,0.725,0.9992773834266699,0.55,0.0007226133689982595
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,12,_nolegend_,1.725,0.9995863452728373,0.55,0.0004136535993893853
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,13,_nolegend_,2.725,0.9985862610512414,0.55,0.001413757502450541
+16,$\alpha$ (NLI self),Debate turn,\textbf{Grok 4},rectilinear,patch,14,_nolegend_,3.725,0.9992902712780052,0.55,0.0007097456997143814
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.7088942669564858
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.16410967314441222
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.11910248971544206
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.264759173092898
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.1324719516298501
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.7088942669564858,0.55,0.29047748502343895
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.16410967314441222,0.55,0.8350753441452982
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.11910248971544206,0.55,0.7806220231112094
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.264759173092898,0.55,0.7346109146252274
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.1324719516298501,0.55,0.8669094949960708
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9993717519799248,0.55,0.0006282546732108152
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9991850172897103,0.55,0.0008150014647980708
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.8997245128266513,0.55,0.1002754992005066
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.9993700877181254,0.55,0.0006299264598055299
+17,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.999381446625921,0.55,0.000618557035340972
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.39426537097315306
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.4941960487980396
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.011862994384136983
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.18141535030445083
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.07218349725881126
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,5,_nolegend_,-0.275,0.39426537097315306,0.55,0.6054784471169115
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,6,_nolegend_,0.725,0.4941960487980396,0.55,0.5046476198360323
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,7,_nolegend_,1.725,0.011862994384136983,0.55,0.9829495966434479
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,8,_nolegend_,2.725,0.18141535030445083,0.55,0.8173942808061837
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,9,_nolegend_,3.725,0.07218349725881126,0.55,0.9058653116226195
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,10,_nolegend_,-0.275,0.9997438180900645,0.55,0.00025619630760054246
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,11,_nolegend_,0.725,0.9988436686340719,0.55,0.0011563536681934439
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,12,_nolegend_,1.725,0.9948125910275848,0.55,0.005187420689617306
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,13,_nolegend_,2.725,0.9988096311106347,0.55,0.0011903669976164322
+18,$\alpha$ (NLI self),Debate turn,\textbf{GLM{-}5},rectilinear,patch,14,_nolegend_,3.725,0.9780488088814309,0.55,0.021951173407433022
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,0,_nolegend_,-0.275,0.0,0.55,0.5132066487451084
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,1,_nolegend_,0.725,0.0,0.55,0.18722529264050536
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,2,_nolegend_,1.725,0.0,0.55,0.011902123916661367
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,3,_nolegend_,2.725,0.0,0.55,0.010099486279068514
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,4,_nolegend_,3.725,0.0,0.55,0.29712882058811374
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,5,_nolegend_,-0.275,0.5132066487451084,0.55,0.4856854946352541
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,6,_nolegend_,0.725,0.18722529264050536,0.55,0.8093156099319458
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,7,_nolegend_,1.725,0.011902123916661367,0.55,0.9862552642822264
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,8,_nolegend_,2.725,0.010099486279068514,0.55,0.9878467082977294
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,9,_nolegend_,3.725,0.29712882058811374,0.55,0.7014435216784476
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,10,_nolegend_,-0.275,0.9988921433803625,0.55,0.0011078458672273417
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,11,_nolegend_,0.725,0.9965409025724512,0.55,0.0034591099771205114
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,12,_nolegend_,1.725,0.9981573881988879,0.55,0.001842625247081675
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,13,_nolegend_,2.725,0.997946194576798,0.55,0.00205379237886516
+19,$\beta$ (NLI self),Debate turn,Probability,rectilinear,patch,14,_nolegend_,3.725,0.9985723422665614,0.55,0.0014276684203650136

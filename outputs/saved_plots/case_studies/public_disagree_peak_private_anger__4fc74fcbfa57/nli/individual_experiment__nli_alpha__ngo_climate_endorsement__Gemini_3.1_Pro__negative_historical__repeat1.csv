@@ -1,0 +1,16 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,x,y,width,height
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,0,_nolegend_,0.7,0.0,0.6000000000000001,0.7756425142288208
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,1,_nolegend_,1.7,0.0,0.6000000000000001,0.10214318614453077
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,2,_nolegend_,2.7,0.0,0.6000000000000001,0.4305182173848152
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,3,_nolegend_,3.7,0.0,0.6000000000000001,0.009558323537930846
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,4,_nolegend_,4.7,0.0,0.6000000000000001,0.8549048006534576
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,5,_nolegend_,0.7,0.7756425142288208,0.6000000000000001,0.21935665607452393
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,6,_nolegend_,1.7,0.10214318614453077,0.6000000000000001,0.8956956565380096
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,7,_nolegend_,2.7,0.4305182173848152,0.6000000000000001,0.5683008283376694
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,8,_nolegend_,3.7,0.009558323537930846,0.6000000000000001,0.9892013370990753
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,9,_nolegend_,4.7,0.8549048006534576,0.6000000000000001,0.14432130381464958
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,10,_nolegend_,0.7,0.9949991703033447,0.6000000000000001,0.0050007957033813
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,11,_nolegend_,1.7,0.9978388426825404,0.6000000000000001,0.0021611397969536483
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,12,_nolegend_,2.7,0.9988190457224846,0.6000000000000001,0.001180988212581724
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,13,_nolegend_,3.7,0.9987596606370062,0.6000000000000001,0.0012403214204823598
+0,NLI self{-}consistency --- policy director,Debate turn,probability,rectilinear,patch,14,_nolegend_,4.7,0.9992261044681072,0.6000000000000001,0.0007738763524685055

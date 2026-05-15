@@ -1,0 +1,281 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,point_index,x,y
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,0,0.0,0.006265719886869192
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,1,1.0471975511965976,0.00565775902941823
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,2,2.0943951023931953,0.011858013458549976
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,3,3.141592653589793,0.001006219070404768
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,4,4.1887902047863905,0.00564265251159668
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,5,5.235987755982988,0.003179549938067794
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,0,public,6,0.0,0.006265719886869192
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,0,0.0,0.006074109580367804
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,1,1.0471975511965976,0.001221563434228301
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,2,2.0943951023931953,0.01830430142581463
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,3,3.141592653589793,0.0022046517115086317
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,4,4.1887902047863905,0.003503005253151059
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,5,5.235987755982988,0.003256418276578188
+0,"junior faculty -- turn 1
+neutral: pub=0.97, otr=0.97",,,polar,line,1,OTR,6,0.0,0.006074109580367804
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,0,0.0,0.018444938585162163
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,1,1.0471975511965976,0.03460150584578514
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,2,2.0943951023931953,0.022473154589533806
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,3,3.141592653589793,0.0024485280737280846
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,4,4.1887902047863905,0.026262788102030754
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,5,5.235987755982988,0.00825039204210043
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,0,public,6,0.0,0.018444938585162163
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,0,0.0,0.008974215015769005
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,1,1.0471975511965976,0.0010922957444563508
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,2,2.0943951023931953,0.03671902045607567
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,3,3.141592653589793,0.0032029293943196535
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,4,4.1887902047863905,0.006549550220370293
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,5,5.235987755982988,0.005237429402768612
+1,"junior faculty -- turn 2
+neutral: pub=0.89, otr=0.94",,,polar,line,1,OTR,6,0.0,0.008974215015769005
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,0,0.0,0.003190072253346443
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,1,1.0471975511965976,0.0005417149513959885
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,2,2.0943951023931953,0.017603063955903053
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,3,3.141592653589793,0.002268888521939516
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,4,4.1887902047863905,0.0023974799551069736
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,5,5.235987755982988,0.0016942620277404785
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,0,public,6,0.0,0.003190072253346443
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,0,0.0,0.01905353181064129
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,1,1.0471975511965976,0.004026227630674839
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,2,2.0943951023931953,0.050086285918951035
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,3,3.141592653589793,0.004203737713396549
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,4,4.1887902047863905,0.01662447303533554
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,5,5.235987755982988,0.007982227951288223
+2,"junior faculty -- turn 3
+neutral: pub=0.97, otr=0.90",,,polar,line,1,OTR,6,0.0,0.01905353181064129
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,0,0.0,0.002738857176154852
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,1,1.0471975511965976,0.00069772097049281
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,2,2.0943951023931953,0.01659393683075905
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,3,3.141592653589793,0.00203111139126122
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,4,4.1887902047863905,0.003132064361125231
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,5,5.235987755982988,0.0017691128887236118
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,0,public,6,0.0,0.002738857176154852
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,0,0.0,0.024066532030701637
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,1,1.0471975511965976,0.004490791819989681
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,2,2.0943951023931953,0.04341425001621246
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,3,3.141592653589793,0.004293519072234631
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,4,4.1887902047863905,0.04036150127649307
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,5,5.235987755982988,0.006845840718597174
+3,"junior faculty -- turn 4
+neutral: pub=0.97, otr=0.88",,,polar,line,1,OTR,6,0.0,0.024066532030701637
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,0,0.0,0.004380487836897373
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,1,1.0471975511965976,0.0009875489631667733
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,2,2.0943951023931953,0.04772347956895828
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,3,3.141592653589793,0.003994568716734648
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,4,4.1887902047863905,0.0042018890380859375
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,5,5.235987755982988,0.002850936958566308
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,0,public,6,0.0,0.004380487836897373
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,0,0.0,0.013221057131886482
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,1,1.0471975511965976,0.0027024673763662577
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,2,2.0943951023931953,0.026968030259013176
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,3,3.141592653589793,0.002879485720768571
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,4,4.1887902047863905,0.015936952084302902
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,5,5.235987755982988,0.0060685984790325165
+4,"junior faculty -- turn 5
+neutral: pub=0.94, otr=0.93",,,polar,line,1,OTR,6,0.0,0.013221057131886482
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,0,0.0,0.022811831906437874
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,1,1.0471975511965976,0.013813229277729988
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,2,2.0943951023931953,0.006591798737645149
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,3,3.141592653589793,0.0010895462473854423
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,4,4.1887902047863905,0.01706109568476677
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,5,5.235987755982988,0.002769566373899579
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,0,public,6,0.0,0.022811831906437874
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,0,0.0,0.604336678981781
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,1,1.0471975511965976,0.01976197585463524
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,2,2.0943951023931953,0.021437307819724083
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,3,3.141592653589793,0.0025010148528963327
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,4,4.1887902047863905,0.18110644817352295
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,5,5.235987755982988,0.006806166842579842
+5,"senior faculty -- turn 1
+neutral: pub=0.94, otr=0.16",,,polar,line,1,OTR,6,0.0,0.604336678981781
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,0,0.0,0.10270451009273529
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,1,1.0471975511965976,0.026167385280132294
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,2,2.0943951023931953,0.03780568391084671
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,3,3.141592653589793,0.005770595744252205
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,4,4.1887902047863905,0.14816009998321533
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,5,5.235987755982988,0.004486282356083393
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,0,public,6,0.0,0.10270451009273529
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,0,0.0,0.008891741745173931
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,1,1.0471975511965976,0.008378783240914345
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,2,2.0943951023931953,0.03633148968219757
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,3,3.141592653589793,0.004489450715482235
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,4,4.1887902047863905,0.008607238531112671
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,5,5.235987755982988,0.005777075421065092
+6,"senior faculty -- turn 2
+neutral: pub=0.67, otr=0.93",,,polar,line,1,OTR,6,0.0,0.008891741745173931
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,0,0.0,0.03528761863708496
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,1,1.0471975511965976,0.03576454520225525
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,2,2.0943951023931953,0.017615213990211487
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,3,3.141592653589793,0.0025755346287041903
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,4,4.1887902047863905,0.051072873175144196
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,5,5.235987755982988,0.005419731140136719
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,0,public,6,0.0,0.03528761863708496
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,0,0.0,0.03914906829595566
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,1,1.0471975511965976,0.029812725260853767
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,2,2.0943951023931953,0.04890551045536995
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,3,3.141592653589793,0.004599873907864094
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,4,4.1887902047863905,0.03804263472557068
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,5,5.235987755982988,0.004438407719135284
+7,"senior faculty -- turn 3
+neutral: pub=0.85, otr=0.84",,,polar,line,1,OTR,6,0.0,0.03914906829595566
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,0,0.0,0.03761778399348259
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,1,1.0471975511965976,0.3364073932170868
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,2,2.0943951023931953,0.03995425999164581
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,3,3.141592653589793,0.0038871108554303646
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,4,4.1887902047863905,0.12646132707595825
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,5,5.235987755982988,0.008652168326079845
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,0,public,6,0.0,0.03761778399348259
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,0,0.0,0.07277508080005646
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,1,1.0471975511965976,0.032148439437150955
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,2,2.0943951023931953,0.03814065083861351
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,3,3.141592653589793,0.006526980549097061
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,4,4.1887902047863905,0.04422934725880623
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,5,5.235987755982988,0.007282032631337643
+8,"senior faculty -- turn 4
+neutral: pub=0.45, otr=0.80",,,polar,line,1,OTR,6,0.0,0.07277508080005646
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,0,0.0,0.04217417165637016
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,1,1.0471975511965976,0.008271188475191593
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,2,2.0943951023931953,0.011148297227919102
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,3,3.141592653589793,0.0017384756356477737
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,4,4.1887902047863905,0.049249984323978424
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,5,5.235987755982988,0.0031483236234635115
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,0,public,6,0.0,0.04217417165637016
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,0,0.0,0.010488760657608509
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,1,1.0471975511965976,0.004804839380085468
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,2,2.0943951023931953,0.007523548323661089
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,3,3.141592653589793,0.0010294858366250992
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,4,4.1887902047863905,0.014190277084708214
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,5,5.235987755982988,0.0028803462628275156
+9,"senior faculty -- turn 5
+neutral: pub=0.88, otr=0.96",,,polar,line,1,OTR,6,0.0,0.010488760657608509

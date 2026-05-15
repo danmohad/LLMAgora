@@ -1,0 +1,313 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,point_index,x,y
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,0,1,0.7720176450860117
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,1,2,0.9466235286157535
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,2,3,0.8730314238570865
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,3,4,0.9314158164814512
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,4,5,0.8073151348633789
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,0,1,0.7183719802396782
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,1,2,0.8169159546132065
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,2,3,0.7583810681058857
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,3,4,0.7779722651603214
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,4,5,0.9472555652320019
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,0,1,0.9274587378332255
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,1,2,1.1123388907096747
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,2,3,1.1458136214244967
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,3,4,0.9613083725686175
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,4,5,1.180726615305462
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,0,1,0.8699001909909131
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,1,2,0.9723044506306519
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,2,3,0.7982079156983602
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,3,4,0.896037482913735
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,4,5,0.8159994064239956
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,0,1,1.0041492816358195
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,1,2,1.0646586933968025
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,2,3,0.9476497391489166
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,3,4,1.0332108932646138
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,4,5,0.9571449347446452
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,0,1,1.2149568784219902
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,1,2,0.8747870351424281
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,2,3,1.0459925363135378
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,3,4,0.9895136324805324
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,4,5,1.05342524051084
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,0,1,0.9646410469057735
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,1,2,1.0301280939234334
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,2,3,1.0489528232860668
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,3,4,0.8694193051515301
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,4,5,0.9155873436328668
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,0,1,0.8244687800949683
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,1,2,0.9509321854426297
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,2,3,0.8023831219489821
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,3,4,0.8105936717446246
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,4,5,0.8248402282472622
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,0,1,0.9293375981637079
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,1,2,0.937307879024328
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,2,3,0.9477166602677372
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,3,4,1.0028167630751441
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,4,5,0.9082791863760601
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,0,1,0.8627120692133102
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,1,2,1.1893503466192852
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,2,3,0.9120667369813439
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,3,4,1.0236963542588524
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,4,5,0.9077290432940348
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,10,_child10,0,0,1.0
+0,$\alpha$ --- Faculty Manuscript,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,10,_child10,1,1,1.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,Claude Opus 4.6,0,1,0.9788277408955137
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,Claude Opus 4.6,1,2,1.0513544303425217
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,Claude Opus 4.6,2,3,1.00550940879438
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,Claude Opus 4.6,3,4,0.9395458301919891
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,Claude Opus 4.6,4,5,0.8816764527067732
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,DeepSeek V3.2,0,1,0.9847895825506316
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,DeepSeek V3.2,1,2,0.9345900872098621
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,DeepSeek V3.2,2,3,0.9761551935618141
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,DeepSeek V3.2,3,4,1.032217863767589
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,DeepSeek V3.2,4,5,1.0034176514309636
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,0,1,1.0193784307545342
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,1,2,1.030383713191933
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,2,3,1.0888458155909158
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,3,4,0.8889783498715734
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,4,5,0.940277115269196
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,Gemini 3.1 Pro,0,1,0.9443078970369803
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,Gemini 3.1 Pro,1,2,0.9964554211709421
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,Gemini 3.1 Pro,2,3,1.017114804848787
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,Gemini 3.1 Pro,3,4,0.8726726593506743
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,Gemini 3.1 Pro,4,5,1.0058486464678404
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,MiniMax M2.7,0,1,0.960622840563293
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,MiniMax M2.7,1,2,0.9187372517859067
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,MiniMax M2.7,2,3,1.056273048818632
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,MiniMax M2.7,3,4,1.0395722941223935
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,MiniMax M2.7,4,5,1.0359149943734967
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,GPT{-}5.4,0,1,0.9428822559108294
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,GPT{-}5.4,1,2,1.0713757554545018
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,GPT{-}5.4,2,3,1.1208314012591527
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,GPT{-}5.4,3,4,1.0400623692818949
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,GPT{-}5.4,4,5,1.0787137757099199
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,GPT{-}OSS{-}120B,0,1,0.9067152335734012
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,GPT{-}OSS{-}120B,1,2,0.9594508005045984
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,GPT{-}OSS{-}120B,2,3,0.9168046096111039
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,GPT{-}OSS{-}120B,3,4,0.9289024365053951
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,GPT{-}OSS{-}120B,4,5,0.962831597149556
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,Qwen 3.5 397B,0,1,0.8249210572430506
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,Qwen 3.5 397B,1,2,0.9193023188787774
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,Qwen 3.5 397B,2,3,0.887480934780858
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,Qwen 3.5 397B,3,4,0.9488488474390123
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,Qwen 3.5 397B,4,5,0.9013728022395077
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,Grok 4,0,1,0.9936973560627512
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,Grok 4,1,2,0.9599593313588118
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,Grok 4,2,3,0.9186992067476426
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,Grok 4,3,4,0.9832806011153468
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,Grok 4,4,5,0.9991983971918557
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,GLM{-}5,0,1,0.9223965314098707
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,GLM{-}5,1,2,0.9249240522923885
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,GLM{-}5,2,3,0.9759812911279627
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,GLM{-}5,3,4,1.0695061813631346
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,GLM{-}5,4,5,1.04270655406118
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_child10,0,0,1.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_child10,1,1,1.0
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,0,1,1.0840391162414666
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,1,2,1.00145294545342
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,2,3,0.9427210439535239
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,3,4,1.044249070121827
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,4,5,0.9892612028488891
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,0,1,1.0358501509906326
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,1,2,0.9109816640477485
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,2,3,0.9412917404449708
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,3,4,1.2337667826619447
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,4,5,0.9801513610664924
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,0,1,1.0268405407130834
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,1,2,1.00650653194193
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,2,3,0.8891705624065542
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,3,4,0.9262380287447572
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,4,5,0.8709130451163168
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,0,1,0.9380825956679139
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,1,2,0.795004058300962
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,2,3,0.779829306993853
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,3,4,0.7743694796275412
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,4,5,0.7693438074738729
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,0,1,1.0086566883261874
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,1,2,0.9574894049095715
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,2,3,1.1192907649723396
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,3,4,1.0235099486627919
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,4,5,0.9590368284577615
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,0,1,0.8832070430983874
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,1,2,0.917026973306859
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,2,3,0.8123700567266342
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,3,4,0.8899400928991826
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,4,5,0.8190390560933182
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,0,1,0.9956611236435796
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,1,2,1.0408255683439551
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,2,3,1.0279310102352188
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,3,4,1.0333158327157028
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,4,5,1.063955271737498
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,0,1,0.9653287462527481
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,1,2,0.834207842946603
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,2,3,0.907313572682385
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,3,4,0.8426964412443361
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,4,5,1.0411424363786368
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,0,1,0.9845501744242745
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,1,2,0.842812773820143
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,2,3,0.7869800554178168
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,3,4,0.7399386441677416
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,4,5,0.7570007503918283
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,0,1,1.0223770583124385
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,1,2,0.97370877883621
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,2,3,0.8945106116962092
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,3,4,0.9159287355842444
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,4,5,1.0134069725233608
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,10,_child10,0,0,1.0
+2,$\alpha$ --- Promotion Committee,,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,10,_child10,1,1,1.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,Claude Opus 4.6,0,1,0.9999424977283259
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,Claude Opus 4.6,1,2,0.9854263476803912
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,Claude Opus 4.6,2,3,1.085949561431539
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,Claude Opus 4.6,3,4,1.000570420694559
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,Claude Opus 4.6,4,5,0.9788199402741151
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,DeepSeek V3.2,0,1,1.028185938695239
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,DeepSeek V3.2,1,2,0.9515972005984837
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,DeepSeek V3.2,2,3,0.9831730595823113
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,DeepSeek V3.2,3,4,0.9680520731797737
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,DeepSeek V3.2,4,5,1.0857415248542601
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,0,1,0.9995852594611155
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,1,2,1.03247112129266
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,2,3,0.9515749804844543
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,3,4,1.062463363863266
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,4,5,0.9960644884885104
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,Gemini 3.1 Pro,0,1,0.9263912856747176
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,Gemini 3.1 Pro,1,2,1.021607833296048
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,Gemini 3.1 Pro,2,3,0.8847973965930032
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,Gemini 3.1 Pro,3,4,0.9461170929930982
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,Gemini 3.1 Pro,4,5,0.8595719631712391
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,MiniMax M2.7,0,1,1.0143056462308326
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,MiniMax M2.7,1,2,0.9526134137699105
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,MiniMax M2.7,2,3,1.0677995605718626
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,MiniMax M2.7,3,4,1.0412759491663852
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,MiniMax M2.7,4,5,1.006743900378975
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,GPT{-}5.4,0,1,0.9512938147291558
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,GPT{-}5.4,1,2,0.9873024414776258
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,GPT{-}5.4,2,3,1.008083507725863
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,GPT{-}5.4,3,4,0.9759887488431368
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,GPT{-}5.4,4,5,0.967773715615627
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,GPT{-}OSS{-}120B,0,1,1.0157397514545137
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,GPT{-}OSS{-}120B,1,2,0.9853893939012739
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,GPT{-}OSS{-}120B,2,3,1.0315313862649103
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,GPT{-}OSS{-}120B,3,4,1.0105929746903077
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,GPT{-}OSS{-}120B,4,5,1.0415132316875675
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,Qwen 3.5 397B,0,1,0.9528352023526003
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,Qwen 3.5 397B,1,2,1.0301790906398895
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,Qwen 3.5 397B,2,3,0.9849364429439735
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,Qwen 3.5 397B,3,4,1.0614265743279017
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,Qwen 3.5 397B,4,5,0.9043907704433418
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,Grok 4,0,1,1.0049148098506215
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,Grok 4,1,2,1.0069955124870444
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,Grok 4,2,3,0.920689464661831
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,Grok 4,3,4,0.9568482447775265
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,Grok 4,4,5,0.9245818105081188
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,GLM{-}5,0,1,1.045252195227561
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,GLM{-}5,1,2,0.9888288806528435
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,GLM{-}5,2,3,1.1057919905331233
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,GLM{-}5,3,4,0.9451861715055546
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,GLM{-}5,4,5,1.2405083318769259
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_child10,0,0,1.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_child10,1,1,1.0
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,0,1,0.9994349697641048
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,1,2,0.9136204548302466
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,2,3,1.0338838206463825
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,3,4,0.9287156928792043
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,0,Claude Opus 4.6,4,5,0.9566466612765463
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,0,1,0.9586618828786124
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,1,2,1.0338052497460872
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,2,3,1.0889016957456235
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,3,4,1.1158924929644385
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,1,DeepSeek V3.2,4,5,1.092681667741517
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,0,1,0.9710901563505492
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,1,2,1.046459205377367
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,2,3,0.9627252151589777
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,3,4,0.9343523649386369
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,4,5,0.9341678933699762
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,0,1,0.750136996655392
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,1,2,0.7658997214940535
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,2,3,0.8733311837127015
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,3,4,0.8083711538446836
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,3,Gemini 3.1 Pro,4,5,0.8289844727840594
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,0,1,1.006044232730105
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,1,2,0.9685754517304087
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,2,3,0.9705325094313761
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,3,4,1.013342924479386
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,4,MiniMax M2.7,4,5,0.9938941597268452
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,0,1,0.9465913758273936
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,1,2,0.8971698316287231
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,2,3,0.9826872869502123
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,3,4,0.9533801995324968
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,5,GPT{-}5.4,4,5,0.9175240397714325
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,0,1,0.9608584036268928
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,1,2,0.9955411546545051
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,2,3,0.9905551349342565
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,3,4,0.9851502464054941
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,6,GPT{-}OSS{-}120B,4,5,0.9962589736971329
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,0,1,0.9475839395632872
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,1,2,0.9491931544812726
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,2,3,0.9604817259243447
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,3,4,0.9197507784554186
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,7,Qwen 3.5 397B,4,5,0.916289540122395
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,0,1,0.8569085016768778
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,1,2,0.9481083815897002
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,2,3,0.9762273859880894
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,3,4,0.9339736153945091
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,8,Grok 4,4,5,0.9346795688008366
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,0,1,0.8376350487178484
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,1,2,0.7984862777357947
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,2,3,0.7150122929073939
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,3,4,0.7444735531910538
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,9,GLM{-}5,4,5,0.8171391623417117
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,10,_child10,0,0,1.0
+4,$\alpha$ --- NGO Climate,Debate turn,$\cos / \cos_{\mathrm{baseline}}$,rectilinear,line,10,_child10,1,1,1.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,Claude Opus 4.6,0,1,1.0125552485519913
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,Claude Opus 4.6,1,2,0.9410910370559094
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,Claude Opus 4.6,2,3,0.922596381853499
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,Claude Opus 4.6,3,4,1.0207322527357188
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,Claude Opus 4.6,4,5,1.0520458167320466
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,DeepSeek V3.2,0,1,0.9969636657439319
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,DeepSeek V3.2,1,2,1.0056584850243773
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,DeepSeek V3.2,2,3,0.9975404535113694
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,DeepSeek V3.2,3,4,0.9760711603032011
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,DeepSeek V3.2,4,5,0.9750176752412618
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,0,1,1.0466007110077153
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,1,2,0.9819622675391408
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,2,3,1.119123060457284
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,3,4,0.9963075877768596
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,Gemini 3.1 Flash{-}Lite,4,5,1.118918440102007
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,Gemini 3.1 Pro,0,1,0.9478109838145921
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,Gemini 3.1 Pro,1,2,0.9985430863885395
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,Gemini 3.1 Pro,2,3,0.9288713138643808
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,Gemini 3.1 Pro,3,4,0.9110146576334341
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,Gemini 3.1 Pro,4,5,1.019690293924447
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,MiniMax M2.7,0,1,1.01717217500429
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,MiniMax M2.7,1,2,1.0300490909645248
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,MiniMax M2.7,2,3,1.0661750646566037
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,MiniMax M2.7,3,4,1.123164648628924
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,MiniMax M2.7,4,5,1.006351359579769
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,GPT{-}5.4,0,1,0.9379005558536208
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,GPT{-}5.4,1,2,1.0012955594019075
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,GPT{-}5.4,2,3,0.8885043079643833
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,GPT{-}5.4,3,4,0.9327126838169333
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,GPT{-}5.4,4,5,0.9814635941112602
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,GPT{-}OSS{-}120B,0,1,1.0386083840862312
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,GPT{-}OSS{-}120B,1,2,0.974014552384324
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,GPT{-}OSS{-}120B,2,3,0.8719891280788321
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,GPT{-}OSS{-}120B,3,4,0.9892332679854334
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,GPT{-}OSS{-}120B,4,5,0.9429155859052066
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,Qwen 3.5 397B,0,1,0.944812109054704
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,Qwen 3.5 397B,1,2,0.9777549534705716
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,Qwen 3.5 397B,2,3,1.0626954610445762
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,Qwen 3.5 397B,3,4,0.9690150278505906
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,Qwen 3.5 397B,4,5,0.946796616682453
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,Grok 4,0,1,0.9145581164834944
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,Grok 4,1,2,0.9712481974771981
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,Grok 4,2,3,0.951327590695275
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,Grok 4,3,4,1.0368415026798172
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,Grok 4,4,5,0.9899063985104141
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,GLM{-}5,0,1,1.0157199356827136
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,GLM{-}5,1,2,0.9232733610083892
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,GLM{-}5,2,3,1.0712265116268658
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,GLM{-}5,3,4,1.0690224721921167
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,GLM{-}5,4,5,1.1742126036550824
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_child10,0,0,1.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_child10,1,1,1.0

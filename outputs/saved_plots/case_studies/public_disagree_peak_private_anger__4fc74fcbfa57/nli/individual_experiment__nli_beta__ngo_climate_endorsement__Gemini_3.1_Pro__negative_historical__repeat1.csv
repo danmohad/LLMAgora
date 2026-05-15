@@ -1,0 +1,16 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,x,y,width,height
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,0,_nolegend_,0.7,0.0,0.6000000000000001,0.49240563809871674
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,1,_nolegend_,1.7,0.0,0.6000000000000001,0.019955513707827777
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,2,_nolegend_,2.7,0.0,0.6000000000000001,0.41264645755290985
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,3,_nolegend_,3.7,0.0,0.6000000000000001,0.2161048279958777
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,4,_nolegend_,4.7,0.0,0.6000000000000001,0.4169790220912546
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,5,_nolegend_,0.7,0.49240563809871674,0.6000000000000001,0.5055146589875221
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,6,_nolegend_,1.7,0.019955513707827777,0.6000000000000001,0.47909758682362735
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,7,_nolegend_,2.7,0.41264645755290985,0.6000000000000001,0.584352895617485
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,8,_nolegend_,3.7,0.2161048279958777,0.6000000000000001,0.7346711903810501
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,9,_nolegend_,4.7,0.4169790220912546,0.6000000000000001,0.5826322957873344
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,10,_nolegend_,0.7,0.9979202970862389,0.6000000000000001,0.0020797163306269795
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,11,_nolegend_,1.7,0.49905310053145513,0.6000000000000001,0.5009469131473452
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,12,_nolegend_,2.7,0.9969993531703949,0.6000000000000001,0.003000649332534522
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,13,_nolegend_,3.7,0.9507760183769278,0.6000000000000001,0.049224027461605147
+0,NLI self{-}consistency --- coalition chair,Debate turn,probability,rectilinear,patch,14,_nolegend_,4.7,0.999611317878589,0.6000000000000001,0.00038868526462465525

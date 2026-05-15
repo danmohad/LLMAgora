@@ -1,0 +1,961 @@
+panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,series_label,point_index,x,y
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,0,_nolegend_,0,1.0,0.7732308626174926
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,0,_nolegend_,1,2.0,0.6432016491889954
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,0,_nolegend_,2,3.0,0.5763792276382447
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,0,_nolegend_,3,4.0,0.6501482784748077
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,0,_nolegend_,4,5.0,0.5269734144210816
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,1,_nolegend_,0,1.0,0.760734379369342
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,1,_nolegend_,1,2.0,0.610861407941201
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,1,_nolegend_,2,3.0,0.5418807032272529
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,1,_nolegend_,3,4.0,0.6132408748588474
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,1,_nolegend_,4,5.0,0.501549998092949
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,2,_nolegend_,0,1.0,0.7857273458656433
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,2,_nolegend_,1,2.0,0.6755418904367897
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,2,_nolegend_,2,3.0,0.6108777520492364
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,2,_nolegend_,3,4.0,0.6870556820907681
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,2,_nolegend_,4,5.0,0.5523968307492142
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,3,_nolegend_,0,1.0,0.7034243226051331
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,3,_nolegend_,1,2.0,0.6280684471130371
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,3,_nolegend_,2,3.0,0.6369118928909302
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,3,_nolegend_,3,4.0,0.6383296728134156
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,3,_nolegend_,4,5.0,0.6758458256721497
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,4,_nolegend_,0,1.0,0.67295609460974
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,4,_nolegend_,1,2.0,0.5981303354122129
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,4,_nolegend_,2,3.0,0.6009256195039404
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,4,_nolegend_,3,4.0,0.598137928804815
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,4,_nolegend_,4,5.0,0.6441890385002652
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,5,_nolegend_,0,1.0,0.7338925506005262
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,5,_nolegend_,1,2.0,0.6580065588138613
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,5,_nolegend_,2,3.0,0.67289816627792
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,5,_nolegend_,3,4.0,0.6785214168220162
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,5,_nolegend_,4,5.0,0.7075026128440342
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,6,_nolegend_,0,1.0,0.6930328369140625
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,6,_nolegend_,1,2.0,0.5747250437736511
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,6,_nolegend_,2,3.0,0.598744010925293
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,6,_nolegend_,3,4.0,0.6142525911331177
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,6,_nolegend_,4,5.0,0.6053280353546142
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,7,_nolegend_,0,1.0,0.670240867495537
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,7,_nolegend_,1,2.0,0.5151179375207223
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,7,_nolegend_,2,3.0,0.5665538172346147
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,7,_nolegend_,3,4.0,0.5937136827862055
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,7,_nolegend_,4,5.0,0.5582863772191233
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,8,_nolegend_,0,1.0,0.7158248063325879
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,8,_nolegend_,1,2.0,0.6343321500265798
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,8,_nolegend_,2,3.0,0.6309342046159712
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,8,_nolegend_,3,4.0,0.6347914994800299
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,8,_nolegend_,4,5.0,0.6523696934901051
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,9,_nolegend_,0,1.0,0.7958551287651062
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,9,_nolegend_,1,2.0,0.6509163558483124
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,9,_nolegend_,2,3.0,0.7129059433937073
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,9,_nolegend_,3,4.0,0.6884353518486023
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,9,_nolegend_,4,5.0,0.7593575239181518
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,10,_nolegend_,0,1.0,0.7833599472244134
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,10,_nolegend_,1,2.0,0.5710776396021819
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,10,_nolegend_,2,3.0,0.6922877013120428
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,10,_nolegend_,3,4.0,0.6657878711525578
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,10,_nolegend_,4,5.0,0.7373525858230595
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,11,_nolegend_,0,1.0,0.8083503103057991
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,11,_nolegend_,1,2.0,0.7307550720944429
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,11,_nolegend_,2,3.0,0.7335241854753718
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,11,_nolegend_,3,4.0,0.7110828325446468
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,11,_nolegend_,4,5.0,0.7813624620132441
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,12,_nolegend_,0,1.0,0.7484358787536621
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,12,_nolegend_,1,2.0,0.7790746212005615
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,12,_nolegend_,2,3.0,0.7480563640594482
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,12,_nolegend_,3,4.0,0.7779120206832886
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,12,_nolegend_,4,5.0,0.7599578142166138
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,13,_nolegend_,0,1.0,0.7170633022563939
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,13,_nolegend_,1,2.0,0.7435654987436278
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,13,_nolegend_,2,3.0,0.7248935012777538
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,13,_nolegend_,3,4.0,0.7347891645370885
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,13,_nolegend_,4,5.0,0.7306875173045992
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,14,_nolegend_,0,1.0,0.7798084552509303
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,14,_nolegend_,1,2.0,0.8145837436574952
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,14,_nolegend_,2,3.0,0.7712192268411426
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,14,_nolegend_,3,4.0,0.8210348768294886
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,14,_nolegend_,4,5.0,0.7892281111286283
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,15,_nolegend_,0,1.0,0.7513053774833679
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,15,_nolegend_,1,2.0,0.7771553516387939
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,15,_nolegend_,2,3.0,0.8026011109352111
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,15,_nolegend_,3,4.0,0.7959756135940552
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,15,_nolegend_,4,5.0,0.7808045029640198
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,16,_nolegend_,0,1.0,0.7053808607673622
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,16,_nolegend_,1,2.0,0.7625718689028116
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,16,_nolegend_,2,3.0,0.784920883048131
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,16,_nolegend_,3,4.0,0.7593156403512032
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,16,_nolegend_,4,5.0,0.7422312773364262
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,17,_nolegend_,0,1.0,0.7972298941993736
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,17,_nolegend_,1,2.0,0.7917388343747762
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,17,_nolegend_,2,3.0,0.8202813388222913
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,17,_nolegend_,3,4.0,0.8326355868369072
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,17,_nolegend_,4,5.0,0.8193777285916134
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,18,_nolegend_,0,1.0,0.6405166864395142
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,18,_nolegend_,1,2.0,0.7757140040397644
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,18,_nolegend_,2,3.0,0.6560497164726258
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,18,_nolegend_,3,4.0,0.6838943719863891
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,18,_nolegend_,4,5.0,0.6946148872375488
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,19,_nolegend_,0,1.0,0.5700211071050867
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,19,_nolegend_,1,2.0,0.7391123389615035
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,19,_nolegend_,2,3.0,0.6217430127617043
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,19,_nolegend_,3,4.0,0.6454049381504083
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,19,_nolegend_,4,5.0,0.639683038465584
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,20,_nolegend_,0,1.0,0.7110122657739417
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,20,_nolegend_,1,2.0,0.8123156691180253
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,20,_nolegend_,2,3.0,0.6903564201835473
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,20,_nolegend_,3,4.0,0.7223838058223699
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,20,_nolegend_,4,5.0,0.7495467360095136
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,21,_nolegend_,0,1.0,0.7687490463256836
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,21,_nolegend_,1,2.0,0.6095215916633606
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,21,_nolegend_,2,3.0,0.7266826748847961
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,21,_nolegend_,3,4.0,0.6956982374191284
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,21,_nolegend_,4,5.0,0.6206575036048889
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,22,_nolegend_,0,1.0,0.7394437270423854
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,22,_nolegend_,1,2.0,0.5651286967465367
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,22,_nolegend_,2,3.0,0.7101268531889808
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,22,_nolegend_,3,4.0,0.6779953469537937
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,22,_nolegend_,4,5.0,0.5930233262779188
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,23,_nolegend_,0,1.0,0.7980543656089819
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,23,_nolegend_,1,2.0,0.6539144865801846
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,23,_nolegend_,2,3.0,0.7432384965806114
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,23,_nolegend_,3,4.0,0.7134011278844631
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,23,_nolegend_,4,5.0,0.6482916809318591
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,24,_nolegend_,0,1.0,0.8300426006317139
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,24,_nolegend_,1,2.0,0.7741039276123047
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,24,_nolegend_,2,3.0,0.744076669216156
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,24,_nolegend_,3,4.0,0.7703422546386719
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,24,_nolegend_,4,5.0,0.7414742588996888
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,25,_nolegend_,0,1.0,0.7955331626914327
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,25,_nolegend_,1,2.0,0.7397296595364692
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,25,_nolegend_,2,3.0,0.7003093210600149
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,25,_nolegend_,3,4.0,0.7392312157788101
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,25,_nolegend_,4,5.0,0.7180502492186706
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,26,_nolegend_,0,1.0,0.864552038571995
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,26,_nolegend_,1,2.0,0.8084781956881403
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,26,_nolegend_,2,3.0,0.7878440173722971
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,26,_nolegend_,3,4.0,0.8014532934985337
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,26,_nolegend_,4,5.0,0.764898268580707
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,27,_nolegend_,0,1.0,0.8323361039161682
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,27,_nolegend_,1,2.0,0.6843664526939393
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,27,_nolegend_,2,3.0,0.6868233323097229
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,27,_nolegend_,3,4.0,0.6502025246620178
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,27,_nolegend_,4,5.0,0.5493790626525878
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,28,_nolegend_,0,1.0,0.8173620589318837
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,28,_nolegend_,1,2.0,0.6517576875034792
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,28,_nolegend_,2,3.0,0.6549407309638613
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,28,_nolegend_,3,4.0,0.6090939435687079
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,28,_nolegend_,4,5.0,0.4846072984116099
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,29,_nolegend_,0,1.0,0.8473101489004526
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,29,_nolegend_,1,2.0,0.7169752178843993
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,29,_nolegend_,2,3.0,0.7187059336555846
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,29,_nolegend_,3,4.0,0.6913111057553276
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,line,29,_nolegend_,4,5.0,0.6141508268935658
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,0,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,1,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,2,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,3,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,4,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,5,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,6,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,7,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,8,_nolegend_,0,0.0,0.0
+0,$\alpha$ --- Faculty Manuscript,,Cosine similarity,rectilinear,collection,9,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,_nolegend_,0,1.0,0.8488638281822205
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,_nolegend_,1,2.0,0.6029816627502441
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,_nolegend_,2,3.0,0.6557827472686768
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,_nolegend_,3,4.0,0.6703370809555054
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,0,_nolegend_,4,5.0,0.6849956154823303
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,_nolegend_,0,1.0,0.8358632243449203
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,_nolegend_,1,2.0,0.5618618034856638
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,_nolegend_,2,3.0,0.6259565689341594
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,_nolegend_,3,4.0,0.6349568674923749
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,1,_nolegend_,4,5.0,0.6221490742098511
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,_nolegend_,0,1.0,0.8618644320195207
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,_nolegend_,1,2.0,0.6441015220148244
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,_nolegend_,2,3.0,0.6856089256031942
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,_nolegend_,3,4.0,0.7057172944186358
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,2,_nolegend_,4,5.0,0.7478421567548096
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,_nolegend_,0,1.0,0.6853895902633667
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,_nolegend_,1,2.0,0.6908310532569886
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,_nolegend_,2,3.0,0.6428452491760254
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,_nolegend_,3,4.0,0.7055086493492126
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,3,_nolegend_,4,5.0,0.631184458732605
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,_nolegend_,0,1.0,0.6364444591258094
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,_nolegend_,1,2.0,0.6690581866972625
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,_nolegend_,2,3.0,0.6273789336951427
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,_nolegend_,3,4.0,0.6702270689494543
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,4,_nolegend_,4,5.0,0.604282260078053
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,_nolegend_,0,1.0,0.7343347214009239
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,_nolegend_,1,2.0,0.7126039198167147
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,_nolegend_,2,3.0,0.658311564656908
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,_nolegend_,3,4.0,0.740790229748971
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,5,_nolegend_,4,5.0,0.658086657387157
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,_nolegend_,0,1.0,0.7664311170578003
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,_nolegend_,1,2.0,0.7474554657936097
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,_nolegend_,2,3.0,0.6982507348060608
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,_nolegend_,3,4.0,0.6704238772392273
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,6,_nolegend_,4,5.0,0.6957457304000855
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,_nolegend_,0,1.0,0.7283373476009551
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,_nolegend_,1,2.0,0.7247417580766389
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,_nolegend_,2,3.0,0.6665745478948142
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,_nolegend_,3,4.0,0.6393766911005241
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,7,_nolegend_,4,5.0,0.6621230315852593
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,_nolegend_,0,1.0,0.8045248865146455
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,_nolegend_,1,2.0,0.7701691735105805
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,_nolegend_,2,3.0,0.7299269217173074
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,_nolegend_,3,4.0,0.7014710633779304
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,8,_nolegend_,4,5.0,0.7293684292149116
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,_nolegend_,0,1.0,0.7781378388404846
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,_nolegend_,1,2.0,0.7144322872161866
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,_nolegend_,2,3.0,0.7823944568634034
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,_nolegend_,3,4.0,0.7328492283821106
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,9,_nolegend_,4,5.0,0.7168643593788147
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_nolegend_,0,1.0,0.7423149190709605
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_nolegend_,1,2.0,0.695292699452292
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_nolegend_,2,3.0,0.7505115950120101
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_nolegend_,3,4.0,0.7061724123532286
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,10,_nolegend_,4,5.0,0.6900120068738791
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,11,_nolegend_,0,1.0,0.8139607586100087
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,11,_nolegend_,1,2.0,0.7335718749800811
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,11,_nolegend_,2,3.0,0.8142773187147966
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,11,_nolegend_,3,4.0,0.7595260444109927
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,11,_nolegend_,4,5.0,0.7437167118837502
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,12,_nolegend_,0,1.0,0.7479021072387695
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,12,_nolegend_,1,2.0,0.6939435720443725
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,12,_nolegend_,2,3.0,0.6351439356803894
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,12,_nolegend_,3,4.0,0.7209725379943848
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,12,_nolegend_,4,5.0,0.7515891551971435
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,13,_nolegend_,0,1.0,0.7216254302721082
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,13,_nolegend_,1,2.0,0.6728098690121586
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,13,_nolegend_,2,3.0,0.5876889063504643
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,13,_nolegend_,3,4.0,0.6700410563669746
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,13,_nolegend_,4,5.0,0.7278787867347785
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,14,_nolegend_,0,1.0,0.7741787842054307
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,14,_nolegend_,1,2.0,0.7150772750765865
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,14,_nolegend_,2,3.0,0.6825989650103145
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,14,_nolegend_,3,4.0,0.7719040196217949
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,14,_nolegend_,4,5.0,0.7752995236595086
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,15,_nolegend_,0,1.0,0.7664491057395935
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,15,_nolegend_,1,2.0,0.7585008978843689
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,15,_nolegend_,2,3.0,0.7464434504508972
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,15,_nolegend_,3,4.0,0.7710978150367737
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,15,_nolegend_,4,5.0,0.7611261963844299
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,16,_nolegend_,0,1.0,0.7302828521735899
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,16,_nolegend_,1,2.0,0.7155449901026345
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,16,_nolegend_,2,3.0,0.7211564526044144
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,16,_nolegend_,3,4.0,0.7492739339705907
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,16,_nolegend_,4,5.0,0.725509073324556
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,17,_nolegend_,0,1.0,0.802615359305597
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,17,_nolegend_,1,2.0,0.8014568056661033
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,17,_nolegend_,2,3.0,0.77173044829738
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,17,_nolegend_,3,4.0,0.7929216961029566
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,17,_nolegend_,4,5.0,0.7967433194443038
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,18,_nolegend_,0,1.0,0.7390648305416108
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,18,_nolegend_,1,2.0,0.827250850200653
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,18,_nolegend_,2,3.0,0.8081984162330628
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,18,_nolegend_,3,4.0,0.7934831619262696
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,18,_nolegend_,4,5.0,0.8286260724067688
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,19,_nolegend_,0,1.0,0.6791356755071519
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,19,_nolegend_,1,2.0,0.7929506066752734
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,19,_nolegend_,2,3.0,0.79234403096862
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,19,_nolegend_,3,4.0,0.748763693380379
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,19,_nolegend_,4,5.0,0.8006229811196401
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,20,_nolegend_,0,1.0,0.7989939855760696
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,20,_nolegend_,1,2.0,0.8615510937260327
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,20,_nolegend_,2,3.0,0.8240528014975055
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,20,_nolegend_,3,4.0,0.8382026304721601
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,20,_nolegend_,4,5.0,0.8566291636938974
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,21,_nolegend_,0,1.0,0.830089807510376
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,21,_nolegend_,1,2.0,0.6925467193126679
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,21,_nolegend_,2,3.0,0.7285892367362976
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,21,_nolegend_,3,4.0,0.6967162013053894
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,21,_nolegend_,4,5.0,0.735718035697937
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,22,_nolegend_,0,1.0,0.815976480210383
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,22,_nolegend_,1,2.0,0.6273521253064015
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,22,_nolegend_,2,3.0,0.6947600048863883
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,22,_nolegend_,3,4.0,0.6698679378863656
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,22,_nolegend_,4,5.0,0.707148207087629
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,23,_nolegend_,0,1.0,0.8442031348103689
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,23,_nolegend_,1,2.0,0.7577413133189342
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,23,_nolegend_,2,3.0,0.7624184685862069
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,23,_nolegend_,3,4.0,0.7235644647244132
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,23,_nolegend_,4,5.0,0.764287864308245
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,24,_nolegend_,0,1.0,0.8414959669113159
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,24,_nolegend_,1,2.0,0.7288336992263794
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,24,_nolegend_,2,3.0,0.7691765904426575
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,24,_nolegend_,3,4.0,0.7761014461517334
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,24,_nolegend_,4,5.0,0.7658141613006592
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,25,_nolegend_,0,1.0,0.8297171014523516
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,25,_nolegend_,1,2.0,0.6904553348752639
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,25,_nolegend_,2,3.0,0.7472927742495946
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,25,_nolegend_,3,4.0,0.7449736644843907
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,25,_nolegend_,4,5.0,0.7254119253112701
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,26,_nolegend_,0,1.0,0.8532748323702802
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,26,_nolegend_,1,2.0,0.7672120635774949
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,26,_nolegend_,2,3.0,0.7910604066357204
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,26,_nolegend_,3,4.0,0.807229227819076
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,26,_nolegend_,4,5.0,0.8062163972900482
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,27,_nolegend_,0,1.0,0.7606686115264892
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,27,_nolegend_,1,2.0,0.750828766822815
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,27,_nolegend_,2,3.0,0.6472270846366882
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,27,_nolegend_,3,4.0,0.6394307374954223
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,27,_nolegend_,4,5.0,0.6582970142364502
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,28,_nolegend_,0,1.0,0.7398423907120715
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,28,_nolegend_,1,2.0,0.7031638786399149
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,28,_nolegend_,2,3.0,0.6230178308591987
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,28,_nolegend_,3,4.0,0.6133884519001876
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,28,_nolegend_,4,5.0,0.6289902452153242
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,29,_nolegend_,0,1.0,0.781494832340907
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,29,_nolegend_,1,2.0,0.798493655005715
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,29,_nolegend_,2,3.0,0.6714363384141777
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,29,_nolegend_,3,4.0,0.665473023090657
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,line,29,_nolegend_,4,5.0,0.6876037832575761
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,0,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,1,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,2,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,3,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,4,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,5,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,6,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,7,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,8,_nolegend_,0,0.0,0.0
+1,$\beta$ --- Faculty Manuscript,,,rectilinear,collection,9,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,0,_nolegend_,0,1.0,0.8664484739303588
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,0,_nolegend_,1,2.0,0.6557233333587646
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,0,_nolegend_,2,3.0,0.6102491855621338
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,0,_nolegend_,3,4.0,0.6726984262466431
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,0,_nolegend_,4,5.0,0.5965227723121643
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,1,_nolegend_,0,1.0,0.8513056806579726
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,1,_nolegend_,1,2.0,0.6428932526551573
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,1,_nolegend_,2,3.0,0.5972374081522721
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,1,_nolegend_,3,4.0,0.623797860683604
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,1,_nolegend_,4,5.0,0.5629269295115613
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,2,_nolegend_,0,1.0,0.881591267202745
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,2,_nolegend_,1,2.0,0.668553414062372
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,2,_nolegend_,2,3.0,0.6232609629719955
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,2,_nolegend_,3,4.0,0.7215989918096822
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,2,_nolegend_,4,5.0,0.6301186151127673
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,3,_nolegend_,0,1.0,0.74913409948349
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,3,_nolegend_,1,2.0,0.5319276511669159
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,3,_nolegend_,2,3.0,0.5587867975234986
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,3,_nolegend_,3,4.0,0.5924496293067932
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,3,_nolegend_,4,5.0,0.555694630742073
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,4,_nolegend_,0,1.0,0.7137758017197002
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,4,_nolegend_,1,2.0,0.49537105200226966
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,4,_nolegend_,2,3.0,0.5241420863887775
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,4,_nolegend_,3,4.0,0.5710802075461209
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,4,_nolegend_,4,5.0,0.46927914169853835
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,5,_nolegend_,0,1.0,0.7844923972472797
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,5,_nolegend_,1,2.0,0.5684842503315621
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,5,_nolegend_,2,3.0,0.5934315086582197
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,5,_nolegend_,3,4.0,0.6138190510674656
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,5,_nolegend_,4,5.0,0.6421101197856077
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,6,_nolegend_,0,1.0,0.7229182362556458
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,6,_nolegend_,1,2.0,0.7335931062698364
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,6,_nolegend_,2,3.0,0.7024953722953796
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,6,_nolegend_,3,4.0,0.7360435724258423
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,6,_nolegend_,4,5.0,0.6746220469474793
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,7,_nolegend_,0,1.0,0.6867614093892846
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,7,_nolegend_,1,2.0,0.7189171788799291
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,7,_nolegend_,2,3.0,0.6748239849083649
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,7,_nolegend_,3,4.0,0.7138119300121692
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,7,_nolegend_,4,5.0,0.656591048258242
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,8,_nolegend_,0,1.0,0.7590750631220069
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,8,_nolegend_,1,2.0,0.7482690336597437
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,8,_nolegend_,2,3.0,0.7301667596823943
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,8,_nolegend_,3,4.0,0.7582752148395153
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,8,_nolegend_,4,5.0,0.6926530456367166
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,9,_nolegend_,0,1.0,0.8727003335952759
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,9,_nolegend_,1,2.0,0.7685657382011414
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,9,_nolegend_,2,3.0,0.7612577080726624
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,9,_nolegend_,3,4.0,0.8042212843894958
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,9,_nolegend_,4,5.0,0.7382792711257935
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,10,_nolegend_,0,1.0,0.8581954594786291
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,10,_nolegend_,1,2.0,0.7495555941673286
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,10,_nolegend_,2,3.0,0.7451769494323517
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,10,_nolegend_,3,4.0,0.790873409098213
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,10,_nolegend_,4,5.0,0.7200058236044834
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,11,_nolegend_,0,1.0,0.8872052077119227
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,11,_nolegend_,1,2.0,0.7875758822349541
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,11,_nolegend_,2,3.0,0.777338466712973
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,11,_nolegend_,3,4.0,0.8175691596807786
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,11,_nolegend_,4,5.0,0.7565527186471036
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,12,_nolegend_,0,1.0,0.7944348573684692
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,12,_nolegend_,1,2.0,0.7290267169475555
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,12,_nolegend_,2,3.0,0.7366941690444946
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,12,_nolegend_,3,4.0,0.7089438796043396
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,12,_nolegend_,4,5.0,0.7589496016502381
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,13,_nolegend_,0,1.0,0.7639266792563468
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,13,_nolegend_,1,2.0,0.6627654211723898
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,13,_nolegend_,2,3.0,0.7248000429425243
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,13,_nolegend_,3,4.0,0.6815711868758926
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,13,_nolegend_,4,5.0,0.7131433883096033
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,14,_nolegend_,0,1.0,0.8249430354805916
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,14,_nolegend_,1,2.0,0.7952880127227212
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,14,_nolegend_,2,3.0,0.7485882951464649
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,14,_nolegend_,3,4.0,0.7363165723327866
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,14,_nolegend_,4,5.0,0.8047558149908728
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,15,_nolegend_,0,1.0,0.8427589058876037
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,15,_nolegend_,1,2.0,0.800408399105072
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,15,_nolegend_,2,3.0,0.8191336631774903
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,15,_nolegend_,3,4.0,0.8183296203613282
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,15,_nolegend_,4,5.0,0.8319603562355041
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,16,_nolegend_,0,1.0,0.8293903078336956
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,16,_nolegend_,1,2.0,0.760973614822242
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,16,_nolegend_,2,3.0,0.7929670750742761
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,16,_nolegend_,3,4.0,0.7874988464464009
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,16,_nolegend_,4,5.0,0.8166496306592697
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,17,_nolegend_,0,1.0,0.8561275039415118
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,17,_nolegend_,1,2.0,0.839843183387902
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,17,_nolegend_,2,3.0,0.8453002512807044
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,17,_nolegend_,3,4.0,0.8491603942762554
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,17,_nolegend_,4,5.0,0.8472710818117386
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,18,_nolegend_,0,1.0,0.8010709047317505
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,18,_nolegend_,1,2.0,0.8483225345611572
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,18,_nolegend_,2,3.0,0.8120476841926575
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,18,_nolegend_,3,4.0,0.843492865562439
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,18,_nolegend_,4,5.0,0.9183765172958374
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,19,_nolegend_,0,1.0,0.7878469977284371
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,19,_nolegend_,1,2.0,0.834229524100557
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,19,_nolegend_,2,3.0,0.7881260758572851
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,19,_nolegend_,3,4.0,0.7991020255070768
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,19,_nolegend_,4,5.0,0.9051291710737678
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,20,_nolegend_,0,1.0,0.8142948117350638
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,20,_nolegend_,1,2.0,0.8624155450217575
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,20,_nolegend_,2,3.0,0.8359692925280299
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,20,_nolegend_,3,4.0,0.8878837056178012
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,20,_nolegend_,4,5.0,0.9316238635179069
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,21,_nolegend_,0,1.0,0.8225215554237366
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,21,_nolegend_,1,2.0,0.7633565545082093
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,21,_nolegend_,2,3.0,0.7723368167877197
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,21,_nolegend_,3,4.0,0.7730882048606873
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,21,_nolegend_,4,5.0,0.7239664196968079
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,22,_nolegend_,0,1.0,0.8032594389068687
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,22,_nolegend_,1,2.0,0.7374234920480108
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,22,_nolegend_,2,3.0,0.7463801686850784
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,22,_nolegend_,3,4.0,0.7456844318580802
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,22,_nolegend_,4,5.0,0.6805129458385013
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,23,_nolegend_,0,1.0,0.8417836719406045
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,23,_nolegend_,1,2.0,0.7892896169684077
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,23,_nolegend_,2,3.0,0.798293464890361
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,23,_nolegend_,3,4.0,0.8004919778632944
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,23,_nolegend_,4,5.0,0.7674198935551144
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,24,_nolegend_,0,1.0,0.8653695344924927
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,24,_nolegend_,1,2.0,0.7976118206977845
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,24,_nolegend_,2,3.0,0.8461692810058594
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,24,_nolegend_,3,4.0,0.8431901335716248
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,24,_nolegend_,4,5.0,0.8424131631851196
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,25,_nolegend_,0,1.0,0.8530055089091051
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,25,_nolegend_,1,2.0,0.7690945992257241
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,25,_nolegend_,2,3.0,0.8326234327917951
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,25,_nolegend_,3,4.0,0.82216615564827
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,25,_nolegend_,4,5.0,0.8284469751751499
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,26,_nolegend_,0,1.0,0.8777335600758802
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,26,_nolegend_,1,2.0,0.8261290421698448
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,26,_nolegend_,2,3.0,0.8597151292199238
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,26,_nolegend_,3,4.0,0.8642141114949795
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,26,_nolegend_,4,5.0,0.8563793511950893
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,27,_nolegend_,0,1.0,0.8681328535079956
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,27,_nolegend_,1,2.0,0.7487981677055359
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,27,_nolegend_,2,3.0,0.5992031931877136
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,27,_nolegend_,3,4.0,0.6987428784370422
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,27,_nolegend_,4,5.0,0.6726014375686645
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,28,_nolegend_,0,1.0,0.8518152060818508
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,28,_nolegend_,1,2.0,0.7209791874277715
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,28,_nolegend_,2,3.0,0.5616177218969177
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,28,_nolegend_,3,4.0,0.6809178554370403
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,28,_nolegend_,4,5.0,0.6519827982165562
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,29,_nolegend_,0,1.0,0.8844505009341405
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,29,_nolegend_,1,2.0,0.7766171479833003
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,29,_nolegend_,2,3.0,0.6367886644785096
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,29,_nolegend_,3,4.0,0.7165679014370441
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,line,29,_nolegend_,4,5.0,0.6932200769207728
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,0,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,1,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,2,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,3,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,4,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,5,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,6,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,7,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,8,_nolegend_,0,0.0,0.0
+2,$\alpha$ --- Promotion Committee,,Cosine similarity,rectilinear,collection,9,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,_nolegend_,0,1.0,0.7521549940109253
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,_nolegend_,1,2.0,0.5517367780208587
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,_nolegend_,2,3.0,0.7155830025672912
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,_nolegend_,3,4.0,0.6511170923709869
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,0,_nolegend_,4,5.0,0.6554400563240051
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,_nolegend_,0,1.0,0.7282484543405312
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,_nolegend_,1,2.0,0.5049083272549277
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,_nolegend_,2,3.0,0.7028963111598237
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,_nolegend_,3,4.0,0.5930802300599728
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,1,_nolegend_,4,5.0,0.6076271493360736
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,_nolegend_,0,1.0,0.7760615336813195
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,_nolegend_,1,2.0,0.5985652287867897
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,_nolegend_,2,3.0,0.7282696939747588
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,_nolegend_,3,4.0,0.709153954682001
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,2,_nolegend_,4,5.0,0.7032529633119367
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,_nolegend_,0,1.0,0.6910175800323486
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,_nolegend_,1,2.0,0.687787127494812
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,_nolegend_,2,3.0,0.5624578714370727
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,_nolegend_,3,4.0,0.6751741528511047
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,3,_nolegend_,4,5.0,0.7937923908233643
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,_nolegend_,0,1.0,0.6530503476650632
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,_nolegend_,1,2.0,0.649637565951479
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,_nolegend_,2,3.0,0.4925043908395737
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,_nolegend_,3,4.0,0.6255237778794086
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,4,_nolegend_,4,5.0,0.7766976026900759
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,_nolegend_,0,1.0,0.728984812399634
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,_nolegend_,1,2.0,0.7259366890381449
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,_nolegend_,2,3.0,0.6324113520345717
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,_nolegend_,3,4.0,0.7248245278228008
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,5,_nolegend_,4,5.0,0.8108871789566526
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,_nolegend_,0,1.0,0.8390048027038575
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,_nolegend_,1,2.0,0.7220823287963867
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,_nolegend_,2,3.0,0.7222432851791382
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,_nolegend_,3,4.0,0.6645176768302917
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,6,_nolegend_,4,5.0,0.6474820017814636
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,_nolegend_,0,1.0,0.8118514730679608
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,_nolegend_,1,2.0,0.6926176469430821
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,_nolegend_,2,3.0,0.7014549457734104
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,_nolegend_,3,4.0,0.6370563075717138
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,7,_nolegend_,4,5.0,0.6156722380780435
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,_nolegend_,0,1.0,0.8661581323397541
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,_nolegend_,1,2.0,0.7515470106496912
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,_nolegend_,2,3.0,0.7430316245848659
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,_nolegend_,3,4.0,0.6919790460888696
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,8,_nolegend_,4,5.0,0.6792917654848838
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,_nolegend_,0,1.0,0.7521251559257507
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,_nolegend_,1,2.0,0.7158625364303589
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,_nolegend_,2,3.0,0.751661503314972
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,_nolegend_,3,4.0,0.7289968490600586
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,9,_nolegend_,4,5.0,0.732169795036316
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_nolegend_,0,1.0,0.7340732519123313
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_nolegend_,1,2.0,0.6893142844730488
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_nolegend_,2,3.0,0.7244547578942527
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_nolegend_,3,4.0,0.6932719680738164
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,10,_nolegend_,4,5.0,0.7166281149912336
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,11,_nolegend_,0,1.0,0.7701770599391701
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,11,_nolegend_,1,2.0,0.742410788387669
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,11,_nolegend_,2,3.0,0.7788682487356912
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,11,_nolegend_,3,4.0,0.7647217300463007
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,11,_nolegend_,4,5.0,0.7477114750813983
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,12,_nolegend_,0,1.0,0.7482531309127808
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,12,_nolegend_,1,2.0,0.7083459377288819
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,12,_nolegend_,2,3.0,0.6263049006462097
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,12,_nolegend_,3,4.0,0.7108282804489136
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,12,_nolegend_,4,5.0,0.7672024369239807
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,13,_nolegend_,0,1.0,0.7182171347706244
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,13,_nolegend_,1,2.0,0.6834279621572149
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,13,_nolegend_,2,3.0,0.5639824272679423
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,13,_nolegend_,3,4.0,0.6791546873556739
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,13,_nolegend_,4,5.0,0.7293726515040174
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,14,_nolegend_,0,1.0,0.7782891270549371
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,14,_nolegend_,1,2.0,0.7332639133005489
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,14,_nolegend_,2,3.0,0.688627374024477
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,14,_nolegend_,3,4.0,0.7425018735421532
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,14,_nolegend_,4,5.0,0.805032222343944
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,15,_nolegend_,0,1.0,0.8801841735839844
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,15,_nolegend_,1,2.0,0.8547608494758606
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,15,_nolegend_,2,3.0,0.8785585045814515
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,15,_nolegend_,3,4.0,0.8425063014030456
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,15,_nolegend_,4,5.0,0.8419523596763611
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,16,_nolegend_,0,1.0,0.8723083342793494
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,16,_nolegend_,1,2.0,0.8433885647969088
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,16,_nolegend_,2,3.0,0.8641298821377
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,16,_nolegend_,3,4.0,0.836206343786367
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,16,_nolegend_,4,5.0,0.8132285744915254
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,17,_nolegend_,0,1.0,0.8880600128886194
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,17,_nolegend_,1,2.0,0.8661331341548124
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,17,_nolegend_,2,3.0,0.8929871270252029
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,17,_nolegend_,3,4.0,0.8488062590197242
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,17,_nolegend_,4,5.0,0.8706761448611967
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,18,_nolegend_,0,1.0,0.8604127883911132
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,18,_nolegend_,1,2.0,0.8339377522468567
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,18,_nolegend_,2,3.0,0.8441839933395385
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,18,_nolegend_,3,4.0,0.8261033654212951
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,18,_nolegend_,4,5.0,0.8405726671218872
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,19,_nolegend_,0,1.0,0.8444030572334258
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,19,_nolegend_,1,2.0,0.8190456371234723
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,19,_nolegend_,2,3.0,0.8120682502691771
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,19,_nolegend_,3,4.0,0.7884873971827304
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,19,_nolegend_,4,5.0,0.8104892639657045
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,20,_nolegend_,0,1.0,0.8764225195488007
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,20,_nolegend_,1,2.0,0.8488298673702411
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,20,_nolegend_,2,3.0,0.8762997364099
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,20,_nolegend_,3,4.0,0.8637193336598599
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,20,_nolegend_,4,5.0,0.8706560702780698
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,21,_nolegend_,0,1.0,0.8056797623634339
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,21,_nolegend_,1,2.0,0.7710040926933288
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,21,_nolegend_,2,3.0,0.7717564702033997
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,21,_nolegend_,3,4.0,0.6985014200210571
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,21,_nolegend_,4,5.0,0.7087804079055786
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,22,_nolegend_,0,1.0,0.7584556555482238
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,22,_nolegend_,1,2.0,0.7388998725970222
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,22,_nolegend_,2,3.0,0.758101332415128
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,22,_nolegend_,3,4.0,0.651825353401102
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,22,_nolegend_,4,5.0,0.6673577064890193
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,23,_nolegend_,0,1.0,0.8529038691786439
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,23,_nolegend_,1,2.0,0.8031083127896355
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,23,_nolegend_,2,3.0,0.7854116079916713
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,23,_nolegend_,3,4.0,0.7451774866410121
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,23,_nolegend_,4,5.0,0.750203109322138
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,24,_nolegend_,0,1.0,0.8967671632766724
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,24,_nolegend_,1,2.0,0.794644296169281
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,24,_nolegend_,2,3.0,0.8164535164833069
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,24,_nolegend_,3,4.0,0.7933433055877686
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,24,_nolegend_,4,5.0,0.7409222722053528
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,25,_nolegend_,0,1.0,0.8777194376671671
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,25,_nolegend_,1,2.0,0.7654601415571013
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,25,_nolegend_,2,3.0,0.7838313717164233
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,25,_nolegend_,3,4.0,0.7712423982925404
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,25,_nolegend_,4,5.0,0.7274285545813064
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,26,_nolegend_,0,1.0,0.9158148888861777
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,26,_nolegend_,1,2.0,0.8238284507814607
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,26,_nolegend_,2,3.0,0.8490756612501905
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,26,_nolegend_,3,4.0,0.8154442128829967
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,26,_nolegend_,4,5.0,0.7544159898293992
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,27,_nolegend_,0,1.0,0.8545889496803284
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,27,_nolegend_,1,2.0,0.7241501212120056
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,27,_nolegend_,2,3.0,0.6611634850502014
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,27,_nolegend_,3,4.0,0.5879597783088684
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,27,_nolegend_,4,5.0,0.5610597848892211
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,28,_nolegend_,0,1.0,0.8358907872927827
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,28,_nolegend_,1,2.0,0.7088472990401897
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,28,_nolegend_,2,3.0,0.6335252491339131
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,28,_nolegend_,3,4.0,0.562759139061695
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,28,_nolegend_,4,5.0,0.5327115413591963
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,29,_nolegend_,0,1.0,0.8732871120678741
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,29,_nolegend_,1,2.0,0.7394529433838215
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,29,_nolegend_,2,3.0,0.6888017209664897
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,29,_nolegend_,3,4.0,0.6131604175560418
+3,$\beta$ --- Promotion Committee,,,rectilinear,line,29,_nolegend_,4,5.0,0.589408028419246
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,0,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,1,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,2,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,3,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,4,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,5,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,6,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,7,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,8,_nolegend_,0,0.0,0.0
+3,$\beta$ --- Promotion Committee,,,rectilinear,collection,9,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,0,_nolegend_,0,1.0,0.7426241874694824
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,0,_nolegend_,1,2.0,0.6159966349601745
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,0,_nolegend_,2,3.0,0.7223102688789368
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,0,_nolegend_,3,4.0,0.5961084961891174
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,0,_nolegend_,4,5.0,0.6543419837951661
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,1,_nolegend_,0,1.0,0.7119075935611834
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,1,_nolegend_,1,2.0,0.5753451842805462
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,1,_nolegend_,2,3.0,0.668917684152663
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,1,_nolegend_,3,4.0,0.5732431756752044
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,1,_nolegend_,4,5.0,0.6057893164649104
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,2,_nolegend_,0,1.0,0.7733407813777815
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,2,_nolegend_,1,2.0,0.6566480856398029
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,2,_nolegend_,2,3.0,0.7757028536052106
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,2,_nolegend_,3,4.0,0.6189738167030304
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,2,_nolegend_,4,5.0,0.7028946511254217
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,3,_nolegend_,0,1.0,0.7688984155654908
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,3,_nolegend_,1,2.0,0.6552486538887023
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,3,_nolegend_,2,3.0,0.6148187398910523
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,3,_nolegend_,3,4.0,0.6325326800346375
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,3,_nolegend_,4,5.0,0.6541958332061768
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,4,_nolegend_,0,1.0,0.7447358458230343
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,4,_nolegend_,1,2.0,0.6171998135713894
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,4,_nolegend_,2,3.0,0.5798860019069824
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,4,_nolegend_,3,4.0,0.605883683732199
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,4,_nolegend_,4,5.0,0.6235302812824127
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,5,_nolegend_,0,1.0,0.7930609853079472
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,5,_nolegend_,1,2.0,0.6932974942060153
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,5,_nolegend_,2,3.0,0.6497514778751222
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,5,_nolegend_,3,4.0,0.6591816763370759
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,5,_nolegend_,4,5.0,0.6848613851299409
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,6,_nolegend_,0,1.0,0.6529146790504455
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,6,_nolegend_,1,2.0,0.7252662897109985
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,6,_nolegend_,2,3.0,0.7512586951255799
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,6,_nolegend_,3,4.0,0.6457754611968994
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,6,_nolegend_,4,5.0,0.7354469418525695
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,7,_nolegend_,0,1.0,0.6176668474342268
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,7,_nolegend_,1,2.0,0.6977730101788469
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,7,_nolegend_,2,3.0,0.7042406043321501
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,7,_nolegend_,3,4.0,0.6041304774565934
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,7,_nolegend_,4,5.0,0.700643524433776
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,8,_nolegend_,0,1.0,0.6881625106666642
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,8,_nolegend_,1,2.0,0.7527595692431501
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,8,_nolegend_,2,3.0,0.7982767859190096
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,8,_nolegend_,3,4.0,0.6874204449372054
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,8,_nolegend_,4,5.0,0.7702503592713631
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,9,_nolegend_,0,1.0,0.7942508101463318
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,9,_nolegend_,1,2.0,0.7237711071968078
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,9,_nolegend_,2,3.0,0.746496605873108
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,9,_nolegend_,3,4.0,0.7540673971176147
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,9,_nolegend_,4,5.0,0.7960502862930298
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,10,_nolegend_,0,1.0,0.7557318208180028
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,10,_nolegend_,1,2.0,0.6889630870401542
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,10,_nolegend_,2,3.0,0.7084299332901903
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,10,_nolegend_,3,4.0,0.7301925811787919
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,10,_nolegend_,4,5.0,0.7854109656121384
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,11,_nolegend_,0,1.0,0.8327697994746608
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,11,_nolegend_,1,2.0,0.7585791273534614
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,11,_nolegend_,2,3.0,0.7845632784560256
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,11,_nolegend_,3,4.0,0.7779422130564375
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,11,_nolegend_,4,5.0,0.8066896069739211
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,12,_nolegend_,0,1.0,0.7443822622299194
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,12,_nolegend_,1,2.0,0.7122625589370728
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,12,_nolegend_,2,3.0,0.6145775794982911
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,12,_nolegend_,3,4.0,0.6868857264518737
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,12,_nolegend_,4,5.0,0.6960351467132568
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,13,_nolegend_,0,1.0,0.7049350882451
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,13,_nolegend_,1,2.0,0.6932452818652566
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,13,_nolegend_,2,3.0,0.570683638520042
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,13,_nolegend_,3,4.0,0.6565685055643413
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,13,_nolegend_,4,5.0,0.6637840470982339
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,14,_nolegend_,0,1.0,0.7838294362147389
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,14,_nolegend_,1,2.0,0.731279836008889
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,14,_nolegend_,2,3.0,0.6584715204765401
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,14,_nolegend_,3,4.0,0.7172029473394061
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,14,_nolegend_,4,5.0,0.7282862463282798
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,15,_nolegend_,0,1.0,0.8727292060852051
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,15,_nolegend_,1,2.0,0.7745169281959534
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,15,_nolegend_,2,3.0,0.8179551482200622
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,15,_nolegend_,3,4.0,0.7773905873298645
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,15,_nolegend_,4,5.0,0.8136450529098511
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,16,_nolegend_,0,1.0,0.8655624006207127
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,16,_nolegend_,1,2.0,0.7639228604277306
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,16,_nolegend_,2,3.0,0.799516347280563
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,16,_nolegend_,3,4.0,0.7560261318757809
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,16,_nolegend_,4,5.0,0.7739050085895931
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,17,_nolegend_,0,1.0,0.8798960115496975
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,17,_nolegend_,1,2.0,0.7851109959641762
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,17,_nolegend_,2,3.0,0.8363939491595614
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,17,_nolegend_,3,4.0,0.7987550427839482
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,17,_nolegend_,4,5.0,0.8533850972301091
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,18,_nolegend_,0,1.0,0.8571507215499878
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,18,_nolegend_,1,2.0,0.8374606251716614
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,18,_nolegend_,2,3.0,0.8379402041435242
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,18,_nolegend_,3,4.0,0.8820888042449951
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,18,_nolegend_,4,5.0,0.8897576928138733
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,19,_nolegend_,0,1.0,0.8317556907815365
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,19,_nolegend_,1,2.0,0.8134599949545429
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,19,_nolegend_,2,3.0,0.8225968986452076
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,19,_nolegend_,3,4.0,0.8625750567847905
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,19,_nolegend_,4,5.0,0.8687895128366543
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,20,_nolegend_,0,1.0,0.8825457523184391
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,20,_nolegend_,1,2.0,0.8614612553887799
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,20,_nolegend_,2,3.0,0.8532835096418409
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,20,_nolegend_,3,4.0,0.9016025517051998
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,20,_nolegend_,4,5.0,0.9107258727910923
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,21,_nolegend_,0,1.0,0.7783046126365661
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,21,_nolegend_,1,2.0,0.7121966719627381
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,21,_nolegend_,2,3.0,0.7983080744743347
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,21,_nolegend_,3,4.0,0.757090938091278
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,21,_nolegend_,4,5.0,0.7732588410377502
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,22,_nolegend_,0,1.0,0.7418324750457416
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,22,_nolegend_,1,2.0,0.6826044653947657
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,22,_nolegend_,2,3.0,0.7605272396920453
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,22,_nolegend_,3,4.0,0.7083252915789645
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,22,_nolegend_,4,5.0,0.7426795109299243
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,23,_nolegend_,0,1.0,0.8147767502273907
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,23,_nolegend_,1,2.0,0.7417888785307104
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,23,_nolegend_,2,3.0,0.8360889092566242
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,23,_nolegend_,3,4.0,0.8058565846035916
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,23,_nolegend_,4,5.0,0.8038381711455761
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,24,_nolegend_,0,1.0,0.8154711127281189
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,24,_nolegend_,1,2.0,0.7439786672592164
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,24,_nolegend_,2,3.0,0.6742981791496276
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,24,_nolegend_,3,4.0,0.6522351503372192
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,24,_nolegend_,4,5.0,0.727444839477539
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,25,_nolegend_,0,1.0,0.8017080139745307
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,25,_nolegend_,1,2.0,0.7248532968727428
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,25,_nolegend_,2,3.0,0.6519347150770105
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,25,_nolegend_,3,4.0,0.6317045122874103
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,25,_nolegend_,4,5.0,0.7074869264564774
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,26,_nolegend_,0,1.0,0.8292342114817071
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,26,_nolegend_,1,2.0,0.7631040376456899
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,26,_nolegend_,2,3.0,0.6966616432222448
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,26,_nolegend_,3,4.0,0.6727657883870282
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,26,_nolegend_,4,5.0,0.7474027524986007
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,27,_nolegend_,0,1.0,0.6800248384475708
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,27,_nolegend_,1,2.0,0.7214544415473938
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,27,_nolegend_,2,3.0,0.6463774085044861
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,27,_nolegend_,3,4.0,0.6439043760299683
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,27,_nolegend_,4,5.0,0.672561526298523
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,28,_nolegend_,0,1.0,0.6609846145430804
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,28,_nolegend_,1,2.0,0.6805836659846608
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,28,_nolegend_,2,3.0,0.6178094428413853
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,28,_nolegend_,3,4.0,0.6162784194670967
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,28,_nolegend_,4,5.0,0.6408823567002091
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,29,_nolegend_,0,1.0,0.6990650623520611
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,29,_nolegend_,1,2.0,0.7623252171101268
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,29,_nolegend_,2,3.0,0.6749453741675869
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,29,_nolegend_,3,4.0,0.6715303325928399
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,line,29,_nolegend_,4,5.0,0.7042406958968368
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,0,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,1,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,2,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,3,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,4,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,5,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,6,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,7,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,8,_nolegend_,0,0.0,0.0
+4,$\alpha$ --- NGO Climate,Debate turn,Cosine similarity,rectilinear,collection,9,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,_nolegend_,0,1.0,0.7556077122688294
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,_nolegend_,1,2.0,0.6014287352561951
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,_nolegend_,2,3.0,0.703162145614624
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,_nolegend_,3,4.0,0.6632231593132019
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,0,_nolegend_,4,5.0,0.6719668984413147
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,_nolegend_,0,1.0,0.737291935221241
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,_nolegend_,1,2.0,0.5747282521398669
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,_nolegend_,2,3.0,0.6833842407451538
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,_nolegend_,3,4.0,0.6296430422735323
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,1,_nolegend_,4,5.0,0.6466698056924108
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,_nolegend_,0,1.0,0.7739234893164177
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,_nolegend_,1,2.0,0.6281292183725233
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,_nolegend_,2,3.0,0.7229400504840942
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,_nolegend_,3,4.0,0.6968032763528714
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,2,_nolegend_,4,5.0,0.6972639911902186
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,_nolegend_,0,1.0,0.7387072324752808
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,_nolegend_,1,2.0,0.689421010017395
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,_nolegend_,2,3.0,0.6177351713180542
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,_nolegend_,3,4.0,0.6810942530632019
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,3,_nolegend_,4,5.0,0.656532597541809
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,_nolegend_,0,1.0,0.7323457706786914
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,_nolegend_,1,2.0,0.6623489303734146
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,_nolegend_,2,3.0,0.5867374235593587
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,_nolegend_,3,4.0,0.6498820604046532
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,4,_nolegend_,4,5.0,0.637457763392063
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,_nolegend_,0,1.0,0.7450686942718702
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,_nolegend_,1,2.0,0.7164930896613754
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,_nolegend_,2,3.0,0.6487329190767498
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,_nolegend_,3,4.0,0.7123064457217506
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,5,_nolegend_,4,5.0,0.6756074316915551
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,_nolegend_,0,1.0,0.7444008946418762
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,_nolegend_,1,2.0,0.7220550060272217
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,_nolegend_,2,3.0,0.7411205410957337
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,_nolegend_,3,4.0,0.7717030286788941
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,6,_nolegend_,4,5.0,0.780391526222229
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,_nolegend_,0,1.0,0.7202229440059287
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,_nolegend_,1,2.0,0.6773322183058312
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,_nolegend_,2,3.0,0.717646404874961
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,_nolegend_,3,4.0,0.7417503012355221
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,7,_nolegend_,4,5.0,0.7620337627328391
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,_nolegend_,0,1.0,0.7685788452778237
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,_nolegend_,1,2.0,0.7667777937486122
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,_nolegend_,2,3.0,0.7645946773165063
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,_nolegend_,3,4.0,0.801655756122266
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,8,_nolegend_,4,5.0,0.7987492897116188
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,_nolegend_,0,1.0,0.8264302492141724
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,_nolegend_,1,2.0,0.7674907684326172
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,_nolegend_,2,3.0,0.7591171383857727
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,_nolegend_,3,4.0,0.6936565041542053
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,9,_nolegend_,4,5.0,0.6679916858673096
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_nolegend_,0,1.0,0.8077843957082104
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_nolegend_,1,2.0,0.7539767466965047
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_nolegend_,2,3.0,0.7263492894220853
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_nolegend_,3,4.0,0.6566704823969667
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,10,_nolegend_,4,5.0,0.6500460794091009
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,11,_nolegend_,0,1.0,0.8450761027201344
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,11,_nolegend_,1,2.0,0.7810047901687297
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,11,_nolegend_,2,3.0,0.79188498734946
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,11,_nolegend_,3,4.0,0.730642525911444
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,11,_nolegend_,4,5.0,0.6859372923255184
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,12,_nolegend_,0,1.0,0.6969547033309936
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,12,_nolegend_,1,2.0,0.6086578011512757
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,12,_nolegend_,2,3.0,0.6587706685066224
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,12,_nolegend_,3,4.0,0.6267688035964966
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,12,_nolegend_,4,5.0,0.6352779865264893
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,13,_nolegend_,0,1.0,0.637438711317133
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,13,_nolegend_,1,2.0,0.5489219240943686
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,13,_nolegend_,2,3.0,0.6230492420695203
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,13,_nolegend_,3,4.0,0.5701688257684779
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,13,_nolegend_,4,5.0,0.5960000615568565
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,14,_nolegend_,0,1.0,0.7564706953448542
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,14,_nolegend_,1,2.0,0.6683936782081827
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,14,_nolegend_,2,3.0,0.6944920949437244
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,14,_nolegend_,3,4.0,0.6833687814245152
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,14,_nolegend_,4,5.0,0.674555911496122
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,15,_nolegend_,0,1.0,0.8437174320220947
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,15,_nolegend_,1,2.0,0.8411578416824341
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,15,_nolegend_,2,3.0,0.8013313055038452
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,15,_nolegend_,3,4.0,0.7336695194244385
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,15,_nolegend_,4,5.0,0.7755134344100952
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,16,_nolegend_,0,1.0,0.8183751698910124
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,16,_nolegend_,1,2.0,0.8215560562680375
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,16,_nolegend_,2,3.0,0.7764800464318827
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,16,_nolegend_,3,4.0,0.7164910181906079
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,16,_nolegend_,4,5.0,0.7505157894283061
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,17,_nolegend_,0,1.0,0.869059694153177
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,17,_nolegend_,1,2.0,0.8607596270968307
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,17,_nolegend_,2,3.0,0.8261825645758077
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,17,_nolegend_,3,4.0,0.750848020658269
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,17,_nolegend_,4,5.0,0.8005110793918844
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,18,_nolegend_,0,1.0,0.7534761488437652
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,18,_nolegend_,1,2.0,0.7082942962646485
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,18,_nolegend_,2,3.0,0.7567939758300781
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,18,_nolegend_,3,4.0,0.6361473977565766
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,18,_nolegend_,4,5.0,0.6099781095981598
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,19,_nolegend_,0,1.0,0.6812809759954137
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,19,_nolegend_,1,2.0,0.6563388676063723
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,19,_nolegend_,2,3.0,0.7254471019454524
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,19,_nolegend_,3,4.0,0.5874775409853932
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,19,_nolegend_,4,5.0,0.5626697637265143
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,20,_nolegend_,0,1.0,0.8256713216921168
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,20,_nolegend_,1,2.0,0.7602497249229246
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,20,_nolegend_,2,3.0,0.7881408497147039
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,20,_nolegend_,3,4.0,0.68481725452776
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,20,_nolegend_,4,5.0,0.6572864554698052
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,21,_nolegend_,0,1.0,0.7846071004867554
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,21,_nolegend_,1,2.0,0.7184393644332886
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,21,_nolegend_,2,3.0,0.641693365573883
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,21,_nolegend_,3,4.0,0.7128493189811707
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,21,_nolegend_,4,5.0,0.6950523257255554
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,22,_nolegend_,0,1.0,0.7498596376040301
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,22,_nolegend_,1,2.0,0.6794190871456431
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,22,_nolegend_,2,3.0,0.6225794326174012
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,22,_nolegend_,3,4.0,0.6946633162047758
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,22,_nolegend_,4,5.0,0.6637927541655371
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,23,_nolegend_,0,1.0,0.8193545633694808
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,23,_nolegend_,1,2.0,0.757459641720934
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,23,_nolegend_,2,3.0,0.6608072985303648
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,23,_nolegend_,3,4.0,0.7310353217575655
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,23,_nolegend_,4,5.0,0.7263118972855738
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,24,_nolegend_,0,1.0,0.8565109133720398
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,24,_nolegend_,1,2.0,0.7364244818687439
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,24,_nolegend_,2,3.0,0.7837148666381836
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,24,_nolegend_,3,4.0,0.7607728600502014
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,24,_nolegend_,4,5.0,0.7494639873504638
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,25,_nolegend_,0,1.0,0.835910097740204
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,25,_nolegend_,1,2.0,0.7217684658942722
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,25,_nolegend_,2,3.0,0.7457693582112256
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,25,_nolegend_,3,4.0,0.7418277710155182
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,25,_nolegend_,4,5.0,0.7213459882592501
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,26,_nolegend_,0,1.0,0.8771117290038756
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,26,_nolegend_,1,2.0,0.7510804978432155
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,26,_nolegend_,2,3.0,0.8216603750651416
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,26,_nolegend_,3,4.0,0.7797179490848846
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,26,_nolegend_,4,5.0,0.7775819864416775
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,27,_nolegend_,0,1.0,0.6914236068725585
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,27,_nolegend_,1,2.0,0.6356324255466461
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,27,_nolegend_,2,3.0,0.6358512997627258
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,27,_nolegend_,3,4.0,0.6518310010433197
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,27,_nolegend_,4,5.0,0.5563058614730835
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,28,_nolegend_,0,1.0,0.6432230825059468
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,28,_nolegend_,1,2.0,0.5672050221530175
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,28,_nolegend_,2,3.0,0.6033475506717788
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,28,_nolegend_,3,4.0,0.6076893932726798
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,28,_nolegend_,4,5.0,0.4932086816308202
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,29,_nolegend_,0,1.0,0.7396241312391703
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,29,_nolegend_,1,2.0,0.7040598289402747
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,29,_nolegend_,2,3.0,0.6683550488536728
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,29,_nolegend_,3,4.0,0.6959726088139596
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,line,29,_nolegend_,4,5.0,0.6194030413153467
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,0,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,1,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,2,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,3,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,4,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,5,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,6,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,7,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,8,_nolegend_,0,0.0,0.0
+5,$\beta$ --- NGO Climate,Debate turn,,rectilinear,collection,9,_nolegend_,0,0.0,0.0

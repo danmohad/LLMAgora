@@ -1,0 +1,91 @@
+agent,model,model_raw,condition,label,mean_prob,n_points
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,negative,entailment,0.08668088406625127,150
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,negative,neutral,0.8788376163194577,150
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,negative,contradiction,0.03448149756986822,150
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,baseline,entailment,0.1015400012160535,75
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,baseline,neutral,0.8562549267414337,75
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,baseline,contradiction,0.04220507423703869,75
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,positive,entailment,0.08532680194616357,150
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,positive,neutral,0.8968212937874098,150
+beta,Claude Opus 4.6,anthropic/claude-opus-4.6,positive,contradiction,0.017851904333850446,150
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,negative,entailment,0.18346264549196348,150
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,negative,neutral,0.8068449626552562,150
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,negative,contradiction,0.009692392621266966,150
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,baseline,entailment,0.20909847457621558,75
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,baseline,neutral,0.7821468342343966,75
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,baseline,contradiction,0.008754686068520338,75
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,positive,entailment,0.18862250889316784,150
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,positive,neutral,0.8052724240471919,150
+beta,DeepSeek V3.2,deepseek/deepseek-v3.2,positive,contradiction,0.006105066639089879,150
+beta,GLM-5,z-ai/glm-5,negative,entailment,0.1499531858160723,150
+beta,GLM-5,z-ai/glm-5,negative,neutral,0.8320897299998129,150
+beta,GLM-5,z-ai/glm-5,negative,contradiction,0.017957086266881864,150
+beta,GLM-5,z-ai/glm-5,baseline,entailment,0.11629237306246068,75
+beta,GLM-5,z-ai/glm-5,baseline,neutral,0.8570038279518485,75
+beta,GLM-5,z-ai/glm-5,baseline,contradiction,0.026703802802367137,75
+beta,GLM-5,z-ai/glm-5,positive,entailment,0.08108950809255475,150
+beta,GLM-5,z-ai/glm-5,positive,neutral,0.9079758856874347,150
+beta,GLM-5,z-ai/glm-5,positive,contradiction,0.010934606548932304,150
+beta,GPT-5.4,openai/gpt-5.4,negative,entailment,0.6099034049678206,150
+beta,GPT-5.4,openai/gpt-5.4,negative,neutral,0.3849286639279065,150
+beta,GPT-5.4,openai/gpt-5.4,negative,contradiction,0.00516792948920435,150
+beta,GPT-5.4,openai/gpt-5.4,baseline,entailment,0.6540362956782337,75
+beta,GPT-5.4,openai/gpt-5.4,baseline,neutral,0.3363432982346664,75
+beta,GPT-5.4,openai/gpt-5.4,baseline,contradiction,0.009620400542432132,75
+beta,GPT-5.4,openai/gpt-5.4,positive,entailment,0.5540175034561737,150
+beta,GPT-5.4,openai/gpt-5.4,positive,neutral,0.4439572495672231,150
+beta,GPT-5.4,openai/gpt-5.4,positive,contradiction,0.0020252460998502406,150
+beta,GPT-OSS-120B,openai/gpt-oss-120b,negative,entailment,0.36944845888521133,150
+beta,GPT-OSS-120B,openai/gpt-oss-120b,negative,neutral,0.5648197424256554,150
+beta,GPT-OSS-120B,openai/gpt-oss-120b,negative,contradiction,0.06573179635019187,150
+beta,GPT-OSS-120B,openai/gpt-oss-120b,baseline,entailment,0.4051383691870918,75
+beta,GPT-OSS-120B,openai/gpt-oss-120b,baseline,neutral,0.5937798003386706,75
+beta,GPT-OSS-120B,openai/gpt-oss-120b,baseline,contradiction,0.0010818282223772257,75
+beta,GPT-OSS-120B,openai/gpt-oss-120b,positive,entailment,0.44209770602261417,150
+beta,GPT-OSS-120B,openai/gpt-oss-120b,positive,neutral,0.4925855683828316,150
+beta,GPT-OSS-120B,openai/gpt-oss-120b,positive,contradiction,0.06531672263668345,150
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,negative,entailment,0.30381458888048657,150
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,negative,neutral,0.692895956452315,150
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,negative,contradiction,0.0032894533808333413,150
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,baseline,entailment,0.36491401721121897,75
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,baseline,neutral,0.6246723695502927,75
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,baseline,contradiction,0.010413613456718545,75
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,positive,entailment,0.24232043857269067,150
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,positive,neutral,0.7239667583734263,150
+beta,Gemini 3.1 Flash-Lite,google/gemini-3.1-flash-lite-preview,positive,contradiction,0.03371280280412369,150
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,negative,entailment,0.30831275484345194,150
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,negative,neutral,0.6384580349866883,150
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,negative,contradiction,0.05322921114008447,150
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,baseline,entailment,0.5101160658018974,75
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,baseline,neutral,0.4818457044955964,75
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,baseline,contradiction,0.008038228899483026,75
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,positive,entailment,0.19710564252833138,150
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,positive,neutral,0.7917666185360092,150
+beta,Gemini 3.1 Pro,google/gemini-3.1-pro-preview,positive,contradiction,0.0111277382770398,150
+beta,Grok 4,x-ai/grok-4,negative,entailment,0.23674960000809128,150
+beta,Grok 4,x-ai/grok-4,negative,neutral,0.7584593091299757,150
+beta,Grok 4,x-ai/grok-4,negative,contradiction,0.004791097475390416,150
+beta,Grok 4,x-ai/grok-4,baseline,entailment,0.30209514455248915,75
+beta,Grok 4,x-ai/grok-4,baseline,neutral,0.6955594726807127,75
+beta,Grok 4,x-ai/grok-4,baseline,contradiction,0.002345383340725675,75
+beta,Grok 4,x-ai/grok-4,positive,entailment,0.21889838247579368,150
+beta,Grok 4,x-ai/grok-4,positive,neutral,0.769655452578639,150
+beta,Grok 4,x-ai/grok-4,positive,contradiction,0.0114461665758184,150
+beta,MiniMax M2.7,minimax/minimax-m2.7,negative,entailment,0.15568385425489395,150
+beta,MiniMax M2.7,minimax/minimax-m2.7,negative,neutral,0.7735605917360712,150
+beta,MiniMax M2.7,minimax/minimax-m2.7,negative,contradiction,0.07075555691471284,150
+beta,MiniMax M2.7,minimax/minimax-m2.7,baseline,entailment,0.2052824444475118,75
+beta,MiniMax M2.7,minimax/minimax-m2.7,baseline,neutral,0.7857364661681155,75
+beta,MiniMax M2.7,minimax/minimax-m2.7,baseline,contradiction,0.00898109724133974,75
+beta,MiniMax M2.7,minimax/minimax-m2.7,positive,entailment,0.1530852569884155,150
+beta,MiniMax M2.7,minimax/minimax-m2.7,positive,neutral,0.8434450674926242,150
+beta,MiniMax M2.7,minimax/minimax-m2.7,positive,contradiction,0.0034696749438201855,150
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,negative,entailment,0.3576683399394096,150
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,negative,neutral,0.6414518351620063,150
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,negative,contradiction,0.0008798265651663921,150
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,baseline,entailment,0.3658935993547008,75
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,baseline,neutral,0.6329488553743189,75
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,baseline,contradiction,0.0011575488638482056,75
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,positive,entailment,0.3026064112195551,150
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,positive,neutral,0.6894206075991194,150
+beta,Qwen 3.5 397B,qwen/qwen3.5-397b-a17b,positive,contradiction,0.007972979730426839,150
