@@ -252,17 +252,16 @@ def test_abs_paths_use_sweep_root(tmp_path: Path):
 # ---------------------------------------------------------------------------
 
 def _write_case_config(case_dir: Path, model: str = "openai/gpt-x") -> None:
-    """Write a minimal config.json into a case directory (including legacy machine-specific paths)."""
+    """Write a minimal config.json into a case directory."""
     case_dir.mkdir(parents=True, exist_ok=True)
     (case_dir / "config.json").write_text(
         json.dumps({
             "scenario_id": "s1",
             "model": model,
             "num_turns": 2,
-            # Simulate legacy machine-specific paths present in real sweep configs.
             "output_dir": "/old/machine/path/to/case",
-            "catalog_path": "/old/machine/LLMAgora/data/scenarios.json",
-            "prompts_path": "/old/machine/LLMAgora/data/prompts.json",
+            "catalog_path": "inputs/scenarios.json",
+            "prompts_path": "../prompts.json",
         }),
         encoding="utf-8",
     )
@@ -302,11 +301,9 @@ def test_sweep_case_run_analysis_calls_experiment(tmp_path: Path):
     assert cfg.save_snapshot is False
     assert cfg.indexed_output is False
     assert cfg.scenario_id == "s1"
-    # Legacy machine-specific paths from the original run must be stripped,
-    # falling back to ExperimentConfig defaults.
     assert cfg.output_dir is None
-    assert cfg.catalog_path == Path("data/scenarios.json")
-    assert cfg.prompts_path == Path("data/prompts.json")
+    assert cfg.catalog_path == case_dir / "inputs" / "scenarios.json"
+    assert cfg.prompts_path == tmp_path / "cases" / "prompts.json"
 
 
 def test_sweep_case_run_analysis_applies_postpro_overrides(tmp_path: Path):

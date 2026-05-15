@@ -1,14 +1,14 @@
 {
   // Root directory that will hold manifest/status plus one leaf folder per case.
   "sweep_root": "outputs/sweeps/example",
+  "notes": "Example parameter sweep",
 
   // Batch runner defaults.
   "max_parallel_jobs": 2,
   "stop_on_error": false,
+  
   // Total runs to generate for each Cartesian case.
-  // 1 means one run per combination; 3 means three separate case folders per combination.
   "number_of_repeats": 1,
-  "notes": "Example parameter sweep",
 
   // Optional aggregation defaults used by `agora sweep aggregate`.
   // Omit this whole tree to write aggregate_analysis.json under the sweep root

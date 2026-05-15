@@ -145,7 +145,7 @@ Sweep config rules:
 - `number_of_repeats` controls how many separate generated runs are created for each Cartesian case (default `1`)
 - list-valued run fields use a list of candidate full values (for example `subturn_event_order` as a list of lists)
 - `output_dir`, `outputs_root`, `run_name`, `indexed_output`, and `index_csv` are generator-managed and not allowed in the master file
-- generated leaf configs include a fixed absolute `output_dir`, so each run writes into its own `cases/<case_id>` directory
+- generated leaf configs include a fixed absolute `output_dir` and force `save_snapshot=true`, so each run writes replayable artifacts into its own `cases/<case_id>` directory
 - aggregation defaults write `aggregate_analysis.json` under the sweep root with no extra offline post-processing
 - aggregation `analysis` overrides use the normal analysis field names, such as `semantic_analysis_metrics`, `persona_analysis_metrics`, and their model/device controls
 - aggregation can opt into extra aggregate-only analyses with `include_nli`, `include_emotions`, `include_no_stance`, and `no_stance_only`
