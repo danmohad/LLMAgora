@@ -66,6 +66,7 @@ MASTER_FORBIDDEN_FIELDS = frozenset(
     {"output_dir", "outputs_root", "run_name", "indexed_output", "index_csv"}
 )
 DEFAULT_AGGREGATION_OUTPUT_PATH = Path("aggregate_analysis.json")
+STRIP_DECISION_LABELS_MODES = ("off", "include", "only")
 AGGREGATION_ALLOWED_KEYS = frozenset(
     {
         "output_path",
@@ -75,8 +76,7 @@ AGGREGATION_ALLOWED_KEYS = frozenset(
         "include_emotions",
         "emotion_model_name",
         "device",
-        "include_no_stance",
-        "no_stance_only",
+        "strip_decision_labels",
     }
 )
 AGGREGATION_ANALYSIS_ALLOWED_FIELDS = frozenset(
@@ -328,11 +328,19 @@ def _normalize_aggregation_config(
         "output_path": output_path,
         "analysis": dict(analysis),
     }
-    for key in ("include_nli", "include_emotions", "include_no_stance", "no_stance_only"):
+    for key in ("include_nli", "include_emotions"):
         value = raw.get(key, False)
         if not isinstance(value, bool):
             raise ValueError(f"aggregation.{key} must be a boolean")
         normalized[key] = value
+
+    strip_decision_labels = raw.get("strip_decision_labels", "off")
+    if strip_decision_labels not in STRIP_DECISION_LABELS_MODES:
+        raise ValueError(
+            "aggregation.strip_decision_labels must be one of: "
+            + ", ".join(STRIP_DECISION_LABELS_MODES)
+        )
+    normalized["strip_decision_labels"] = strip_decision_labels
 
     for key in ("nli_model_name", "emotion_model_name"):
         value = raw.get(key)

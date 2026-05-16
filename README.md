@@ -163,7 +163,8 @@ Sweep config rules:
 - generated leaf configs include a fixed absolute `output_dir` and force `save_snapshot=true`, so each run writes replayable artifacts into its own `cases/<case_id>` directory
 - aggregation defaults write `aggregate_analysis.json` under the sweep root with no extra offline post-processing
 - aggregation `analysis` overrides use the normal analysis field names, such as `semantic_analysis_metrics`, `persona_analysis_metrics`, and their model/device controls
-- aggregation can opt into extra aggregate-only analyses with `include_nli`, `include_emotions`, `include_no_stance`, and `no_stance_only`
+- aggregation can opt into extra aggregate-only analyses with `include_nli`, `include_emotions`, and `strip_decision_labels`
+- `strip_decision_labels` controls aggregate semantic/NLI analysis after removing leading scenario decision labels from utterances: `off`, `include`, or `only`
 
 Output behavior:
 - default mode writes to a readable folder name under `outputs/` (for example `outputs/promotion_committee_no_incentive`)

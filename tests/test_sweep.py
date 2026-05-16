@@ -214,8 +214,7 @@ def test_normalize_aggregation_config_custom_and_invalid(tmp_path):
             "include_emotions": True,
             "emotion_model_name": "emotion-model",
             "device": "cpu",
-            "include_no_stance": True,
-            "no_stance_only": True,
+            "strip_decision_labels": "only",
         }
     )
 
@@ -226,8 +225,7 @@ def test_normalize_aggregation_config_custom_and_invalid(tmp_path):
     assert custom["include_emotions"] is True
     assert custom["emotion_model_name"] == "emotion-model"
     assert custom["device"] == "cpu"
-    assert custom["include_no_stance"] is True
-    assert custom["no_stance_only"] is True
+    assert custom["strip_decision_labels"] == "only"
 
     invalid_payloads = [
         ([], "aggregation must be a JSON object"),
@@ -237,6 +235,7 @@ def test_normalize_aggregation_config_custom_and_invalid(tmp_path):
         ({"analysis": []}, "aggregation.analysis must be a JSON object"),
         ({"analysis": {"num_turns": 0}}, "Unknown aggregation.analysis fields"),
         ({"include_nli": "yes"}, "aggregation.include_nli must be a boolean"),
+        ({"strip_decision_labels": "sometimes"}, "aggregation.strip_decision_labels"),
         ({"nli_model_name": 3}, "aggregation.nli_model_name must be a string or null"),
         ({"device": "gpu"}, "aggregation.device must be one of"),
     ]
