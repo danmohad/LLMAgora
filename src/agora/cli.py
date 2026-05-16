@@ -158,8 +158,7 @@ def _sweep_aggregate(args: argparse.Namespace) -> None:
         include_emotions=aggregation["include_emotions"],
         emotion_model_name=aggregation["emotion_model_name"],
         device=aggregation["device"],
-        include_no_stance=aggregation["include_no_stance"],
-        no_stance_only=aggregation["no_stance_only"],
+        strip_decision_labels=aggregation["strip_decision_labels"],
     )
     print(
         f"Aggregated {result['row_count']} experiment(s) into {result['output_path']}"

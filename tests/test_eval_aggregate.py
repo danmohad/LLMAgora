@@ -412,7 +412,7 @@ def test_build_record_uses_case_config_for_decision_catalog(tmp_path, monkeypatc
         experiment_index=0,
         include_nli=False,
         include_emotions=False,
-        include_no_stance=False,
+        strip_decision_labels="off",
     )
 
     assert row["decision-self-consistency"]["decision"] == "PROMOTE"
@@ -801,10 +801,19 @@ def test_serialize_emotions_all_repeats_uses_group_repeat_cache(monkeypatch):
     assert private["repeats"][1]["alpha"]["emotion_probabilities"][0] == pytest.approx((0.3, 0.7))
 
 
-def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
-    assert eval_aggregate._strip_leading_stance("DO NOT PROMOTE - keep this", ["PROMOTE", "DO NOT PROMOTE"]) == "keep this"
-    assert eval_aggregate._strip_leading_stance("PROMOTE: keep this", ["PROMOTE", "DO NOT PROMOTE"]) == "keep this"
-    assert eval_aggregate._strip_leading_stance("No stance here", ["PROMOTE"]) == "No stance here"
+def test_decision_label_helpers_strip_labels_and_serialize_semantic(monkeypatch):
+    assert eval_aggregate._strip_leading_decision_label(
+        "DO NOT PROMOTE - keep this",
+        ["PROMOTE", "DO NOT PROMOTE"],
+    ) == "keep this"
+    assert eval_aggregate._strip_leading_decision_label(
+        "PROMOTE: keep this",
+        ["PROMOTE", "DO NOT PROMOTE"],
+    ) == "keep this"
+    assert eval_aggregate._strip_leading_decision_label(
+        "No stance here",
+        ["PROMOTE"],
+    ) == "No stance here"
 
     history = {
         "turns": [
@@ -824,7 +833,7 @@ def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
             {"turn_num": 2, "Alpha": "not-a-dict"},
         ]
     }
-    stripped = eval_aggregate._strip_stance_from_structured_history(
+    stripped = eval_aggregate._strip_decision_labels_from_structured_history(
         history,
         ["PROMOTE", "DO NOT PROMOTE"],
     )
@@ -833,7 +842,7 @@ def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
     assert stripped["turns"][1]["Beta"]["public_utterance"] == "beta public"
     assert stripped["turns"][1]["Beta"]["private_utterance"] == "beta private"
     assert history["turns"][1]["Alpha"]["public_utterance"] == "PROMOTE - public reason"
-    assert eval_aggregate._strip_stance_from_structured_history(history, []) is history
+    assert eval_aggregate._strip_decision_labels_from_structured_history(history, []) is history
 
     class _FakeSemanticSimilarityAnalyzer:
         def __init__(self, stripped_history, method, model_name, device):
@@ -867,7 +876,12 @@ def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
         analyzed_cases=[SimpleNamespace(case_id="case-strip")],
     )
 
-    self_agg, cross_agg, self_repeats, cross_repeats = eval_aggregate._serialize_semantic_no_stance(
+    (
+        self_agg,
+        cross_agg,
+        self_repeats,
+        cross_repeats,
+    ) = eval_aggregate._serialize_decision_label_stripped_semantic(
         result,
         ["PROMOTE", "DO NOT PROMOTE"],
         model_name="fake-cosine",
@@ -879,7 +893,7 @@ def test_no_stance_helpers_strip_labels_and_serialize_semantic(monkeypatch):
     assert cross_repeats["repeats"][0]["public alignment"]["cosine_similarity"] == [0.6]
 
 
-def test_no_stance_semantic_uses_default_cosine_model_when_model_omitted(monkeypatch):
+def test_decision_label_stripped_semantic_uses_default_cosine_model_when_model_omitted(monkeypatch):
     captured = {}
 
     class _FakeSemanticSimilarityAnalyzer:
@@ -918,7 +932,12 @@ def test_no_stance_semantic_uses_default_cosine_model_when_model_omitted(monkeyp
         analyzed_cases=[],
     )
 
-    self_agg, cross_agg, self_repeats, cross_repeats = eval_aggregate._serialize_semantic_no_stance(
+    (
+        self_agg,
+        cross_agg,
+        self_repeats,
+        cross_repeats,
+    ) = eval_aggregate._serialize_decision_label_stripped_semantic(
         group_result,
         ["PROMOTE"],
         model_name=None,
@@ -932,7 +951,7 @@ def test_no_stance_semantic_uses_default_cosine_model_when_model_omitted(monkeyp
     assert cross_repeats["repeats"][0]["private alignment"]["cosine_similarity"] == [0.7]
 
 
-def test_no_stance_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_path, monkeypatch):
+def test_decision_label_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_path, monkeypatch):
     class _CaseBackedGroup:
         sweep_values = {}
         cases = [
@@ -988,7 +1007,12 @@ def test_no_stance_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_pa
         ],
         analyzed_cases=[],
     )
-    self_agg, _, self_repeats, _ = eval_aggregate._serialize_semantic_no_stance(
+    (
+        self_agg,
+        _,
+        self_repeats,
+        _,
+    ) = eval_aggregate._serialize_decision_label_stripped_semantic(
         result,
         ["PROMOTE"],
         model_name="fake-cosine",
@@ -998,7 +1022,7 @@ def test_no_stance_helper_fallbacks_cover_config_lookup_and_unknown_agent(tmp_pa
     assert "unknown-agent" not in self_repeats["repeats"][0]
 
 
-def test_no_stance_only_record_emits_only_no_stance_analysis(monkeypatch):
+def test_decision_label_only_record_emits_only_label_stripped_analysis(monkeypatch):
     class _FakeSemanticSimilarityAnalyzer:
         def __init__(self, stripped_history, method, model_name, device):
             assert stripped_history["turns"][0]["Alpha"]["public_utterance"] == "visible reason"
@@ -1009,7 +1033,7 @@ def test_no_stance_only_record_emits_only_no_stance_analysis(monkeypatch):
         def compute_cross_agent_alignment_scores(self, agent_a_field, agent_b_field):
             return {"turns": [1], "scores": [0.7]}
 
-    class _NoStanceGroup(_FakeGroup):
+    class _DecisionLabelGroup(_FakeGroup):
         def __init__(self):
             super().__init__()
             self.sweep_values["scenario_id"] = "promotion_committee"
@@ -1037,7 +1061,7 @@ def test_no_stance_only_record_emits_only_no_stance_analysis(monkeypatch):
 
     monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", _FakeSemanticSimilarityAnalyzer)
     row = eval_aggregate.build_experiment_analysis_record(
-        _NoStanceGroup(),
+        _DecisionLabelGroup(),
         "/tmp/outputs/sweeps_5",
         experiment_index=0,
         analysis_kwargs={
@@ -1047,21 +1071,21 @@ def test_no_stance_only_record_emits_only_no_stance_analysis(monkeypatch):
         },
         include_nli=False,
         include_emotions=False,
-        no_stance_only=True,
+        strip_decision_labels="only",
     )
 
     assert "cosine-similarity-self-consistency" not in row
-    assert "emotion-public-utterances-no_stance" not in row
-    assert "emotion-private-reflections-no_stance" not in row
-    assert "emotion-public-utterances-all-repeats-no_stance" not in row
-    assert "emotion-private-reflections-all-repeats-no_stance" not in row
-    assert row["cosine-similarity-self-consistency-no_stance"]["alpha"]["cosine_similarity"] == [0.5]
-    assert row["cosine-similarity-cross-agent-alignment-all-repeats-no_stance"]["repeats"][0]["private alignment"]["cosine_similarity"] == [0.7]
+    assert "emotion-public-utterances-decision-label-stripped" not in row
+    assert "emotion-private-reflections-decision-label-stripped" not in row
+    assert "emotion-public-utterances-all-repeats-decision-label-stripped" not in row
+    assert "emotion-private-reflections-all-repeats-decision-label-stripped" not in row
+    assert row["cosine-similarity-self-consistency-decision-label-stripped"]["alpha"]["cosine_similarity"] == [0.5]
+    assert row["cosine-similarity-cross-agent-alignment-all-repeats-decision-label-stripped"]["repeats"][0]["private alignment"]["cosine_similarity"] == [0.7]
 
 
-def test_build_record_can_skip_no_stance_analysis(monkeypatch):
+def test_build_record_can_skip_decision_label_stripped_analysis(monkeypatch):
     def fail_if_called(*_args, **_kwargs):
-        raise AssertionError("no-stance semantic analysis should be skipped")
+        raise AssertionError("decision-label-stripped semantic analysis should be skipped")
 
     monkeypatch.setattr(eval_aggregate, "SemanticSimilarityAnalyzer", fail_if_called)
 
@@ -1072,11 +1096,21 @@ def test_build_record_can_skip_no_stance_analysis(monkeypatch):
         analysis_kwargs={"semantic_analysis_metrics": ["self_consistency"]},
         include_nli=False,
         include_emotions=False,
-        include_no_stance=False,
+        strip_decision_labels="off",
     )
 
-    assert "cosine-similarity-self-consistency-no_stance" not in row
-    assert "cosine-similarity-cross-agent-alignment-no_stance" not in row
+    assert "cosine-similarity-self-consistency-decision-label-stripped" not in row
+    assert "cosine-similarity-cross-agent-alignment-decision-label-stripped" not in row
+
+
+def test_build_record_rejects_unknown_decision_label_mode():
+    with pytest.raises(ValueError, match="strip_decision_labels"):
+        eval_aggregate.build_experiment_analysis_record(
+            _FakeGroup(),
+            "/tmp/outputs/sweeps_5",
+            experiment_index=0,
+            strip_decision_labels="sometimes",
+        )
 
 
 def test_write_experiment_analysis_records_writes_json(tmp_path):
@@ -1138,8 +1172,7 @@ def test_aggregate_sweep_analysis_builds_and_writes_records(monkeypatch, tmp_pat
         include_emotions=True,
         emotion_model_name="emotion-model",
         device="cpu",
-        include_no_stance=True,
-        no_stance_only=True,
+        strip_decision_labels="only",
     )
 
     assert captured["manifest_path"] == tmp_path / "manifest.json"
@@ -1150,8 +1183,7 @@ def test_aggregate_sweep_analysis_builds_and_writes_records(monkeypatch, tmp_pat
     assert captured["include_emotions"] is True
     assert captured["emotion_model_name"] == "emotion-model"
     assert captured["device"] == "cpu"
-    assert captured["include_no_stance"] is True
-    assert captured["no_stance_only"] is True
+    assert captured["strip_decision_labels"] == "only"
     assert result == {"output_path": tmp_path / "aggregate.json", "row_count": 1}
     assert eval_aggregate.json.loads((tmp_path / "aggregate.json").read_text()) == [
         {"experiment_index": 0}

@@ -546,8 +546,7 @@ def test_sweep_aggregate_infers_root_and_dispatches(monkeypatch, tmp_path, capsy
             "include_emotions": True,
             "emotion_model_name": "emotion-model",
             "device": "cpu",
-            "include_no_stance": True,
-            "no_stance_only": False,
+            "strip_decision_labels": "include",
         },
     )
 
@@ -568,6 +567,5 @@ def test_sweep_aggregate_infers_root_and_dispatches(monkeypatch, tmp_path, capsy
     assert captured["include_emotions"] is True
     assert captured["emotion_model_name"] == "emotion-model"
     assert captured["device"] == "cpu"
-    assert captured["include_no_stance"] is True
-    assert captured["no_stance_only"] is False
+    assert captured["strip_decision_labels"] == "include"
     assert "Aggregated 3 experiment(s)" in capsys.readouterr().out

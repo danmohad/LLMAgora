@@ -16,6 +16,28 @@ from .semantic_similarity_analyzer import (
 )
 from .sweep_results import GroupAnalysisResult, SweepManifest, format_case_warning_context
 
+STRIP_DECISION_LABELS_OFF = "off"
+STRIP_DECISION_LABELS_INCLUDE = "include"
+STRIP_DECISION_LABELS_ONLY = "only"
+STRIP_DECISION_LABELS_MODES = (
+    STRIP_DECISION_LABELS_OFF,
+    STRIP_DECISION_LABELS_INCLUDE,
+    STRIP_DECISION_LABELS_ONLY,
+)
+
+
+def _strip_decision_label_flags(strip_decision_labels: str) -> tuple[bool, bool]:
+    if strip_decision_labels not in STRIP_DECISION_LABELS_MODES:
+        raise ValueError(
+            "strip_decision_labels must be one of: "
+            + ", ".join(STRIP_DECISION_LABELS_MODES)
+        )
+    return (
+        strip_decision_labels
+        in {STRIP_DECISION_LABELS_INCLUDE, STRIP_DECISION_LABELS_ONLY},
+        strip_decision_labels == STRIP_DECISION_LABELS_ONLY,
+    )
+
 
 def _agent_slot_lookup(group_result: Any) -> dict[str, str]:
     lookup = {
@@ -105,7 +127,7 @@ def _scalar_repeat_payload(score: dict[str, Any]) -> dict[str, float | None]:
     return {"score": value}
 
 
-def _strip_leading_stance(text: str, decision_labels: list[str]) -> str:
+def _strip_leading_decision_label(text: str, decision_labels: list[str]) -> str:
     stripped = text.strip()
     for label in sorted(decision_labels, key=len, reverse=True):
         if stripped.upper().startswith(label.upper()):
@@ -196,7 +218,10 @@ def _decision_labels_for_group(
     return [label for label in labels if isinstance(label, str) and label.strip()]
 
 
-def _strip_stance_from_structured_history(history: dict[str, Any], decision_labels: list[str]) -> dict[str, Any]:
+def _strip_decision_labels_from_structured_history(
+    history: dict[str, Any],
+    decision_labels: list[str],
+) -> dict[str, Any]:
     if not decision_labels:
         return history
     stripped_history = copy.deepcopy(history)
@@ -210,7 +235,10 @@ def _strip_stance_from_structured_history(history: dict[str, Any], decision_labe
             for field in ("public_utterance", "private_utterance"):
                 value = subturn.get(field)
                 if isinstance(value, str):
-                    subturn[field] = _strip_leading_stance(value, decision_labels)
+                    subturn[field] = _strip_leading_decision_label(
+                        value,
+                        decision_labels,
+                    )
     return stripped_history
 
 
@@ -222,7 +250,10 @@ class _HistoryView:
         return self._history
 
 
-def _no_stance_group_result(group_result: Any, decision_labels: list[str]) -> GroupAnalysisResult:
+def _decision_label_stripped_group_result(
+    group_result: Any,
+    decision_labels: list[str],
+) -> GroupAnalysisResult:
     stripped_results = []
     for res in getattr(group_result, "results", []):
         history = res.agora.structured_history()
@@ -230,7 +261,7 @@ def _no_stance_group_result(group_result: Any, decision_labels: list[str]) -> Gr
             copy.copy(res)
         )
         stripped_results[-1].agora = _HistoryView(
-            _strip_stance_from_structured_history(history, decision_labels)
+            _strip_decision_labels_from_structured_history(history, decision_labels)
         )
     return GroupAnalysisResult(
         group=getattr(group_result, "group", None),
@@ -373,7 +404,7 @@ def _semantic_scores_for_history(
     }
 
 
-def _serialize_semantic_no_stance(
+def _serialize_decision_label_stripped_semantic(
     group_result: Any,
     decision_labels: list[str],
     *,
@@ -389,7 +420,7 @@ def _serialize_semantic_no_stance(
     cross_repeats = {"repeats": []}
 
     for repeat_index, res in enumerate(getattr(group_result, "results", []), start=1):
-        history = _strip_stance_from_structured_history(
+        history = _strip_decision_labels_from_structured_history(
             res.agora.structured_history(),
             decision_labels,
         )
@@ -939,10 +970,12 @@ def build_experiment_analysis_record(
     include_emotions: bool = True,
     emotion_model_name: str | None = None,
     device: str | None = None,
-    include_no_stance: bool = True,
-    no_stance_only: bool = False,
+    strip_decision_labels: str = STRIP_DECISION_LABELS_INCLUDE,
 ) -> dict[str, Any]:
     """Build a single dataframe-ready row for one experiment group."""
+    include_label_stripped, label_stripped_only = _strip_decision_label_flags(
+        strip_decision_labels
+    )
     sweep_root_path = Path(sweep_root)
     effective_analysis_kwargs = analysis_kwargs or {}
     decision_scenario_id, decision_catalog_path = _group_decision_context(
@@ -969,7 +1002,7 @@ def build_experiment_analysis_record(
         "case_ids": [case.case_id for case in analyzed_cases],
         **dict(group.sweep_values or {}),
     }
-    if not no_stance_only:
+    if not label_stripped_only:
         cosine_self, cosine_cross = _serialize_semantic(group_result)
         cosine_self_repeats, cosine_cross_repeats = _serialize_semantic_all_repeats(group_result)
         persona_individual, persona_cumulative, persona_full = _serialize_persona(group_result)
@@ -1011,40 +1044,48 @@ def build_experiment_analysis_record(
             }
         )
 
-    needs_no_stance_labels = include_no_stance or no_stance_only or include_nli
-    no_stance_labels = (
+    needs_decision_labels = include_label_stripped or label_stripped_only or include_nli
+    decision_labels = (
         _decision_labels_for_group(
             group,
             sweep_root_path,
             scenario_id=decision_scenario_id,
             catalog_path=decision_catalog_path,
         )
-        if needs_no_stance_labels
+        if needs_decision_labels
         else []
     )
     semantic_kwargs = effective_analysis_kwargs
     semantic_model_name = semantic_kwargs.get("semantic_similarity_model")
     semantic_method = semantic_kwargs.get("semantic_similarity_method")
-    if include_no_stance or no_stance_only:
+    if include_label_stripped or label_stripped_only:
         if semantic_method in {None, SEMANTIC_SIMILARITY_METHOD_COSINE}:
             (
-                cosine_self_no_stance,
-                cosine_cross_no_stance,
-                cosine_self_repeats_no_stance,
-                cosine_cross_repeats_no_stance,
-            ) = _serialize_semantic_no_stance(
+                cosine_self_label_stripped,
+                cosine_cross_label_stripped,
+                cosine_self_repeats_label_stripped,
+                cosine_cross_repeats_label_stripped,
+            ) = _serialize_decision_label_stripped_semantic(
                 group_result,
-                no_stance_labels,
+                decision_labels,
                 model_name=semantic_model_name,
                 device=device or semantic_kwargs.get("semantic_similarity_device"),
             )
-            row["cosine-similarity-self-consistency-no_stance"] = cosine_self_no_stance
-            row["cosine-similarity-cross-agent-alignment-no_stance"] = cosine_cross_no_stance
-            row["cosine-similarity-self-consistency-all-repeats-no_stance"] = cosine_self_repeats_no_stance
-            row["cosine-similarity-cross-agent-alignment-all-repeats-no_stance"] = cosine_cross_repeats_no_stance
+            row["cosine-similarity-self-consistency-decision-label-stripped"] = (
+                cosine_self_label_stripped
+            )
+            row["cosine-similarity-cross-agent-alignment-decision-label-stripped"] = (
+                cosine_cross_label_stripped
+            )
+            row[
+                "cosine-similarity-self-consistency-all-repeats-decision-label-stripped"
+            ] = cosine_self_repeats_label_stripped
+            row[
+                "cosine-similarity-cross-agent-alignment-all-repeats-decision-label-stripped"
+            ] = cosine_cross_repeats_label_stripped
 
     if include_nli:
-        if not no_stance_only:
+        if not label_stripped_only:
             nli_self, nli_cross = _serialize_nli(
                 group_result,
                 model_name=nli_model_name,
@@ -1059,23 +1100,33 @@ def build_experiment_analysis_record(
             row["nli-cross-agent-alignment"] = nli_cross
             row["nli-self-consistency-all-repeats"] = nli_self_repeats
             row["nli-cross-agent-alignment-all-repeats"] = nli_cross_repeats
-        no_stance_result = _no_stance_group_result(group_result, no_stance_labels)
-        nli_self_no_stance, nli_cross_no_stance = _serialize_nli(
-            no_stance_result,
+        label_stripped_result = _decision_label_stripped_group_result(
+            group_result,
+            decision_labels,
+        )
+        nli_self_label_stripped, nli_cross_label_stripped = _serialize_nli(
+            label_stripped_result,
             model_name=nli_model_name,
             device=device,
         )
-        nli_self_repeats_no_stance, nli_cross_repeats_no_stance = _serialize_nli_all_repeats(
-            no_stance_result,
+        (
+            nli_self_repeats_label_stripped,
+            nli_cross_repeats_label_stripped,
+        ) = _serialize_nli_all_repeats(
+            label_stripped_result,
             model_name=nli_model_name,
             device=device,
         )
-        row["nli-self-consistency-no_stance"] = nli_self_no_stance
-        row["nli-cross-agent-alignment-no_stance"] = nli_cross_no_stance
-        row["nli-self-consistency-all-repeats-no_stance"] = nli_self_repeats_no_stance
-        row["nli-cross-agent-alignment-all-repeats-no_stance"] = nli_cross_repeats_no_stance
+        row["nli-self-consistency-decision-label-stripped"] = nli_self_label_stripped
+        row["nli-cross-agent-alignment-decision-label-stripped"] = nli_cross_label_stripped
+        row["nli-self-consistency-all-repeats-decision-label-stripped"] = (
+            nli_self_repeats_label_stripped
+        )
+        row["nli-cross-agent-alignment-all-repeats-decision-label-stripped"] = (
+            nli_cross_repeats_label_stripped
+        )
     if include_emotions:
-        if not no_stance_only:
+        if not label_stripped_only:
             emotions_public, emotions_private = _serialize_emotions(
                 group_result,
                 model_name=emotion_model_name,
@@ -1102,8 +1153,7 @@ def build_experiment_analysis_records(
     include_emotions: bool = True,
     emotion_model_name: str | None = None,
     device: str | None = None,
-    include_no_stance: bool = True,
-    no_stance_only: bool = False,
+    strip_decision_labels: str = STRIP_DECISION_LABELS_INCLUDE,
 ) -> list[dict[str, Any]]:
     """Build one aggregate row per experiment group in a sweep manifest."""
     records = [
@@ -1117,8 +1167,7 @@ def build_experiment_analysis_records(
             include_emotions=include_emotions,
             emotion_model_name=emotion_model_name,
             device=device,
-            include_no_stance=include_no_stance,
-            no_stance_only=no_stance_only,
+            strip_decision_labels=strip_decision_labels,
         )
         for index, group in enumerate(manifest)
     ]
@@ -1158,8 +1207,7 @@ def aggregate_sweep_analysis(
     include_emotions: bool = False,
     emotion_model_name: str | None = None,
     device: str | None = None,
-    include_no_stance: bool = False,
-    no_stance_only: bool = False,
+    strip_decision_labels: str = STRIP_DECISION_LABELS_OFF,
 ) -> dict[str, Any]:
     """Build and persist one aggregate JSON record per experiment group."""
     manifest = SweepManifest.from_path(manifest_path)
@@ -1171,8 +1219,7 @@ def aggregate_sweep_analysis(
         include_emotions=include_emotions,
         emotion_model_name=emotion_model_name,
         device=device,
-        include_no_stance=include_no_stance,
-        no_stance_only=no_stance_only,
+        strip_decision_labels=strip_decision_labels,
     )
     written_path = write_experiment_analysis_records(records, output_path)
     return {"output_path": written_path, "row_count": len(records)}
@@ -1187,8 +1234,7 @@ def build_experiment_analysis_dataframe(
     include_emotions: bool = True,
     emotion_model_name: str | None = None,
     device: str | None = None,
-    include_no_stance: bool = True,
-    no_stance_only: bool = False,
+    strip_decision_labels: str = STRIP_DECISION_LABELS_INCLUDE,
 ) -> Any:
     """Build the aggregate dataframe for a sweep manifest.
 
@@ -1205,7 +1251,6 @@ def build_experiment_analysis_dataframe(
         include_emotions=include_emotions,
         emotion_model_name=emotion_model_name,
         device=device,
-        include_no_stance=include_no_stance,
-        no_stance_only=no_stance_only,
+        strip_decision_labels=strip_decision_labels,
     )
     return pd.DataFrame(records)
