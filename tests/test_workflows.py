@@ -48,16 +48,14 @@ class CloseableStub:
         self.closed = True
 
 
-@pytest.mark.parametrize(
-    "payload, expected",
-    [
+def test_extract_instruction_normalizes_config():
+    cases = [
         ({"private_response": None}, (None, True)),
         ({"private_response": "think"}, ("think", True)),
         ({"private_response": {"instruction": "think", "keep": False}}, ("think", False)),
-    ],
-)
-def test_extract_instruction_normalizes_config(payload, expected):
-    assert extract_instruction(payload, "private_response") == expected
+    ]
+    for payload, expected in cases:
+        assert extract_instruction(payload, "private_response") == expected
 
 
 def test_build_agents_from_configs_applies_prompts(stub_llm_factory):

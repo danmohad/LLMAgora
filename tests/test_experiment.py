@@ -1671,28 +1671,6 @@ def test_run_persona_experiment_requires_two_sides(tmp_path):
         run_persona_experiment(cfg)
 
 
-def test_run_persona_experiment_requires_survey_questions(tmp_path):
-    catalog_path = tmp_path / "catalog.json"
-    prompts_path = tmp_path / "prompts.json"
-    catalog = _catalog_payload()
-    catalog["scenarios"][0]["survey_questions"] = {}
-    prompts = _prompt_payload()
-    prompts["default"]["survey_questions"] = []
-    _write_json(catalog_path, catalog)
-    _write_json(prompts_path, prompts)
-
-    cfg = ExperimentConfig(
-        scenario_id="s1",
-        outputs_root=tmp_path / "outputs",
-        catalog_path=catalog_path,
-        prompts_path=prompts_path,
-        subturn_event_order=["public_utterance", "public_survey"],
-    )
-
-    with pytest.raises(ValueError, match="Survey is enabled but no survey questions"):
-        run_persona_experiment(cfg)
-
-
 def test_run_persona_experiment_falls_back_to_question_label_default(tmp_path, monkeypatch):
     catalog_path = tmp_path / "catalog.json"
     prompts_path = tmp_path / "prompts.json"

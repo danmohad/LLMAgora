@@ -448,7 +448,7 @@ def test_format_case_warning_context_returns_empty_for_invalid_json(tmp_path: Pa
 # Aggregation helpers
 # ---------------------------------------------------------------------------
 
-def test_agg_turn_scores_basic():
+def test_agg_turn_scores_basic_and_partial_turns():
     series = [
         {"turns": [1, 2], "scores": [0.8, 0.6]},
         {"turns": [1, 2], "scores": [0.6, 0.4]},
@@ -458,16 +458,13 @@ def test_agg_turn_scores_basic():
     assert result["mean"] == pytest.approx([0.7, 0.5])
     assert result["se"] == pytest.approx([0.1 / 2**0.5, 0.1 / 2**0.5])
 
-
-def test_agg_turn_scores_partial_turns():
-    """Turns that appear in only some repeats are still included."""
-    series = [
+    partial = [
         {"turns": [1, 2], "scores": [0.9, 0.7]},
         {"turns": [1], "scores": [0.5]},
     ]
-    result = _agg_turn_scores(series)
-    assert 1 in result["turns"]
-    assert result["mean"][result["turns"].index(1)] == pytest.approx(0.7)
+    partial_result = _agg_turn_scores(partial)
+    assert 1 in partial_result["turns"]
+    assert partial_result["mean"][partial_result["turns"].index(1)] == pytest.approx(0.7)
 
 
 def test_agg_persona_per_turn_basic():
@@ -629,7 +626,7 @@ def test_group_result_aggregate_persona_no_data():
 # GroupAnalysisResult — metadata
 # ---------------------------------------------------------------------------
 
-def test_group_result_agent_names():
+def test_group_result_agent_names_variants():
     a1 = MagicMock()
     a1.name = "Eisenhower"
     a2 = MagicMock()
@@ -638,18 +635,16 @@ def test_group_result_agent_names():
     gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[result])
     assert gr.agent_names == ("Eisenhower", "Khrushchev")
 
+    empty = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[])
+    assert empty.agent_names == ("alpha", "beta")
 
-def test_group_result_agent_names_empty_results():
-    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[])
-    assert gr.agent_names == ("alpha", "beta")
-
-
-def test_group_result_agent_names_single_agent():
-    a1 = MagicMock()
-    a1.name = "Solo"
-    result = MagicMock(agents=[a1])
-    gr = GroupAnalysisResult(group=ExperimentGroup(FP_A, {}, []), results=[result])
-    assert gr.agent_names == ("Solo", "")
+    solo = MagicMock()
+    solo.name = "Solo"
+    single = GroupAnalysisResult(
+        group=ExperimentGroup(FP_A, {}, []),
+        results=[MagicMock(agents=[solo])],
+    )
+    assert single.agent_names == ("Solo", "")
 
 
 def test_group_result_n_repeats():
@@ -1055,33 +1050,21 @@ def test_group_result_plot_survey_no_data(capsys):
 # Additional coverage tests
 # ---------------------------------------------------------------------------
 
-def test_nli_bidirectional_plain_list():
-    """_nli_bidirectional with a plain list (no tolist, no nesting)."""
-    mock_analyzer = MagicMock()
-    mock_analyzer.model.predict.return_value = [0.1, 0.3, 0.6]
-    result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
-    assert len(result) == 3
-    assert result == pytest.approx([0.1, 0.3, 0.6])
-
-
-def test_nli_bidirectional_nested_list():
-    """_nli_bidirectional with a nested list [[...]] (covers p[0] path)."""
-    mock_analyzer = MagicMock()
-    mock_analyzer.model.predict.return_value = [[0.2, 0.4, 0.4]]
-    result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
-    assert len(result) == 3
-
-
-def test_nli_bidirectional_tolist():
-    """_nli_bidirectional with an object that has a .tolist() method (numpy-like)."""
+def test_nli_bidirectional_normalizes_prediction_shapes():
     class FakeTensor:
         def tolist(self):
             return [0.3, 0.3, 0.4]
 
-    mock_analyzer = MagicMock()
-    mock_analyzer.model.predict.return_value = FakeTensor()
-    result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
-    assert len(result) == 3
+    cases = [
+        ([0.1, 0.3, 0.6], [0.1, 0.3, 0.6]),
+        ([[0.2, 0.4, 0.4]], [0.2, 0.4, 0.4]),
+        (FakeTensor(), [0.3, 0.3, 0.4]),
+    ]
+    for raw_prediction, expected in cases:
+        mock_analyzer = MagicMock()
+        mock_analyzer.model.predict.return_value = raw_prediction
+        result = _nli_bidirectional(mock_analyzer, "text_a", "text_b")
+        assert result == pytest.approx(expected)
 
 
 def test_aggregate_semantic_includes_cross_agent_private():
@@ -1380,26 +1363,17 @@ def test_group_result_plot_emotions_forwards_device():
 # _classify_decision
 # ---------------------------------------------------------------------------
 
-def test_classify_decision_matches_first_label():
-    assert _classify_decision("ENDORSE the bill!", ["ENDORSE", "DO NOT ENDORSE"]) == 0
-
-
-def test_classify_decision_matches_second_label():
-    assert _classify_decision("DO NOT ENDORSE based on the analysis", ["ENDORSE", "DO NOT ENDORSE"]) == 1
-
-
-def test_classify_decision_no_match():
-    assert _classify_decision("Abstain from voting.", ["ENDORSE", "DO NOT ENDORSE"]) is None
-
-
-def test_classify_decision_longest_label_wins():
-    # "DO NOT ENDORSE" starts with "DO NOT", so should match index 1, not index 0 fallback.
-    result = _classify_decision("DO NOT ENDORSE the bill", ["ENDORSE", "DO NOT ENDORSE"])
-    assert result == 1
-
-
-def test_classify_decision_case_insensitive():
-    assert _classify_decision("endorse it", ["ENDORSE", "DO NOT ENDORSE"]) == 0
+def test_classify_decision_matches_labels_and_fallbacks():
+    labels = ["ENDORSE", "DO NOT ENDORSE"]
+    cases = [
+        ("ENDORSE the bill!", 0),
+        ("DO NOT ENDORSE based on the analysis", 1),
+        ("Abstain from voting.", None),
+        ("DO NOT ENDORSE the bill", 1),
+        ("endorse it", 0),
+    ]
+    for text, expected in cases:
+        assert _classify_decision(text, labels) == expected
 
 
 # ---------------------------------------------------------------------------

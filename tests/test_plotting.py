@@ -346,24 +346,19 @@ def test_survey_panel_value_returns_none_when_no_values_present():
 # plot_group_survey
 # ---------------------------------------------------------------------------
 
-def test_wrap_label_short_fits_one_line():
+def test_wrap_label_short_long_and_truncated_cases():
     from agora.plotting import _wrap_label
+
     assert _wrap_label("Short") == "Short"
 
-
-def test_wrap_label_long_wraps_to_two_lines():
-    from agora.plotting import _wrap_label
     result = _wrap_label("This is a fairly long question label", width=20, max_lines=2)
     assert "\n" in result
     assert result.count("\n") == 1
 
-
-def test_wrap_label_very_long_truncates_second_line():
-    from agora.plotting import _wrap_label
     long = "word " * 30
-    result = _wrap_label(long, width=20, max_lines=2)
-    assert result.count("\n") == 1
-    assert result.endswith("...")
+    truncated = _wrap_label(long, width=20, max_lines=2)
+    assert truncated.count("\n") == 1
+    assert truncated.endswith("...")
 
 
 def test_plot_group_survey_public_and_private_smoke():

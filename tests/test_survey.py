@@ -256,9 +256,8 @@ def test_survey_scale_rejects_invalid_config():
         survey.build_survey_scale_prompt({}, scale_config={"name": "Bad", "values": []})
 
 
-@pytest.mark.parametrize(
-    "scale_config, message",
-    [
+def test_survey_scale_rejects_malformed_entries():
+    cases = [
         ([], "survey_scale must be a JSON object"),
         (
             {"name": "", "values": [{"label": "Yes", "score": 1}]},
@@ -286,11 +285,10 @@ def test_survey_scale_rejects_invalid_config():
             },
             "labels must be unique",
         ),
-    ],
-)
-def test_survey_scale_rejects_malformed_entries(scale_config, message):
-    with pytest.raises(ValueError, match=message):
-        survey.build_survey_scale_prompt({}, scale_config=scale_config)
+    ]
+    for scale_config, message in cases:
+        with pytest.raises(ValueError, match=message):
+            survey.build_survey_scale_prompt({}, scale_config=scale_config)
 
 
 def test_default_prompt_set_requires_default_object(tmp_path, monkeypatch):
