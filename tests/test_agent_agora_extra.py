@@ -96,7 +96,7 @@ def test_agent_survey_prompt_template_defaults():
     assert "{question_number}" in agent.survey_question_prompt
 
 
-def test_agent_generate_survey_passes_questions():
+def test_agent_generate_survey_passes_questions_and_groups():
     llm_client = QueueLLM([json.dumps({"Q1": "Agree"})])
     agent = Agent(
         name="Solo",
@@ -113,6 +113,28 @@ def test_agent_generate_survey_passes_questions():
     assert llm_client.calls[0]["survey_scale"]["name"] == "Likert"
     assert "Use the following Likert scale:" in llm_client.calls[0]["messages"][-1]["content"]
     assert "Q1. q1" in llm_client.calls[0]["messages"][-1]["content"]
+
+    partial_client = QueueLLM([json.dumps({"Q1": "Neutral", "Q2": "Agree"})])
+    partial = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=partial_client,
+        response_instruction="respond",
+        survey_questions=["q1", "q2"],
+        survey_question_groups={"Q2": "incentive"},
+        survey_public_prompt="Base\n{scale}\n",
+    )
+
+    partial.generate_public_survey_response(["q1", "q2"])
+
+    assert partial_client.calls[0]["survey_question_groups"] == {
+        "Q1": "deliberative",
+        "Q2": "incentive",
+    }
+    prompt = partial_client.calls[0]["messages"][-1]["content"]
+    assert "Use the following Likert scale:" in prompt
+    assert "Q1. q1" in prompt
+    assert "Q2. q2" in prompt
 
 
 def test_agent_generate_survey_passes_questions_private():
@@ -168,30 +190,6 @@ def test_agent_generate_survey_uses_configured_scale():
     ]
 
 
-def test_agent_generate_survey_expands_partial_question_groups():
-    llm_client = QueueLLM([json.dumps({"Q1": "Neutral", "Q2": "Agree"})])
-    agent = Agent(
-        name="Solo",
-        model="demo",
-        llm_client=llm_client,
-        response_instruction="respond",
-        survey_questions=["q1", "q2"],
-        survey_question_groups={"Q2": "incentive"},
-        survey_public_prompt="Base\n{scale}\n",
-    )
-
-    agent.generate_public_survey_response(["q1", "q2"])
-
-    assert llm_client.calls[0]["survey_question_groups"] == {
-        "Q1": "deliberative",
-        "Q2": "incentive",
-    }
-    prompt = llm_client.calls[0]["messages"][-1]["content"]
-    assert "Use the following Likert scale:" in prompt
-    assert "Q1. q1" in prompt
-    assert "Q2. q2" in prompt
-
-
 def test_agent_survey_generation_rejects_disabled_modes():
     agent = Agent(
         name="Solo",
@@ -231,25 +229,16 @@ def test_strip_speaker_prefix():
 
 
 def test_agent_strips_transcript_labels_from_responses():
-    agent = Agent(
-        name="Alpha",
-        model="demo",
-        llm_client=QueueLLM(["[Current instruction]\nAlpha: Hi"]),
-        response_instruction="respond",
-    )
+    responses = ["[Current instruction]\nAlpha: Hi", "Alpha: [Current instruction]\nHi"]
+    for response in responses:
+        agent = Agent(
+            name="Alpha",
+            model="demo",
+            llm_client=QueueLLM([response]),
+            response_instruction="respond",
+        )
 
-    assert agent.generate_public_speech() == "Hi"
-
-
-def test_agent_strips_speaker_prefix_before_transcript_label():
-    agent = Agent(
-        name="Alpha",
-        model="demo",
-        llm_client=QueueLLM(["Alpha: [Current instruction]\nHi"]),
-        response_instruction="respond",
-    )
-
-    assert agent.generate_public_speech() == "Hi"
+        assert agent.generate_public_speech() == "Hi"
 
 
 def test_agent_normalizes_apostrophes_in_responses():

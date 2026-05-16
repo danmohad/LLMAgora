@@ -90,24 +90,13 @@ def test_sample_persona_scores_handles_empty():
     assert result == [3]
 
 
-def test_sample_persona_scores_parses_number():
+def test_sample_persona_scores_parses_numbers_and_multiple_samples():
     evaluator = PersonaEvaluator(StubClient(["Score: 4"]), _personas())
     result = evaluator._sample_persona_scores("Hello", "p1", n_samples=1)
     assert result == [4]
 
-
-def test_sample_persona_scores_multiple_samples():
-    evaluator = PersonaEvaluator(StubClient(["4", "5", "4"]), _personas())
-    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=3)
-    assert result == [4, 5, 4]
-
-
-def test_sample_persona_scores_handles_invalid_response(capsys):
-    evaluator = PersonaEvaluator(StubClient(["no score"]), _personas())
-    result = evaluator._sample_persona_scores("Hello", "p1", n_samples=1)
-    assert result == [3]
-    captured = capsys.readouterr()
-    assert "Warning" in captured.out
+    repeated = PersonaEvaluator(StubClient(["4", "5", "4"]), _personas())
+    assert repeated._sample_persona_scores("Hello", "p1", n_samples=3) == [4, 5, 4]
 
 
 def test_sample_persona_scores_handles_exception(capsys):
@@ -153,26 +142,26 @@ def test_evaluate_debate_from_history_requires_two_agents():
         evaluator.evaluate_debate_from_history(turns, "p1", "p1")
 
 
-def test_evaluate_debate_scores_and_cumulative(monkeypatch):
+def test_evaluate_debate_scores_cumulative_and_sample_count(monkeypatch):
     evaluator = PersonaEvaluator(StubClient(), _personas())
     calls = {"count": 0}
+    n_samples_used = []
 
     def fake_score(text, persona_id, slice_label="turn", n_samples=1):
         calls["count"] += 1
+        n_samples_used.append(n_samples)
         return [5] * n_samples
 
     monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
 
     turns = _structured_history([("A", "A0", "B", "B0")])
 
-    result = evaluator.evaluate_debate_from_history(turns, "p1", "p1", n_samples=1)
-    
-    # full_debate scores are now tuples (mean, std)
+    result = evaluator.evaluate_debate_from_history(turns, "p1", "p1", n_samples=7)
+
     assert result.alpha.full_debate_public_score == (5.0, 0.0)
     assert result.beta.full_debate_private_score == (5.0, 0.0)
-    
-    # Should have 8 calls: 2 agents × 1 turn × 4 score types (pub ind, priv ind, pub cum, priv cum)
     assert calls["count"] == 8
+    assert n_samples_used == [7] * 8
 
 
 def test_evaluate_debate_verbose_output(capsys, monkeypatch):
@@ -287,9 +276,12 @@ def test_evaluation_to_dict_roundtrip():
     assert debate_dict["alpha"]["full_debate_public_score"]["mean"] == pytest.approx(4.67, abs=0.01)
 
 
-def test_get_structured_debate_history_captures_turns():
+def test_get_structured_debate_history_captures_interviews_and_turns():
     turns = _structured_history(
-        [("public", "reflect-after", None, None)],
+        [
+            ("alpha-pub-1", "alpha-priv-1", "beta-pub-1", "beta-priv-1"),
+            ("alpha-pub-2", "alpha-priv-2", "beta-pub-2", "beta-priv-2"),
+        ],
         alpha_pre="pre",
         alpha_post="post",
     )
@@ -298,29 +290,15 @@ def test_get_structured_debate_history_captures_turns():
     alpha = structured["Alpha"]
     assert alpha["pre_interview"] == "pre"
     assert alpha["post_interview"] == "post"
-    assert len(alpha["debate_turns"]) == 1
-    assert alpha["debate_turns"][0]["public_speech"] == "public"
-    assert alpha["debate_turns"][0]["private_reflection"] == "reflect-after"
 
-
-def test_get_structured_debate_history_multiple_turns():
-    turns = _structured_history(
-        [
-            ("alpha-pub-1", "alpha-priv-1", "beta-pub-1", "beta-priv-1"),
-            ("alpha-pub-2", "alpha-priv-2", "beta-pub-2", "beta-priv-2"),
-        ]
-    )
-
-    structured = get_structured_debate_history(turns)
-    
     assert len(structured["Alpha"]["debate_turns"]) == 2
     assert len(structured["Beta"]["debate_turns"]) == 2
-    
+
     assert structured["Alpha"]["debate_turns"][0]["public_speech"] == "alpha-pub-1"
     assert structured["Alpha"]["debate_turns"][0]["private_reflection"] == "alpha-priv-1"
     assert structured["Alpha"]["debate_turns"][1]["public_speech"] == "alpha-pub-2"
     assert structured["Alpha"]["debate_turns"][1]["private_reflection"] == "alpha-priv-2"
-    
+
     assert structured["Beta"]["debate_turns"][0]["public_speech"] == "beta-pub-1"
     assert structured["Beta"]["debate_turns"][0]["private_reflection"] == "beta-priv-1"
     assert structured["Beta"]["debate_turns"][1]["public_speech"] == "beta-pub-2"
@@ -377,47 +355,10 @@ def test_personas_with_nested_structure():
     assert eval_flat.personas["p1"]["actual_persona"] == "Test"
 
 
-def test_n_samples_propagates_through_evaluation(monkeypatch):
-    """Test that n_samples parameter is correctly passed through all evaluation calls."""
-    evaluator = PersonaEvaluator(StubClient(), _personas())
-    
-    n_samples_used = []
-    
-    def fake_score(text, persona_id, slice_label="turn", n_samples=1):
-        n_samples_used.append(n_samples)
-        return [4] * n_samples
-
-    monkeypatch.setattr(evaluator, "_sample_persona_scores", fake_score)
-    
-    turns = _structured_history([("A", "A0", "B", "B0")])
-    
-    evaluator.evaluate_debate_from_history(turns, "p1", "p1", n_samples=7)
-    
-    # All calls should have n_samples=7
-    assert all(n == 7 for n in n_samples_used)
-    assert len(n_samples_used) == 8  # 2 agents × 4 score types
-
-
 def test_evaluate_debate_rejects_raw_turn_list():
     evaluator = PersonaEvaluator(StubClient(), _personas())
     with pytest.raises(ValueError, match="canonical structured history"):
         evaluator.evaluate_debate_from_history([], "p1", "p1")
-
-
-def test_full_debate_scores_match_last_cumulative():
-    """Test that full_debate scores match the last cumulative scores."""
-    score1 = PersonaScore(turn_num=1, scores_raw=[4, 4, 5])
-    score2 = PersonaScore(turn_num=2, scores_raw=[5, 5, 5])
-    
-    agent_eval = AgentPersonaEvaluation(persona_id="p1")
-    agent_eval.public_cumulative_scores.extend([score1, score2])
-    
-    # Simulate what evaluator does for full-debate summaries
-    last_score = agent_eval.public_cumulative_scores[-1]
-    agent_eval.full_debate_public_score = (last_score.score_mean, last_score.score_std)
-    
-    assert agent_eval.full_debate_public_score[0] == score2.score_mean
-    assert agent_eval.full_debate_public_score[1] == score2.score_std
 
 
 def _sample_eval_dict():

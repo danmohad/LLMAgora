@@ -82,32 +82,20 @@ def _make_fake_pipeline(labels=("joy", "anger", "neutral")):
 # Init / normalisation
 # ---------------------------------------------------------------------------
 
-def test_init_from_debate_data():
+def test_init_normalizes_supported_dict_inputs():
     data = _debate_data()
     ea = EmotionAnalyzer(data)
+    assert ea.debate_data is data
     assert set(ea.debate_data.keys()) == {"Alpha", "Beta"}
     assert ea.model_name == DEFAULT_EMOTION_MODEL
     assert ea.device is None
 
+    structured = EmotionAnalyzer(_structured_history())
+    assert set(structured.debate_data.keys()) == {"Alpha", "Beta"}
 
-def test_init_from_structured_history():
-    ea = EmotionAnalyzer(_structured_history())
-    assert "Alpha" in ea.debate_data
-    assert "Beta" in ea.debate_data
-
-
-def test_init_custom_model_and_device():
-    ea = EmotionAnalyzer(_debate_data(), model_name="my/model", device="cpu")
-    assert ea.model_name == "my/model"
-    assert ea.device == "cpu"
-
-
-def test_init_from_other_iterable():
-    """Passing an object without 'turns' that is also not a keyed dict falls back."""
-    # A dict without 'turns' key but shaped like already-normalised data.
-    data = _debate_data()
-    ea = EmotionAnalyzer(data)
-    assert "Alpha" in ea.debate_data
+    custom = EmotionAnalyzer(data, model_name="my/model", device="cpu")
+    assert custom.model_name == "my/model"
+    assert custom.device == "cpu"
 
 
 # ---------------------------------------------------------------------------
@@ -253,28 +241,24 @@ def test_classify_text_flat_output(monkeypatch):
 # classify_field
 # ---------------------------------------------------------------------------
 
-def test_classify_field_public(monkeypatch):
+def test_classify_field_public_and_private(monkeypatch):
     ea = EmotionAnalyzer(_debate_data(n_turns=3))
     fake = _make_fake_pipeline(("joy", "sadness"))
     monkeypatch.setattr(ea, "_pipeline", fake)
 
-    result = ea.classify_field(PUBLIC_NARRATIVE_FIELD)
+    public_result = ea.classify_field(PUBLIC_NARRATIVE_FIELD)
 
-    assert set(result.keys()) == {"Alpha", "Beta"}
-    for agent_result in result.values():
+    assert set(public_result.keys()) == {"Alpha", "Beta"}
+    for agent_result in public_result.values():
         assert agent_result["turns"] == [1, 2, 3]
         assert set(agent_result["emotions"].keys()) == {"joy", "sadness"}
         assert len(agent_result["emotions"]["joy"]) == 3
 
-
-def test_classify_field_private(monkeypatch):
-    ea = EmotionAnalyzer(_debate_data(n_turns=2))
-    fake = _make_fake_pipeline(("anger",))
-    monkeypatch.setattr(ea, "_pipeline", fake)
-
-    result = ea.classify_field(PRIVATE_NARRATIVE_FIELD)
-    assert result["Alpha"]["turns"] == [1, 2]
-    assert "anger" in result["Alpha"]["emotions"]
+    private = EmotionAnalyzer(_debate_data(n_turns=2))
+    monkeypatch.setattr(private, "_pipeline", _make_fake_pipeline(("anger",)))
+    private_result = private.classify_field(PRIVATE_NARRATIVE_FIELD)
+    assert private_result["Alpha"]["turns"] == [1, 2]
+    assert "anger" in private_result["Alpha"]["emotions"]
 
 
 def test_classify_field_empty_turns(monkeypatch):
@@ -312,13 +296,6 @@ def test_classify_field_skips_empty_text(monkeypatch):
 
     private_result = ea.classify_field(PRIVATE_NARRATIVE_FIELD)
     assert private_result["Alpha"]["turns"] == [1]
-
-
-def test_init_from_plain_dict_without_turns_key():
-    """EmotionAnalyzer accepts a pre-normalised debate_data dict (no 'turns' key)."""
-    data = _debate_data()  # returns {"Alpha": {...}, "Beta": {...}} with no "turns" key
-    ea = EmotionAnalyzer(data)
-    assert ea.debate_data is data
 
 
 def test_init_from_non_dict_memory_turns():
