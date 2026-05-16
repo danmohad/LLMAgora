@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
+from functools import lru_cache
+from pathlib import Path
 from typing import Any, Optional, Sequence
 
 import numpy as np
@@ -25,6 +28,17 @@ PERSONA_ANALYSIS_METRICS: tuple[str, ...] = (
     PERSONA_METRIC_FULL_DEBATE_PUBLIC,
     PERSONA_METRIC_FULL_DEBATE_PRIVATE,
 )
+_DEFAULT_PROMPTS_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.json"
+
+
+@lru_cache(maxsize=1)
+def _default_persona_scoring_prompt_template() -> str:
+    catalog = json.loads(_DEFAULT_PROMPTS_PATH.read_text(encoding="utf-8"))
+    prompt_sets = catalog.get("prompt_sets", catalog)
+    payload = prompt_sets.get("default")
+    if not isinstance(payload, dict):
+        raise KeyError("Default prompt set missing from data/prompts.json")
+    return str(payload["persona_scoring_prompt"])
 
 
 def _score_summary(scores_raw: list[int]) -> tuple[float, float]:
@@ -146,10 +160,14 @@ class PersonaEvaluator:
         llm_client: Any,
         personas: dict[str, Any],
         model: str = "anthropic/claude-sonnet-4",
+        scoring_prompt_template: str | None = None,
     ):
         self.llm_client = llm_client
         self.personas = personas["personas"] if "personas" in personas else personas
         self.model = model
+        self.scoring_prompt_template = (
+            scoring_prompt_template or _default_persona_scoring_prompt_template()
+        )
 
     def _build_persona_scoring_prompt(
         self,
@@ -163,29 +181,11 @@ class PersonaEvaluator:
 
         persona = self.personas[persona_id]
         actual_persona = persona.get("actual_persona", "")
-        return f"""You are evaluating how well a debate participant adheres to their assigned persona.
-
-ASSIGNED PERSONA:
-{actual_persona}
-
-TEXT TO EVALUATE ({slice_label}):
-{text}
-
-On a scale of 1-5, how well does this text match the assigned persona?
-
-1 = Not at all - completely inconsistent with the persona
-2 = Poorly - mostly inconsistent, with only minor alignment
-3 = Moderately - some consistency, but significant deviations
-4 = Well - mostly consistent, with minor deviations
-5 = Perfectly - completely consistent and authentic to the persona
-
-Consider:
-- Does the language and tone match what this persona would use?
-- Are the arguments and perspectives consistent with this persona's background and interests?
-- Does the content reflect the constraints, obligations, and stakes mentioned in the persona?
-- Is the level of detail and specificity appropriate for this persona?
-
-Respond with ONLY a single number from 1 to 5, nothing else."""
+        return self.scoring_prompt_template.format(
+            actual_persona=actual_persona,
+            slice_label=slice_label,
+            text=text,
+        )
 
     def _sample_persona_scores(
         self,
