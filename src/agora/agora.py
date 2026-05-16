@@ -317,6 +317,7 @@ class Agora:
                         parsed = parse_survey_response_str(
                             response,
                             agent.survey_question_groups,
+                            scale_config=agent.survey_scale,
                         )
                         subturn["public_survey"] = parsed
                         survey_turn = MemoryTurn(
@@ -356,6 +357,7 @@ class Agora:
                         parsed_private = parse_survey_response_str(
                             response_private,
                             agent.survey_question_groups,
+                            scale_config=agent.survey_scale,
                         )
                         subturn["private_survey"] = parsed_private
                         survey_turn = MemoryTurn(

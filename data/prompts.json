@@ -11,6 +11,20 @@
     "post_interview_instruction": "In one sentence, summarize how it went.",
     "survey_public_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. This will be visible to the other participant and others.\n\nReturn only a JSON object whose keys are Q1, Q2, Q3, and so on, and whose values are exact scale labels. Do not include Markdown, explanations, or text outside the JSON object.\n\n",
     "survey_private_prompt": "Respond to the following questions.\n\n{scale}\n\nAnswer all questions. Your responses are off-the-record and anonymous.\n\nReturn only a JSON object whose keys are Q1, Q2, Q3, and so on, and whose values are exact scale labels. Do not include Markdown, explanations, or text outside the JSON object.\n\n",
+    "survey_scale": {
+      "name": "Likert",
+      "values": [
+        {"label": "Strongly disagree", "score": -2},
+        {"label": "Disagree", "score": -1},
+        {"label": "Neutral", "score": 0},
+        {"label": "Agree", "score": 1},
+        {"label": "Strongly agree", "score": 2}
+      ]
+    },
+    "survey_scale_prompt": "Use the following {scale_name} scale:\n{scale_values}",
+    "survey_scale_value_prompt": "- {value}",
+    "survey_question_prompt": "Q{question_number}. {question_text}\n",
+    "persona_scoring_prompt": "You are evaluating how well a debate participant adheres to their assigned persona.\n\nASSIGNED PERSONA:\n{actual_persona}\n\nTEXT TO EVALUATE ({slice_label}):\n{text}\n\nOn a scale of 1-5, how well does this text match the assigned persona?\n\n1 = Not at all - completely inconsistent with the persona\n2 = Poorly - mostly inconsistent, with only minor alignment\n3 = Moderately - some consistency, but significant deviations\n4 = Well - mostly consistent, with minor deviations\n5 = Perfectly - completely consistent and authentic to the persona\n\nConsider:\n- Does the language and tone match what this persona would use?\n- Are the arguments and perspectives consistent with this persona's background and interests?\n- Does the content reflect the constraints, obligations, and stakes mentioned in the persona?\n- Is the level of detail and specificity appropriate for this persona?\n\nRespond with ONLY a single number from 1 to 5, nothing else.",
     "survey_questions": {
       "deliberative": [
         "I agree with the other participant’s overall position on this decision.",

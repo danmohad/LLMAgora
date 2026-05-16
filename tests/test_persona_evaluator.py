@@ -1,6 +1,7 @@
 import matplotlib
 import pytest
 
+import agora.persona_adherence_evaluator as persona_module
 from agora.debate_history import get_structured_debate_history
 from agora.persona_adherence_evaluator import (
     AgentPersonaEvaluation,
@@ -30,6 +31,18 @@ class StubClient:
 
 def _personas():
     return {"personas": {"p1": {"actual_persona": "Test persona"}}}
+
+
+def test_default_persona_scoring_prompt_requires_default_object(tmp_path, monkeypatch):
+    prompt_path = tmp_path / "prompts.json"
+    prompt_path.write_text('{"prompt_sets": {"default": []}}', encoding="utf-8")
+    monkeypatch.setattr(persona_module, "_DEFAULT_PROMPTS_PATH", prompt_path)
+    persona_module._default_persona_scoring_prompt_template.cache_clear()
+
+    with pytest.raises(KeyError, match="Default prompt set missing"):
+        persona_module._default_persona_scoring_prompt_template()
+
+    persona_module._default_persona_scoring_prompt_template.cache_clear()
 
 
 def _structured_history(

@@ -5,6 +5,7 @@ import pytest
 from agora.agent import Agent
 from agora.agora import Agora
 from agora.memory import MemoryTurn
+import agora.workflows as workflows
 from agora.workflows import (
     DEFAULT_PROMPT_SET,
     build_scenario_agent_configs,
@@ -29,6 +30,7 @@ class QueueLLM:
         model,
         survey_questions=None,
         survey_question_groups=None,
+        survey_scale=None,
     ):
         return self._responses.pop(0)
 
@@ -44,6 +46,10 @@ def test_extract_survey_instructions_handles_missing_and_present():
         question_groups,
         public_prompt,
         private_prompt,
+        scale,
+        scale_prompt,
+        scale_value_prompt,
+        question_prompt,
         keep,
         keep_private,
         enable_public,
@@ -53,6 +59,10 @@ def test_extract_survey_instructions_handles_missing_and_present():
     assert question_groups == {}
     assert public_prompt is None
     assert private_prompt is None
+    assert scale is None
+    assert scale_prompt is None
+    assert scale_value_prompt is None
+    assert question_prompt is None
     assert keep is False
     assert keep_private is False
     assert enable_public is False
@@ -63,6 +73,10 @@ def test_extract_survey_instructions_handles_missing_and_present():
         question_groups,
         public_prompt,
         private_prompt,
+        scale,
+        scale_prompt,
+        scale_value_prompt,
+        question_prompt,
         keep,
         keep_private,
         enable_public,
@@ -74,6 +88,13 @@ def test_extract_survey_instructions_handles_missing_and_present():
                 "survey_question_groups": {"Q1": "deliberative", "Q2": "incentive"},
                 "survey_public_prompt": "public",
                 "survey_private_prompt": "private",
+                "survey_scale": {
+                    "name": "Binary",
+                    "values": [{"label": "Yes", "score": 1}],
+                },
+                "survey_scale_prompt": "scale",
+                "survey_scale_value_prompt": "value",
+                "survey_question_prompt": "question",
                 "public_survey_keep": True,
                 "private_survey_keep": False,
                 "enable_public_survey": False,
@@ -85,6 +106,10 @@ def test_extract_survey_instructions_handles_missing_and_present():
     assert question_groups == {"Q1": "deliberative", "Q2": "incentive"}
     assert public_prompt == "public"
     assert private_prompt == "private"
+    assert scale == {"name": "Binary", "values": [{"label": "Yes", "score": 1}]}
+    assert scale_prompt == "scale"
+    assert scale_value_prompt == "value"
+    assert question_prompt == "question"
     assert keep is True
     assert keep_private is False
     assert enable_public is False
@@ -203,6 +228,18 @@ def test_load_prompt_templates_missing_set():
         load_prompt_templates("missing", prompt_catalog={"prompt_sets": {}})
 
 
+def test_default_prompt_templates_requires_default_object(tmp_path, monkeypatch):
+    prompt_path = tmp_path / "prompts.json"
+    prompt_path.write_text('{"prompt_sets": {"default": []}}', encoding="utf-8")
+    monkeypatch.setattr(workflows, "DEFAULT_PROMPT_PATH", prompt_path)
+    workflows._default_prompt_templates.cache_clear()
+
+    with pytest.raises(KeyError, match="Default prompt set missing"):
+        workflows._default_prompt_templates()
+
+    workflows._default_prompt_templates.cache_clear()
+
+
 def test_load_prompt_templates_missing_keys():
     catalog = {"prompt_sets": {"custom": {"base_prompt": "x", "perceived_prompt": "y", "public_instruction": "pub"}}}
     with pytest.raises(KeyError):
@@ -228,6 +265,7 @@ def test_load_prompt_templates_adds_opening_instruction_and_incentive_prompt():
     prompts = load_prompt_templates("custom", prompt_catalog=catalog)
     assert prompts["opening_instruction"] == "public"
     assert "{incentive}" in prompts["incentive_prompt"]
+    assert prompts["survey_scale"]["name"] == "Likert"
 
 
 def _catalog_for_builder():

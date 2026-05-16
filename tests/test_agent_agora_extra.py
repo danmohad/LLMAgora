@@ -19,6 +19,7 @@ class QueueLLM:
         model,
         survey_questions=None,
         survey_question_groups=None,
+        survey_scale=None,
     ):
         self.calls.append(
             {
@@ -26,6 +27,7 @@ class QueueLLM:
                 "model": model,
                 "survey_questions": survey_questions,
                 "survey_question_groups": survey_question_groups,
+                "survey_scale": survey_scale,
             }
         )
         return self._responses.pop(0)
@@ -66,6 +68,7 @@ def test_agent_survey_requires_prompt_public():
     with pytest.raises(RuntimeError):
         agent.generate_public_survey_response(["q1"])
 
+
 def test_agent_survey_requires_prompt_private():
     agent = Agent(
         name="Solo",
@@ -78,6 +81,19 @@ def test_agent_survey_requires_prompt_private():
     )
     with pytest.raises(RuntimeError):
         agent.generate_private_survey_response(["q1"])
+
+
+def test_agent_survey_prompt_template_defaults():
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=QueueLLM(["hi"]),
+        response_instruction="respond",
+    )
+
+    assert "{scale_name}" in agent.survey_scale_prompt
+    assert "{value}" in agent.survey_scale_value_prompt
+    assert "{question_number}" in agent.survey_question_prompt
 
 
 def test_agent_generate_survey_passes_questions():
@@ -94,8 +110,10 @@ def test_agent_generate_survey_passes_questions():
     agent.generate_public_survey_response(["q1"])
     assert llm_client.calls[0]["survey_questions"] == ["q1"]
     assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "evaluative"}
+    assert llm_client.calls[0]["survey_scale"]["name"] == "Likert"
     assert "Use the following Likert scale:" in llm_client.calls[0]["messages"][-1]["content"]
     assert "Q1. q1" in llm_client.calls[0]["messages"][-1]["content"]
+
 
 def test_agent_generate_survey_passes_questions_private():
     llm_client = QueueLLM([json.dumps({"Q1": "Neutral"})])
@@ -113,6 +131,41 @@ def test_agent_generate_survey_passes_questions_private():
     assert llm_client.calls[0]["survey_question_groups"] == {"Q1": "incentive"}
     assert "Strongly disagree" in llm_client.calls[0]["messages"][-1]["content"]
     assert "Q1. q1" in llm_client.calls[0]["messages"][-1]["content"]
+
+
+def test_agent_generate_survey_uses_configured_scale():
+    llm_client = QueueLLM([json.dumps({"Q1": "Yes"})])
+    agent = Agent(
+        name="Solo",
+        model="demo",
+        llm_client=llm_client,
+        response_instruction="respond",
+        survey_questions=["q1"],
+        survey_public_prompt="Base\n{scale}\n",
+        survey_scale={
+            "name": "Binary",
+            "values": [
+                {"label": "No", "score": 0},
+                {"label": "Yes", "score": 1},
+            ],
+        },
+    )
+
+    agent.generate_public_survey_response(["q1"])
+
+    prompt = llm_client.calls[0]["messages"][-1]["content"]
+    enum_values = llm_client.calls[0]["survey_scale"]["values"]
+    receipt = agent.drain_completion_receipts()[0]
+    schema_enum = receipt["request"]["response_format"]["json_schema"]["schema"][
+        "properties"
+    ]["Q1"]["enum"]
+    assert "Use the following Binary scale:" in prompt
+    assert "- Yes" in prompt
+    assert schema_enum == ["No", "Yes"]
+    assert enum_values == [
+        {"label": "No", "score": 0},
+        {"label": "Yes", "score": 1},
+    ]
 
 
 def test_agent_generate_survey_expands_partial_question_groups():
@@ -242,12 +295,18 @@ def test_agent_property_accessors():
         response_instruction="respond",
         system_prompt="system",
         opening_instruction="open",
+        survey_scale_prompt="scale::{scale_name}",
+        survey_scale_value_prompt="value::{value}",
+        survey_question_prompt="question::{question_number}",
         public_survey_keep=True,
         private_survey_keep=True,
     )
     assert agent.system_prompt == "system"
     assert agent.response_instruction == "respond"
     assert agent.opening_instruction == "open"
+    assert agent.survey_scale_prompt == "scale::{scale_name}"
+    assert agent.survey_scale_value_prompt == "value::{value}"
+    assert agent.survey_question_prompt == "question::{question_number}"
     assert agent.public_survey_keep is True
     assert agent.private_survey_keep is True
 

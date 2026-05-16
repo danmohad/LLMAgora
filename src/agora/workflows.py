@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from functools import lru_cache
 from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Sequence, Tuple
 
@@ -40,6 +41,10 @@ def extract_survey_instructions(
     dict[str, str],
     Optional[str],
     Optional[str],
+    Optional[dict],
+    Optional[str],
+    Optional[str],
+    Optional[str],
     bool,
     bool,
     bool,
@@ -48,13 +53,17 @@ def extract_survey_instructions(
     """Parse survey instructions from an agent configuration dict."""
     entry = config.get("survey")
     if not isinstance(entry, dict):
-        return [], {}, None, None, False, False, False, False
+        return [], {}, None, None, None, None, None, None, False, False, False, False
 
     return (
         entry.get("survey_questions") or [],
         entry.get("survey_question_groups") or {},
         entry.get("survey_public_prompt"),
         entry.get("survey_private_prompt"),
+        entry.get("survey_scale"),
+        entry.get("survey_scale_prompt"),
+        entry.get("survey_scale_value_prompt"),
+        entry.get("survey_question_prompt"),
         bool(entry.get("public_survey_keep", False)),
         bool(entry.get("private_survey_keep", False)),
         bool(entry.get("enable_public_survey", True)),
@@ -80,6 +89,10 @@ def build_agents_from_configs(
             survey_question_groups,
             survey_public_prompt,
             survey_private_prompt,
+            survey_scale,
+            survey_scale_prompt,
+            survey_scale_value_prompt,
+            survey_question_prompt,
             public_survey_keep,
             private_survey_keep,
             enable_public_survey,
@@ -103,6 +116,10 @@ def build_agents_from_configs(
             survey_question_groups=survey_question_groups,
             survey_public_prompt=survey_public_prompt,
             survey_private_prompt=survey_private_prompt,
+            survey_scale=survey_scale,
+            survey_scale_prompt=survey_scale_prompt,
+            survey_scale_value_prompt=survey_scale_value_prompt,
+            survey_question_prompt=survey_question_prompt,
             enable_public_survey=enable_public_survey,
             enable_private_survey=enable_private_survey,
             public_survey_keep=public_survey_keep,
@@ -238,6 +255,24 @@ DEFAULT_PROMPT_SET = "default"
 DEFAULT_PROMPT_PATH = Path(__file__).resolve().parents[2] / "data" / "prompts.json"
 ALLOWED_INCENTIVE_DIRECTIONS = {"positive", "negative"}
 ALLOWED_INCENTIVE_TYPES = {"historical", "future"}
+_DEFAULTABLE_PROMPT_KEYS = (
+    "incentive_prompt",
+    "survey_scale",
+    "survey_scale_prompt",
+    "survey_scale_value_prompt",
+    "survey_question_prompt",
+    "persona_scoring_prompt",
+)
+
+
+@lru_cache(maxsize=1)
+def _default_prompt_templates() -> dict:
+    catalog = load_prompt_catalog(DEFAULT_PROMPT_PATH)
+    prompt_sets = catalog.get("prompt_sets", catalog)
+    payload = prompt_sets.get(DEFAULT_PROMPT_SET)
+    if not isinstance(payload, dict):
+        raise KeyError("Default prompt set missing from data/prompts.json")
+    return payload
 
 
 def load_prompt_catalog(prompt_path: Path | str | None = None) -> dict:
@@ -271,6 +306,8 @@ def load_prompt_templates(
         raise KeyError(
             f"Prompt template '{name}' not found; available sets: {available}"
         )
+    if not isinstance(payload, dict):
+        raise ValueError(f"Prompt template '{name}' must be a JSON object")
 
     required_keys = [
         "base_prompt",
@@ -288,12 +325,13 @@ def load_prompt_templates(
         raise KeyError(
             f"Prompt template '{name}' missing required fields: {', '.join(sorted(missing))}"
         )
+    payload = dict(payload)
     if "opening_instruction" not in payload:
-        payload = dict(payload)
         payload["opening_instruction"] = payload["public_instruction"]
-    if "incentive_prompt" not in payload:
-        payload = dict(payload)
-        payload["incentive_prompt"] = "\n\n# Incentive context:\n{incentive}"
+    defaults = _default_prompt_templates()
+    for key in _DEFAULTABLE_PROMPT_KEYS:
+        if key not in payload:
+            payload[key] = defaults[key]
     return payload
 
 
@@ -386,6 +424,10 @@ def build_scenario_agent_configs(
     post_interview_instruction: Optional[str] = None,
     survey_public_prompt: Optional[str] = None,
     survey_private_prompt: Optional[str] = None,
+    survey_scale: Optional[dict] = None,
+    survey_scale_prompt: Optional[str] = None,
+    survey_scale_value_prompt: Optional[str] = None,
+    survey_question_prompt: Optional[str] = None,
     enable_public_survey: bool = True,
     enable_private_survey: bool = True,
     public_survey_keep: bool = False,
@@ -427,6 +469,12 @@ def build_scenario_agent_configs(
     )
     survey_public_prompt = survey_public_prompt or prompts["survey_public_prompt"]
     survey_private_prompt = survey_private_prompt or prompts["survey_private_prompt"]
+    survey_scale = survey_scale or prompts["survey_scale"]
+    survey_scale_prompt = survey_scale_prompt or prompts["survey_scale_prompt"]
+    survey_scale_value_prompt = (
+        survey_scale_value_prompt or prompts["survey_scale_value_prompt"]
+    )
+    survey_question_prompt = survey_question_prompt or prompts["survey_question_prompt"]
 
     scenarios = catalog.get("scenarios", [])
     scenario = next(
@@ -535,6 +583,10 @@ def build_scenario_agent_configs(
                 "survey_question_groups": survey_question_groups or {},
                 "survey_public_prompt": survey_public_prompt,
                 "survey_private_prompt": survey_private_prompt,
+                "survey_scale": survey_scale,
+                "survey_scale_prompt": survey_scale_prompt,
+                "survey_scale_value_prompt": survey_scale_value_prompt,
+                "survey_question_prompt": survey_question_prompt,
                 "enable_public_survey": enable_public_survey,
                 "enable_private_survey": enable_private_survey,
                 "public_survey_keep": public_survey_keep,
@@ -567,6 +619,10 @@ def build_scenario_agent_configs(
                 "survey_question_groups": survey_question_groups or {},
                 "survey_public_prompt": survey_public_prompt,
                 "survey_private_prompt": survey_private_prompt,
+                "survey_scale": survey_scale,
+                "survey_scale_prompt": survey_scale_prompt,
+                "survey_scale_value_prompt": survey_scale_value_prompt,
+                "survey_question_prompt": survey_question_prompt,
                 "enable_public_survey": enable_public_survey,
                 "enable_private_survey": enable_private_survey,
                 "public_survey_keep": public_survey_keep,

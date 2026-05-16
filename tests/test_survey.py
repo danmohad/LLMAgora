@@ -3,10 +3,15 @@ import pytest
 from agora import survey
 
 
-def test_build_likert_schema():
-    schema = survey.build_likert_survey_schema(2)
+def test_build_numbered_schema():
+    schema = survey.build_numbered_survey_schema(2)
     assert schema["schema"]["required"] == ["Q1", "Q2"]
-    assert schema["schema"]["properties"]["Q1"]["enum"] == survey.LIKERT_VALUES
+    assert schema["schema"]["properties"]["Q1"]["enum"] == survey.default_survey_scale_values()
+
+
+def test_default_survey_prompt_helpers_read_prompt_catalog():
+    assert survey.default_survey_question_prompt() == "Q{question_number}. {question_text}\n"
+    assert survey.default_survey_scale_scores()["Agree"] == 1
 
 
 def test_build_grouped_likert_schema():
@@ -17,9 +22,10 @@ def test_build_grouped_likert_schema():
             "Q3": survey.SURVEY_GROUP_INCENTIVE,
         }
     )
-    assert schema["schema"]["properties"]["Q1"]["enum"] == survey.LIKERT_VALUES
-    assert schema["schema"]["properties"]["Q2"]["enum"] == survey.LIKERT_VALUES
-    assert schema["schema"]["properties"]["Q3"]["enum"] == survey.LIKERT_VALUES
+    scale_values = survey.default_survey_scale_values()
+    assert schema["schema"]["properties"]["Q1"]["enum"] == scale_values
+    assert schema["schema"]["properties"]["Q2"]["enum"] == scale_values
+    assert schema["schema"]["properties"]["Q3"]["enum"] == scale_values
 
 
 def test_build_grouped_likert_schema_rejects_unknown_group():
@@ -134,7 +140,7 @@ def test_parse_survey_response_rejects_embedded_json_with_missing_expected_answe
 
 
 def test_parse_survey_invalid_json():
-    with pytest.raises(ValueError, match="No numbered Likert answers"):
+    with pytest.raises(ValueError, match="No numbered survey answers"):
         survey.parse_survey_response_str("not json")
 
 
@@ -215,6 +221,88 @@ def test_build_survey_scale_prompt_uses_single_likert_scale_for_all_groups():
     assert "Likert scale" in prompt
     assert "Strongly agree" in prompt
     assert "No / Yes" not in prompt
+
+
+def test_survey_scale_can_be_configured_from_json_data():
+    scale = {
+        "name": "Binary",
+        "values": [
+            {"label": "No", "score": 0},
+            {"label": "Yes", "score": 1},
+        ],
+    }
+    prompt = survey.build_survey_scale_prompt(
+        {},
+        scale_config=scale,
+    )
+    schema = survey.build_survey_response_schema(
+        {"Q1": survey.SURVEY_GROUP_DELIBERATIVE},
+        scale_config=scale,
+    )
+    parsed = survey.parse_survey_response_str(
+        '{"Q1": "Yes"}',
+        {"Q1": survey.SURVEY_GROUP_DELIBERATIVE},
+        scale_config=scale,
+    )
+
+    assert "Binary scale" in prompt
+    assert "- Yes" in prompt
+    assert schema["schema"]["properties"]["Q1"]["enum"] == ["No", "Yes"]
+    assert parsed == {"Q1": 1}
+
+
+def test_survey_scale_rejects_invalid_config():
+    with pytest.raises(ValueError, match="survey_scale.values"):
+        survey.build_survey_scale_prompt({}, scale_config={"name": "Bad", "values": []})
+
+
+@pytest.mark.parametrize(
+    "scale_config, message",
+    [
+        ([], "survey_scale must be a JSON object"),
+        (
+            {"name": "", "values": [{"label": "Yes", "score": 1}]},
+            "survey_scale.name",
+        ),
+        (
+            {"name": "Bad", "values": [1]},
+            "entries must be JSON objects",
+        ),
+        (
+            {"name": "Bad", "values": [{"label": "", "score": 1}]},
+            "labels must be non-empty",
+        ),
+        (
+            {"name": "Bad", "values": [{"label": "Yes", "score": "1"}]},
+            "scores must be integers",
+        ),
+        (
+            {
+                "name": "Bad",
+                "values": [
+                    {"label": "Yes", "score": 1},
+                    {"label": "yes", "score": 2},
+                ],
+            },
+            "labels must be unique",
+        ),
+    ],
+)
+def test_survey_scale_rejects_malformed_entries(scale_config, message):
+    with pytest.raises(ValueError, match=message):
+        survey.build_survey_scale_prompt({}, scale_config=scale_config)
+
+
+def test_default_prompt_set_requires_default_object(tmp_path, monkeypatch):
+    prompt_path = tmp_path / "prompts.json"
+    prompt_path.write_text('{"prompt_sets": {"default": []}}', encoding="utf-8")
+    monkeypatch.setattr(survey, "_DEFAULT_PROMPTS_PATH", prompt_path)
+    survey._default_prompt_set.cache_clear()
+
+    with pytest.raises(KeyError, match="Default prompt set missing"):
+        survey.default_survey_scale()
+
+    survey._default_prompt_set.cache_clear()
 
 
 def test_normalize_survey_questions_rejects_unknown_group():

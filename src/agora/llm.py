@@ -8,7 +8,7 @@ import httpx
 
 from .survey import (
     SURVEY_GROUP_DELIBERATIVE,
-    build_likert_survey_schema,
+    build_numbered_survey_schema,
     build_survey_response_schema,
 )
 
@@ -30,6 +30,7 @@ class LLMClient(Protocol):
         model: str,
         survey_questions: Sequence[str] = None,
         survey_question_groups: Mapping[str, str] | None = None,
+        survey_scale: Any | None = None,
     ) -> str:
         """Return the chat completion text for the provided conversation."""
 
@@ -40,6 +41,7 @@ def build_completion_payload(
     model: str,
     survey_questions: Sequence[str] = None,
     survey_question_groups: Mapping[str, str] | None = None,
+    survey_scale: Any | None = None,
 ) -> Dict[str, Any]:
     """Build the exact chat-completions payload sent to the provider."""
 
@@ -55,9 +57,15 @@ def build_completion_payload(
             f"Q{i}": survey_question_groups.get(f"Q{i}", SURVEY_GROUP_DELIBERATIVE)
             for i in range(1, len(survey_questions) + 1)
         }
-        survey_schema = build_survey_response_schema(full_question_groups)
+        survey_schema = build_survey_response_schema(
+            full_question_groups,
+            scale_config=survey_scale,
+        )
     else:
-        survey_schema = build_likert_survey_schema(num_questions=len(survey_questions))
+        survey_schema = build_numbered_survey_schema(
+            num_questions=len(survey_questions),
+            scale_config=survey_scale,
+        )
 
     payload["response_format"] = {
         "type": "json_schema",
@@ -98,6 +106,7 @@ class OpenRouterClient:
         model: str,
         survey_questions: Sequence[str] = None,
         survey_question_groups: Mapping[str, str] | None = None,
+        survey_scale: Any | None = None,
     ) -> str:
         """Submit a chat completion request and return the LLM's reply. If 'survey_questions' are supplied, then a structured response is requested."""
 
@@ -106,6 +115,7 @@ class OpenRouterClient:
             model=model,
             survey_questions=survey_questions,
             survey_question_groups=survey_question_groups,
+            survey_scale=survey_scale,
         )
         response = self._client.post(
             "/chat/completions",

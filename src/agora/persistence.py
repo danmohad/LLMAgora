@@ -32,6 +32,10 @@ class AgentConfig:
     survey_question_groups: dict[str, str] | None = None
     survey_public_prompt: str | None = None
     survey_private_prompt: str | None = None
+    survey_scale: dict | None = None
+    survey_scale_prompt: str | None = None
+    survey_scale_value_prompt: str | None = None
+    survey_question_prompt: str | None = None
     enable_public_survey: bool = True
     enable_private_survey: bool = True
     public_survey_keep: bool = False
@@ -57,6 +61,10 @@ class AgentConfig:
             survey_question_groups=config.get("survey_question_groups"),
             survey_public_prompt=config.get("survey_public_prompt"),
             survey_private_prompt=config.get("survey_private_prompt"),
+            survey_scale=config.get("survey_scale"),
+            survey_scale_prompt=config.get("survey_scale_prompt"),
+            survey_scale_value_prompt=config.get("survey_scale_value_prompt"),
+            survey_question_prompt=config.get("survey_question_prompt"),
             enable_public_survey=config.get("enable_public_survey", True),
             enable_private_survey=config.get("enable_private_survey", True),
             public_survey_keep=config.get("public_survey_keep", False),
@@ -81,6 +89,10 @@ class AgentConfig:
             "survey_question_groups": self.survey_question_groups,
             "survey_public_prompt": self.survey_public_prompt,
             "survey_private_prompt": self.survey_private_prompt,
+            "survey_scale": self.survey_scale,
+            "survey_scale_prompt": self.survey_scale_prompt,
+            "survey_scale_value_prompt": self.survey_scale_value_prompt,
+            "survey_question_prompt": self.survey_question_prompt,
             "enable_public_survey": self.enable_public_survey,
             "enable_private_survey": self.enable_private_survey,
             "public_survey_keep": self.public_survey_keep,
@@ -106,6 +118,10 @@ class AgentConfig:
             survey_question_groups=payload.get("survey_question_groups"),
             survey_public_prompt=payload.get("survey_public_prompt"),
             survey_private_prompt=payload.get("survey_private_prompt"),
+            survey_scale=payload.get("survey_scale"),
+            survey_scale_prompt=payload.get("survey_scale_prompt"),
+            survey_scale_value_prompt=payload.get("survey_scale_value_prompt"),
+            survey_question_prompt=payload.get("survey_question_prompt"),
             enable_public_survey=payload.get("enable_public_survey", True),
             enable_private_survey=payload.get("enable_private_survey", True),
             public_survey_keep=payload.get("public_survey_keep", False),

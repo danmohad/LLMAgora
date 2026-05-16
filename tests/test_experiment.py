@@ -144,7 +144,7 @@ def _write_json(path: Path, payload):
     path.write_text(json.dumps(payload), encoding="utf-8")
 
 
-def test_run_demo_exposes_offline_snapshot_flags():
+def test_run_demo_exposes_snapshot_flags():
     notebook_payload = json.loads(
         Path("notebooks/run_demo.ipynb").read_text(encoding="utf-8")
     )
@@ -1458,8 +1458,12 @@ def test_run_persona_experiment_with_all_features_and_indexed_output(tmp_path, m
             }
 
     class FakePersonaEvaluator:
-        def __init__(self, llm_client, personas, model):
-            calls["persona_init"] = {"personas": personas, "model": model}
+        def __init__(self, llm_client, personas, model, scoring_prompt_template):
+            calls["persona_init"] = {
+                "personas": personas,
+                "model": model,
+                "scoring_prompt_template": scoring_prompt_template,
+            }
 
         def evaluate_debate_from_history(self, *, memory_turns, alpha_persona_id, beta_persona_id, verbose, n_samples, metrics):
             calls["persona"] = {

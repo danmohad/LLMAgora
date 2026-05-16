@@ -15,6 +15,10 @@ from .memory import (
 from .survey import (
     SURVEY_GROUP_DELIBERATIVE,
     build_survey_scale_prompt,
+    default_survey_scale,
+    default_survey_question_prompt,
+    default_survey_scale_prompt,
+    default_survey_scale_value_prompt,
 )
 
 if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
@@ -22,7 +26,7 @@ if TYPE_CHECKING:  # pragma: no cover - only used for type hints.
 
 
 class Agent:
-    """Simple agent that only produces public speech."""
+    """Agent that renders prompts, tracks local memory, and records LLM calls."""
 
     def __init__(
         self,
@@ -36,6 +40,10 @@ class Agent:
         survey_question_groups: Optional[dict[str, str]] = None,
         survey_public_prompt: Optional[str] = None,
         survey_private_prompt: Optional[str] = None,
+        survey_scale: Optional[dict[str, Any]] = None,
+        survey_scale_prompt: Optional[str] = None,
+        survey_scale_value_prompt: Optional[str] = None,
+        survey_question_prompt: Optional[str] = None,
         enable_public_survey: bool = True,
         enable_private_survey: bool = True,
         public_survey_keep: bool = False,
@@ -61,6 +69,10 @@ class Agent:
             opening_instruction: Optional user message directing the opening public remark.
             survey_public_prompt: Template prepended to public survey questions.
             survey_private_prompt: Template prepended to private survey questions.
+            survey_scale: Survey scale labels and scores.
+            survey_scale_prompt: Template that renders the survey scale block.
+            survey_scale_value_prompt: Template for one survey scale value.
+            survey_question_prompt: Template for one numbered survey question.
             enable_public_survey: Whether to ask public survey questions.
             enable_private_survey: Whether to ask private survey questions.
             private_response_instruction: Optional user message directing private reflections.
@@ -82,6 +94,10 @@ class Agent:
         self._survey_question_groups = survey_question_groups or {}
         self._survey_public_prompt = survey_public_prompt or ""
         self._survey_private_prompt = survey_private_prompt or ""
+        self._survey_scale = survey_scale
+        self._survey_scale_prompt = survey_scale_prompt or ""
+        self._survey_scale_value_prompt = survey_scale_value_prompt or ""
+        self._survey_question_prompt = survey_question_prompt or ""
         self._enable_public_survey = enable_public_survey
         self._enable_private_survey = enable_private_survey
         self._public_survey_keep = public_survey_keep
@@ -176,6 +192,28 @@ class Agent:
         return self._survey_private_prompt
 
     @property
+    def survey_scale(self) -> dict[str, Any]:
+        return self._survey_scale or default_survey_scale()
+
+    @property
+    def survey_scale_prompt(self) -> str:
+        if not self._survey_scale_prompt:
+            return default_survey_scale_prompt()
+        return self._survey_scale_prompt
+
+    @property
+    def survey_scale_value_prompt(self) -> str:
+        if not self._survey_scale_value_prompt:
+            return default_survey_scale_value_prompt()
+        return self._survey_scale_value_prompt
+
+    @property
+    def survey_question_prompt(self) -> str:
+        if not self._survey_question_prompt:
+            return default_survey_question_prompt()
+        return self._survey_question_prompt
+
+    @property
     def enable_public_survey(self) -> bool:
         return self._enable_public_survey
 
@@ -230,10 +268,18 @@ class Agent:
         )
         survey_prompt = self.survey_public_prompt.replace(
             "{scale}",
-            build_survey_scale_prompt(resolved_question_groups),
+            build_survey_scale_prompt(
+                resolved_question_groups,
+                scale_prompt_template=self.survey_scale_prompt,
+                scale_value_template=self.survey_scale_value_prompt,
+                scale_config=self.survey_scale,
+            ),
         )
         for i, q in enumerate(survey_questions, start=1):
-            survey_prompt += f"Q{i}. {q}\n"
+            survey_prompt += self.survey_question_prompt.format(
+                question_number=i,
+                question_text=q,
+            )
 
         return self._complete_and_record(
             final_instruction=survey_prompt,
@@ -250,10 +296,18 @@ class Agent:
         )
         survey_prompt = self.survey_private_prompt.replace(
             "{scale}",
-            build_survey_scale_prompt(resolved_question_groups),
+            build_survey_scale_prompt(
+                resolved_question_groups,
+                scale_prompt_template=self.survey_scale_prompt,
+                scale_value_template=self.survey_scale_value_prompt,
+                scale_config=self.survey_scale,
+            ),
         )
         for i, q in enumerate(survey_questions, start=1):
-            survey_prompt += f"Q{i}. {q}\n"
+            survey_prompt += self.survey_question_prompt.format(
+                question_number=i,
+                question_text=q,
+            )
 
         return self._complete_and_record(
             final_instruction=survey_prompt,
@@ -298,6 +352,10 @@ class Agent:
             "survey_question_groups": self._survey_question_groups,
             "survey_public_prompt": self._survey_public_prompt,
             "survey_private_prompt": self._survey_private_prompt,
+            "survey_scale": self._survey_scale,
+            "survey_scale_prompt": self._survey_scale_prompt,
+            "survey_scale_value_prompt": self._survey_scale_value_prompt,
+            "survey_question_prompt": self._survey_question_prompt,
             "enable_public_survey": self._enable_public_survey,
             "enable_private_survey": self._enable_private_survey,
             "public_survey_keep": self._public_survey_keep,
@@ -327,6 +385,10 @@ class Agent:
             survey_question_groups=config.get("survey_question_groups"),
             survey_public_prompt=config.get("survey_public_prompt"),
             survey_private_prompt=config.get("survey_private_prompt"),
+            survey_scale=config.get("survey_scale"),
+            survey_scale_prompt=config.get("survey_scale_prompt"),
+            survey_scale_value_prompt=config.get("survey_scale_value_prompt"),
+            survey_question_prompt=config.get("survey_question_prompt"),
             enable_public_survey=bool(config.get("enable_public_survey", True)),
             enable_private_survey=bool(config.get("enable_private_survey", True)),
             public_survey_keep=bool(config.get("public_survey_keep", False)),
@@ -370,12 +432,14 @@ class Agent:
             model=self.model,
             survey_questions=survey_questions,
             survey_question_groups=survey_question_groups,
+            survey_scale=self.survey_scale if survey_questions is not None else None,
         )
         response = self._llm.complete(
             messages=messages,
             model=self.model,
             survey_questions=survey_questions,
             survey_question_groups=survey_question_groups,
+            survey_scale=self.survey_scale if survey_questions is not None else None,
         )
         self._pending_completion_receipts.append(
             {
@@ -430,7 +494,7 @@ class Agent:
         self,
         survey_questions: Sequence[str],
     ) -> dict[str, str]:
-        """Fill missing survey question groups with the deliberative Likert group."""
+        """Fill missing survey question groups with the default deliberative group."""
 
         if not self._survey_question_groups:
             return {}

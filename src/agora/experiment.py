@@ -43,6 +43,7 @@ from .workflows import (
     build_scenario_agent_configs,
     load_debate_construction,
     load_prompt_catalog,
+    load_prompt_templates,
     run_debate_session,
 )
 
@@ -227,14 +228,7 @@ def _slug(value: str) -> str:
 
 
 def _prompt_set_payload(prompt_catalog: dict[str, Any], prompt_set: str) -> dict[str, Any]:
-    prompt_sets = prompt_catalog.get("prompt_sets", prompt_catalog)
-    if prompt_set not in prompt_sets:
-        available = ", ".join(sorted(prompt_sets)) or "<none>"
-        raise KeyError(f"Unknown prompt_set '{prompt_set}'. Available: {available}")
-    payload = prompt_sets[prompt_set]
-    if not isinstance(payload, dict):
-        raise ValueError(f"Prompt set '{prompt_set}' must be a JSON object")
-    return payload
+    return load_prompt_templates(prompt_set, prompt_catalog=prompt_catalog)
 
 
 def _resolve_run_dir(cfg: ExperimentConfig) -> tuple[Path, Optional[str]]:
@@ -688,6 +682,10 @@ def run_persona_experiment(
                 "survey_questions": [],
                 "survey_public_prompt": None,
                 "survey_private_prompt": None,
+                "survey_scale": None,
+                "survey_scale_prompt": None,
+                "survey_scale_value_prompt": None,
+                "survey_question_prompt": None,
                 "enable_public_survey": False,
                 "enable_private_survey": False,
                 "public_survey_keep": False,
@@ -778,6 +776,7 @@ def run_persona_experiment(
                     }
                 },
                 model=cfg.persona_scoring_model,
+                scoring_prompt_template=prompt_payload["persona_scoring_prompt"],
             )
             persona_eval = evaluator.evaluate_debate_from_history(
                 memory_turns=structured_history,

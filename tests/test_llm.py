@@ -145,7 +145,31 @@ def test_complete_survey_uses_question_groups_for_schema(monkeypatch):
 
     payload = json.loads(dummy.last_content)
     enum_values = payload["response_format"]["json_schema"]["schema"]["properties"]["Q1"]["enum"]
-    assert enum_values == llm.build_likert_survey_schema(1)["schema"]["properties"]["Q1"]["enum"]
+    assert enum_values == llm.build_numbered_survey_schema(1)["schema"]["properties"]["Q1"]["enum"]
+
+
+def test_complete_survey_uses_custom_scale_for_schema(monkeypatch):
+    response = DummyResponse({"choices": [{"message": {"content": "{\"Q1\": \"Yes\"}"}}]})
+    dummy = _install_dummy_client(monkeypatch, response)
+    scale = {
+        "name": "Binary",
+        "values": [
+            {"label": "No", "score": 0},
+            {"label": "Yes", "score": 1},
+        ],
+    }
+
+    client = llm.OpenRouterClient(api_key="key")
+    client.complete(
+        messages=[{"role": "user", "content": "hi"}],
+        model="m",
+        survey_questions=["q1"],
+        survey_scale=scale,
+    )
+
+    payload = json.loads(dummy.last_content)
+    enum_values = payload["response_format"]["json_schema"]["schema"]["properties"]["Q1"]["enum"]
+    assert enum_values == ["No", "Yes"]
 
 
 def test_complete_handles_http_error(monkeypatch):

@@ -31,6 +31,7 @@ class CloseableStub:
         model,
         survey_questions=None,
         survey_question_groups=None,
+        survey_scale=None,
     ):
         self.calls.append(
             {
@@ -38,6 +39,7 @@ class CloseableStub:
                 "model": model,
                 "survey_questions": survey_questions,
                 "survey_question_groups": survey_question_groups,
+                "survey_scale": survey_scale,
             }
         )
         return self._responses.pop(0)
