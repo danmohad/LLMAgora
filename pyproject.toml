@@ -12,6 +12,7 @@ dependencies = [
   "httpx",
   "ipykernel",
   "matplotlib",
+  "pandas>=3.0.2",
   "pytest",
   "pytest-cov",
   "python-dotenv",
