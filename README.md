@@ -2,7 +2,7 @@
 
 A minimal arena where two LLM-backed agents discuss a scenario through configurable sub-turn events: public utterances, optional private reflections, optional public or private surveys, optional pre- and post-interviews. 
 
-Agent personas, scenario topics, incentive modules, and prompt templates are data-driven through JSON files in `data/`. The package also includes optional semantic, persona-adherence, plotting, and sweep aggregation workflows.
+Agent personas, scenario topics, incentive modules, and prompt templates are defined JSON files in `data/`. Optional semantic analysis and parameter sweep workflows are provided.
 
 
 ## Requirements
