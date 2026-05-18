@@ -552,6 +552,12 @@ def test_load_experiment_config_resolves_relative_paths_from_config_dir(tmp_path
     assert output_cfg.output_dir == tmp_path / "cases" / "case-1"
 
 
+def test_checked_in_config_example_loads():
+    cfg = load_experiment_config(Path("data/config_example.jsonc"))
+
+    assert cfg.scenario_id == "promotion_committee"
+
+
 def test_resolve_experiment_payload_paths_keeps_absolute_and_none_values(tmp_path):
     base_dir = tmp_path / "configs"
     absolute_prompts = (tmp_path / "shared" / "prompts.json").resolve()

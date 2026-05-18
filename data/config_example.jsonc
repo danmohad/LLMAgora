@@ -1,0 +1,71 @@
+{
+  // Any scenario ID from data/scenarios.json.
+  "scenario_id": "promotion_committee",
+  // null disables incentive context; otherwise choose positive or negative.
+  "incentive_direction": "positive",
+  // Selects the historical or future module under the chosen incentive direction.
+  "incentive_type": "future",
+  // Prompt template set from data/prompts.json.
+  "prompt_set": "default",
+  // Any OpenRouter model identifier available to your account.
+  "model": "openai/gpt-5.4",
+  // Number of debate rounds after optional pre-interviews.
+  "num_turns": 2,
+  // Event order within each agent turn; include public_utterance and optional private/survey events.
+  "subturn_event_order": [
+    "private_survey",
+    "private_utterance",
+    "public_survey",
+    "public_utterance"
+  ],
+  // true prints progress and transcript details while the run executes.
+  "verbose": true,
+  // Retention only; private_utterance in subturn_event_order controls whether reflections run.
+  "keep_private_reflection": false,
+  // Retention only; pre-interviews run before debate turns.
+  "keep_pre_interview": false,
+  // Retention only; post-interviews run after debate turns.
+  "keep_post_interview": false,
+  // Retention only; public_survey in subturn_event_order controls whether public surveys run.
+  "keep_public_survey": false,
+  // Retention only; private_survey in subturn_event_order controls whether private surveys run.
+  "keep_private_survey": false,
+  // Semantic metrics to run; [] skips local embedding/NLI analysis.
+  "semantic_analysis_metrics": [],
+  // Required when semantic_analysis_metrics is non-empty.
+  "semantic_similarity_method": null,
+  // Required when semantic_analysis_metrics is non-empty.
+  "semantic_similarity_model": null,
+  // Semantic model device: null, cpu, mps, or cuda.
+  "semantic_similarity_device": null,
+  // Persona adherence metrics to run; [] skips persona scoring calls.
+  "persona_analysis_metrics": [],
+  // Required when persona_analysis_metrics is non-empty.
+  "persona_scoring_model": null,
+  // true prints detailed persona scoring progress.
+  "persona_scoring_verbose": false,
+  // Required when persona_analysis_metrics is non-empty.
+  "persona_score_samples": null,
+  // Whether to save plots for enabled analyses.
+  "save_plots": false,
+  // Whether to display plots while running; requires save_plots=true.
+  "show_plots": false,
+  // Whether to read load_dir/debate_snapshot.json.
+  "load_snapshot": false,
+  // Required snapshot directory when load_snapshot=true.
+  "load_dir": null,
+  // Whether to write debate_snapshot.json in this run's output folder.
+  "save_snapshot": false,
+  // Root output directory, resolved relative to this config file.
+  "outputs_root": "../outputs",
+  // Set a string to force a custom output directory name.
+  "run_name": null,
+  // true writes outputs_root/<run_id> and appends an index CSV row.
+  "indexed_output": false,
+  // Optional index CSV path; null defaults to outputs_root/index.csv.
+  "index_csv": null,
+  // Scenario catalog path, resolved relative to this config file.
+  "catalog_path": "scenarios.json",
+  // Prompt catalog path, resolved relative to this config file.
+  "prompts_path": "prompts.json"
+}

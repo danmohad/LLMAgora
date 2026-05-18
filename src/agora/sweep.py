@@ -21,6 +21,8 @@ import re
 from threading import Lock
 from typing import IO, Any, Mapping, Sequence
 
+import json5
+
 from .agora import SWEEP_PROGRESS_PREFIX
 from .experiment import (
     EXPERIMENT_PATH_FIELDS,
@@ -120,73 +122,8 @@ def _canonical_json(value: Any) -> str:
     )
 
 
-def _strip_jsonc_comments(text: str) -> str:
-    pieces: list[str] = []
-    in_string = False
-    escaped = False
-    in_line_comment = False
-    in_block_comment = False
-    index = 0
-
-    while index < len(text):
-        char = text[index]
-        nxt = text[index + 1] if index + 1 < len(text) else ""
-
-        if in_line_comment:
-            if char == "\n":
-                in_line_comment = False
-                pieces.append(char)
-            index += 1
-            continue
-
-        if in_block_comment:
-            if char == "*" and nxt == "/":
-                in_block_comment = False
-                index += 2
-            else:
-                if char == "\n":
-                    pieces.append("\n")
-                index += 1
-            continue
-
-        if in_string:
-            pieces.append(char)
-            if escaped:
-                escaped = False
-            elif char == "\\":
-                escaped = True
-            elif char == '"':
-                in_string = False
-            index += 1
-            continue
-
-        if char == '"':
-            in_string = True
-            pieces.append(char)
-            index += 1
-            continue
-
-        if char == "/" and nxt == "/":
-            in_line_comment = True
-            index += 2
-            continue
-
-        if char == "/" and nxt == "*":
-            in_block_comment = True
-            index += 2
-            continue
-
-        pieces.append(char)
-        index += 1
-
-    if in_block_comment:
-        raise ValueError("Unterminated block comment in JSONC input")
-
-    return "".join(pieces)
-
-
 def _load_jsonc_object(text: str) -> dict[str, Any]:
-    payload = json.loads(_strip_jsonc_comments(text))
+    payload = json5.loads(text)
     if not isinstance(payload, dict):
         raise ValueError("Sweep config must be a JSON object")
     return payload
@@ -1576,7 +1513,6 @@ __all__ = [
     "_normalize_master_config",
     "_render_status_snapshot",
     "_select_case_ids",
-    "_strip_jsonc_comments",
     "generate_sweep",
     "load_sweep_config",
     "render_status_dashboard",

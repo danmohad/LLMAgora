@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Mapping, Optional, Sequence
 from uuid import uuid4
 
+import json5
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator, StrMethodFormatter
 
@@ -533,10 +534,15 @@ def build_experiment_config(payload: Mapping[str, Any]) -> ExperimentConfig:
 
 
 def load_experiment_config(path: Path | str) -> ExperimentConfig:
-    """Load an experiment config JSON file."""
+    """Load an experiment config JSON or JSONC file."""
 
     config_path = Path(path)
-    payload = json.loads(config_path.read_text(encoding="utf-8"))
+    raw_text = config_path.read_text(encoding="utf-8")
+    payload = (
+        json5.loads(raw_text)
+        if config_path.suffix == ".jsonc"
+        else json.loads(raw_text)
+    )
     if not isinstance(payload, dict):
         raise ValueError("Experiment config must be a JSON object")
     resolved_payload = resolve_experiment_payload_paths(

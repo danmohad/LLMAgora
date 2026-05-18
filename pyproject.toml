@@ -11,6 +11,7 @@ requires-python = ">=3.12"
 dependencies = [
   "httpx",
   "ipykernel",
+  "json5",
   "matplotlib",
   "pytest",
   "pytest-cov",

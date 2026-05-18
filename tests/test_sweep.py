@@ -39,26 +39,7 @@ class _Stream(io.StringIO):
         return self._tty
 
 
-def test_jsonc_helpers_parse_comments_and_strings():
-    text = (
-        '{\n'
-        '  // line comment\n'
-        '  "message": "keep // inside string",\n'
-        '  /* block comment */\n'
-        '  "value": 3\n'
-        '}\n'
-    )
-    payload = sweep._load_jsonc_object(text)
-    assert payload == {"message": "keep // inside string", "value": 3}
-    stripped = sweep._strip_jsonc_comments(
-        '{\n  "escaped": "backslash\\\\quote\\\"",\n  /* multi\n     line */\n  "done": true\n}\n'
-    )
-    assert '"escaped": "backslash\\\\quote\\\""' in stripped
-    assert "\n\n" in stripped
-
-    with pytest.raises(ValueError):
-        sweep._strip_jsonc_comments("/* bad")
-
+def test_load_jsonc_object_rejects_non_object():
     with pytest.raises(ValueError):
         sweep._load_jsonc_object("[]")
 

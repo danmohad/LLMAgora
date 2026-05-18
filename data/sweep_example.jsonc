@@ -1,167 +1,129 @@
 {
-  // Root directory that will hold manifest/status plus one leaf folder per case.
-  // Relative paths in this file are resolved relative to this sweep config file.
+  // Directory for generated manifest, status, summaries, and case folders.
   "sweep_root": "../outputs/sweeps/example",
+  // Free-form description copied into generated sweep metadata.
   "notes": "Example parameter sweep",
-
-  // Batch runner defaults.
-  // Number of case processes to run at the same time. Keep this low if your
-  // model provider rate-limits concurrent requests.
+  // Maximum number of case processes to run concurrently.
   "max_parallel_jobs": 2,
-  // false = keep scheduling remaining cases after a failure.
-  // true = stop scheduling new cases after the first failed/interrupted case;
-  // already-running cases are allowed to finish.
+  // Stop scheduling new cases after the first failed or interrupted case.
   "stop_on_error": false,
-  
-  // Independent repeats to generate for each Cartesian case. Repeats use the
-  // same config values but get separate case folders and snapshots.
+  // Independent repeats generated for each Cartesian parameter combination.
   "number_of_repeats": 1,
 
-  // Optional aggregation defaults used by `agora sweep aggregate`.
-  // Omit this whole tree to write aggregate_analysis.json under the sweep root
-  // with no extra offline post-processing.
+  // Settings used by `agora sweep aggregate`.
   "aggregation": {
-    // Relative paths here are resolved under sweep_root at aggregate time.
+    // Aggregate JSON path, resolved relative to sweep_root.
     "output_path": "aggregate_analysis.json",
+    // Optional offline analysis overrides for completed case snapshots.
     "analysis": {
-      // Optional offline post-processing overrides. These use the same names as
-      // single-run analysis config fields.
-      // Leave metric lists empty to aggregate only artifacts already saved by
-      // each completed case.
+      // Semantic metrics to compute during aggregation, or [] to reuse saved artifacts only.
       "semantic_analysis_metrics": [],
+      // Semantic backend required when semantic_analysis_metrics is non-empty.
       "semantic_similarity_method": null,
+      // Semantic model required when semantic_analysis_metrics is non-empty.
       "semantic_similarity_model": null,
+      // Device for semantic model inference: null, cpu, mps, or cuda.
       "semantic_similarity_device": null,
+      // Persona metrics to compute during aggregation, or [] to reuse saved artifacts only.
       "persona_analysis_metrics": [],
+      // Persona scoring model required when persona_analysis_metrics is non-empty.
       "persona_scoring_model": null,
+      // Whether persona scoring prints detailed progress.
       "persona_scoring_verbose": false,
+      // Number of scoring samples required when persona_analysis_metrics is non-empty.
       "persona_score_samples": null,
+      // Whether to save plots for aggregate-time analyses.
       "save_plots": false,
+      // Whether to display aggregate-time plots; requires save_plots=true.
       "show_plots": false
     },
-    // Extra aggregate NLI pass over completed snapshots. This can be expensive
-    // because it loads a local HuggingFace NLI model; null uses the package
-    // default model.
+    // Whether to run an extra aggregate NLI pass over completed snapshots.
     "include_nli": false,
+    // HuggingFace NLI model override, or null for the package default.
     "nli_model_name": null,
-    // Extra aggregate emotion-classification pass over completed snapshots.
-    // This loads a local HuggingFace emotion model; null uses the package
-    // default model.
+    // Whether to run an extra aggregate emotion-classification pass.
     "include_emotions": false,
+    // HuggingFace emotion model override, or null for the package default.
     "emotion_model_name": null,
-    // Device for aggregate-only HuggingFace analyses: null lets the library
-    // choose, or set cpu, mps, or cuda explicitly.
+    // Device for aggregate-only HuggingFace analyses: null, cpu, mps, or cuda.
     "device": null,
-
-    // Controls aggregate semantic/NLI analysis after removing leading decision
-    // labels from each utterance. Decision labels are the required response
-    // prefixes from the scenario, such as "PROMOTE" or "DO NOT PROMOTE".
-    //
-    // "off": standard aggregate outputs only.
-    // "include": standard outputs plus extra decision-label-stripped
-    //            semantic/NLI output columns.
-    // "only": skip standard aggregate outputs and emit only
-    //         decision-label-stripped semantic/NLI outputs.
-    //
-    // This does not modify saved case snapshots; it only changes aggregate
-    // analysis columns produced by `agora sweep aggregate`.
+    // Decision-label stripping mode for aggregate semantic/NLI outputs: off, include, or only.
     "strip_decision_labels": "off"
   },
 
+  // Base single-run config copied into every generated case.
   "base": {
-    // Scenario selection. See data/scenarios.json for available IDs.
+    // Any scenario ID from data/scenarios.json.
     "scenario_id": "promotion_committee",
-    // null disables incentive context; positive/negative selects a direction
-    // and incentive_type selects which historical/future module in that direction.
-    "incentive_direction": "positive", // positive | negative | null
-    "incentive_type": "historical", // historical | future
-    // Prompt template set from prompts.json.
+    // null disables incentive context; otherwise choose positive or negative.
+    "incentive_direction": "positive",
+    // Selects the historical or future module under the chosen incentive direction.
+    "incentive_type": "historical",
+    // Prompt template set from data/prompts.json.
     "prompt_set": "default",
-
-    // Model. Use any OpenRouter model identifier available to your account.
+    // Any OpenRouter model identifier available to your account.
     "model": "openai/gpt-4o-mini",
-
-    // Debate length and event ordering. subturn_event_order must include
-    // public_utterance, and the list order is the execution order in each turn.
+    // Number of debate rounds after optional pre-interviews.
     "num_turns": 1,
+    // Event order within each agent turn; include public_utterance and optional private/survey events.
     "subturn_event_order": [
       "public_utterance",
       "private_utterance",
       "public_survey",
       "private_survey"
     ],
-    // false keeps case logs quieter; true prints progress/transcript details
-    // into each case's run.log.
+    // true prints progress and transcript details into each case log.
     "verbose": false,
-
-    // Private reflection retention. private_utterance controls whether
-    // reflections run; this flag only controls local memory use.
+    // Retention only; private_utterance in subturn_event_order controls whether reflections run.
     "keep_private_reflection": false,
-
-    // Pre/post interviews run by default.
-    // These flags only control whether those notes are retained in local memory.
+    // Retention only; pre-interviews run before debate turns.
     "keep_pre_interview": false,
+    // Retention only; post-interviews run after debate turns.
     "keep_post_interview": false,
-
-    // Survey retention. public_survey/private_survey control whether surveys
-    // run; these flags only control local memory use.
+    // Retention only; public_survey in subturn_event_order controls whether public surveys run.
     "keep_public_survey": false,
+    // Retention only; private_survey in subturn_event_order controls whether private surveys run.
     "keep_private_survey": false,
-
-    // Semantic similarity analysis.
-    // Options: self_consistency, cross_agent_public_alignment, cross_agent_private_alignment
-    // Leave this empty to skip local embedding/NLI analysis.
+    // Semantic metrics to run; [] skips local embedding/NLI analysis.
     "semantic_analysis_metrics": [],
-    "semantic_similarity_method": null, // required when semantic_analysis_metrics is non-empty
-    "semantic_similarity_model": null, // required when semantic_analysis_metrics is non-empty
-    "semantic_similarity_device": null, // null | cpu | mps | cuda
-
-    // Persona adherence analysis.
-    // Options: public_per_turn, private_per_turn, public_cumulative,
-    //          private_cumulative, full_debate_public, full_debate_private
-    // Leave this empty to skip persona scoring calls.
+    // Required when semantic_analysis_metrics is non-empty.
+    "semantic_similarity_method": null,
+    // Required when semantic_analysis_metrics is non-empty.
+    "semantic_similarity_model": null,
+    // Semantic model device: null, cpu, mps, or cuda.
+    "semantic_similarity_device": null,
+    // Persona adherence metrics to run; [] skips persona scoring calls.
     "persona_analysis_metrics": [],
-    "persona_scoring_model": null, // required when persona_analysis_metrics is non-empty
+    // Required when persona_analysis_metrics is non-empty.
+    "persona_scoring_model": null,
+    // true prints detailed persona scoring progress.
     "persona_scoring_verbose": false,
-    "persona_score_samples": null, // required when persona_analysis_metrics is non-empty
-
-    // Plotting.
+    // Required when persona_analysis_metrics is non-empty.
+    "persona_score_samples": null,
+    // Whether to save plots for enabled analyses.
     "save_plots": false,
-    "show_plots": false, // requires save_plots=true
-
-    // Snapshot handling. Leave load_snapshot=false/load_dir=null for normal
-    // online sweeps. The generator forces save_snapshot=true in leaf configs
-    // so aggregate analysis can replay completed cases later.
+    // Whether to display plots while running; requires save_plots=true.
+    "show_plots": false,
+    // Whether to read load_dir/debate_snapshot.json.
     "load_snapshot": false,
-    "load_dir": null, // required when load_snapshot=true
+    // Required snapshot directory when load_snapshot=true.
+    "load_dir": null,
+    // Ignored by generated cases; the sweep generator forces save_snapshot=true.
     "save_snapshot": false,
-
-    // Input files.
-    // These paths are relative to this sweep config file.
+    // Scenario catalog path, resolved relative to this config file.
     "catalog_path": "scenarios.json",
+    // Prompt catalog path, resolved relative to this config file.
     "prompts_path": "prompts.json"
-
-    // Per-case output fields are intentionally omitted here.
-    // The generator injects a fixed output_dir and forces save_snapshot=true
-    // for each generated case so aggregation can replay completed runs later.
   },
 
+  // Parameter sweep overlaid on base; multiple keys form a Cartesian product.
   "sweep": {
-    // Sweep any scalar field by listing multiple values.
+    // Generate one case for each incentive_type value.
     "incentive_type": ["historical", "future"]
 
-    // List-valued run fields use a list of candidate full values:
-    // "subturn_event_order": [
-    //   ["public_utterance"],
-    //   ["public_utterance", "private_utterance"]
-    // ],
-    // "semantic_analysis_metrics": [
-    //   [],
-    //   ["self_consistency"]
-    // ],
-    // "persona_analysis_metrics": [
-    //   [],
-    //   ["public_per_turn", "full_debate_public"]
-    // ]
+    // For list-valued fields, each candidate is the complete list value:
+    // "subturn_event_order": [["public_utterance"], ["public_utterance", "private_utterance"]],
+    // "semantic_analysis_metrics": [[], ["self_consistency"]],
+    // "persona_analysis_metrics": [[], ["public_per_turn", "full_debate_public"]]
   }
 }

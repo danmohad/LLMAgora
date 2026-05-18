@@ -170,7 +170,7 @@ def build_parser() -> argparse.ArgumentParser:
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     run_cmd = subparsers.add_parser("run", help="Run one experiment from config and/or CLI flags.")
-    run_cmd.add_argument("--config", type=Path, help="Path to JSON config file (for example: data/config_example.json)")
+    run_cmd.add_argument("--config", type=Path, help="Path to JSONC config file (for example: data/config_example.jsonc)")
     run_cmd.add_argument("--scenario-id", help="Scenario ID from debate catalog")
     run_cmd.add_argument("--incentive-direction", choices=["positive", "negative", "none"])
     run_cmd.add_argument("--incentive-type", choices=["historical", "future"])
