@@ -1,5 +1,7 @@
 # LLM Agora
 
+[![Tests](https://github.com/danmohad/LLMAgora/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/danmohad/LLMAgora/actions/workflows/tests.yml)
+
 A minimal arena where two LLM-backed agents discuss a scenario through configurable sub-turn events: public utterances, optional private reflections, optional public or private surveys, optional pre- and post-interviews. 
 
 Agent personas, scenario topics, incentive modules, and prompt templates are defined JSON files in `data/`. Optional semantic analysis and parameter sweep workflows are provided.
