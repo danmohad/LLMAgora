@@ -1044,7 +1044,7 @@ def build_experiment_analysis_record(
             }
         )
 
-    needs_decision_labels = include_label_stripped or label_stripped_only or include_nli
+    needs_decision_labels = include_label_stripped or label_stripped_only
     decision_labels = (
         _decision_labels_for_group(
             group,
@@ -1100,31 +1100,32 @@ def build_experiment_analysis_record(
             row["nli-cross-agent-alignment"] = nli_cross
             row["nli-self-consistency-all-repeats"] = nli_self_repeats
             row["nli-cross-agent-alignment-all-repeats"] = nli_cross_repeats
-        label_stripped_result = _decision_label_stripped_group_result(
-            group_result,
-            decision_labels,
-        )
-        nli_self_label_stripped, nli_cross_label_stripped = _serialize_nli(
-            label_stripped_result,
-            model_name=nli_model_name,
-            device=device,
-        )
-        (
-            nli_self_repeats_label_stripped,
-            nli_cross_repeats_label_stripped,
-        ) = _serialize_nli_all_repeats(
-            label_stripped_result,
-            model_name=nli_model_name,
-            device=device,
-        )
-        row["nli-self-consistency-decision-label-stripped"] = nli_self_label_stripped
-        row["nli-cross-agent-alignment-decision-label-stripped"] = nli_cross_label_stripped
-        row["nli-self-consistency-all-repeats-decision-label-stripped"] = (
-            nli_self_repeats_label_stripped
-        )
-        row["nli-cross-agent-alignment-all-repeats-decision-label-stripped"] = (
-            nli_cross_repeats_label_stripped
-        )
+        if include_label_stripped:
+            label_stripped_result = _decision_label_stripped_group_result(
+                group_result,
+                decision_labels,
+            )
+            nli_self_label_stripped, nli_cross_label_stripped = _serialize_nli(
+                label_stripped_result,
+                model_name=nli_model_name,
+                device=device,
+            )
+            (
+                nli_self_repeats_label_stripped,
+                nli_cross_repeats_label_stripped,
+            ) = _serialize_nli_all_repeats(
+                label_stripped_result,
+                model_name=nli_model_name,
+                device=device,
+            )
+            row["nli-self-consistency-decision-label-stripped"] = nli_self_label_stripped
+            row["nli-cross-agent-alignment-decision-label-stripped"] = nli_cross_label_stripped
+            row["nli-self-consistency-all-repeats-decision-label-stripped"] = (
+                nli_self_repeats_label_stripped
+            )
+            row["nli-cross-agent-alignment-all-repeats-decision-label-stripped"] = (
+                nli_cross_repeats_label_stripped
+            )
     if include_emotions:
         if not label_stripped_only:
             emotions_public, emotions_private = _serialize_emotions(
