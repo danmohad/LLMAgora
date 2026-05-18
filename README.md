@@ -1,6 +1,6 @@
 # LLM Agora
 
-A minimal arena where two LLM-backed agents discuss a scenario through configurable sub-turn events: public utterances, optional private reflections, and optional public or private surveys. Pre- and post-interviews run by default; `keep_pre_interview` and `keep_post_interview` only control whether agents retain those notes in local memory.
+A minimal arena where two LLM-backed agents discuss a scenario through configurable sub-turn events: public utterances, optional private reflections, optional public or private surveys, optional pre- and post-interviews. 
 
 Agent personas, scenario topics, incentive modules, and prompt templates are data-driven through JSON files in `data/`. The package also includes optional semantic, persona-adherence, plotting, and sweep aggregation workflows.
 
@@ -8,9 +8,7 @@ Agent personas, scenario topics, incentive modules, and prompt templates are dat
 ## Requirements
 
 - Python >=3.12
-- An OpenRouter API key for real LLM runs (`OPENROUTER_API_KEY`)
-- Optional: the `analysis` extra for semantic similarity and aggregate NLI/emotion post-processing
-
+- An OpenRouter API key (`OPENROUTER_API_KEY`)
 
 ## Setup
 
@@ -20,7 +18,7 @@ Agent personas, scenario topics, incentive modules, and prompt templates are dat
    source .venv/bin/activate
    uv pip install -e .
    ```
-2. Install optional local analysis dependencies only if you will run semantic similarity or aggregate NLI/emotion analysis:
+2. Install optional analysis dependencies only if you will run semantic similarity or aggregate NLI/emotion analysis:
    ```bash
    uv pip install -e ".[analysis]"
    ```
@@ -29,7 +27,7 @@ Agent personas, scenario topics, incentive modules, and prompt templates are dat
    OPENROUTER_API_KEY=sk-...
    ```
 
-## Running tests
+### Running tests
 
 ```bash
 .venv/bin/python3 -m pytest --cov=agora
@@ -38,18 +36,18 @@ Agent personas, scenario topics, incentive modules, and prompt templates are dat
 Tests monkeypatch the `LLMClient`, so no external calls occur. Running `uv pip install -e .` keeps pytest in sync with local code.
 Tests assume the package is installed (editable install recommended).
 
-## CI
+### CI
 
-CI runs `pytest` with coverage and enforces 100% coverage through `pyproject.toml`. It installs the base package, not the heavy `analysis` extra.
+CI runs `pytest` with coverage and enforces 100% coverage through `pyproject.toml`.
 
-## Notebook demo
+## Use
 
-Canonical notebook:
-- `notebooks/run_demo.ipynb` for a single configurable online run that can save a `debate_snapshot.json`.
+### Notebook demo
 
+Run `notebooks/run_demo.ipynb` for a single configurable run that can save a `debate_snapshot.json`.
 The notebook is intentionally thin and calls the high-level workflow in `agora.experiment`.
 
-## CLI
+### CLI
 
 Install the package in editable mode (`uv pip install -e .`) to expose the `agora` command.
 
@@ -58,11 +56,15 @@ Canonical single-run config lives at `data/config_example.json`. Relative paths 
 Optional retention, output, and analysis features are disabled by default (`false` flags and empty analysis metric lists). Analysis backends must be configured explicitly when their metric lists are non-empty; otherwise config validation fails. Prompt templates live in `data/prompts.json`, and sweep generation uses the commented master template at `data/sweep_example.jsonc`.
 
 ```bash
-# Run with config
+# Run with config: this is the recommended way to run the code
 # With the default config, no output directory is created unless you enable
 # snapshots, surveys, indexed output, plots, or analysis.
 agora run --config data/config_example.json
+```
 
+The CLI allows any setting to be overridden using flags:
+
+```bash
 # Override specific fields from config
 # Semantic similarity requires the analysis extra.
 agora run --config data/config_example.json \
@@ -135,7 +137,7 @@ agora sweep run --root outputs/sweeps/example --mode failed
 # Keep retrying selected failed attempts until every selected case succeeds
 agora sweep run --root outputs/sweeps/example --mode failed --persistent
 
-# Build one aggregate JSON record per experiment group
+# Build one aggregate JSON record for the parameter sweep.
 agora sweep aggregate
 ```
 
