@@ -1103,6 +1103,40 @@ def test_build_record_can_skip_decision_label_stripped_analysis(monkeypatch):
     assert "cosine-similarity-cross-agent-alignment-decision-label-stripped" not in row
 
 
+def test_build_record_skip_decision_label_stripped_nli_when_mode_off(monkeypatch):
+    def fail_decision_labels(*_args, **_kwargs):
+        raise AssertionError("decision labels should not be loaded when stripping is off")
+
+    def fail_label_stripped_result(*_args, **_kwargs):
+        raise AssertionError("decision-label-stripped NLI analysis should be skipped")
+
+    monkeypatch.setattr(eval_aggregate, "_decision_labels_for_group", fail_decision_labels)
+    monkeypatch.setattr(
+        eval_aggregate,
+        "_decision_label_stripped_group_result",
+        fail_label_stripped_result,
+    )
+
+    row = eval_aggregate.build_experiment_analysis_record(
+        _FakeGroup(),
+        "/tmp/outputs/sweeps_5",
+        experiment_index=0,
+        analysis_kwargs={"semantic_analysis_metrics": ["self_consistency"]},
+        include_nli=True,
+        nli_model_name="nli-model",
+        include_emotions=False,
+        device="cpu",
+        strip_decision_labels="off",
+    )
+
+    assert "nli-self-consistency" in row
+    assert "nli-cross-agent-alignment" in row
+    assert "nli-self-consistency-decision-label-stripped" not in row
+    assert "nli-cross-agent-alignment-decision-label-stripped" not in row
+    assert "nli-self-consistency-all-repeats-decision-label-stripped" not in row
+    assert "nli-cross-agent-alignment-all-repeats-decision-label-stripped" not in row
+
+
 def test_build_record_rejects_unknown_decision_label_mode():
     with pytest.raises(ValueError, match="strip_decision_labels"):
         eval_aggregate.build_experiment_analysis_record(
