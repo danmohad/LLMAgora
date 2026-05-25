@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import json
+import re
+import unicodedata
 from dataclasses import dataclass, field, fields as dc_fields
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Iterator
@@ -221,12 +223,105 @@ def _classify_decision(text: str, decision_labels: list[str]) -> int | None:
     """Return index of the matching decision label at the start of *text*, or *None*.
 
     Labels are checked longest-first so that a label like "DO NOT ENDORSE" is
-    not overshadowed by a shorter label "ENDORSE".
+    not overshadowed by a shorter label "ENDORSE". Matching is resilient to
+    minor spacing/punctuation artifacts (e.g. ``DONOT`` vs ``DO NOT``) and to
+    shorthand negatives like ``NOT ENDORSE`` for a ``DO NOT ENDORSE`` label.
     """
-    text_upper = text.strip().upper()
-    for idx, label in sorted(enumerate(decision_labels), key=lambda x: -len(x[1])):
-        if text_upper.startswith(label.upper()):
+    def _canonicalize(s: str) -> str:
+        # NFKC + removal of format controls avoids misses from zero-width chars.
+        normalized = unicodedata.normalize("NFKC", s)
+        normalized = "".join(ch for ch in normalized if unicodedata.category(ch) != "Cf")
+        return normalized.upper()
+
+    def _normalize_tokens(s: str) -> str:
+        s = re.sub(r"[^A-Z0-9]+", " ", _canonicalize(s))
+        return " ".join(s.split())
+
+    def _compact_tokens(s: str) -> str:
+        return re.sub(r"[^A-Z0-9]+", "", _canonicalize(s))
+
+    def _norm_prefix_match(text_norm: str, candidate_norm: str) -> bool:
+        return text_norm == candidate_norm or text_norm.startswith(candidate_norm + " ")
+
+    def _compact_prefix_match(text_compact: str, candidate_compact: str) -> bool:
+        return bool(candidate_compact) and text_compact.startswith(candidate_compact)
+
+    def _compact_truncated_prefix_match(
+        text_compact: str,
+        candidate_compact: str,
+        *,
+        max_leading_drop: int = 3,
+    ) -> bool:
+        """Allow small leading truncations (e.g. 'MITNOW' vs 'SUBMITNOW')."""
+        for dropped in range(1, max_leading_drop + 1):
+            if len(candidate_compact) - dropped < 4:
+                break
+            if text_compact.startswith(candidate_compact[dropped:]):
+                return True
+        return False
+
+    def _single_word_stem_match(text_norm: str, label_norm: str) -> bool:
+        """Fallback for morphological variants (e.g. PROMOTE -> PROMOTION)."""
+        if " " in label_norm or len(label_norm) < 6 or not label_norm.endswith("E"):
+            return False
+        stem = label_norm[:-1]
+        for token in text_norm.split():
+            if token.startswith(stem) and len(token) >= len(stem) + 1:
+                return True
+        return False
+
+    text_norm = _normalize_tokens(text)
+    text_compact = _compact_tokens(text)
+    fallback_hits: list[int] = []
+
+    # Longest-first by normalized label length.
+    labels_sorted = sorted(
+        enumerate(decision_labels),
+        key=lambda x: -len(_normalize_tokens(x[1])),
+    )
+    for idx, label in labels_sorted:
+        label_norm = _normalize_tokens(label)
+        if not label_norm:
+            continue
+
+        label_tokens = label_norm.split()
+        norm_candidates = [label_norm]
+        label_compact = _compact_tokens(label_norm)
+        compact_candidates: list[str] = [label_compact]
+        truncation_candidates: list[str] = []
+
+        # Generic shorthand where leading token is dropped ("DELAY SUBMISSION" -> "SUBMISSION").
+        if len(label_tokens) >= 2:
+            dropped_head = " ".join(label_tokens[1:])
+            norm_candidates.append(dropped_head)
+            compact_candidates.append(_compact_tokens(dropped_head))
+
+        # Truncation tolerance is only safe for non-negated labels.
+        if "NOT" not in label_tokens:
+            truncation_candidates.append(label_compact)
+
+        # Handle common shorthand where models omit leading "DO" in negative labels.
+        if label_norm.startswith("DO NOT "):
+            neg_tail = label_norm[len("DO NOT "):].strip()
+            if neg_tail:
+                shorthand = f"NOT {neg_tail}"
+                norm_candidates.append(shorthand)
+                compact_candidates.append(_compact_tokens(shorthand))
+
+        if any(_norm_prefix_match(text_norm, c) for c in norm_candidates):
             return idx
+        if any(_compact_prefix_match(text_compact, c) for c in compact_candidates):
+            return idx
+        if any(_compact_truncated_prefix_match(text_compact, c) for c in truncation_candidates):
+            return idx
+
+        # Non-prefix fallback: capture one unambiguous label hit from content.
+        if any(c and c in text_compact for c in compact_candidates) or _single_word_stem_match(text_norm, label_norm):
+            fallback_hits.append(idx)
+
+    if len(fallback_hits) == 1:
+        return fallback_hits[0]
+
     return None
 
 

@@ -1329,6 +1329,39 @@ def test_classify_decision_case_insensitive():
     assert _classify_decision("endorse it", ["ENDORSE", "DO NOT ENDORSE"]) == 0
 
 
+def test_classify_decision_matches_compacted_do_not_prefix():
+    assert _classify_decision("DONOT ENDORSE for now", ["ENDORSE", "DO NOT ENDORSE"]) == 1
+
+
+def test_classify_decision_matches_not_shorthand_for_negative_label():
+    assert _classify_decision("NOT ENDORSE at this time", ["ENDORSE", "DO NOT ENDORSE"]) == 1
+
+
+def test_classify_decision_ignores_empty_label_entries():
+    assert _classify_decision("ENDORSE now", ["", "ENDORSE"]) == 1
+
+
+def test_classify_decision_skips_empty_label_when_no_other_match():
+    assert _classify_decision("ABSTAIN", ["ENDORSE", ""]) is None
+
+
+def test_classify_decision_matches_zero_width_split_word():
+    assert _classify_decision("END\u200bORSE now", ["ENDORSE", "DO NOT ENDORSE"]) == 0
+
+
+def test_classify_decision_matches_missing_head_token_shorthand():
+    assert _classify_decision("SUBMISSION required first", ["SUBMIT NOW", "DELAY SUBMISSION"]) == 1
+
+
+def test_classify_decision_matches_small_truncated_prefix():
+    assert _classify_decision("MIT NOW due to deadline", ["SUBMIT NOW", "DELAY SUBMISSION"]) == 0
+
+
+def test_classify_decision_matches_morphological_variant_in_content():
+    text = "By backing this promotion, we keep momentum and signal confidence."
+    assert _classify_decision(text, ["PROMOTE", "DO NOT PROMOTE"]) == 0
+
+
 # ---------------------------------------------------------------------------
 # aggregate_response_decisions
 # ---------------------------------------------------------------------------
