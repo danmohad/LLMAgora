@@ -67,10 +67,10 @@
     "num_turns": 1,
     // Event order within each agent turn; include public_utterance and optional private/survey events.
     "subturn_event_order": [
-      "public_utterance",
+      "private_survey",
       "private_utterance",
       "public_survey",
-      "private_survey"
+      "public_utterance"
     ],
     // true prints progress and transcript details into each case log.
     "verbose": false,
