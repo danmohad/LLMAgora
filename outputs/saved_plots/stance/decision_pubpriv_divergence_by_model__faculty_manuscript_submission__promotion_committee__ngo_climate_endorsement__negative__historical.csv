@@ -385,7 +385,7 @@ panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,20.0,1.0,20.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,20.0,2.0,20.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,20.0,3.0,40.0
-1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,20.0,4.0,50.0
+1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,20.0,4.0,40.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,21.0,0.0,0.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,21.0,1.0,0.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,21.0,2.0,0.0
@@ -426,10 +426,10 @@ panel_index,panel_title,panel_xlabel,panel_ylabel,panel_type,layer,series_index,
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,28.0,2.0,0.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,28.0,3.0,0.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,28.0,4.0,0.0
-1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,0.0,0.0
+1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,0.0,20.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,1.0,0.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,2.0,0.0
 1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,3.0,0.0
-1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,4.0,25.0
+1,$\beta$,Debate turn,,rectilinear,image,0,_child0,,,,29.0,4.0,20.0
 2,,,Divergence rate (\%),rectilinear,collection,0,_child0,0.0,0.0,0.0,,,
 2,,,Divergence rate (\%),rectilinear,collection,1,_child1,0.0,0.0,0.0,,,
