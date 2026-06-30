@@ -579,7 +579,7 @@ def build_emotion_style(field_results_list: list[dict]) -> dict:
     dict
         ``{label: {"color": <rgba>, "marker": <str>}}`` ordered alphabetically.
     """
-    import matplotlib.cm as cm
+    import matplotlib
 
     all_labels = sorted(
         {
@@ -590,7 +590,7 @@ def build_emotion_style(field_results_list: list[dict]) -> dict:
         }
     )
     markers = ["o", "s", "^", "D", "v", "P", "*", "X", "h", "8", "<", ">"]
-    palette = cm.get_cmap("tab10", max(len(all_labels), 1))
+    palette = matplotlib.colormaps["tab10"]
     return {
         label: {"color": palette(i % 10), "marker": markers[i % len(markers)]}
         for i, label in enumerate(all_labels)

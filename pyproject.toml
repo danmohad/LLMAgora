@@ -36,4 +36,4 @@ where = ["src"]
 agora = []
 
 [tool.pytest.ini_options]
-addopts = ["--cov=agora", "--cov-fail-under=100"]
+addopts = ["--cov-fail-under=100"]

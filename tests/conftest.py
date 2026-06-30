@@ -1,6 +1,7 @@
-import pytest
-
+import sys
 from typing import List, Sequence
+
+import pytest
 
 from agora.llm import ChatMessage
 
@@ -37,3 +38,11 @@ def stub_llm_factory():
         return StubLLM(responses)
 
     return _factory
+
+
+@pytest.fixture(autouse=True)
+def close_matplotlib_figures():
+    yield
+    pyplot = sys.modules.get("matplotlib.pyplot")
+    if pyplot is not None:
+        pyplot.close("all")
